@@ -18,6 +18,7 @@
 - Остальные кандидаты НЕ удаляются (решение D6б): редактор меню и его `CustomTextureLoader` (гонку чиним в Фазе 3 как фикс, не удаление), `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`/`AccountStorage`, `MacroScreen`, эвристики `TitleScreenMixin`/`GameMenuScreenMixin`/`VanillaStylePipeline` — живут и чинятся в Фазе 3.
 
 ## Фаза 3 — фиксы базового кода (M)
+- [x] Wrong-thread fix из лога запуска: DISCONNECT-путь (8 GPU-пайплайнов) → render-тред (`ce852de`, v1.0.35); проверка в игре по логу — за пользователем.
 1. `ClickGuiScreen` (1794 стр.): settings-окно (494–786) в отдельный класс; RU-строки через `I18n`.
 2. Миксины: убрать эвристики по локализованному тексту (`TitleScreenMixin`, `GameMenuScreenMixin`, `VanillaStylePipeline` — если переживут Фазу 2); ordinal-анкеры (`CameraMixin`, `TextFieldWidgetMixin`) → именованные.
 3. Четыре клона loading-миксинов → общий базовый.
