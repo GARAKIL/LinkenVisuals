@@ -267,7 +267,7 @@ public final class CustomMultiplayerScreen extends Screen {
         backHover = lerpHover(backHover, backHovered, deltaSeconds);
         if (StyleManager.getStyle() == MenuStyle.VANILLA) {
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(backX), Math.round(headerY), Math.round(backW), Math.round(backH),
-                I18n.get("multiplayer.back"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("return"), true, backHover > 0.5f);
+                I18n.get("multiplayer.back"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.back"), true, backHover > 0.5f);
         } else {
             WidgetStylePipeline.drawStyledButton(context, backX, headerY, backW, backH,
                 I18n.get("multiplayer.back"), ARROW_BACK, true, backHover, visible, 0);
@@ -471,42 +471,42 @@ public final class CustomMultiplayerScreen extends Screen {
             boolean joinHov = canJoin && activeModal == Modal.NONE && mouseX >= startX && mouseX <= startX + joinW && mouseY >= barY && mouseY <= barY + btnH;
             toolbarHover[0] = lerpHover(toolbarHover[0], joinHov, deltaSeconds);
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(startX), Math.round(barY), Math.round(joinW), Math.round(btnH),
-                I18n.get("multiplayer.join"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("join"), canJoin, toolbarHover[0] > 0.5f);
+                I18n.get("multiplayer.join"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.join"), canJoin, toolbarHover[0] > 0.5f);
 
             float curX = startX + joinW + 8.0f;
             float dirW = 114.0f;
             boolean dirHov = activeModal == Modal.NONE && mouseX >= curX && mouseX <= curX + dirW && mouseY >= barY && mouseY <= barY + btnH;
             toolbarHover[1] = lerpHover(toolbarHover[1], dirHov, deltaSeconds);
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(curX), Math.round(barY), Math.round(dirW), Math.round(btnH),
-                I18n.get("multiplayer.direct"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("multiplayer"), true, toolbarHover[1] > 0.5f);
+                I18n.get("multiplayer.direct"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.direct"), true, toolbarHover[1] > 0.5f);
             curX += dirW + 8.0f;
 
             float addW = 96.0f;
             boolean addHov = activeModal == Modal.NONE && mouseX >= curX && mouseX <= curX + addW && mouseY >= barY && mouseY <= barY + btnH;
             toolbarHover[2] = lerpHover(toolbarHover[2], addHov, deltaSeconds);
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(curX), Math.round(barY), Math.round(addW), Math.round(btnH),
-                I18n.get("multiplayer.add"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("add"), true, toolbarHover[2] > 0.5f);
+                I18n.get("multiplayer.add"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.add"), true, toolbarHover[2] > 0.5f);
             curX += addW + 8.0f;
 
             float editW = 60.0f;
             boolean editHov = canJoin && activeModal == Modal.NONE && mouseX >= curX && mouseX <= curX + editW && mouseY >= barY && mouseY <= barY + btnH;
             toolbarHover[3] = lerpHover(toolbarHover[3], editHov, deltaSeconds);
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(curX), Math.round(barY), Math.round(editW), Math.round(btnH),
-                I18n.get("multiplayer.edit"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("edit"), canJoin, toolbarHover[3] > 0.5f);
+                I18n.get("multiplayer.edit"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.edit"), canJoin, toolbarHover[3] > 0.5f);
             curX += editW + 8.0f;
 
             float delW = 68.0f;
             boolean delHov = canJoin && activeModal == Modal.NONE && mouseX >= curX && mouseX <= curX + delW && mouseY >= barY && mouseY <= barY + btnH;
             toolbarHover[4] = lerpHover(toolbarHover[4], delHov, deltaSeconds);
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(curX), Math.round(barY), Math.round(delW), Math.round(btnH),
-                I18n.get("multiplayer.delete"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("delete"), canJoin, toolbarHover[4] > 0.5f);
+                I18n.get("multiplayer.delete"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.delete"), canJoin, toolbarHover[4] > 0.5f);
             curX += delW + 8.0f;
 
             float refW = 74.0f;
             boolean refHov = activeModal == Modal.NONE && mouseX >= curX && mouseX <= curX + refW && mouseY >= barY && mouseY <= barY + btnH;
             toolbarHover[5] = lerpHover(toolbarHover[5], refHov, deltaSeconds);
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(curX), Math.round(barY), Math.round(refW), Math.round(btnH),
-                I18n.get("multiplayer.refresh"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("refresh"), true, toolbarHover[5] > 0.5f);
+                I18n.get("multiplayer.refresh"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("multiplayer.refresh"), true, toolbarHover[5] > 0.5f);
             return;
         }
 

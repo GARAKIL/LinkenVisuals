@@ -381,7 +381,7 @@ public final class MainMenuScreen extends Screen {
 
             if (dev.linkenvisuals.ui.style.StyleManager.getStyle() == dev.linkenvisuals.ui.style.MenuStyle.VANILLA) {
                 String label = I18n.get(entry.labelKey);
-                dev.linkenvisuals.render.VanillaStylePipeline.IconRef iconRef = dev.linkenvisuals.render.VanillaStylePipeline.getIconFor(label);
+                dev.linkenvisuals.render.VanillaStylePipeline.IconRef iconRef = dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey(entry.labelKey);
                 dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(rowX), Math.round(y), Math.round(w), Math.round(h),
                     label, iconRef, true, hovered);
                 continue;

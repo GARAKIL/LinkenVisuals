@@ -1,6 +1,7 @@
 package dev.linkenvisuals.render;
 
 import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.util.TextKeys;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -43,137 +44,77 @@ public final class VanillaStylePipeline {
     private VanillaStylePipeline() {
     }
 
-    public static IconRef getIconFor(String label) {
-        if (label == null || label.isBlank()) {
+    /**
+     * Locale-independent icon lookup by translation key. Accepts both vanilla keys
+     * ({@code menu.singleplayer}, {@code options.sounds}, ...) and the mod's own keys
+     * ({@code linkenvisuals.menu.quit}, {@code multiplayer.join}, ...). Localized text is
+     * never matched, so the result does not depend on the selected game language.
+     */
+    public static IconRef getIconForKey(String key) {
+        if (key == null || key.isBlank()) {
             return null;
         }
-        String s = label.toLowerCase(java.util.Locale.ROOT).trim();
-        String clean = s.replaceAll("§[0-9a-fk-or]", "").replace("...", "").trim();
 
-        // Main Menu
-        if (clean.contains("singleplayer") || clean.contains("одиночн") || clean.contains("одиночна") || clean.contains("single")) {
-            return new IconRef(ICONS_MAIN, 0, 0, 16, 16, 80, 16);
-        }
-        if (clean.contains("multiplayer") || clean.contains("сетев") || clean.contains("мережев") || clean.contains("multi")) {
-            return new IconRef(ICONS_MAIN, 16, 0, 16, 16, 80, 16);
-        }
-        if (clean.contains("realms") || clean.contains("alt") || clean.contains("account") || clean.contains("аккаунт") || clean.contains("акаунт")) {
-            return new IconRef(ICONS_MAIN, 32, 0, 16, 16, 80, 16);
-        }
-        if (clean.contains("option") || clean.contains("setting") || clean.contains("настройк") || clean.contains("налаштуван")) {
-            return new IconRef(ICONS_MAIN, 48, 0, 16, 16, 80, 16);
-        }
-        if (clean.contains("quit") || clean.contains("выйти") || clean.contains("вийти") || clean.contains("exit")) {
-            return new IconRef(ICONS_MAIN, 64, 0, 16, 16, 80, 16);
-        }
-        if (clean.contains("mod") || clean.contains("мод")) {
-            return new IconRef(ICONS_MODS, 0, 0, 16, 16, 16, 16);
-        }
-
-        // Pause Menu
-        if (clean.contains("back to game") || clean.contains("вернуться в игру") || clean.contains("повернутися до гри") || clean.equals("return to game") || clean.equals("return")) {
-            return new IconRef(ICONS_ESCAPE, 0, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("advancement") || clean.contains("достижен") || clean.contains("досягнен")) {
-            return new IconRef(ICONS_ESCAPE, 16, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("statistic") || clean.contains("статистик")) {
-            return new IconRef(ICONS_ESCAPE, 32, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("feedback") || clean.contains("отзыв") || clean.contains("відгук")) {
-            return new IconRef(ICONS_ESCAPE, 48, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("bug") || clean.contains("ошибк") || clean.contains("помилк")) {
-            return new IconRef(ICONS_ESCAPE, 64, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("lan") || clean.contains("сеть") || clean.contains("мереж")) {
-            return new IconRef(ICONS_ESCAPE, 80, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("disconnect") || clean.contains("отключ") || clean.contains("від'єдн") || clean.contains("save and quit") || clean.contains("сохранить и выйти")) {
-            return new IconRef(ICONS_ESCAPE, 96, 0, 16, 16, 112, 16);
-        }
-        if (clean.contains("macro") || clean.contains("макрос") || clean.contains("bind") || clean.contains("бинд")) {
-            return new IconRef(ICONS_MACROS, 0, 0, 16, 16, 16, 16);
-        }
-
-        // Options Categories & Sub-menus
-        if (clean.contains("keybind") || clean.contains("клавиш")) {
-            return new IconRef(ICONS_CONTROLS, 20, 0, 20, 20, 40, 20);
-        }
-        if (clean.contains("mouse settings") || clean.contains("настройки мыши") || clean.contains("налаштування миші")) {
-            return new IconRef(ICONS_CONTROLS, 0, 0, 20, 20, 40, 20);
-        }
-        if (clean.contains("fov") || clean.contains("поле зрения") || clean.contains("кут огляду")) {
-            return new IconRef(ICONS_OPTIONS, 0, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("skin") || clean.contains("скин") || clean.contains("шкір")) {
-            return new IconRef(ICONS_OPTIONS, 40, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("sound") || clean.contains("music") || clean.contains("звук") || clean.contains("музык") || clean.contains("музик")) {
-            return new IconRef(ICONS_OPTIONS, 60, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("video") || clean.contains("график") || clean.contains("відео")) {
-            return new IconRef(ICONS_OPTIONS, 80, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("control") || clean.contains("управлен") || clean.contains("керуван") || clean.contains("mouse") || clean.contains("мышь") || clean.contains("миш")) {
-            return new IconRef(ICONS_OPTIONS, 100, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("language") || clean.contains("язык") || clean.contains("мова")) {
-            return new IconRef(ICONS_OPTIONS, 120, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("chat") || clean.contains("чат")) {
+        // Chat sub-options ("options.chat.visibility", "options.chat.opacity", ...) share the chat icon.
+        if (key.startsWith("options.chat.")) {
             return new IconRef(ICONS_OPTIONS, 140, 0, 20, 20, 240, 20);
         }
-        if (clean.contains("resource") || clean.contains("pack") || clean.contains("ресурс") || clean.contains("пакет")) {
-            return new IconRef(ICONS_OPTIONS, 160, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("accessibility") || clean.contains("доступн")) {
-            return new IconRef(ICONS_OPTIONS, 180, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("telemetry") || clean.contains("телеметр")) {
-            return new IconRef(ICONS_OPTIONS, 200, 0, 20, 20, 240, 20);
-        }
-        if (clean.contains("credit") || clean.contains("автор") || clean.contains("титр")) {
-            return new IconRef(ICONS_OPTIONS, 220, 0, 20, 20, 240, 20);
-        }
 
-        // 4. World & Server actions
-        if (clean.contains("direct") || clean.contains("по адресу") || clean.contains("по адрессу") || clean.contains("по адресі") || clean.contains("прямое") || clean.contains("пряме")) {
-            return new IconRef(ICONS_DIRECT, 0, 0, 16, 16, 16, 16);
-        }
-        if (clean.contains("play") || clean.contains("играть") || clean.contains("грати")) {
-            return new IconRef(ICONS_SINGLEPLAYER, 0, 0, 16, 16, 64, 16);
-        }
-        if (clean.contains("join") || clean.contains("подключ") || clean.contains("підключ")) {
-            return new IconRef(ICONS_SINGLEPLAYER, 0, 0, 16, 16, 64, 16);
-        }
-        // Re-create: MUST be checked BEFORE "create" / "создать" because "пересоздать" contains "создать"!
-        if (clean.contains("re-create") || clean.contains("recreate") || clean.contains("пересоздать") || clean.contains("перестворити")) {
-            return null;
-        }
-        if (clean.contains("add") || clean.contains("добавить") || clean.contains("додати") || clean.contains("create") || clean.contains("создать") || clean.contains("створити") || clean.contains("new world") || clean.contains("новый мир")) {
-            return new IconRef(ICONS_MULTIPLAYER, 0, 0, 16, 16, 32, 16);
-        }
-        if (clean.contains("edit") || clean.contains("настроить") || clean.contains("редакт") || clean.contains("змінити") || clean.contains("налаштувати")) {
-            return new IconRef(ICONS_SINGLEPLAYER, 32, 0, 16, 16, 64, 16);
-        }
-        if (clean.contains("delete") || clean.contains("удал") || clean.contains("видал")) {
-            return new IconRef(ICONS_SINGLEPLAYER, 48, 0, 16, 16, 64, 16);
-        }
-        if (clean.contains("refresh") || clean.contains("обнов") || clean.contains("онов")) {
-            return new IconRef(ICONS_MULTIPLAYER, 16, 0, 16, 16, 32, 16);
-        }
-        if (clean.contains("save") || clean.contains("сохран") || clean.contains("збереж") || clean.contains("done") || clean.contains("готово") || clean.contains("apply") || clean.contains("применить")) {
-            return new IconRef(ICONS_VIDEO, 0, 40, 20, 20, 240, 60);
-        }
-        if (clean.contains("cancel") || clean.contains("отмена") || clean.contains("скасувати") || clean.contains("back") || clean.contains("назад")) {
-            return new IconRef(ICONS_BACK, 0, 0, 16, 16, 16, 16);
-        }
-        if (clean.contains("open") || clean.contains("открыть") || clean.contains("відкрити") || clean.contains("folder") || clean.contains("папк")) {
-            return new IconRef(ICONS_OPTIONS, 160, 0, 20, 20, 240, 20);
-        }
+        return switch (key) {
+            // Main menu
+            case "menu.singleplayer", "linkenvisuals.menu.singleplayer" -> new IconRef(ICONS_MAIN, 0, 0, 16, 16, 80, 16);
+            case "menu.multiplayer", "linkenvisuals.menu.multiplayer" -> new IconRef(ICONS_MAIN, 16, 0, 16, 16, 80, 16);
+            case "menu.online", "linkenvisuals.menu.alt_manager" -> new IconRef(ICONS_MAIN, 32, 0, 16, 16, 80, 16);
+            case "menu.options", "linkenvisuals.menu.settings", "selectWorld.moreWorldOptions" -> new IconRef(ICONS_MAIN, 48, 0, 16, 16, 80, 16);
+            case "menu.quit", "linkenvisuals.menu.quit", "loading.cancel" -> new IconRef(ICONS_MAIN, 64, 0, 16, 16, 80, 16);
+            case "linkenvisuals.menu.mods" -> new IconRef(ICONS_MODS, 0, 0, 16, 16, 16, 16);
 
-        return null;
+            // Pause menu
+            case "menu.returnToGame", "multiplayer.back" -> new IconRef(ICONS_ESCAPE, 0, 0, 16, 16, 112, 16);
+            case "gui.advancements" -> new IconRef(ICONS_ESCAPE, 16, 0, 16, 16, 112, 16);
+            case "gui.stats" -> new IconRef(ICONS_ESCAPE, 32, 0, 16, 16, 112, 16);
+            case "menu.sendFeedback", "menu.feedback" -> new IconRef(ICONS_ESCAPE, 48, 0, 16, 16, 112, 16);
+            case "menu.reportBugs" -> new IconRef(ICONS_ESCAPE, 64, 0, 16, 16, 112, 16);
+            case "menu.shareToLan" -> new IconRef(ICONS_ESCAPE, 80, 0, 16, 16, 112, 16);
+            case "menu.disconnect", "menu.returnToMenu" -> new IconRef(ICONS_ESCAPE, 96, 0, 16, 16, 112, 16);
+            case "linkenvisuals.gui.macros" -> new IconRef(ICONS_MACROS, 0, 0, 16, 16, 16, 16);
+
+            // Options categories & sub-menus
+            case "controls.keybinds" -> new IconRef(ICONS_CONTROLS, 20, 0, 20, 20, 40, 20);
+            case "options.mouse_settings" -> new IconRef(ICONS_CONTROLS, 0, 0, 20, 20, 40, 20);
+            case "options.fov" -> new IconRef(ICONS_OPTIONS, 0, 0, 20, 20, 240, 20);
+            case "options.skinCustomisation" -> new IconRef(ICONS_OPTIONS, 40, 0, 20, 20, 240, 20);
+            case "options.sounds", "options.music_frequency", "options.audioDevice" -> new IconRef(ICONS_OPTIONS, 60, 0, 20, 20, 240, 20);
+            case "options.video", "options.graphics" -> new IconRef(ICONS_OPTIONS, 80, 0, 20, 20, 240, 20);
+            case "options.controls", "options.invertMouse", "options.invertMouseX", "options.invertMouseY",
+                 "options.rawMouseInput", "options.mouseWheelSensitivity", "options.discrete_mouse_scroll" -> new IconRef(ICONS_OPTIONS, 100, 0, 20, 20, 240, 20);
+            case "options.language" -> new IconRef(ICONS_OPTIONS, 120, 0, 20, 20, 240, 20);
+            case "options.chat" -> new IconRef(ICONS_OPTIONS, 140, 0, 20, 20, 240, 20);
+            case "options.resourcepack", "pack.openFolder", "addServer.resourcePack" -> new IconRef(ICONS_OPTIONS, 160, 0, 20, 20, 240, 20);
+            case "options.accessibility", "accessibility.onboarding.accessibility.button" -> new IconRef(ICONS_OPTIONS, 180, 0, 20, 20, 240, 20);
+            case "options.telemetry" -> new IconRef(ICONS_OPTIONS, 200, 0, 20, 20, 240, 20);
+            case "options.credits_and_attribution" -> new IconRef(ICONS_OPTIONS, 220, 0, 20, 20, 240, 20);
+
+            // Worlds & servers
+            // NB: "selectWorld.recreate" deliberately has no icon (it must not be confused with "create").
+            case "selectServer.direct" -> new IconRef(ICONS_DIRECT, 0, 0, 16, 16, 16, 16);
+            case "selectWorld.select", "selectServer.select", "multiplayer.join" -> new IconRef(ICONS_SINGLEPLAYER, 0, 0, 16, 16, 64, 16);
+            // Own multiplayer toolbar: keep the shipped look of the "direct" button (multiplayer glyph).
+            case "multiplayer.direct" -> new IconRef(ICONS_MAIN, 16, 0, 16, 16, 80, 16);
+            case "selectWorld.create", "selectServer.add", "multiplayer.add" -> new IconRef(ICONS_MULTIPLAYER, 0, 0, 16, 16, 32, 16);
+            case "selectWorld.edit", "selectServer.edit", "multiplayer.edit" -> new IconRef(ICONS_SINGLEPLAYER, 32, 0, 16, 16, 64, 16);
+            case "selectWorld.delete", "selectServer.delete", "multiplayer.delete" -> new IconRef(ICONS_SINGLEPLAYER, 48, 0, 16, 16, 64, 16);
+            case "selectServer.refresh", "multiplayer.refresh" -> new IconRef(ICONS_MULTIPLAYER, 16, 0, 16, 16, 32, 16);
+            case "gui.done" -> new IconRef(ICONS_VIDEO, 0, 40, 20, 20, 240, 60);
+            case "gui.cancel", "gui.back", "gui.toTitle", "gui.toMenu" -> new IconRef(ICONS_BACK, 0, 0, 16, 16, 16, 16);
+
+            default -> null;
+        };
+    }
+
+    /** Icon lookup for a widget: only the widget's translation key is used, never its localized text. */
+    public static IconRef getIconForWidget(ClickableWidget widget) {
+        return getIconForKey(TextKeys.keyOf(widget.getMessage()));
     }
 
     public static boolean renderButton(DrawContext context, ClickableWidget widget, int mouseX, int mouseY, float delta) {
@@ -185,15 +126,14 @@ public final class VanillaStylePipeline {
         Text msg = widget.getMessage();
         String originalStr = msg != null ? msg.getString() : "";
 
-        IconRef icon = getIconFor(originalStr);
+        IconRef icon = getIconForWidget(widget);
         if (w <= 24 && icon == null) {
             // Let vanilla render small icon buttons (like vanilla's accessibility button)
             return false;
         }
 
         MinecraftClient mc = MinecraftClient.getInstance();
-        String clean = originalStr.toLowerCase(java.util.Locale.ROOT).replaceAll("§[0-9a-fk-or]", "").trim();
-        boolean isLanguage = clean.contains("language") || clean.contains("язык") || clean.contains("мова");
+        boolean isLanguage = "options.language".equals(TextKeys.keyOf(msg));
         String str = originalStr;
         if (w <= 28 || (isLanguage && (w <= 36 || (mc != null && mc.currentScreen instanceof net.minecraft.client.gui.screen.TitleScreen)))) {
             str = "";

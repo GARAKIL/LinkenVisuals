@@ -6,6 +6,7 @@ import dev.linkenvisuals.ui.AltManagerScreen;
 import dev.linkenvisuals.ui.MainMenuScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
+import dev.linkenvisuals.util.TextKeys;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -20,9 +21,7 @@ import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.PressableTextWidget;
-import net.minecraft.client.gui.widget.TextIconButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,7 +32,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen {
@@ -70,52 +68,25 @@ public abstract class TitleScreenMixin extends Screen {
         boolean foundRealms = false;
 
         for (Element child : new ArrayList<>(this.children())) {
-            // 1. Mojang copyright text at bottom right
+            // 1. Mojang copyright line at the bottom of the screen (PressableTextWidget)
             if (child instanceof PressableTextWidget) {
                 toRemove.add(child);
                 continue;
             }
 
             if (child instanceof ClickableWidget widget) {
-                Text msg = widget.getMessage();
-                String str = msg != null ? msg.getString().toLowerCase(Locale.ROOT) : "";
+                String key = TextKeys.keyOf(widget.getMessage());
 
-                if (str.contains("mojang") || str.contains("copyright")) {
+                // 2. Accessibility button created by AccessibilityOnboardingButtons
+                //    (key "options.accessibility" or "accessibility.onboarding.accessibility.button",
+                //    both verified in vanilla bytecode: iload_2 branch of createAccessibilityButton)
+                if ("options.accessibility".equals(key) || "accessibility.onboarding.accessibility.button".equals(key)) {
                     toRemove.add(child);
                     continue;
                 }
 
-                // 2. Accessibility button
-                boolean isAccessibility = false;
-                if (msg != null && msg.getContent() instanceof TranslatableTextContent ttc) {
-                    String key = ttc.getKey();
-                    if ("narrator.button.accessibility".equals(key) || "options.accessibility".equals(key)) {
-                        isAccessibility = true;
-                    }
-                }
-                if (!isAccessibility && widget instanceof TextIconButtonWidget && widget.getX() > this.width / 2) {
-                    isAccessibility = true;
-                }
-                if (!isAccessibility && (str.contains("accessibility") || str.contains("доступност") || str.contains("доступність"))) {
-                    isAccessibility = true;
-                }
-                if (isAccessibility) {
-                    toRemove.add(child);
-                    continue;
-                }
-
-                // 3. Minecraft Realms button -> replace with Alt Manager
-                boolean isRealms = false;
-                if (msg != null && msg.getContent() instanceof TranslatableTextContent ttc) {
-                    if ("menu.online".equals(ttc.getKey())) {
-                        isRealms = true;
-                    }
-                }
-                if (!isRealms && (str.contains("realms") || str.contains("реалмс"))) {
-                    isRealms = true;
-                }
-
-                if (isRealms) {
+                // 3. Minecraft Realms button (key "menu.online") -> replaced with Alt Manager below
+                if ("menu.online".equals(key)) {
                     foundRealms = true;
                     realmsX = widget.getX();
                     realmsY = widget.getY();
@@ -254,20 +225,6 @@ public abstract class TitleScreenMixin extends Screen {
             return;
         }
         ClickableWidget target = this.linkenvisuals$altManagerBtn;
-        if (target == null) {
-            for (var child : this.children()) {
-                if (child instanceof ClickableWidget cw) {
-                    Text msg = cw.getMessage();
-                    if (msg != null) {
-                        String s = msg.getString().toLowerCase(Locale.ROOT);
-                        if (s.contains("аккаунт") || s.contains("акаунт") || s.contains("alt manager")) {
-                            target = cw;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
         if (target != null) {
             String name = this.client != null && this.client.getSession() != null
                     ? this.client.getSession().getUsername() : "Player";

@@ -367,7 +367,7 @@ public final class MainMenuEditorScreen extends Screen {
         String label = I18n.get(key);
         if (StyleManager.getStyle() == MenuStyle.VANILLA) {
             VanillaStylePipeline.renderButton(context, Math.round(x), Math.round(y), Math.round(w), Math.round(h),
-                label, VanillaStylePipeline.getIconFor(label), true, false);
+                label, VanillaStylePipeline.getIconForKey(key), true, false);
             return;
         }
         RoundedRectPipeline.draw(context, x, y, w, h, withAlpha(0x0E0F14, 150));

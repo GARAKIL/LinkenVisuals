@@ -1,5 +1,6 @@
 package dev.linkenvisuals.mixin;
 
+import dev.linkenvisuals.util.TextKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -9,7 +10,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Mixin(GameMenuScreen.class)
 public abstract class GameMenuScreenMixin extends Screen {
@@ -36,32 +35,9 @@ public abstract class GameMenuScreenMixin extends Screen {
         List<ClickableWidget> toRemove = new ArrayList<>();
         for (var el : this.children()) {
             if (el instanceof ClickableWidget widget) {
-                Text msg = widget.getMessage();
-                if (msg != null) {
-                    boolean isFeedbackOrBug = false;
-                    if (msg.getContent() instanceof TranslatableTextContent ttc) {
-                        String k = ttc.getKey();
-                        if ("menu.sendFeedback".equals(k) || "menu.reportBugs".equals(k)) {
-                            isFeedbackOrBug = true;
-                        }
-                    }
-                    if (!isFeedbackOrBug) {
-                        String str = msg.getString();
-                        if (str != null) {
-                            String lower = str.toLowerCase(Locale.ROOT);
-                            if (lower.contains("нашли ошибку")
-                                    || lower.contains("оставить отзыв")
-                                    || lower.contains("отзыв")
-                                    || lower.contains("feedback")
-                                    || lower.contains("bugs")
-                                    || lower.contains("report bug")) {
-                                isFeedbackOrBug = true;
-                            }
-                        }
-                    }
-                    if (isFeedbackOrBug) {
-                        toRemove.add(widget);
-                    }
+                String key = TextKeys.keyOf(widget.getMessage());
+                if ("menu.sendFeedback".equals(key) || "menu.reportBugs".equals(key) || "menu.feedback".equals(key)) {
+                    toRemove.add(widget);
                 }
             }
         }
@@ -83,19 +59,17 @@ public abstract class GameMenuScreenMixin extends Screen {
 
         for (var el : new ArrayList<>(this.children())) {
             if (el instanceof ClickableWidget widget) {
-                Text msg = widget.getMessage();
-                String text = msg != null ? msg.getString().toLowerCase(Locale.ROOT) : "";
-                String key = (msg != null && msg.getContent() instanceof TranslatableTextContent ttc) ? ttc.getKey() : "";
+                String key = TextKeys.keyOf(widget.getMessage());
 
-                if (key.equals("menu.returnToGame") || text.contains("вернуться в игру") || text.contains("вернуться к игре") || text.contains("return to game")) {
+                if ("menu.returnToGame".equals(key)) {
                     returnBtn = widget;
-                } else if (key.equals("gui.advancements") || text.contains("достижения") || text.contains("advancement")) {
+                } else if ("gui.advancements".equals(key)) {
                     advBtn = widget;
-                } else if (key.equals("gui.stats") || text.contains("статистика") || text.contains("statistic") || text.contains("stats")) {
+                } else if ("gui.stats".equals(key)) {
                     statsBtn = widget;
-                } else if (key.equals("menu.options") || text.contains("настройки") || text.contains("options")) {
+                } else if ("menu.options".equals(key)) {
                     optionsBtn = widget;
-                } else if (key.equals("menu.playerReporting") || text.contains("жалобы") || text.contains("отчет") || text.contains("player reporting")) {
+                } else if ("menu.playerReporting".equals(key)) {
                     reportsBtn = widget;
                 }
             }

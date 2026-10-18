@@ -79,7 +79,7 @@ public abstract class ConnectScreenMixin extends Screen {
         boolean hov = mouseX >= btnX && mouseX <= btnX + btnW && mouseY >= btnY && mouseY <= btnY + btnH;
         if (style == MenuStyle.VANILLA) {
             dev.linkenvisuals.render.VanillaStylePipeline.renderButton(context, Math.round(btnX), Math.round(btnY), Math.round(btnW), Math.round(btnH),
-                dev.linkenvisuals.i18n.I18n.get("loading.cancel"), dev.linkenvisuals.render.VanillaStylePipeline.getIconFor("quit"), true, hov);
+                dev.linkenvisuals.i18n.I18n.get("loading.cancel"), dev.linkenvisuals.render.VanillaStylePipeline.getIconForKey("loading.cancel"), true, hov);
         } else {
             RoundedRectPipeline.draw(context, btnX, btnY, btnW, btnH, hov ? 0xEE1E2433 : 0xDD12151D);
             RoundedRectPipeline.drawOutline(context, btnX, btnY, btnW, btnH, hov ? NeonEdge.cool() : 0xFF2F3648);

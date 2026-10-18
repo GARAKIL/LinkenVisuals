@@ -7,10 +7,15 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
+    // Vanilla method arguments cannot be matched by name in production (Mojang jars ship without
+    // local variable tables), so the argument ordinal is the only stable anchor here. Ordinals 0/1
+    // are the two boolean parameters of update(BlockView, Entity, boolean thirdPerson,
+    // boolean inverseView, float) — verified via javap on the yarn build.4 jar (iload_3 / iload_4).
     @ModifyVariable(method = "update", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private boolean linkenvisuals$holdThirdPerson(boolean thirdPerson) {
         float progress = Animations.perspective();
@@ -35,8 +40,17 @@ public abstract class CameraMixin {
         return progress < 0.0f ? original : original * progress;
     }
 
+    // Inverse (front) view branch of the third person camera: the rotation is computed from the
+    // Camera.yaw/pitch fields and applied right before the camera-distance block. Anchored with
+    // named bytecode landmarks instead of an ordinal:
+    //   from: the only yaw field read in update()
+    //   to:   LivingEntity.getScale() of the distance block
+    // Verified via javap on the yarn build.4 jar: yaw@258, setRotation@269, getScale@294.
     @ModifyArgs(method = "update",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V", ordinal = 2))
+        slice = @Slice(
+            from = @At(value = "FIELD", target = "Lnet/minecraft/client/render/Camera;yaw:F"),
+            to = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getScale:()F")),
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
     private void linkenvisuals$easeFlip(Args args) {
         float flip = Animations.flip();
         if (flip < 0.0f) {
