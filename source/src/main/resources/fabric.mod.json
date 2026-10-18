@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "id": "strangevisuals",
+  "id": "linkenvisuals",
   "version": "${version}",
-  "name": "StrangeVisuals",
+  "name": "LinkenVisuals",
   "description": "High-performance visual enhancement client mod for Minecraft Fabric 1.21.11.",
-  "authors": ["StrangeVisuals"],
+  "authors": ["LinkenVisuals"],
   "license": "MIT",
   "environment": "client",
   "entrypoints": {
-    "client": ["dev.strangevisuals.StrangeVisuals"]
+    "client": ["dev.linkenvisuals.LinkenVisuals"]
   },
-  "mixins": ["strangevisuals.mixins.json"],
+  "mixins": ["linkenvisuals.mixins.json"],
   "depends": {
     "fabricloader": ">=0.19.1",
     "minecraft": "~1.21.11",

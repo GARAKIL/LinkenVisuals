@@ -18,7 +18,7 @@ if (project.hasProperty('bumpVersion')) {
             propsFile.setText(updatedText, 'UTF-8')
             project.extensions.extraProperties.set('mod_version', newVersion)
             println "=========================================================="
-            println " [StrangeVisuals] Bumped patch version to: ${newVersion}"
+            println " [LinkenVisuals] Bumped patch version to: ${newVersion}"
             println "=========================================================="
         }
     }

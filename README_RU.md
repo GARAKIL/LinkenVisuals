@@ -1,11 +1,11 @@
-# StrangeVisuals 🌌
+# LinkenVisuals 🌌
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-brightgreen.svg?style=flat-square)](https://minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-Loader%200.19.1+-blue.svg?style=flat-square)](https://fabricmc.net/)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg?style=flat-square)](https://adoptium.net/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](LICENSE)
 
-**StrangeVisuals** — клиентский мод нового поколения для Minecraft Fabric 1.21.11, ориентированный на визуальное улучшение игры, кастомизацию и производительность. Мод построен на базе современного графического пайплайна Blaze3D от Mojang и специализированных GLSL шейдеров, предлагая пост-обработку картинки, эффекты рук от первого лица, интерактивный HUD и полноценный медиаплеер с синхронизированным отображением текста песен (LRC).
+**LinkenVisuals** — клиентский мод нового поколения для Minecraft Fabric 1.21.11, ориентированный на визуальное улучшение игры, кастомизацию и производительность. Мод построен на базе современного графического пайплайна Blaze3D от Mojang и специализированных GLSL шейдеров, предлагая пост-обработку картинки, эффекты рук от первого лица, интерактивный HUD и полноценный медиаплеер с синхронизированным отображением текста песен (LRC).
 
 [🇬🇧 Read in English (README.md)](README.md)
 
@@ -32,7 +32,7 @@
 #### 🖥️ 100% Кастомный интерфейс, Редактор меню и пресеты
 - **Интерактивный редактор главного меню**: Полноценный визуальный редактор прямо в игре (кнопка в Настройки -> вкладка Стиль). Перетаскивание кнопок мышью, изменение масштаба колесиком или за угол, установка своих фотографий на фон и наложение шейдеров.
 - **3 стиля-пресета**: Мгновенный сброс раскладки к пресетам **`Beta`** (фирменный скошенный стиль со стеклом), **`Modern`** (центрированная футуристичная панель) или **`Classic`** (верхняя строка навигации и компактные кнопки).
-- **Свои фото и шейдерные эффекты на фоне**: Положите любое фото в `.minecraft/strangevisuals/background.png` или выберите путь, настройте затемнение и шейдерный оверлей (Bloom Pulse, Starfield, волны или зернистость).
+- **Свои фото и шейдерные эффекты на фоне**: Положите любое фото в `.minecraft/linkenvisuals/background.png` или выберите путь, настройте затемнение и шейдерный оверлей (Bloom Pulse, Starfield, волны или зернистость).
 - **Кастомное главное меню**: Полностью переработанное меню со скином игрока, физикой сглаживания (spring ease), часами и кнопкой Mod Menu.
 - **Кастомный браузер серверов**: Асинхронный список с живым пингом, индикаторами задержки, поддержкой форматирования MOTD, плавным скроллом и встроенными диалогами добавления, редактирования и прямого подключения.
 - **Единый центр настроек**: Вкладки **Стиль** (пресеты и запуск редактора), **Графика** (дистанция прорисовки, FPS, FOV, VSync), **Звук** (общая громкость и каналы), **Модули** (быстрые тумблеры и вызов ClickGUI) и **Система** (ресурс-паки, бинды, доступ к ванильным настройкам, переключатель языка).
@@ -65,10 +65,10 @@
 ## 📂 Структура проекта
 
 ```text
-StrangeVisuals/
+LinkenVisuals/
 ├── source/
-│   ├── src/main/java/dev/strangevisuals/
-│   │   ├── StrangeVisuals.java       # Точка входа мода и регистрация событий
+│   ├── src/main/java/dev/linkenvisuals/
+│   │   ├── LinkenVisuals.java       # Точка входа мода и регистрация событий
 │   │   ├── account/                  # Менеджер аккаунтов и кэш сессий
 │   │   ├── clickgui/                 # Движок ClickGUI, виджеты и ConfigManager
 │   │   │   └── setting/              # Настройки Boolean, Slider, Mode, Color
@@ -81,11 +81,11 @@ StrangeVisuals/
 │   │   ├── render/                   # Пайплайны Blaze3D, буферы UBO, шейдеры GLSL
 │   │   └── ui/                       # Главное меню, кнопки, анимации
 │   └── src/main/resources/
-│       ├── assets/strangevisuals/
+│       ├── assets/linkenvisuals/
 │       │   ├── shaders/core/         # Вершинные и фрагментные GLSL шейдеры
 │       │   └── textures/             # Текстуры шрифтов, иконок и интерфейса
 │       ├── fabric.mod.json           # Метаданные мода
-│       └── strangevisuals.mixins.json# Конфигурация миксинов
+│       └── linkenvisuals.mixins.json# Конфигурация миксинов
 ├── build.gradle                      # Скрипт сборки Loom
 ├── settings.gradle                   # Настройки Gradle
 └── LICENSE                           # Лицензия MIT
@@ -103,8 +103,8 @@ StrangeVisuals/
 
 1. **Клонируйте репозиторий:**
    ```bash
-   git clone https://github.com/your-username/StrangeVisuals.git
-   cd StrangeVisuals/source
+   git clone https://github.com/your-username/LinkenVisuals.git
+   cd LinkenVisuals/source
    ```
 
 2. **Соберите JAR-файл мода:**
@@ -119,7 +119,7 @@ StrangeVisuals/
 3. **Готовый файл:**
    Скомпилированный файл мода будет находиться по пути:
    ```text
-   source/build/libs/StrangeVisuals-1.0.0.jar
+   source/build/libs/LinkenVisuals-1.0.0.jar
    ```
 
 4. **Запуск тестового клиента:**
@@ -132,7 +132,7 @@ StrangeVisuals/
 ## ⚙️ Файл конфигурации
 
 Конфигурация хранится в стандартном формате JSON в папке игры:
-`.minecraft/config/strangevisuals_config.json`
+`.minecraft/config/linkenvisuals_config.json`
 
 Пример содержимого:
 ```json

@@ -1,11 +1,11 @@
-# StrangeVisuals 🌌
+# LinkenVisuals 🌌
 
 [![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-brightgreen.svg?style=flat-square)](https://minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Fabric-Loader%200.19.1+-blue.svg?style=flat-square)](https://fabricmc.net/)
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg?style=flat-square)](https://adoptium.net/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](LICENSE)
 
-**StrangeVisuals** is a visual enhancement client mod for Minecraft Fabric 1.21.11. Engineered with Mojang's modern Blaze3D rendering backend and high-performance GLSL shaders, StrangeVisuals delivers custom post-processing, screen-space effects, first-person hand customizations, and an in-game media player with synchronized lyrics.
+**LinkenVisuals** is a visual enhancement client mod for Minecraft Fabric 1.21.11. Engineered with Mojang's modern Blaze3D rendering backend and high-performance GLSL shaders, LinkenVisuals delivers custom post-processing, screen-space effects, first-person hand customizations, and an in-game media player with synchronized lyrics.
 
 [🇷🇺 Читать на русском (README_RU.md)](README_RU.md)
 
@@ -32,7 +32,7 @@
 ### 🖥️ 100% Custom UI Suite, Menu Editor & Presets
 - **Interactive Main Menu Editor**: Full in-game visual editor (accessible via Settings -> Style tab). Drag and drop buttons, scale elements with mouse wheel or resize handles, customize background photos (PNG/JPG), and toggle custom GLSL shader overlays.
 - **3 Visual Presets**: Easily apply presets **`Beta`** (flagship dark-slate frosted glass), **`Modern`** (centered translucent glass dashboard), and **`Classic`** (sleek top navigation bar with compact vertical rows).
-- **Custom Background Photos & Shader Overlays**: Drop your wallpaper into `.minecraft/strangevisuals/background.png` or pick a custom image path, with live dimming and shaders (Bloom Pulse, Starfield particles, Radial waves, Film grain).
+- **Custom Background Photos & Shader Overlays**: Drop your wallpaper into `.minecraft/linkenvisuals/background.png` or pick a custom image path, with live dimming and shaders (Bloom Pulse, Starfield particles, Radial waves, Film grain).
 - **Custom Main Menu**: Fully styled interactive dashboard with user skin rendering, spring-physics hover animations, and direct Mod Menu integration.
 - **Custom Multiplayer Browser**: Asynchronous server list with live pinging, latency indicators, MOTD rendering, smooth scrolling, and inline modals for Direct Connect and Add/Edit Server.
 - **Unified Settings Hub**: Clean tabbed interface covering **Style** (presets & menu editor launcher), **Video** (Render distance, FPS, FOV, VSync), **Audio** (Master & channels), **Modules** (quick visual toggles & ClickGUI launcher), and **System** (resource packs, keybinds, vanilla settings bridge, language switcher).
@@ -65,10 +65,10 @@
 ## 📂 Project Structure
 
 ```text
-StrangeVisuals/
+LinkenVisuals/
 ├── source/
-│   ├── src/main/java/dev/strangevisuals/
-│   │   ├── StrangeVisuals.java       # Mod initializer & lifecycle events
+│   ├── src/main/java/dev/linkenvisuals/
+│   │   ├── LinkenVisuals.java       # Mod initializer & lifecycle events
 │   │   ├── account/                  # Account switcher & session cache
 │   │   ├── clickgui/                 # ClickGUI engine, widgets & ConfigManager
 │   │   │   └── setting/              # Boolean, Slider, Mode, and Color settings
@@ -81,11 +81,11 @@ StrangeVisuals/
 │   │   ├── render/                   # Blaze3D pipelines, UBO buffers, GLSL shaders
 │   │   └── ui/                       # Main menu, custom buttons, spring animations
 │   └── src/main/resources/
-│       ├── assets/strangevisuals/
+│       ├── assets/linkenvisuals/
 │       │   ├── shaders/core/         # Vertex & Fragment GLSL shaders
 │       │   └── textures/             # Fonts, icons, and UI assets
 │       ├── fabric.mod.json           # Mod metadata
-│       └── strangevisuals.mixins.json# Mixin configuration
+│       └── linkenvisuals.mixins.json# Mixin configuration
 ├── build.gradle                      # Loom build script
 ├── settings.gradle                   # Gradle settings
 └── LICENSE                           # MIT License
@@ -103,8 +103,8 @@ StrangeVisuals/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/StrangeVisuals.git
-   cd StrangeVisuals/source
+   git clone https://github.com/your-username/LinkenVisuals.git
+   cd LinkenVisuals/source
    ```
 
 2. **Compile and assemble the mod JAR:**
@@ -119,7 +119,7 @@ StrangeVisuals/
 3. **Locate the compiled JAR:**
    The output artifact will be placed in:
    ```text
-   source/build/libs/StrangeVisuals-1.0.0.jar
+   source/build/libs/LinkenVisuals-1.0.0.jar
    ```
 
 4. **Launch the Minecraft client for testing:**
@@ -132,7 +132,7 @@ StrangeVisuals/
 ## ⚙️ Configuration File
 
 Configuration is saved in standard JSON format in your Minecraft profile directory:
-`.minecraft/config/strangevisuals_config.json`
+`.minecraft/config/linkenvisuals_config.json`
 
 Example structure:
 ```json
