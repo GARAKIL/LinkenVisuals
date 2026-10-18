@@ -2,7 +2,7 @@
 
 Порядок обязателен. Оценки: S/M/L. Обновляется по мере продвижения; журнал решений — `MERGE_DECISIONS.md`.
 
-## Фаза 0 — гигиена (в работе)
+## Фаза 0 — гигиена (закрыта)
 - [x] Git-корень (корень репо), `.gitattributes`, `.opencodeignore`, baseline-коммит, remote `KurumaOfficial/LinkenVisuals`, push. → D1
 - [x] Переименование StrangeVisuals → LinkenVisuals + миграция легаси-данных (приказ пользователя). → D2
 - [x] `build.gradle`: убран хардкод MultiMC, JUnit 5 (bom + jupiter + platform-launcher), `useJUnitPlatform()`. → D3
@@ -10,11 +10,12 @@
 - [x] Первые тесты: ConfigJson round-trip, ProfileNames, AtomicFiles, HandPoseMath clamp, ColorMath, lang-паритет en/ru/uk, std140 ↔ константы Java (kill 224 B, hit 416 B, rain 192 B, hand_outline 96 B, hand_trail 32 B, filter 64 B, ambience 64 B, background 48 B, sky 64 B), миграция LegacyConfigMigration. → 27 тестов зелёные, D5.
 - [x] CI `.github/workflows/build.yml` (JDK 21, build+test).
 
-## Фаза 1 — один пакетный вопрос пользователю (S)
-(а) авторство донорских шейдеров/ассетов/звуков + панорам/звуков проекта до публичного релиза; (б) список «дребедени» к удалению (кандидаты: редактор главного меню и пресеты, `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`, `MacroScreen`); (в) белый список модулей и косметик к переносу. До ответа ничего не удалять и не переносить ассеты.
+## Фаза 1 — один пакетный вопрос пользователю (S) — [x] закрыта, D6
+Ответы: авторство донорских ассетов и своих панорам/звуков подтверждено; к удалению — только панорамы + `PanoramaManager`; редактор меню, `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`, `MacroScreen` остаются; белый список модулей и вся косметика приняты.
 
-## Фаза 2 — чистка по списку пользователя (S–M), ДО фиксов
-Каждое удаление отдельным коммитом, с миграцией конфигов. Код, назначенный к удалению, не чинится. Бонус: уходят гонка `CustomTextureLoader`, хак `PanoramaManager`, часть эвристик миксинов, ~51 МБ панорам в jar.
+## Фаза 2 — чистка по списку пользователя (S–M) — [x] закрыта, D7
+- [x] Панорамы + `PanoramaManager`: удалены (commit `2d5adf4`, v1.0.34), ванильный фолбэк, jar 50.5 → 1.5 МБ.
+- Остальные кандидаты НЕ удаляются (решение D6б): редактор меню и его `CustomTextureLoader` (гонку чиним в Фазе 3 как фикс, не удаление), `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`/`AccountStorage`, `MacroScreen`, эвристики `TitleScreenMixin`/`GameMenuScreenMixin`/`VanillaStylePipeline` — живут и чинятся в Фазе 3.
 
 ## Фаза 3 — фиксы базового кода (M)
 1. `ClickGuiScreen` (1794 стр.): settings-окно (494–786) в отдельный класс; RU-строки через `I18n`.

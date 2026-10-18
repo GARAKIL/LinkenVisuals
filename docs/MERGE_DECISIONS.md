@@ -34,3 +34,17 @@
 - Причина: юнит-тесты обязаны идти без bootstrap Minecraft; `ConfigManager`/`HandPose`/`Material` тянут `FabricLoader`/GPU-статику в clinit.
 - План (commit с тестами): чистые классы `util.ProfileNames` (санитайз имени), `util.AtomicFiles` (tmp + ATOMIC_MOVE + fallback), `clickgui.ConfigJson` (build/apply модулей), `hands.HandPoseMath` (клэмпы), `util.ColorMath` (mix/argb/…); константы размеров UBO сделать `public static final` для сверки тестом std140.
 - Экспозиция: `public` у констант — только видимость, значение не меняется; инлайнится javac, GPU-класс в тестах не инициализируется.
+
+## 2026-10-18 · D6 · Фаза 1: пакетный ответ пользователя
+- (а) Авторство/права на донорские ассеты (LinkenVisuals 2.0) подтверждены — переносим (Caramel Frappuccino CC0; MoreCosmetics-каталог; breda/kintsugi/shrek). Условие: при переносе Rudy (CC BY 4.0, автор amogusstrikesback2) добавить атрибуцию в docs/README.
+- (а2) Авторство собственных панорам/звуков/текстур проекта подтверждено (код уже в публичном KurumaOfficial/LinkenVisuals по приказу пользователя).
+- (б) Фаза 2: к удалению назначены ТОЛЬКО панорамы + PanoramaManager. Редактор главного меню, `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`/`AccountStorage`, `MacroScreen` остаются (их не режем и сейчас не чиним).
+- (в) Фаза 5.7: белый список модулей из ROADMAP принят целиком; (в2) косметика — вся (wave-плащ, питомцы/Rudy, ChinaHat, Nimb, Naruto, CosmeticEffects, Spheres).
+
+## 2026-10-18 · D7 · Удаление панорам (исполнение D6б) — v1.0.34, commit `2d5adf4`
+- Удалено: `assets/linkenvisuals/textures/gui/panoramas/**` (6 наборов × 6 граней PNG, 42.4 МБ), перекрытие `assets/minecraft/textures/gui/title/background/panorama_*.png` (6 PNG, 6.5 МБ), `render/PanoramaManager.java` (234 строки), кейбинд `key.linkenvisuals.next_panorama` (INSERT) + ланг-ключи en/ru/uk.
+- Evidence: jar 50.5 МБ → 1.5 МБ; греп `PanoramaManager|next_panorama|triggerTransition|PANORAMA_POOL` в `source/src` = 0; `build` (тесты, включая LangParityTest) зелёный; jar задеплоен в MultiMC.
+- Фолбэк: новый `VanillaStylePipeline.renderVanillaPanorama` — стоковый `RotatingCubeMapRenderer` игры, при недоступности — градиент. Использование: `ScreenMixin` (settings-подобные экраны без мира), `renderOptionsBackground`, `renderDirtBackground`, `CustomMultiplayerScreen` (VANILLA-стиль).
+- Loading-миксины (Connect/Message/Progress/LevelLoading) НЕ правились: они звали `Screen.renderPanoramaBackground`, который обёртка `ScreenMixin`-`WrapOperation` подменяла на наш менеджер; без обёртки они автоматически рендерят стоковую панораму MC.
+- Конфиг: `MainMenuConfig.BackgroundMode.PANORAMA` удалён; Gson неизвестное имя enum → null → существующая null-миграция переводит в `SHADER` и `save()` перезаписывает файл (краш-путь закрыт и на случай исключения парсинга). Редактор меню: цикл Shader → Photo → Both → Shader.
+- Деплой-гигиена: `remapJar.doLast` теперь удаляет старые `linkenvisuals-*.jar` из mods-каталога перед копированием (иначе два jar = «Duplicate mod» на запуске; факт зафиксирован в этой итерации: в mods лежали 1.0.33 и 1.0.34 одновременно).
