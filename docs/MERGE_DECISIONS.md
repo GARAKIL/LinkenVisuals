@@ -255,6 +255,16 @@
 - Out of scope: интеграция в старые GUI; `NumberSetting` донора не портирован (у нас `SliderSetting`).
 - Evidence: `MotionBlurRenderer.java` (248 строк, легаси GL), `MotionBlur.java`, `motionblur.fsh`/`vsh` прочитаны; UBO сверен (16 Б).
 
+## 2026-10-19 · D26 · Фаза 5.5: Оптимизации — v1.0.56
+- Контекст: ROADMAP 5.5. Применены идеи донора ТОЛЬКО где есть наши циклы (без копипаста).
+- Анализ (evidence: grep по коду):
+  - **LRU VoxelShape**: у нас ОДНО per-frame место — `BlockOverlayRenderer.captureBox()` (`getOutlineShape` + `getBoundingBoxes` каждый кадр). → Добавлен кэш `BlockPos→(BlockState, local Box)`: при прицеле на тот же блок shape не пересчитывается; camera-relative сдвиг всё равно каждый кадр. Инвалидация: смена pos/state/air/empty → сброс; `shutdown()` чистит.
+  - **int-ядро линий**: уже int (наш код не использует `Color` в рендере) — нечего делать.
+  - **scratch-буферы**: уже `memAlloc`/`memFree` в finally — нечего делать.
+  - **batched dot-grid/hatch**: паттернов нет в коде — нечего делать.
+- Тесты: регрессий нет (53 теста должны остаться зелёными); логика кэша — инспекцией (приватный статик, MC-зависим).
+- Out of scope: LRU на 64 шейпа как у донора (у нас один блок в прицеле — достаточно одной записи).
+
 ## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
 - Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
 - Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).

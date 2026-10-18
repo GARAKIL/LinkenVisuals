@@ -44,6 +44,15 @@ public final class BlockOverlayRenderer {
     /** Box captured at outline time (camera-relative), drawn at END_MAIN. Render thread only. */
     private static Box pendingBox;
 
+    /**
+     * Block-relative shape cache: avoids {@code getOutlineShape()} +
+     * {@code getBoundingBoxes()} when aiming at the same block across frames.
+     * The camera-relative offset is still recomputed every frame.
+     */
+    private static BlockPos cachedPos;
+    private static BlockState cachedState;
+    private static Box cachedLocalBox;
+
     private static GpuBuffer uniforms;
     private static final ByteBuffer UNIFORM_DATA =
         ByteBuffer.allocateDirect(BlockOverlayPipelines.UNIFORM_SIZE).order(ByteOrder.nativeOrder());
@@ -108,21 +117,37 @@ public final class BlockOverlayRenderer {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.world == null || mc.crosshairTarget == null
             || mc.crosshairTarget.getType() != HitResult.Type.BLOCK) {
+            cachedPos = null;
+            cachedLocalBox = null;
             return null;
         }
         BlockPos pos = ((BlockHitResult) mc.crosshairTarget).getBlockPos();
         BlockState state = mc.world.getBlockState(pos);
         if (state.isAir()) {
+            cachedPos = null;
+            cachedState = null;
+            cachedLocalBox = null;
             return null;
         }
-        Entity entity = mc.getCameraEntity();
-        ShapeContext shapeContext = entity != null ? ShapeContext.of(entity) : ShapeContext.absent();
-        VoxelShape shape = state.getOutlineShape(mc.world, pos, shapeContext);
-        List<Box> boxes = shape.getBoundingBoxes();
-        if (boxes.isEmpty()) {
-            return null;
+        Box local;
+        if (pos.equals(cachedPos) && state == cachedState && cachedLocalBox != null) {
+            local = cachedLocalBox;
+        } else {
+            Entity entity = mc.getCameraEntity();
+            ShapeContext shapeContext = entity != null ? ShapeContext.of(entity) : ShapeContext.absent();
+            VoxelShape shape = state.getOutlineShape(mc.world, pos, shapeContext);
+            List<Box> boxes = shape.getBoundingBoxes();
+            if (boxes.isEmpty()) {
+                cachedPos = null;
+                cachedState = null;
+                cachedLocalBox = null;
+                return null;
+            }
+            local = boxes.size() > 1 ? shape.getBoundingBox() : boxes.get(0);
+            cachedPos = pos.toImmutable();
+            cachedState = state;
+            cachedLocalBox = local;
         }
-        Box local = boxes.size() > 1 ? shape.getBoundingBox() : boxes.get(0);
         Vec3d cam = mc.gameRenderer.getCamera().getCameraPos();
         return local.offset(pos).expand(0.003).offset(-cam.x, -cam.y, -cam.z);
     }
@@ -352,6 +377,9 @@ public final class BlockOverlayRenderer {
             uniforms = null;
         }
         pendingBox = null;
+        cachedPos = null;
+        cachedState = null;
+        cachedLocalBox = null;
     }
 
     private static int clamp255(float value) {
