@@ -23,7 +23,7 @@ import java.nio.ByteOrder;
 import java.util.OptionalInt;
 
 public final class BackgroundPipeline {
-    private static final int UNIFORM_SIZE = 48;
+    public static final int UNIFORM_SIZE = 48;
 
     private static final RenderPipeline PIPELINE = RenderPipelines.register(
         RenderPipeline.builder()

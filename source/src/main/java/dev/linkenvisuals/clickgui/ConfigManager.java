@@ -5,22 +5,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import dev.linkenvisuals.clickgui.setting.BooleanSetting;
-import dev.linkenvisuals.clickgui.setting.ColorSetting;
-import dev.linkenvisuals.clickgui.setting.ModeSetting;
-import dev.linkenvisuals.clickgui.setting.Setting;
-import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.util.AtomicFiles;
+import dev.linkenvisuals.util.ProfileNames;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Util;
 
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -308,125 +302,15 @@ public final class ConfigManager {
     }
 
     private static JsonObject buildModulesJson() {
-        JsonObject modulesObj = new JsonObject();
-        for (ModuleInfo module : ModuleRegistry.all()) {
-            JsonObject modJson = new JsonObject();
-            modJson.addProperty("enabled", module.enabled());
-            modJson.addProperty("keyCode", module.keyCode());
-            modJson.addProperty("keybind", module.keybind());
-
-            JsonObject settingsObj = new JsonObject();
-            saveSettings(module.leftSettings(), settingsObj);
-            saveSettings(module.rightSettings(), settingsObj);
-            modJson.add("settings", settingsObj);
-
-            modulesObj.add(module.name(), modJson);
-        }
-        return modulesObj;
+        return ConfigJson.build(ModuleRegistry.all());
     }
 
     private static void applyModulesJson(JsonObject modulesObj) {
-        if (modulesObj == null) {
-            return;
-        }
-        for (ModuleInfo module : ModuleRegistry.all()) {
-            JsonObject modJson = null;
-            if (modulesObj.has(module.name())) {
-                modJson = modulesObj.getAsJsonObject(module.name());
-            } else if ("Filters".equalsIgnoreCase(module.name())) {
-                if (modulesObj.has("Фильтры")) {
-                    modJson = modulesObj.getAsJsonObject("Фильтры");
-                }
-            }
-            if (modJson == null) {
-                continue;
-            }
-            if (modJson.has("enabled")) {
-                module.toggleSilently(modJson.get("enabled").getAsBoolean());
-            }
-            if (modJson.has("keyCode")) {
-                int code = modJson.get("keyCode").getAsInt();
-                if (code >= 0) {
-                    module.resolveBinding(code);
-                } else {
-                    module.clearBinding();
-                }
-            }
-
-            if (modJson.has("settings") && modJson.get("settings").isJsonObject()) {
-                JsonObject settingsObj = modJson.getAsJsonObject("settings");
-                loadSettings(module.leftSettings(), settingsObj);
-                loadSettings(module.rightSettings(), settingsObj);
-            }
-        }
-    }
-
-    private static void loadSettings(Iterable<Setting> settings, JsonObject settingsObj) {
-        for (Setting setting : settings) {
-            if (!settingsObj.has(setting.name())) {
-                continue;
-            }
-            JsonElement val = settingsObj.get(setting.name());
-            try {
-                if (setting instanceof BooleanSetting bool) {
-                    bool.setValue(val.getAsBoolean());
-                } else if (setting instanceof SliderSetting slider) {
-                    slider.setValue(val.getAsFloat());
-                } else if (setting instanceof ModeSetting mode) {
-                    if (val.isJsonPrimitive() && val.getAsJsonPrimitive().isNumber()) {
-                        mode.select(val.getAsInt());
-                    } else if (val.isJsonPrimitive() && val.getAsJsonPrimitive().isString()) {
-                        String opt = val.getAsString();
-                        int idx = mode.options().indexOf(opt);
-                        if (idx >= 0) {
-                            mode.select(idx);
-                        }
-                    }
-                } else if (setting instanceof ColorSetting color) {
-                    color.set(val.getAsInt());
-                }
-            } catch (Exception e) {
-                dev.linkenvisuals.LinkenVisuals.LOGGER.warn("Failed to apply setting '{}': {}", setting.name(), e.getMessage());
-            }
-        }
-    }
-
-    private static void saveSettings(Iterable<Setting> settings, JsonObject settingsObj) {
-        for (Setting setting : settings) {
-            if (setting instanceof BooleanSetting bool) {
-                settingsObj.addProperty(setting.name(), bool.value());
-            } else if (setting instanceof SliderSetting slider) {
-                settingsObj.addProperty(setting.name(), slider.value());
-            } else if (setting instanceof ModeSetting mode) {
-                settingsObj.addProperty(setting.name(), mode.current());
-            } else if (setting instanceof ColorSetting color) {
-                settingsObj.addProperty(setting.name(), color.rgb());
-            }
-        }
+        ConfigJson.apply(ModuleRegistry.all(), modulesObj);
     }
 
     public static String sanitizeName(String name) {
-        if (name == null) {
-            return "";
-        }
-        // CWE-22: strip illegal FS chars AND dot-segments. Names like "..", "../x" or
-        // "a..b" tricks must never escape CONFIGS_DIR. We whitelist [letters/digits/space/_/-]
-        // plus Cyrillic range, collapse the rest to "_", then reject "." / ".." explicitly.
-        String clean = name.trim().replaceAll("[\\\\/:*?\"<>|]", "_");
-        clean = clean.replaceAll("[\\p{Cntrl}.]", "_").trim();
-        // Remove leading dots/underscores left from ".." sequences ("..foo" -> "foo")
-        clean = clean.replaceAll("^[._\\s]+", "");
-        if (clean.equals(".") || clean.equals("..")) {
-            return "";
-        }
-        if (clean.length() > 64) {
-            clean = clean.substring(0, 64).trim();
-        }
-        // Final guard: no separators or parent refs survived
-        if (clean.isEmpty() || clean.contains("..") || clean.contains("/") || clean.contains("\\")) {
-            return "";
-        }
-        return clean;
+        return ProfileNames.sanitize(name);
     }
 
     /**
@@ -452,31 +336,6 @@ public final class ConfigManager {
      * This prevents 0-byte corrupt configs on game crash / power loss.
      */
     private static Writer newAtomicWriter(Path target) throws java.io.IOException {
-        Path parent = target.getParent();
-        if (parent != null) {
-            Files.createDirectories(parent);
-        }
-        Path tmp = target.resolveSibling(target.getFileName().toString() + ".tmp");
-        java.io.BufferedWriter buf =
-            Files.newBufferedWriter(tmp, StandardCharsets.UTF_8,
-                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
-        return new java.io.FilterWriter(buf) {
-            private boolean committed;
-
-            @Override
-            public void close() throws java.io.IOException {
-                if (committed) {
-                    return;
-                }
-                committed = true;
-                super.close();
-                try {
-                    Files.move(tmp, target,
-                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                } catch (AtomicMoveNotSupportedException fallback) {
-                    Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
-                }
-            }
-        };
+        return AtomicFiles.openWriter(target);
     }
 }

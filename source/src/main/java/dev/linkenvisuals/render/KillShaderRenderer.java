@@ -30,7 +30,7 @@ import java.util.OptionalInt;
 public final class KillShaderRenderer {
     private static final int MAX = 4;
 
-    private static final int UNIFORM_SIZE = 32 + MAX * 16 * 2 + 64;
+    public static final int UNIFORM_SIZE = 32 + MAX * 16 * 2 + 64;
 
     private static final RenderPipeline PIPELINE = RenderPipelines.register(
         RenderPipeline.builder()

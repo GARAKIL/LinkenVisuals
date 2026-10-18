@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.OptionalInt;
 
 public final class RainRenderer {
-    private static final int UNIFORM_SIZE = 64 + 64 + 64;
+    public static final int UNIFORM_SIZE = 64 + 64 + 64;
 
     private static final RenderPipeline PIPELINE = RenderPipelines.register(
         RenderPipeline.builder()

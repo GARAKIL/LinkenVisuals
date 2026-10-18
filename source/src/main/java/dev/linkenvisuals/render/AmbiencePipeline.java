@@ -30,7 +30,7 @@ import java.util.OptionalInt;
  * and HDR composite tone mapping with exposure, contrast, saturation, and vignette parameters.
  */
 public final class AmbiencePipeline {
-    private static final int UNIFORM_SIZE = 64;
+    public static final int UNIFORM_SIZE = 64;
 
     private static final RenderPipeline BRIGHT = build("bright_pass", false);
     private static final RenderPipeline COMPOSITE = build("ambience_composite", true);

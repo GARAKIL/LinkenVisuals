@@ -40,7 +40,7 @@ public final class ScreenFilterPipeline {
                     .build()
     );
 
-    private static final int BUFFER_SIZE = 64;
+    public static final int BUFFER_SIZE = 64;
 
     private GpuBuffer uniformBuffer;
     private GpuBuffer dummyVertexBuffer;

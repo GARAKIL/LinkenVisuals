@@ -30,7 +30,7 @@ import java.util.OptionalInt;
 public final class HitBubbleRenderer {
     private static final int MAX = 8;
 
-    private static final int UNIFORM_SIZE = 32 + MAX * 16 * 2 + 128;
+    public static final int UNIFORM_SIZE = 32 + MAX * 16 * 2 + 128;
 
     private static final RenderPipeline PIPELINE = RenderPipelines.register(
         RenderPipeline.builder()

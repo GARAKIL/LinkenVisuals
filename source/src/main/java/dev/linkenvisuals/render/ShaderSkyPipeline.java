@@ -27,7 +27,7 @@ import java.util.OptionalInt;
  * celestial time, intensity, star frequency, stylistic presets, and gradient color accents.
  */
 public final class ShaderSkyPipeline {
-    private static final int UNIFORM_SIZE = 64;
+    public static final int UNIFORM_SIZE = 64;
 
     private static final float EXTENT = 100.0f;
 

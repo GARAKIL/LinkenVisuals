@@ -5,6 +5,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.util.ColorMath;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderSetup;
@@ -184,16 +185,15 @@ public final class Material {
     }
 
     public static int argb(int rgb, float alpha) {
-        int clamped = Math.max(0, Math.min(255, Math.round(alpha * 255.0f)));
-        return clamped << 24 | rgb & 0xFFFFFF;
+        return ColorMath.argb(rgb, alpha);
     }
 
     public static int lift(int rgb, float amount) {
-        return mix(rgb, 0xFFFFFF, amount);
+        return ColorMath.lift(rgb, amount);
     }
 
     public static int deepen(int rgb, float amount) {
-        return mix(rgb, 0x000000, amount);
+        return ColorMath.deepen(rgb, amount);
     }
 
     public static int shift(int rgb, float degrees) {
@@ -206,23 +206,14 @@ public final class Material {
     }
 
     public static int mix(int from, int to, float amount) {
-        float t = Math.max(0.0f, Math.min(1.0f, amount));
-        int r = Math.round((from >> 16 & 0xFF) + ((to >> 16 & 0xFF) - (from >> 16 & 0xFF)) * t);
-        int g = Math.round((from >> 8 & 0xFF) + ((to >> 8 & 0xFF) - (from >> 8 & 0xFF)) * t);
-        int b = Math.round((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
-        return r << 16 | g << 8 | b;
+        return ColorMath.mix(from, to, amount);
     }
 
     public static float smoothstep(float edge0, float edge1, float x) {
-        float t = Math.max(0.0f, Math.min(1.0f, (x - edge0) / (edge1 - edge0)));
-        return t * t * (3.0f - 2.0f * t);
+        return ColorMath.smoothstep(edge0, edge1, x);
     }
 
     public static float noise(int seed) {
-        int h = seed * 0x9E3779B1;
-        h ^= h >>> 15;
-        h *= 0x85EBCA6B;
-        h ^= h >>> 13;
-        return (h >>> 8 & 0xFFFF) / 65535.0f;
+        return ColorMath.noise(seed);
     }
 }

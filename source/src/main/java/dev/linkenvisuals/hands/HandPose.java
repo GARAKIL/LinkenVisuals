@@ -17,13 +17,6 @@ public final class HandPose {
     private static final Path FILE =
         FabricLoader.getInstance().getConfigDir().resolve("linkenvisuals_hands.json");
 
-    private static final float MIN_SCALE = 0.2f;
-    private static final float MAX_SCALE = 3.0f;
-
-    private static final float REACH = 0.3f;
-    private static final float NEAR = -0.3f;
-    private static final float FAR = 0.5f;
-
     private static Stored stored = new Stored();
 
     private HandPose() {
@@ -85,15 +78,15 @@ public final class HandPose {
     }
 
     private static float clampReach(float value) {
-        return Math.max(-REACH, Math.min(REACH, value));
+        return HandPoseMath.clampReach(value);
     }
 
     private static float clampDepth(float value) {
-        return Math.max(NEAR, Math.min(FAR, value));
+        return HandPoseMath.clampDepth(value);
     }
 
     private static float clampScale(float value) {
-        return Math.max(MIN_SCALE, Math.min(MAX_SCALE, value));
+        return HandPoseMath.clampScale(value);
     }
 
     public static void load() {

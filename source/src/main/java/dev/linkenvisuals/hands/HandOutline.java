@@ -31,8 +31,8 @@ import java.util.OptionalInt;
  * then executes full-screen passes for outline generation (Line, Glow, Aura, Energy) and smoke/motion trails.
  */
 public final class HandOutline {
-    private static final int TRAIL_UNIFORM = 32;
-    private static final int OUTLINE_UNIFORM = 96;
+    public static final int TRAIL_UNIFORM = 32;
+    public static final int OUTLINE_UNIFORM = 96;
 
     private static final RenderPipeline TRAIL_PIPELINE = RenderPipelines.register(
         RenderPipeline.builder()
