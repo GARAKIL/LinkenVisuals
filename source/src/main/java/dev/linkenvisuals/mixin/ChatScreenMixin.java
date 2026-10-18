@@ -3,6 +3,7 @@ package dev.linkenvisuals.mixin;
 import dev.linkenvisuals.anim.Animations;
 import dev.linkenvisuals.hands.HandEditor;
 import dev.linkenvisuals.hands.HandPanel;
+import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.NeonEdge;
 import net.minecraft.client.MinecraftClient;
@@ -58,6 +59,16 @@ public abstract class ChatScreenMixin {
         HandEditor.renderHandles(context, mouseX, mouseY);
         HandPanel.render(context, mouseX, mouseY);
         HandEditor.renderOverlay(context, mouseX, mouseY);
+    }
+
+    @Inject(method = "init", at = @At("HEAD"))
+    private void linkenvisuals$beginHudEdit(CallbackInfo ci) {
+        HudManager.setEditing(true);
+    }
+
+    @Inject(method = "removed", at = @At("HEAD"))
+    private void linkenvisuals$endHudEdit(CallbackInfo ci) {
+        HudManager.setEditing(false);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

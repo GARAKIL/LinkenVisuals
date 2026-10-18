@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.anim.Animations;
@@ -13,7 +14,6 @@ import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Spring;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -46,6 +46,13 @@ public final class HudManager {
     private static boolean previousRightMouseDown;
     private static long lastFrame = System.nanoTime();
     private static boolean loaded;
+    /**
+     * Explicit HUD edit-mode flag. Set by {@code ChatScreenMixin} when the chat screen
+     * opens or closes; HudManager itself never inspects screen types.
+     */
+    private static boolean editing;
+    /** The vanilla-blur warning is logged once; the drag path below runs every frame. */
+    private static boolean blurUnsupportedLogged;
 
     private static boolean menuOpen;
     private static float menuX;
@@ -77,7 +84,7 @@ public final class HudManager {
         PotionEffectTracker.refresh();
         NameTags.render(context);
 
-        boolean editMode = isEditScreen(client);
+        boolean editMode = editing;
         gridReveal.step(editMode ? 1.0 : 0.0, deltaSeconds);
         float gridAlpha = (float) gridReveal.get();
 
@@ -93,8 +100,13 @@ public final class HudManager {
         if (blurAmount > 0.05f) {
             try {
                 context.applyBlur();
-            } catch (IllegalStateException ignored) {
-                // Vanilla post-process blur is disabled or unsupported in current device context
+            } catch (IllegalStateException e) {
+                // Vanilla post-process blur is disabled or unsupported in the current device
+                // context. Logged once: this path runs every frame while an element is dragged.
+                if (!blurUnsupportedLogged) {
+                    blurUnsupportedLogged = true;
+                    LinkenVisuals.LOGGER.warn("[LinkenVisuals] HUD drag blur unavailable: {}", e.toString());
+                }
             }
             int veilAlpha = Math.round(45 * blurAmount);
             context.fill(0, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight(), ColorMath.withAlpha(0x000000, veilAlpha));
@@ -137,12 +149,12 @@ public final class HudManager {
         }
     }
 
-    public static boolean isEditing() {
-        return isEditScreen(MinecraftClient.getInstance());
+    public static void setEditing(boolean editing) {
+        HudManager.editing = editing;
     }
 
-    private static boolean isEditScreen(MinecraftClient client) {
-        return client.currentScreen instanceof ChatScreen;
+    public static boolean isEditing() {
+        return editing;
     }
 
     private static boolean isPotionElement(HudElement element) {
