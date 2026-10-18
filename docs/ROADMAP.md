@@ -19,7 +19,7 @@
 
 ## Фаза 3 — фиксы базового кода (M)
 - [x] Wrong-thread fix из лога запуска: DISCONNECT-путь (8 GPU-пайплайнов) → render-тред (`ce852de`, v1.0.35); проверка в игре по логу — за пользователем.
-1. `ClickGuiScreen` (1794 стр.): settings-окно (494–786) в отдельный класс; RU-строки через `I18n`.
+1. [x] `ClickGuiScreen` (1794 → 1394 стр.): config-окно (строки 473–804) вынесено в `ConfigPanel.java` (486 стр.); RU-строки → `I18n` (`gui.config.*`, en/ru/uk) — v1.0.36, D8.
 2. Миксины: убрать эвристики по локализованному тексту (`TitleScreenMixin`, `GameMenuScreenMixin`, `VanillaStylePipeline` — если переживут Фазу 2); ordinal-анкеры (`CameraMixin`, `TextFieldWidgetMixin`) → именованные.
 3. Четыре клона loading-миксинов → общий базовый.
 4. Единый `ColorUtil` вместо ~22 клонов mix/withAlpha/argb.

@@ -1,6 +1,7 @@
 package dev.linkenvisuals.clickgui;
 
 import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.KeybindSetting;
@@ -53,7 +54,7 @@ public final class ClickGuiScreen extends Screen {
 
     private static final float HEADER_H = 33.0f;
     private static final float EDGE = 6.0f;
-    private static final float CONTENT_BOTTOM = 265.0f;
+    static final float CONTENT_BOTTOM = 265.0f;
 
     private static final float HEADER_BOX_Y = 4.0f;
     private static final float HEADER_BOX_H = 25.0f;
@@ -61,7 +62,7 @@ public final class ClickGuiScreen extends Screen {
     private static final float RAIL_BOX_W = 24.0f;
     private static final float RAIL_BOX_X = WINDOW_W - 8.0f - RAIL_BOX_W;
     private static final float RAIL_CENTER_X = RAIL_BOX_X + RAIL_BOX_W * 0.5f;
-    private static final float RAIL_DIVIDER_X = 455.0f;
+    static final float RAIL_DIVIDER_X = 455.0f;
     private static final float RAIL_LOGO_Y = 17.0f;
     private static final float RAIL_FIRST_Y = 49.0f;
     private static final float RAIL_SPACING = 25.0f;
@@ -123,54 +124,7 @@ public final class ClickGuiScreen extends Screen {
     private float caretTarget;
     private static long lastTyped;
 
-    // Config Manager state
-    private static final StringBuilder configInput = new StringBuilder();
-    private static boolean configInputFocused = false;
-    private static float configScrollTarget = 0.0f;
-    private final Spring configScrollSpring = new Spring(0.0, 1100.0, 60.0);
-    private float configContentHeight;
-    private float configViewHeight = 1.0f;
-    private static String configStatusMessage = null;
-    private static long configStatusTime = 0L;
-    private static int configStatusColor = 0x4ADE80;
-
-    private static final class ConfigActionBounds {
-        final String profile;
-        final float cardX, cardY, cardW, cardH;
-        final float loadX, loadY, loadW, loadH;
-        final float saveX, saveY, saveW, saveH;
-        final float delX, delY, delW, delH;
-
-        ConfigActionBounds(String profile, float cardX, float cardY, float cardW, float cardH,
-                           float loadX, float loadY, float loadW, float loadH,
-                           float saveX, float saveY, float saveW, float saveH,
-                           float delX, float delY, float delW, float delH) {
-            this.profile = profile;
-            this.cardX = cardX;
-            this.cardY = cardY;
-            this.cardW = cardW;
-            this.cardH = cardH;
-            this.loadX = loadX;
-            this.loadY = loadY;
-            this.loadW = loadW;
-            this.loadH = loadH;
-            this.saveX = saveX;
-            this.saveY = saveY;
-            this.saveW = saveW;
-            this.saveH = saveH;
-            this.delX = delX;
-            this.delY = delY;
-            this.delW = delW;
-            this.delH = delH;
-        }
-    }
-
-    private final List<ConfigActionBounds> configActionBounds = new ArrayList<>();
-    private float cfgInputX, cfgInputY, cfgInputW, cfgInputH;
-    private float cfgCreateX, cfgCreateY, cfgCreateW, cfgCreateH;
-    private float cfgFolderX, cfgFolderY, cfgFolderW, cfgFolderH;
-    private float cfgRefreshX, cfgRefreshY, cfgRefreshW, cfgRefreshH;
-    private float cfgAutoX, cfgAutoY, cfgAutoW, cfgAutoH;
+    private final ConfigPanel configPanel = new ConfigPanel();
 
     private float openAge;
     private float listAge;
@@ -190,6 +144,7 @@ public final class ClickGuiScreen extends Screen {
         ModuleRegistry.syncFromMenuConfig();
         text = GlyphAtlas.load(TEXT_DATA, TEXT_ATLAS);
         bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+        configPanel.bind(text, bold, this::scrollbar);
         for (Category category : Category.values()) {
             railHover.computeIfAbsent(category, key -> new Spring(0.0, 900.0, 48.0));
         }
@@ -303,7 +258,7 @@ public final class ClickGuiScreen extends Screen {
             () -> renderHeader(context, wx, wy, mouseX, mouseY, openT * phase(0.0f)));
         if (selected == Category.CONFIG) {
             region(context, wx + (EDGE + RAIL_DIVIDER_X) * 0.5f, wy + (LIST_TOP + CONTENT_BOTTOM) * 0.5f, 0.1f,
-                () -> renderConfigManager(context, wx, wy, mouseX, mouseY, deltaSeconds, openT * phase(0.1f)));
+                () -> configPanel.render(context, wx, wy, mouseX, mouseY, deltaSeconds, openT * phase(0.1f)));
         } else {
             region(context, wx + LIST_X + LIST_W * 0.5f, wy + (LIST_TOP + CONTENT_BOTTOM) * 0.5f, 0.07f,
                 () -> renderList(context, wx, wy, mouseX, mouseY, deltaSeconds, openT * phase(0.07f)));
@@ -470,339 +425,6 @@ public final class ClickGuiScreen extends Screen {
             argb(0xFFFFFF, Math.round((searchOpen ? 245 : 115) * openT)));
     }
 
-    private void renderConfigManager(DrawContext context, float wx, float wy, int mouseX, int mouseY, double deltaSeconds, float openT) {
-        float areaLeft = wx + 12.0f;
-        float areaRight = wx + RAIL_DIVIDER_X - 10.0f;
-        float areaTop = wy + 38.0f;
-        float areaBottom = wy + CONTENT_BOTTOM - 4.0f;
-
-        // 1. Top Control Bar (Y = areaTop + 3.0f, Height = 22.0f)
-        float topY = areaTop + 3.0f;
-        cfgInputX = areaLeft;
-        cfgInputY = topY;
-        cfgInputW = 158.0f;
-        cfgInputH = 22.0f;
-
-        RoundedRectPipeline.draw(context, cfgInputX, cfgInputY, cfgInputW, cfgInputH,
-            argb(0x0C0E14, Math.round(230 * openT)));
-        RoundedRectPipeline.drawOutline(context, cfgInputX, cfgInputY, cfgInputW, cfgInputH,
-            configInputFocused ? argb(NeonEdge.cool(), Math.round(210 * openT))
-                               : argb(0xFFFFFF, Math.round(28 * openT)));
-
-        float inputTextY = centredTop(cfgInputY + cfgInputH * 0.5f, 6.6f);
-        if (configInput.length() == 0) {
-            MsdfText.draw(context, text, "Новый конфиг...", cfgInputX + 8.0f, inputTextY, 6.6f,
-                argb(0x777E90, Math.round(180 * openT)));
-        } else {
-            MsdfText.draw(context, bold, configInput.toString(), cfgInputX + 8.0f, inputTextY, 6.6f,
-                argb(0xFFFFFF, Math.round(230 * openT)));
-        }
-        if (configInputFocused && (System.currentTimeMillis() % 1000L) < 500L) {
-            float curX = cfgInputX + 8.0f + (configInput.length() == 0 ? 0.0f : MsdfText.width(bold, configInput.toString(), 6.6f) + 1.0f);
-            context.fill(Math.round(curX), Math.round(cfgInputY + 5.0f), Math.round(curX + 1.0f), Math.round(cfgInputY + cfgInputH - 5.0f),
-                argb(NeonEdge.cool(), Math.round(230 * openT)));
-        }
-
-        // Button "+ Создать"
-        cfgCreateX = cfgInputX + cfgInputW + 6.0f;
-        cfgCreateY = topY;
-        cfgCreateW = 68.0f;
-        cfgCreateH = 22.0f;
-        boolean createHov = mouseX >= cfgCreateX && mouseX <= cfgCreateX + cfgCreateW && mouseY >= cfgCreateY && mouseY <= cfgCreateY + cfgCreateH;
-        RoundedRectPipeline.draw(context, cfgCreateX, cfgCreateY, cfgCreateW, cfgCreateH,
-            createHov ? argb(NeonEdge.cool(), Math.round(55 * openT)) : argb(0xFFFFFF, Math.round(15 * openT)));
-        RoundedRectPipeline.drawOutline(context, cfgCreateX, cfgCreateY, cfgCreateW, cfgCreateH,
-            argb(NeonEdge.cool(), Math.round((createHov ? 200 : 70) * openT)));
-        MsdfText.drawCentered(context, bold, "+ Создать", cfgCreateX + cfgCreateW * 0.5f,
-            centredTop(cfgCreateY + cfgCreateH * 0.5f, 6.2f), 6.2f,
-            argb(0xFFFFFF, Math.round((createHov ? 255 : 210) * openT)));
-
-        // Button "Папка"
-        cfgFolderX = cfgCreateX + cfgCreateW + 5.0f;
-        cfgFolderY = topY;
-        cfgFolderW = 56.0f;
-        cfgFolderH = 22.0f;
-        boolean folderHov = mouseX >= cfgFolderX && mouseX <= cfgFolderX + cfgFolderW && mouseY >= cfgFolderY && mouseY <= cfgFolderY + cfgFolderH;
-        RoundedRectPipeline.draw(context, cfgFolderX, cfgFolderY, cfgFolderW, cfgFolderH,
-            folderHov ? argb(0xFFFFFF, Math.round(30 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
-        RoundedRectPipeline.drawOutline(context, cfgFolderX, cfgFolderY, cfgFolderW, cfgFolderH,
-            argb(0xFFFFFF, Math.round((folderHov ? 90 : 35) * openT)));
-        MsdfText.drawCentered(context, bold, "Папка", cfgFolderX + cfgFolderW * 0.5f,
-            centredTop(cfgFolderY + cfgFolderH * 0.5f, 6.2f), 6.2f,
-            argb(0xFFFFFF, Math.round((folderHov ? 255 : 200) * openT)));
-
-        // Button "Обновить"
-        cfgRefreshX = cfgFolderX + cfgFolderW + 5.0f;
-        cfgRefreshY = topY;
-        cfgRefreshW = 64.0f;
-        cfgRefreshH = 22.0f;
-        boolean refreshHov = mouseX >= cfgRefreshX && mouseX <= cfgRefreshX + cfgRefreshW && mouseY >= cfgRefreshY && mouseY <= cfgRefreshY + cfgRefreshH;
-        RoundedRectPipeline.draw(context, cfgRefreshX, cfgRefreshY, cfgRefreshW, cfgRefreshH,
-            refreshHov ? argb(0xFFFFFF, Math.round(30 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
-        RoundedRectPipeline.drawOutline(context, cfgRefreshX, cfgRefreshY, cfgRefreshW, cfgRefreshH,
-            argb(0xFFFFFF, Math.round((refreshHov ? 90 : 35) * openT)));
-        MsdfText.drawCentered(context, bold, "Обновить", cfgRefreshX + cfgRefreshW * 0.5f,
-            centredTop(cfgRefreshY + cfgRefreshH * 0.5f, 6.0f), 6.0f,
-            argb(0xFFFFFF, Math.round((refreshHov ? 255 : 200) * openT)));
-
-        // Button "Автосохранение"
-        cfgAutoX = cfgRefreshX + cfgRefreshW + 6.0f;
-        cfgAutoY = topY;
-        cfgAutoW = areaRight - cfgAutoX;
-        cfgAutoH = 22.0f;
-        boolean autoHov = mouseX >= cfgAutoX && mouseX <= cfgAutoX + cfgAutoW && mouseY >= cfgAutoY && mouseY <= cfgAutoY + cfgAutoH;
-        boolean autoOn = ModuleRegistry.configAutoSave() != null && ModuleRegistry.configAutoSave().value();
-        RoundedRectPipeline.draw(context, cfgAutoX, cfgAutoY, cfgAutoW, cfgAutoH,
-            autoOn ? argb(0x4ADE80, Math.round((autoHov ? 40 : 22) * openT))
-                   : argb(0xFFFFFF, Math.round((autoHov ? 25 : 12) * openT)));
-        RoundedRectPipeline.drawOutline(context, cfgAutoX, cfgAutoY, cfgAutoW, cfgAutoH,
-            autoOn ? argb(0x4ADE80, Math.round(140 * openT))
-                   : argb(0xFFFFFF, Math.round(30 * openT)));
-        MsdfText.drawCentered(context, bold, autoOn ? "Авто: ВКЛ" : "Авто: ВЫКЛ", cfgAutoX + cfgAutoW * 0.5f,
-            centredTop(cfgAutoY + cfgAutoH * 0.5f, 5.8f), 5.8f,
-            autoOn ? argb(0x4ADE80, Math.round(230 * openT)) : argb(0x999999, Math.round(180 * openT)));
-
-        // 2. Sub-Bar (Y = topY + 27.0f)
-        float subY = topY + 27.0f;
-        MsdfText.draw(context, text, "Активный конфиг: ", areaLeft + 2.0f, subY, 6.2f,
-            argb(0x888EA0, Math.round(190 * openT)));
-        float prefixW = MsdfText.width(text, "Активный конфиг: ", 6.2f);
-        MsdfText.draw(context, bold, ConfigManager.getActiveProfile(), areaLeft + 2.0f + prefixW, subY, 6.2f,
-            argb(0x4ADE80, Math.round(240 * openT)));
-
-        if (configStatusMessage != null && System.currentTimeMillis() - configStatusTime < 3500L) {
-            float statW = MsdfText.width(bold, configStatusMessage, 6.2f);
-            MsdfText.draw(context, bold, configStatusMessage, areaRight - statW - 2.0f, subY, 6.2f,
-                argb(configStatusColor, Math.round(230 * openT)));
-        } else {
-            List<String> profs = ConfigManager.getProfiles();
-            String cntStr = "Всего: " + profs.size();
-            float cntW = MsdfText.width(text, cntStr, 6.0f);
-            MsdfText.draw(context, text, cntStr, areaRight - cntW - 2.0f, subY, 6.0f,
-                argb(0x666D80, Math.round(160 * openT)));
-        }
-
-        // 3. Config Cards List
-        float listTop = subY + 12.0f;
-        float listBottom = areaBottom;
-        float listH = listBottom - listTop;
-        configViewHeight = listH;
-
-        List<String> profiles = ConfigManager.getProfiles();
-        float cardH = 27.0f;
-        float cardGap = 4.0f;
-        configContentHeight = Math.max(0.0f, profiles.size() * (cardH + cardGap) - cardGap);
-        configScrollTarget = Math.max(0.0f, Math.min(configScrollTarget, Math.max(0.0f, configContentHeight - configViewHeight)));
-        configScrollSpring.step(configScrollTarget, deltaSeconds);
-        float scroll = (float) configScrollSpring.get();
-
-        context.enableScissor(Math.round(areaLeft), Math.round(listTop), Math.round(areaRight), Math.round(listBottom));
-
-        configActionBounds.clear();
-        for (int i = 0; i < profiles.size(); i++) {
-            String profile = profiles.get(i);
-            float cardY = listTop + i * (cardH + cardGap) - scroll;
-            float cardW = areaRight - areaLeft;
-
-            float loadW = 58.0f;
-            float loadH = 18.0f;
-            float loadX = areaLeft + cardW - 146.0f;
-            float loadY = cardY + 4.5f;
-
-            float saveW = 58.0f;
-            float saveH = 18.0f;
-            float saveX = areaLeft + cardW - 84.0f;
-            float saveY = cardY + 4.5f;
-
-            float delW = 18.0f;
-            float delH = 18.0f;
-            float delX = areaLeft + cardW - 22.0f;
-            float delY = cardY + 4.5f;
-
-            configActionBounds.add(new ConfigActionBounds(profile, areaLeft, cardY, cardW, cardH,
-                loadX, loadY, loadW, loadH, saveX, saveY, saveW, saveH, delX, delY, delW, delH));
-
-            if (cardY + cardH < listTop || cardY > listBottom) {
-                continue;
-            }
-
-            boolean isActive = profile.equalsIgnoreCase(ConfigManager.getActiveProfile());
-            boolean cardHov = mouseX >= areaLeft && mouseX <= areaRight && mouseY >= cardY && mouseY <= cardY + cardH;
-
-            // Card background
-            if (isActive) {
-                RoundedRectPipeline.draw(context, areaLeft, cardY, cardW, cardH,
-                    argb(0x101D16, Math.round(235 * openT)));
-                RoundedRectPipeline.drawOutline(context, areaLeft, cardY, cardW, cardH,
-                    argb(0x4ADE80, Math.round(90 * openT)));
-                // Active green strip
-                RoundedRectPipeline.draw(context, areaLeft, cardY, 3.0f, cardH,
-                    argb(0x4ADE80, Math.round(230 * openT)));
-            } else {
-                RoundedRectPipeline.draw(context, areaLeft, cardY, cardW, cardH,
-                    argb(0x0C0E14, Math.round(220 * openT)));
-                RoundedRectPipeline.drawOutline(context, areaLeft, cardY, cardW, cardH,
-                    argb(0xFFFFFF, Math.round((cardHov ? 35 : 18) * openT)));
-            }
-
-            // Name & Info
-            float nameX = areaLeft + 12.0f;
-            float nameY = centredTop(cardY + cardH * 0.5f, 7.0f);
-            MsdfText.draw(context, bold, profile, nameX, nameY, 7.0f,
-                isActive ? argb(0x4ADE80, Math.round(240 * openT)) : argb(0xFFFFFF, Math.round(220 * openT)));
-
-            float nameW = MsdfText.width(bold, profile, 7.0f);
-            if (isActive) {
-                MsdfText.draw(context, bold, "[АКТИВЕН]", nameX + nameW + 8.0f, nameY + 0.6f, 5.6f,
-                    argb(0x4ADE80, Math.round(200 * openT)));
-            } else {
-                MsdfText.draw(context, text, profile + ".json", nameX + nameW + 8.0f, nameY + 0.6f, 5.6f,
-                    argb(0x666D80, Math.round(150 * openT)));
-            }
-
-            // Load Button
-            boolean loadHov = mouseX >= loadX && mouseX <= loadX + loadW && mouseY >= loadY && mouseY <= loadY + loadH;
-            RoundedRectPipeline.draw(context, loadX, loadY, loadW, loadH,
-                loadHov ? argb(NeonEdge.cool(), Math.round(60 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
-            RoundedRectPipeline.drawOutline(context, loadX, loadY, loadW, loadH,
-                argb(NeonEdge.cool(), Math.round((loadHov ? 180 : 50) * openT)));
-            MsdfText.drawCentered(context, bold, "Загрузить", loadX + loadW * 0.5f,
-                centredTop(loadY + loadH * 0.5f, 5.6f), 5.6f,
-                argb(0xFFFFFF, Math.round((loadHov ? 255 : 200) * openT)));
-
-            // Save Button
-            boolean saveHov = mouseX >= saveX && mouseX <= saveX + saveW && mouseY >= saveY && mouseY <= saveY + saveH;
-            RoundedRectPipeline.draw(context, saveX, saveY, saveW, saveH,
-                saveHov ? argb(0x4ADE80, Math.round(50 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
-            RoundedRectPipeline.drawOutline(context, saveX, saveY, saveW, saveH,
-                argb(0x4ADE80, Math.round((saveHov ? 160 : 50) * openT)));
-            MsdfText.drawCentered(context, bold, "Сохранить", saveX + saveW * 0.5f,
-                centredTop(saveY + saveH * 0.5f, 5.6f), 5.6f,
-                argb(0xFFFFFF, Math.round((saveHov ? 255 : 200) * openT)));
-
-            // Delete Button
-            boolean canDel = profiles.size() > 1;
-            boolean delHov = canDel && mouseX >= delX && mouseX <= delX + delW && mouseY >= delY && mouseY <= delY + delH;
-            RoundedRectPipeline.draw(context, delX, delY, delW, delH,
-                delHov ? argb(0xFF4444, Math.round(65 * openT)) : argb(0xFFFFFF, Math.round(canDel ? 12 : 5 * openT)));
-            RoundedRectPipeline.drawOutline(context, delX, delY, delW, delH,
-                canDel ? (delHov ? argb(0xFF4444, Math.round(180 * openT)) : argb(0xFF4444, Math.round(55 * openT)))
-                       : argb(0xFFFFFF, Math.round(15 * openT)));
-            MsdfText.drawCentered(context, bold, "✕", delX + delW * 0.5f,
-                centredTop(delY + delH * 0.5f, 6.2f), 6.2f,
-                canDel ? (delHov ? argb(0xFF6B6B, Math.round(255 * openT)) : argb(0xDD6B6B, Math.round(180 * openT)))
-                       : argb(0x555555, Math.round(100 * openT)));
-        }
-
-        context.disableScissor();
-
-        scrollbar(context, areaRight - 1.0f, listTop, listH, configContentHeight, scroll, openT);
-    }
-
-    private boolean handleConfigManagerClick(float mx, float my, int button) {
-        // Input box
-        if (mx >= cfgInputX && mx <= cfgInputX + cfgInputW && my >= cfgInputY && my <= cfgInputY + cfgInputH) {
-            configInputFocused = true;
-            return true;
-        } else if (my < cfgInputY + cfgInputH + 6.0f) {
-            configInputFocused = false;
-        }
-
-        // Create button
-        if (mx >= cfgCreateX && mx <= cfgCreateX + cfgCreateW && my >= cfgCreateY && my <= cfgCreateY + cfgCreateH) {
-            createConfigFromInput();
-            return true;
-        }
-
-        // Folder button
-        if (mx >= cfgFolderX && mx <= cfgFolderX + cfgFolderW && my >= cfgFolderY && my <= cfgFolderY + cfgFolderH) {
-            ConfigManager.openFolder();
-            playUiSound(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value());
-            return true;
-        }
-
-        // Refresh button
-        if (mx >= cfgRefreshX && mx <= cfgRefreshX + cfgRefreshW && my >= cfgRefreshY && my <= cfgRefreshY + cfgRefreshH) {
-            ConfigManager.reloadProfiles();
-            setConfigStatus("Список обновлен", 0x4ADE80);
-            playUiSound(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value());
-            return true;
-        }
-
-        // AutoSave toggle
-        if (mx >= cfgAutoX && mx <= cfgAutoX + cfgAutoW && my >= cfgAutoY && my <= cfgAutoY + cfgAutoH) {
-            if (ModuleRegistry.configAutoSave() != null) {
-                ModuleRegistry.configAutoSave().toggle();
-                playUiSound(net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value());
-            }
-            return true;
-        }
-
-        // Config actions
-        for (ConfigActionBounds b : configActionBounds) {
-            if (my < b.cardY || my > b.cardY + b.cardH || mx < b.cardX || mx > b.cardX + b.cardW) {
-                continue;
-            }
-            // Load button
-            if (mx >= b.loadX && mx <= b.loadX + b.loadW && my >= b.loadY && my <= b.loadY + b.loadH) {
-                if (ConfigManager.loadProfile(b.profile)) {
-                    setConfigStatus("Конфиг '" + b.profile + "' загружен", 0x4ADE80);
-                    playUiSound(LinkenVisuals.TOGGLE_ON_SOUND);
-                }
-                return true;
-            }
-            // Save button
-            if (mx >= b.saveX && mx <= b.saveX + b.saveW && my >= b.saveY && my <= b.saveY + b.saveH) {
-                if (ConfigManager.saveProfile(b.profile)) {
-                    setConfigStatus("Конфиг '" + b.profile + "' сохранен", 0x4ADE80);
-                    playUiSound(LinkenVisuals.TOGGLE_ON_SOUND);
-                }
-                return true;
-            }
-            // Delete button
-            if (mx >= b.delX && mx <= b.delX + b.delW && my >= b.delY && my <= b.delY + b.delH) {
-                if (ConfigManager.deleteProfile(b.profile)) {
-                    setConfigStatus("Конфиг '" + b.profile + "' удален", 0xFF6B6B);
-                    playUiSound(LinkenVisuals.TOGGLE_OFF_SOUND);
-                }
-                return true;
-            }
-            // Clicking anywhere on card loads it
-            if (ConfigManager.loadProfile(b.profile)) {
-                setConfigStatus("Конфиг '" + b.profile + "' загружен", 0x4ADE80);
-                playUiSound(LinkenVisuals.TOGGLE_ON_SOUND);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-    private void createConfigFromInput() {
-        String name = configInput.toString().trim();
-        if (!name.isEmpty()) {
-            boolean ok = ConfigManager.createProfile(name);
-            if (ok) {
-                setConfigStatus("Конфиг '" + name + "' создан", 0x4ADE80);
-                playUiSound(LinkenVisuals.TOGGLE_ON_SOUND);
-            }
-            configInput.setLength(0);
-            configInputFocused = false;
-        }
-    }
-
-    private static void setConfigStatus(String msg, int color) {
-        configStatusMessage = msg;
-        configStatusColor = color;
-        configStatusTime = System.currentTimeMillis();
-    }
-
-    private void playUiSound(net.minecraft.sound.SoundEvent sound) {
-        if (client != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(sound, 1.0f, 1.0f));
-        }
-    }
-
     private void renderList(DrawContext context, float wx, float wy, int mouseX, int mouseY, double deltaSeconds, float openT) {
         float listTop = wy + LIST_TOP;
         if (searchOpen) {
@@ -869,7 +491,7 @@ public final class ClickGuiScreen extends Screen {
         float textY = y + (SEARCH_BAR_H - 7.0f) * 0.5f;
 
         if (query.isEmpty()) {
-            MsdfText.draw(context, text, "Search...", textX + 4.0f, textY, 7.0f, argb(0xFFFFFF, Math.round(70 * openT)));
+            MsdfText.draw(context, text, I18n.get("gui.search.placeholder"), textX + 4.0f, textY, 7.0f, argb(0xFFFFFF, Math.round(70 * openT)));
         } else {
             MsdfText.draw(context, bold, query, textX, textY, 7.0f, argb(0xFFFFFF, Math.round(240 * openT)));
         }
@@ -1511,8 +1133,7 @@ public final class ClickGuiScreen extends Screen {
             float cy = wy + RAIL_FIRST_Y + i * RAIL_SPACING;
             if (Math.abs(mx - cx) <= RAIL_HIT * 0.5f && Math.abs(my - cy) <= RAIL_HIT * 0.5f) {
                 selected = categories[i];
-                configInputFocused = false;
-                configInput.setLength(0);
+                configPanel.resetInput();
                 scrollTarget = 0.0f;
                 search.setLength(0);
                 List<ModuleInfo> modules = ModuleRegistry.byCategory(selected);
@@ -1531,10 +1152,8 @@ public final class ClickGuiScreen extends Screen {
             return true;
         }
 
-        if (selected == Category.CONFIG) {
-            if (handleConfigManagerClick(mx, my, click.button())) {
-                return true;
-            }
+        if (selected == Category.CONFIG && configPanel.mouseClicked(mx, my)) {
+            return true;
         }
 
         if (focused != null && mx >= headerSwitchX - 4.0f && mx <= headerSwitchX + 18.0f
@@ -1658,9 +1277,7 @@ public final class ClickGuiScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         if (selected == Category.CONFIG) {
-            configScrollTarget -= (float) verticalAmount * 24.0f;
-            configScrollTarget = Math.max(0.0f, Math.min(configScrollTarget,
-                Math.max(0.0f, configContentHeight - configViewHeight)));
+            configPanel.scroll(verticalAmount);
             return true;
         }
         if (mouseX > windowX() + PANEL_X) {
@@ -1676,14 +1293,8 @@ public final class ClickGuiScreen extends Screen {
 
     @Override
     public boolean charTyped(CharInput input) {
-        if (selected == Category.CONFIG && configInputFocused && input.isValidChar()) {
-            char c = input.asString().charAt(0);
-            if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == ' ') {
-                if (configInput.length() < 24) {
-                    configInput.append(c);
-                    return true;
-                }
-            }
+        if (selected == Category.CONFIG && configPanel.charTyped(input)) {
+            return true;
         }
         if (searchOpen && input.isValidChar()) {
             search.append(input.asString());
@@ -1695,19 +1306,8 @@ public final class ClickGuiScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyInput input) {
-        if (selected == Category.CONFIG && configInputFocused) {
-            if (input.key() == GLFW.GLFW_KEY_BACKSPACE && configInput.length() > 0) {
-                configInput.deleteCharAt(configInput.length() - 1);
-                return true;
-            }
-            if (input.key() == GLFW.GLFW_KEY_ENTER || input.key() == GLFW.GLFW_KEY_KP_ENTER) {
-                createConfigFromInput();
-                return true;
-            }
-            if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
-                configInputFocused = false;
-                return true;
-            }
+        if (selected == Category.CONFIG && configPanel.keyPressed(input)) {
+            return true;
         }
         for (ModuleInfo module : ModuleRegistry.all()) {
             if (!module.binding()) {
