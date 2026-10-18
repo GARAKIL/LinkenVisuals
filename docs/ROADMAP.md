@@ -27,7 +27,7 @@
 4b. [x] Шрифтовые константы 13 файлов → `Fonts` (18 load-сайтов; поля-алиасы сохранены, `FontDraw.getFont` упрощён) — v1.0.41, D13.
 5. [x] Атомарные записи `HudLayoutStorage`, `PotionLayoutMode` + 4 файла с ручными копиями (AccountStorage, HandPose, MacroManager, MainMenuConfig) → `util.AtomicFiles` (укреплён cleanup'ом tmp при сбое); `ConfigManager.CONFIG_VERSION` пишется в 3 файла-источника и проверяется warn'ом на «файл новее сборки» — v1.0.42, D14.
 6. [x] Пер-кадровые аллокации: `KeybindPanel` (кэш по новому `ModuleInfo.revision()`, uppercase-ключ в `Entry`), `Cosmetics` (переиспользуемый `CosmeticContext.set()` вместо 6 аллокаций/кадр), `HudManager` (drag-путь без аллокаций: `SNAP_OUT` + `CURSOR_X/Y`); `Pipelines.warmUp()` из кадра → в одноразовый блок первого кадра — v1.0.43, D15.
-7. `MediaWatcher`: PowerShell `-ExecutionPolicy Bypass` → «unsupported platform» + опциональный внешний скрипт.
+7. [x] `MediaWatcher`: `-ExecutionPolicy Bypass` убран (политика не гейтит stdin-команды — доказано прогоном под форс-`Restricted`); SCRIPT → 9 строк, каждая законченный statement (построчный stdin-режим PS 5.1 подтверждён A/B-стендами Java/.NET); не-Windows → один INFO «unsupported platform»; внешний скрипт `config/linkenvisuals_media.cmd|.sh` (формат в javadoc); `MediaWatcherTest` (5) — v1.0.44, D16.
 8. `HudManager`: edit-mode не через «is a ChatScreen»; убрать тихий catch.
 9. README-дрейф (адрес конфига, категории, несуществующая косметика «Bandana»).
 10. Проверить (не удалять без приказа): секреты в `AccountStorage`, миксины `Yggdrasil*`, совместимость Sodium/Iris (описать конфликтные места).
