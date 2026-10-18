@@ -34,7 +34,7 @@ public final class BlockOverlayPipelines {
             .withLocation(LinkenVisuals.id("pipeline/block_overlay_flat"))
             .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.TRIANGLES)
             .withBlend(BlendFunction.TRANSLUCENT)
-            .withDepthTestFunction(DepthTestFunction.LESS_DEPTH_TEST)
+            .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
             .build());
@@ -44,7 +44,7 @@ public final class BlockOverlayPipelines {
             .withLocation(LinkenVisuals.id("pipeline/block_overlay_lines"))
             .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.LINES)
             .withBlend(BlendFunction.TRANSLUCENT)
-            .withDepthTestFunction(DepthTestFunction.LESS_DEPTH_TEST)
+            .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
             .withDepthWrite(false)
             .withCull(false)
             .build());
@@ -57,10 +57,10 @@ public final class BlockOverlayPipelines {
                     .withLocation(LinkenVisuals.id("pipeline/block_overlay_" + name))
                     .withVertexShader(LinkenVisuals.id("core/block_overlay"))
                     .withFragmentShader(LinkenVisuals.id("core/block_overlay_" + name))
-                    .withVertexFormat(VertexFormats.POSITION_TEX, VertexFormat.DrawMode.TRIANGLES)
+                    .withVertexFormat(VertexFormats.POSITION_TEXTURE, VertexFormat.DrawMode.TRIANGLES)
                     .withUniform("BlockOverlay", UniformType.UNIFORM_BUFFER)
                     .withBlend(BlendFunction.TRANSLUCENT)
-                    .withDepthTestFunction(DepthTestFunction.LESS_DEPTH_TEST)
+                    .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withDepthWrite(false)
                     .withCull(false)
                     .build()));

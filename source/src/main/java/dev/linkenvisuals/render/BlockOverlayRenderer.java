@@ -79,9 +79,9 @@ public final class BlockOverlayRenderer {
         }
 
         float animation = (float) ((System.nanoTime() - ANIM_EPOCH_NANOS) / 4_000_000_000.0)
-            * module.shaderSpeed.getValue();
-        int fillAlpha = clamp255(module.fillAlpha.getValue());
-        int outlineAlpha = clamp255(module.outlineAlpha.getValue());
+            * module.shaderSpeed.value();
+        int fillAlpha = clamp255(module.fillAlpha.value());
+        int outlineAlpha = clamp255(module.outlineAlpha.value());
         BlockOverlayModule.FillMode mode = module.mode();
         Palette palette = Palette.of(mode);
 
@@ -90,12 +90,12 @@ public final class BlockOverlayRenderer {
         int fbHeight = Math.max(1, main.textureHeight);
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-        if (module.useShader.getValue() && Math.max(fillAlpha, outlineAlpha) > 0) {
+        if (module.useShader.value() && Math.max(fillAlpha, outlineAlpha) > 0) {
             int shaderAlpha = Math.max(fillAlpha, Math.round(outlineAlpha * 0.72f));
             int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
             writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, shaderAlpha);
             drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box);
-        } else if (module.fill.getValue() && fillAlpha > 0) {
+        } else if (module.fill.value() && fillAlpha > 0) {
             drawGradientFill(encoder, main, box, fillAlpha, animation, palette, mode);
         }
 
@@ -164,16 +164,18 @@ public final class BlockOverlayRenderer {
             putTexturedFace(data, box.minX, box.minY, box.maxZ, box.maxX, box.minY, box.maxZ,
                 box.maxX, box.minY, box.minZ, box.minX, box.minY, box.minZ);
             data.flip();
-            try (GpuBuffer verts = RenderSystem.getDevice().createBuffer(
+            GpuBuffer verts = RenderSystem.getDevice().createBuffer(
                 () -> "linkenvisuals:block_overlay_fill", GpuBuffer.USAGE_VERTEX, data);
-                 RenderPass pass = encoder.createRenderPass(() -> "linkenvisuals:block_overlay",
-                     main.getColorAttachmentView(), OptionalInt.empty(),
-                     main.getDepthAttachmentView(), OptionalDouble.empty())) {
+            try (RenderPass pass = encoder.createRenderPass(() -> "linkenvisuals:block_overlay",
+                main.getColorAttachmentView(), OptionalInt.empty(),
+                main.getDepthAttachmentView(), OptionalDouble.empty())) {
                 pass.setPipeline(pipeline);
                 RenderSystem.bindDefaultUniforms(pass);
                 pass.setUniform("BlockOverlay", uniforms);
                 pass.setVertexBuffer(0, verts);
                 pass.draw(0, 36);
+            } finally {
+                verts.close();
             }
         } finally {
             MemoryUtil.memFree(data);
@@ -266,15 +268,17 @@ public final class BlockOverlayRenderer {
 
     private static void drawColored(CommandEncoder encoder, Framebuffer main,
                                     RenderPipeline pipeline, ByteBuffer data) {
-        try (GpuBuffer verts = RenderSystem.getDevice().createBuffer(
+        GpuBuffer verts = RenderSystem.getDevice().createBuffer(
             () -> "linkenvisuals:block_overlay_color", GpuBuffer.USAGE_VERTEX, data);
-             RenderPass pass = encoder.createRenderPass(() -> "linkenvisuals:block_overlay_color",
-                 main.getColorAttachmentView(), OptionalInt.empty(),
-                 main.getDepthAttachmentView(), OptionalDouble.empty())) {
+        try (RenderPass pass = encoder.createRenderPass(() -> "linkenvisuals:block_overlay_color",
+            main.getColorAttachmentView(), OptionalInt.empty(),
+            main.getDepthAttachmentView(), OptionalDouble.empty())) {
             pass.setPipeline(pipeline);
             RenderSystem.bindDefaultUniforms(pass);
             pass.setVertexBuffer(0, verts);
             pass.draw(0, data.remaining() / 16);
+        } finally {
+            verts.close();
         }
     }
 

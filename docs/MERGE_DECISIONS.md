@@ -207,6 +207,17 @@
 - Evidence: `WorldRenderEvents.java` (ветка 1.21.11, GitHub) прочитан построчно; донорские `BlockOverlay.java`/`BlockOverlayShaderRenderer.java`/`BlockOverlayRenderHooks.java`/`FillPalette`/9 `.fsh` сверены; javac-парсинг новых файлов чист (только ошибки classpath); `Pipelines.warmUp` + `shutdown` подключены.
 - Out of scope: `block_overlay_effect.fsh`; LangParity не тронут (новых lang-ключей нет — имена модулей литералы, как у существующих).
 
+## 2026-10-18 · D23-fix · CI BUILD FAILURE на 5.2 — v1.0.52
+- Факт: GitHub Actions `build` на `43ff858` (5.2) — failure; 5.1 и Ф4 — success. Логи недоступны без admin-прав (403), причину установил форензикой по Yarn-маппингам `1.21.11+build.4` и чтением API существующих файлов.
+- Найдено 3 класса ошибок компиляции:
+  1. `VertexFormats.POSITION_TEX` — не существует на 1.21.11 (доказано: в Yarn-поле `VertexFormats` такого нет) → `POSITION_TEXTURE`.
+  2. `DepthTestFunction.LESS_DEPTH_TEST` — не доказан (в коде используются только `NO_`/`LEQUAL_DEPTH_TEST`) → `LEQUAL_DEPTH_TEST` (визуально эквивалентно для бокса +0.003).
+  3. `*.getValue()` на сеттингах — у наших `BooleanSetting`/`SliderSetting` аксёры называются `value()`, не `getValue()` (донорская привычка, скопировал не проверив) → `value()` везде (рендерер + тест).
+  - Плюс страховка: try-with-resources на `GpuBuffer` → try/finally + `close()` (`close()` доказан в `ScreenFilterPipeline`, интерфейс `AutoCloseable` — нет).
+- Дополнительно сверено по Yarn (чтобы не было второго раунда): `Box.offset(BlockPos)` существует, `MinecraftClient.gameRenderer` — поле, `client.gameRenderer.getCamera()` — как в `HitBubbleRenderer:70`.
+- Урок в AGENTS.md: новые API сверять с Yarn-маппингом/существующим кодом до коммита, особенно имена констант и аксёры сеттингов.
+- Evidence: Yarn tiny mappings `1.21.11+build.4` скачаны и прогнаны grep'ом; `Std140LayoutTest` и остальные тесты не трогались (чистые).
+
 ## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
 - Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
 - Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).

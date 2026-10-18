@@ -27,12 +27,12 @@ class BlockOverlayModuleTest {
         assertEquals("blockoverlay", module.id());
         assertEquals("Block Overlay", module.info().name());
         assertTrue(module.enabled(), "overlay should be on by default");
-        assertTrue(module.fill.getValue());
-        assertTrue(module.useShader.getValue());
+        assertTrue(module.fill.value());
+        assertTrue(module.useShader.value());
         assertEquals(FillMode.AURORA, module.mode());
-        assertEquals(70.0f, module.fillAlpha.getValue());
-        assertEquals(255.0f, module.outlineAlpha.getValue());
-        assertEquals(1.0f, module.shaderSpeed.getValue());
+        assertEquals(70.0f, module.fillAlpha.value());
+        assertEquals(255.0f, module.outlineAlpha.value());
+        assertEquals(1.0f, module.shaderSpeed.value());
     }
 
     @Test
