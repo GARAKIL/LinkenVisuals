@@ -15,3 +15,7 @@
 *.wav binary
 *.jar binary
 *.zip binary
+
+# Git LFS: large archives are stored via LFS on archive branches
+*.rar filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
