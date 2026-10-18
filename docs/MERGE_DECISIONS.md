@@ -255,6 +255,17 @@
 - Out of scope: интеграция в старые GUI; `NumberSetting` донора не портирован (у нас `SliderSetting`).
 - Evidence: `MotionBlurRenderer.java` (248 строк, легаси GL), `MotionBlur.java`, `motionblur.fsh`/`vsh` прочитаны; UBO сверен (16 Б).
 
+## 2026-10-19 · D27 · Фаза 5.6 (часть 1): спайк + ChinaHat — v1.0.57
+- Контекст: ROADMAP 5.6. Спайк инфраструктуры + первая косметика.
+- Спайк (evidence: чтение кода):
+  - Наша косметика — ПРОЦЕДУРНАЯ (`cosmetic/*.java`, `render(CosmeticContext)`), слоты: back/aura/crown. Донорские ChinaHat/Nimb/Spheres — тоже процедурные (портируются). Модельные (Rudy, bedrock) — требуют загрузчик + FeatureRenderer — отдельная инфраструктура, не в этой итерации.
+  - `CosmeticEffects`/`Naruto` — контейнеры-переключатели, не визуал.
+  - Pets (`RemotePets`) — ТРЕБУЕТ ПРОВЕРКИ сетевой синхронизации (отложено).
+- ChinaHat: донорский `ChinaHat.java` (271 стр., Module) → наш `cosmetic/ChinaHat.java` (процедурный, слот "crown"). Упрощения: только локальный игрок (наш `Cosmetics` так работает), стиль Classic (конус); Layered/Halo-стили — follow-up. Геометрия: base (triangle fan) + side (strip) + rim — через `Material.bodyQuad`/`rimSmooth` (degenerate quads для треугольников).
+- Файлы: `cosmetic/ChinaHat.java` (new), `Cosmetics.java` (+case), `ModuleRegistry.java` (+опция "ChinaHat" в Crown).
+- Тесты: регрессий нет; визуал — глазами пользователя.
+- Остаток 5.6: Nimb, Spheres, CosmeticEffects (эффекты), Cape (CapeSimulation), Pets (проверка сети), модельная инфраструктура.
+
 ## 2026-10-19 · D26 · Фаза 5.5: Оптимизации — v1.0.56
 - Контекст: ROADMAP 5.5. Применены идеи донора ТОЛЬКО где есть наши циклы (без копипаста).
 - Анализ (evidence: grep по коду):
