@@ -13,7 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.ShapeContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
-import net.minecraft.client.renderer.state.BlockOutlineRenderState;
+import net.minecraft.client.render.state.OutlineRenderState;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -55,7 +55,7 @@ public final class BlockOverlayRenderer {
      * Cancels the vanilla outline when the module is enabled and captures the
      * target box for the END_MAIN pass.
      */
-    public static boolean onBeforeBlockOutline(WorldRenderContext context, BlockOutlineRenderState state) {
+    public static boolean onBeforeBlockOutline(WorldRenderContext context, OutlineRenderState state) {
         BlockOverlayModule module = Modules.blockOverlay();
         pendingBox = null;
         if (module == null || !module.enabled()) {
@@ -123,7 +123,7 @@ public final class BlockOverlayRenderer {
             return null;
         }
         Box local = boxes.size() > 1 ? shape.getBoundingBox() : boxes.get(0);
-        Vec3d cam = mc.gameRenderer.getCamera().getPos();
+        Vec3d cam = mc.gameRenderer.getCamera().getCameraPos();
         return local.offset(pos).expand(0.003).offset(-cam.x, -cam.y, -cam.z);
     }
 
