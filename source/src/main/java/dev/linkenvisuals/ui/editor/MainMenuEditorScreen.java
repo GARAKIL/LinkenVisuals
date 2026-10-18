@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui.editor;
 
+import dev.linkenvisuals.render.Fonts;
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.BackgroundPipeline;
@@ -43,10 +45,6 @@ import java.util.List;
  */
 public final class MainMenuEditorScreen extends Screen {
     private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
-    private static final Identifier TITLE_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier TITLE_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
-    private static final Identifier TEXT_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
     private static final Identifier ICON_DATA = LinkenVisuals.id("fonts/msdf/wtmico.json");
     private static final Identifier ICON_ATLAS = LinkenVisuals.id("fonts/msdf/wtmico.png");
 
@@ -70,8 +68,6 @@ public final class MainMenuEditorScreen extends Screen {
     private final List<SnapGuide> activeGuides = new ArrayList<>();
 
     private final Screen parent;
-    private GlyphAtlas titleFont;
-    private GlyphAtlas textFont;
     private GlyphAtlas icons;
 
     private MainMenuConfig config;
@@ -111,11 +107,7 @@ public final class MainMenuEditorScreen extends Screen {
     @Override
     protected void init() {
         Pipelines.warmUp();
-        if (titleFont == null) {
-            titleFont = GlyphAtlas.load(TITLE_FONT_DATA, TITLE_FONT_ATLAS);
-            textFont = GlyphAtlas.load(TEXT_FONT_DATA, TEXT_FONT_ATLAS);
-            icons = GlyphAtlas.load(ICON_DATA, ICON_ATLAS);
-        }
+        icons = GlyphAtlas.load(ICON_DATA, ICON_ATLAS);
         MainMenuConfig.load();
         this.config = MainMenuConfig.get();
 
@@ -187,7 +179,7 @@ public final class MainMenuEditorScreen extends Screen {
             Identifier customTex = CustomTextureLoader.getCustomTexture();
             if (customTex != null) {
                 int imgAlpha = Math.round(config.imageOpacity * 255);
-                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, withAlpha(0xFFFFFF, imgAlpha));
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, ColorMath.withAlpha(0xFFFFFF, imgAlpha));
             } else {
                 BackgroundPipeline.draw(opened, config.shaderPreset.id, config.shaderIntensity, config.imageDarkening, 1.0f);
             }
@@ -199,7 +191,7 @@ public final class MainMenuEditorScreen extends Screen {
             Identifier customTex = CustomTextureLoader.getCustomTexture();
             if (customTex != null) {
                 int imgAlpha = Math.round(config.imageOpacity * 255);
-                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, withAlpha(0xFFFFFF, imgAlpha));
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, ColorMath.withAlpha(0xFFFFFF, imgAlpha));
             }
             int darkAlpha = Math.round(config.imageDarkening * 255);
             if (darkAlpha > 0) {
@@ -212,19 +204,19 @@ public final class MainMenuEditorScreen extends Screen {
 
         if (config.shaderOverlayEnabled && config.shaderEffect != MainMenuConfig.ShaderEffect.NONE) {
             int glowAlpha = Math.round(config.shaderIntensity * 45);
-            GlowPipeline.radial(context, width * 0.5f, height * 0.5f, width * 0.45f, withAlpha(NeonEdge.cool(), glowAlpha));
+            GlowPipeline.radial(context, width * 0.5f, height * 0.5f, width * 0.45f, ColorMath.withAlpha(NeonEdge.cool(), glowAlpha));
         }
     }
 
     private void renderGrid(DrawContext context, float alpha) {
         if (alpha <= 0.01f) return;
-        int color = withAlpha(0x3A4458, Math.round(38 * alpha));
+        int color = ColorMath.withAlpha(0x3A4458, Math.round(38 * alpha));
         for (float x = DOT_SPACING; x < width; x += DOT_SPACING) {
             for (float y = DOT_SPACING; y < height; y += DOT_SPACING) {
                 CirclePipeline.draw(context, x, y, 1.0f, color);
             }
         }
-        int crosshairColor = withAlpha(NeonEdge.cool(), Math.round(28 * alpha));
+        int crosshairColor = ColorMath.withAlpha(NeonEdge.cool(), Math.round(28 * alpha));
         PanelPipeline.draw(context, width * 0.5f - 0.5f, 0, 1.0f, height, crosshairColor);
         PanelPipeline.draw(context, 0, height * 0.5f - 0.5f, width, 1.0f, crosshairColor);
     }
@@ -267,19 +259,19 @@ public final class MainMenuEditorScreen extends Screen {
 
                 // Scale badge
                 String badge = String.format(java.util.Locale.ROOT, "%.1fx", el.scale);
-                if (titleFont != null && titleFont.canRender(badge)) {
-                    MsdfText.drawOn(context, titleFont, badge, elX + 2.0f, elY - 7.0f, 6.5f, NeonEdge.cool());
+                if (Fonts.titleFont() != null && Fonts.titleFont().canRender(badge)) {
+                    MsdfText.drawOn(context, Fonts.titleFont(), badge, elX + 2.0f, elY - 7.0f, 6.5f, NeonEdge.cool());
                 } else {
                     context.drawTextWithShadow(textRenderer, badge, Math.round(elX + 2.0f), Math.round(elY - 11.0f), NeonEdge.cool());
                 }
             } else if (isHovered) {
-                RoundedRectPipeline.drawOutline(context, elX - 1.0f, elY - 1.0f, elW + 2.0f, elH + 2.0f, withAlpha(Theme.accent(), 102));
+                RoundedRectPipeline.drawOutline(context, elX - 1.0f, elY - 1.0f, elW + 2.0f, elH + 2.0f, ColorMath.withAlpha(Theme.accent(), 102));
             }
         }
 
         // Render Alignment Guide Lines
         for (SnapGuide g : activeGuides) {
-            int guideCol = withAlpha(Theme.accent(), 190);
+            int guideCol = ColorMath.withAlpha(Theme.accent(), 190);
             if (g.vertical) {
                 PanelPipeline.draw(context, g.pos - 0.5f, g.min, 1.0f, Math.max(8.0f, g.max - g.min), guideCol);
             } else {
@@ -290,16 +282,16 @@ public final class MainMenuEditorScreen extends Screen {
 
     private void spaced(DrawContext context, String line, float x, float top, float size,
                         float tracking, int argb) {
-        if (titleFont == null) return;
+        if (Fonts.titleFont() == null) return;
         if (tracking <= 0.0f) {
-            MsdfText.draw(context, titleFont, line, x, top, size, argb);
+            MsdfText.draw(context, Fonts.titleFont(), line, x, top, size, argb);
             return;
         }
         float cursor = x;
         for (int i = 0; i < line.length(); i++) {
             String glyph = line.substring(i, i + 1);
-            MsdfText.draw(context, titleFont, glyph, cursor, top, size, argb);
-            cursor += titleFont.width(glyph, size) + tracking;
+            MsdfText.draw(context, Fonts.titleFont(), glyph, cursor, top, size, argb);
+            cursor += Fonts.titleFont().width(glyph, size) + tracking;
         }
     }
 
@@ -316,7 +308,7 @@ public final class MainMenuEditorScreen extends Screen {
 
                 float textX = x + logoSize + 12.0f * scale;
                 spaced(context, "LINKEN", textX, y + 9.0f * scale, 11.0f * scale, 1.4f * scale, 0xFFFFFFFF);
-                spaced(context, "VISUALS", textX, y + 23.0f * scale, 11.0f * scale, 1.4f * scale, withAlpha(NeonEdge.cool(), 255));
+                spaced(context, "VISUALS", textX, y + 23.0f * scale, 11.0f * scale, 1.4f * scale, ColorMath.withAlpha(NeonEdge.cool(), 255));
             }
             case "SLOGAN" -> {
                 spaced(context, "Free to use,", x, y, 12.5f * scale, 0.0f, 0xFFFFFFFF);
@@ -326,7 +318,7 @@ public final class MainMenuEditorScreen extends Screen {
                 matrices.translate(0.0f, baseline);
                 matrices.mul(new org.joml.Matrix3x2f(1.0f, 0.0f, -0.17f, 1.0f, 0.0f, 0.0f));
                 matrices.translate(0.0f, -baseline);
-                spaced(context, "Yours to shape.", x, y + 15.0f * scale, 12.5f * scale, 0.0f, withAlpha(NeonEdge.cool(), 255));
+                spaced(context, "Yours to shape.", x, y + 15.0f * scale, 12.5f * scale, 0.0f, ColorMath.withAlpha(NeonEdge.cool(), 255));
                 matrices.popMatrix();
             }
             case "SINGLEPLAYER" -> drawButtonPreview(context, x, y, w, h, "linkenvisuals.menu.singleplayer", 'P', scale);
@@ -336,8 +328,8 @@ public final class MainMenuEditorScreen extends Screen {
             case "QUIT" -> drawButtonPreview(context, x, y, w, h, "linkenvisuals.menu.quit", 'Q', scale);
             case "PLAYER_CARD" -> {
                 float plate = 22.0f * scale;
-                RoundedRectPipeline.draw(context, x, y, plate, plate, withAlpha(0xFFFFFF, 18));
-                RoundedRectPipeline.drawOutline(context, x, y, plate, plate, withAlpha(0xFFFFFF, 28));
+                RoundedRectPipeline.draw(context, x, y, plate, plate, ColorMath.withAlpha(0xFFFFFF, 18));
+                RoundedRectPipeline.drawOutline(context, x, y, plate, plate, ColorMath.withAlpha(0xFFFFFF, 28));
 
                 Identifier skin = DefaultSkinHelper.getTexture();
                 if (client != null && client.getGameProfile() != null) {
@@ -351,13 +343,13 @@ public final class MainMenuEditorScreen extends Screen {
 
                 String name = MinecraftClient.getInstance().getSession() != null
                     ? MinecraftClient.getInstance().getSession().getUsername() : "Player";
-                if (titleFont != null && titleFont.canRender(name)) {
-                    MsdfText.drawOn(context, titleFont, name, x + plate + 9.0f * scale, y + 8.0f * scale, 8.4f * scale, 0xFFFFFFFF);
+                if (Fonts.titleFont() != null && Fonts.titleFont().canRender(name)) {
+                    MsdfText.drawOn(context, Fonts.titleFont(), name, x + plate + 9.0f * scale, y + 8.0f * scale, 8.4f * scale, 0xFFFFFFFF);
                 } else {
                     context.drawTextWithShadow(textRenderer, name, Math.round(x + plate + 9.0f * scale), Math.round(y + 4.0f * scale), 0xFFFFFFFF);
                 }
-                if (titleFont != null) {
-                    MsdfText.drawOn(context, titleFont, "v1.0  ·  Today", x + plate + 9.0f * scale, y + 18.0f * scale, 6.2f * scale, withAlpha(0xFFFFFF, 105));
+                if (Fonts.titleFont() != null) {
+                    MsdfText.drawOn(context, Fonts.titleFont(), "v1.0  ·  Today", x + plate + 9.0f * scale, y + 18.0f * scale, 6.2f * scale, ColorMath.withAlpha(0xFFFFFF, 105));
                 }
             }
         }
@@ -370,13 +362,13 @@ public final class MainMenuEditorScreen extends Screen {
                 label, VanillaStylePipeline.getIconForKey(key), true, false);
             return;
         }
-        RoundedRectPipeline.draw(context, x, y, w, h, withAlpha(0x0E0F14, 150));
-        RoundedRectPipeline.drawOutline(context, x, y, w, h, withAlpha(0xFFFFFF, 20));
+        RoundedRectPipeline.draw(context, x, y, w, h, ColorMath.withAlpha(0x0E0F14, 150));
+        RoundedRectPipeline.drawOutline(context, x, y, w, h, ColorMath.withAlpha(0xFFFFFF, 20));
         if (icons != null) {
-            IconPipeline.draw(context, icons, iconGlyph, x + 17.0f * scale, y + h * 0.5f, 6.2f * scale, withAlpha(0xB9BFCC, 205));
+            IconPipeline.draw(context, icons, iconGlyph, x + 17.0f * scale, y + h * 0.5f, 6.2f * scale, ColorMath.withAlpha(0xB9BFCC, 205));
         }
-        if (titleFont != null && titleFont.canRender(label)) {
-            MsdfText.drawOn(context, titleFont, label, x + 30.0f * scale, y + h * 0.5f, 8.0f * scale, withAlpha(0xD7DCE6, 215));
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(label)) {
+            MsdfText.drawOn(context, Fonts.titleFont(), label, x + 30.0f * scale, y + h * 0.5f, 8.0f * scale, ColorMath.withAlpha(0xD7DCE6, 215));
         } else {
             context.drawTextWithShadow(textRenderer, label, Math.round(x + 30.0f * scale), Math.round(y + (h - 8.0f) * 0.5f), 0xFFD7DCE6);
         }
@@ -415,8 +407,8 @@ public final class MainMenuEditorScreen extends Screen {
 
         // Premium frosted acrylic obsidian glass
         RoundedRectPipeline.draw(context, barX, barY, barW, barH, 0xF60B0E14);
-        RoundedRectPipeline.drawOutline(context, barX, barY, barW, barH, withAlpha(Theme.accent(), 60));
-        PanelPipeline.draw(context, barX + 16.0f, barY + 1.2f, barW - 32.0f, 1.2f, withAlpha(Theme.accent(), 160));
+        RoundedRectPipeline.drawOutline(context, barX, barY, barW, barH, ColorMath.withAlpha(Theme.accent(), 60));
+        PanelPipeline.draw(context, barX + 16.0f, barY + 1.2f, barW - 32.0f, 1.2f, ColorMath.withAlpha(Theme.accent(), 160));
 
         float btnY = barY + 8.0f;
         float btnH = 24.0f;
@@ -524,8 +516,8 @@ public final class MainMenuEditorScreen extends Screen {
             }
 
             int textCol = active ? NeonEdge.cool() : (hov ? 0xFFFFFFFF : 0xFFCCD5E4);
-            if (titleFont != null && titleFont.canRender(preset.defaultName)) {
-                MsdfText.drawOn(context, titleFont, preset.defaultName, shaderMenuX + 8.0f, itemY + itemH * 0.5f, 6.8f, textCol);
+            if (Fonts.titleFont() != null && Fonts.titleFont().canRender(preset.defaultName)) {
+                MsdfText.drawOn(context, Fonts.titleFont(), preset.defaultName, shaderMenuX + 8.0f, itemY + itemH * 0.5f, 6.8f, textCol);
             } else {
                 context.drawTextWithShadow(textRenderer, preset.defaultName, Math.round(shaderMenuX + 8.0f), Math.round(itemY + 4.5f), textCol);
             }
@@ -560,8 +552,8 @@ public final class MainMenuEditorScreen extends Screen {
 
             String display = imgName.length() > 14 ? imgName.substring(0, 13) + "…" : imgName;
             int textCol = active ? NeonEdge.cool() : (hov ? 0xFFFFFFFF : 0xFFCCD5E4);
-            if (titleFont != null && titleFont.canRender(display)) {
-                MsdfText.drawOn(context, titleFont, display, photoMenuX + 8.0f, itemY + itemH * 0.5f, 7.2f, textCol);
+            if (Fonts.titleFont() != null && Fonts.titleFont().canRender(display)) {
+                MsdfText.drawOn(context, Fonts.titleFont(), display, photoMenuX + 8.0f, itemY + itemH * 0.5f, 7.2f, textCol);
             } else {
                 context.drawTextWithShadow(textRenderer, display, Math.round(photoMenuX + 8.0f), Math.round(itemY + 6.5f), textCol);
             }
@@ -580,8 +572,8 @@ public final class MainMenuEditorScreen extends Screen {
 
         // Title
         String title = I18n.get("editor.screens_modal");
-        if (titleFont != null && titleFont.canRender(title)) {
-            MsdfText.drawCentered(context, titleFont, title, modalX + screensMenuW * 0.5f, modalY + 13.0f, 7.5f, 0xFFFFFFFF);
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(title)) {
+            MsdfText.drawCentered(context, Fonts.titleFont(), title, modalX + screensMenuW * 0.5f, modalY + 13.0f, 7.5f, 0xFFFFFFFF);
         } else {
             context.drawTextWithShadow(textRenderer, title, Math.round(modalX + (screensMenuW - textRenderer.getWidth(title)) * 0.5f), Math.round(modalY + 8.0f), 0xFFFFFFFF);
         }
@@ -610,8 +602,8 @@ public final class MainMenuEditorScreen extends Screen {
         }
 
         int labelCol = hov ? 0xFFFFFFFF : 0xC0C6D4;
-        if (titleFont != null && titleFont.canRender(label)) {
-            MsdfText.drawOn(context, titleFont, label, x + 10.0f, y + h * 0.5f, 6.8f, labelCol);
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(label)) {
+            MsdfText.drawOn(context, Fonts.titleFont(), label, x + 10.0f, y + h * 0.5f, 6.8f, labelCol);
         } else {
             context.drawTextWithShadow(textRenderer, label, Math.round(x + 10.0f), Math.round(y + (h - 8.0f) * 0.5f), labelCol);
         }
@@ -625,15 +617,15 @@ public final class MainMenuEditorScreen extends Screen {
         if (state) {
             RoundedRectPipeline.draw(context, pillX, pillY, pillW, pillH, Theme.accent());
             CirclePipeline.draw(context, pillX + pillW - 8.0f, pillY + pillH * 0.5f, 5.0f, 0xFFFFFFFF);
-            if (titleFont != null) {
-                MsdfText.drawOn(context, titleFont, "ON", pillX + 5.0f, pillY + pillH * 0.5f, 5.5f, 0xFF000000);
+            if (Fonts.titleFont() != null) {
+                MsdfText.drawOn(context, Fonts.titleFont(), "ON", pillX + 5.0f, pillY + pillH * 0.5f, 5.5f, 0xFF000000);
             }
         } else {
             RoundedRectPipeline.draw(context, pillX, pillY, pillW, pillH, 0xFF202636);
             RoundedRectPipeline.drawOutline(context, pillX, pillY, pillW, pillH, 0xFF353E54);
             CirclePipeline.draw(context, pillX + 8.0f, pillY + pillH * 0.5f, 5.0f, 0xFF6B7280);
-            if (titleFont != null) {
-                MsdfText.drawOn(context, titleFont, "OFF", pillX + 15.0f, pillY + pillH * 0.5f, 5.5f, 0xFF9CA3AF);
+            if (Fonts.titleFont() != null) {
+                MsdfText.drawOn(context, Fonts.titleFont(), "OFF", pillX + 15.0f, pillY + pillH * 0.5f, 5.5f, 0xFF9CA3AF);
             }
         }
     }
@@ -647,8 +639,8 @@ public final class MainMenuEditorScreen extends Screen {
         RoundedRectPipeline.draw(context, x, y, w, h, hov ? 0xEE1E2432 : 0xDD13161F);
         RoundedRectPipeline.drawOutline(context, x, y, w, h, hov ? NeonEdge.cool() : borderColor);
         int textColor = hov ? 0xFFFFFFFF : 0xFFE4EBF5;
-        if (titleFont != null && titleFont.canRender(label)) {
-            MsdfText.drawCenteredOn(context, titleFont, label, x + w * 0.5f, y + h * 0.5f, 7.5f, textColor);
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(label)) {
+            MsdfText.drawCenteredOn(context, Fonts.titleFont(), label, x + w * 0.5f, y + h * 0.5f, 7.5f, textColor);
         } else {
             int textY = Math.round(y + (h - 8.0f) * 0.5f);
             context.drawCenteredTextWithShadow(textRenderer, label, Math.round(x + w * 0.5f), textY, textColor);
@@ -664,8 +656,8 @@ public final class MainMenuEditorScreen extends Screen {
         RoundedRectPipeline.draw(context, hbarX, hbarY, hbarW, hbarH, 0xD00A0C10);
         RoundedRectPipeline.drawOutline(context, hbarX, hbarY, hbarW, hbarH, 0xFF1D212B);
         String hint = I18n.get("editor.drag_hint");
-        if (titleFont != null && titleFont.canRender(hint)) {
-            MsdfText.drawCenteredOn(context, titleFont, hint, hbarX + hbarW * 0.5f, hbarY + hbarH * 0.5f, 7.0f, 0xFF8892A4);
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(hint)) {
+            MsdfText.drawCenteredOn(context, Fonts.titleFont(), hint, hbarX + hbarW * 0.5f, hbarY + hbarH * 0.5f, 7.0f, 0xFF8892A4);
         } else {
             int textY = Math.round(hbarY + (hbarH - 8.0f) * 0.5f);
             context.drawCenteredTextWithShadow(textRenderer, hint, Math.round(hbarX + hbarW * 0.5f), textY, 0xFF8892A4);
@@ -683,8 +675,8 @@ public final class MainMenuEditorScreen extends Screen {
         int ty = 54;
         RoundedRectPipeline.draw(context, tx, ty, tw, th, 0xEE162E20);
         RoundedRectPipeline.drawOutline(context, tx, ty, tw, th, 0xFF34D399);
-        if (titleFont != null && titleFont.canRender(toastMessage)) {
-            MsdfText.drawCenteredOn(context, titleFont, toastMessage, tx + tw * 0.5f, ty + th * 0.5f, 7.5f, 0xFFFFFFFF);
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(toastMessage)) {
+            MsdfText.drawCenteredOn(context, Fonts.titleFont(), toastMessage, tx + tw * 0.5f, ty + th * 0.5f, 7.5f, 0xFFFFFFFF);
         } else {
             context.drawCenteredTextWithShadow(textRenderer, toastMessage, tx + tw / 2, ty + 6, 0xFFFFFFFF);
         }
@@ -1142,10 +1134,6 @@ public final class MainMenuEditorScreen extends Screen {
 
     private static boolean inRect(double mx, double my, float x, float y, float w, float h) {
         return mx >= x && mx <= x + w && my >= y && my <= y + h;
-    }
-
-    private static int withAlpha(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | (rgb & 0xFFFFFF);
     }
 
     private void playClick() {

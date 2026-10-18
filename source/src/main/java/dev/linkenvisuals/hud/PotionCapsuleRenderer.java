@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.render.GlassPanelPipeline;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
@@ -53,9 +54,9 @@ final class PotionCapsuleRenderer {
         float iconX = x + CAPSULE_W * 0.5f - ICON_SIZE * 0.5f;
         float iconY = y + ICON_TOP_PAD;
         GlowPipeline.radial(context, x + CAPSULE_W * 0.5f, iconY + ICON_SIZE * 0.5f, ICON_SIZE * 0.9f,
-            argb(accent, Math.round(35 * ease)));
+            ColorMath.withAlpha(accent, Math.round(35 * ease)));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, icon, Math.round(iconX), Math.round(iconY), 0.0f, 0.0f,
-            Math.round(ICON_SIZE), Math.round(ICON_SIZE), 18, 18, 18, 18, argb(0xFFFFFF, Math.round(255 * ease)));
+            Math.round(ICON_SIZE), Math.round(ICON_SIZE), 18, 18, 18, 18, ColorMath.withAlpha(0xFFFFFF, Math.round(255 * ease)));
 
         float trackTop = iconY + ICON_SIZE + 3.0f;
         float trackBottom = y + CAPSULE_H - NUMBER_BOTTOM_PAD - NUMBER_SIZE - 3.0f;
@@ -63,8 +64,8 @@ final class PotionCapsuleRenderer {
         float trackX = x + CAPSULE_W * 0.5f - TRACK_W * 0.5f;
 
         float fraction = state.maxDuration <= 0 ? 0.0f : Math.max(0.0f, Math.min(1.0f, state.duration / (float) state.maxDuration));
-        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight, argb(accent, Math.round(30 * ease)));
-        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight * fraction, argb(accent, Math.round(210 * ease)));
+        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight, ColorMath.withAlpha(accent, Math.round(30 * ease)));
+        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight * fraction, ColorMath.withAlpha(accent, Math.round(210 * ease)));
 
         float numberBaseline = y + CAPSULE_H - NUMBER_BOTTOM_PAD - NUMBER_SIZE * 0.72f;
         float secondsValue = state.duration / 20.0f;
@@ -74,15 +75,15 @@ final class PotionCapsuleRenderer {
         float numberWidth = MsdfText.width(bold, seconds, NUMBER_SIZE);
         float numberSize = numberWidth > CAPSULE_W - 4.0f ? NUMBER_SIZE * (CAPSULE_W - 4.0f) / numberWidth : NUMBER_SIZE;
         MsdfText.drawCentered(context, bold, seconds, x + CAPSULE_W * 0.5f, numberBaseline, numberSize,
-            argb(accent, Math.round(245 * ease)));
+            ColorMath.withAlpha(accent, Math.round(245 * ease)));
 
         if (state.amplifier > 0) {
             float badgeSize = 7.0f;
             float badgeX = x + CAPSULE_W * 0.5f + ICON_SIZE * 0.5f - badgeSize * 0.6f;
             float badgeY = iconY - badgeSize * 0.4f;
-            PanelPipeline.draw(context, badgeX, badgeY, badgeSize, badgeSize, argb(0x1A1B20, Math.round(230 * ease)));
+            PanelPipeline.draw(context, badgeX, badgeY, badgeSize, badgeSize, ColorMath.withAlpha(0x1A1B20, Math.round(230 * ease)));
             MsdfText.drawCentered(context, bold, String.valueOf(state.amplifier + 1), badgeX + badgeSize * 0.5f,
-                badgeY + 1.1f, 4.5f, argb(0xFFFFFF, Math.round(240 * ease)));
+                badgeY + 1.1f, 4.5f, ColorMath.withAlpha(0xFFFFFF, Math.round(240 * ease)));
         }
 
         matrices.popMatrix();
@@ -98,21 +99,21 @@ final class PotionCapsuleRenderer {
         float iconX = x + CAPSULE_W * 0.5f - ICON_SIZE * 0.5f;
         float iconY = y + ICON_TOP_PAD;
         GlowPipeline.radial(context, x + CAPSULE_W * 0.5f, iconY + ICON_SIZE * 0.5f, ICON_SIZE * 0.9f,
-            argb(accent, Math.round(35 * dim)));
+            ColorMath.withAlpha(accent, Math.round(35 * dim)));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, icon, Math.round(iconX), Math.round(iconY), 0.0f, 0.0f,
-            Math.round(ICON_SIZE), Math.round(ICON_SIZE), 18, 18, 18, 18, argb(0xFFFFFF, Math.round(255 * dim)));
+            Math.round(ICON_SIZE), Math.round(ICON_SIZE), 18, 18, 18, 18, ColorMath.withAlpha(0xFFFFFF, Math.round(255 * dim)));
 
         float trackTop = iconY + ICON_SIZE + 3.0f;
         float trackBottom = y + CAPSULE_H - NUMBER_BOTTOM_PAD - NUMBER_SIZE - 3.0f;
         float trackHeight = Math.max(0.0f, trackBottom - trackTop);
         float trackX = x + CAPSULE_W * 0.5f - TRACK_W * 0.5f;
-        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight, argb(accent, Math.round(30 * dim)));
-        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight * 0.62f, argb(accent, Math.round(210 * dim)));
+        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight, ColorMath.withAlpha(accent, Math.round(30 * dim)));
+        PanelPipeline.draw(context, trackX, trackTop, TRACK_W, trackHeight * 0.62f, ColorMath.withAlpha(accent, Math.round(210 * dim)));
 
         float numberBaseline = y + CAPSULE_H - NUMBER_BOTTOM_PAD - NUMBER_SIZE * 0.72f;
         String seconds = harmful ? "3.5" : "12.0";
         MsdfText.drawCentered(context, bold, seconds, x + CAPSULE_W * 0.5f, numberBaseline, NUMBER_SIZE,
-            argb(accent, Math.round(245 * dim)));
+            ColorMath.withAlpha(accent, Math.round(245 * dim)));
     }
 
     private static Matrix3x2fStack beginScale(DrawContext context, float x, float y, float ease) {
@@ -127,7 +128,4 @@ final class PotionCapsuleRenderer {
         return matrices;
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

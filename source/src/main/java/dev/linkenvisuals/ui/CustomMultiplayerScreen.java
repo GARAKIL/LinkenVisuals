@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui;
 
+import dev.linkenvisuals.render.Fonts;
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.BackgroundPipeline;
@@ -44,10 +46,6 @@ import java.util.List;
  * pagination, server status badges, MOTD display, and frosted acrylic glass modals.
  */
 public final class CustomMultiplayerScreen extends Screen {
-    private static final Identifier TITLE_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier TITLE_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
-    private static final Identifier TEXT_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
     private static final Identifier ICON_DATA = LinkenVisuals.id("fonts/msdf/wtmico.json");
     private static final Identifier ICON_ATLAS = LinkenVisuals.id("fonts/msdf/wtmico.png");
     private static final Identifier ARROW_BACK = LinkenVisuals.id("textures/gui/arrow_back.png");
@@ -55,8 +53,6 @@ public final class CustomMultiplayerScreen extends Screen {
     private static final Identifier CHEVRON_RIGHT = LinkenVisuals.id("textures/gui/chevron_right.png");
 
     private final Screen parent;
-    private GlyphAtlas titleFont;
-    private GlyphAtlas textFont;
     private GlyphAtlas icons;
 
     private ServerList serverList;
@@ -99,8 +95,6 @@ public final class CustomMultiplayerScreen extends Screen {
 
     @Override
     protected void init() {
-        titleFont = GlyphAtlas.load(TITLE_FONT_DATA, TITLE_FONT_ATLAS);
-        textFont = GlyphAtlas.load(TEXT_FONT_DATA, TEXT_FONT_ATLAS);
         icons = GlyphAtlas.load(ICON_DATA, ICON_ATLAS);
         openedAt = Util.getMeasuringTimeMs();
 
@@ -238,7 +232,7 @@ public final class CustomMultiplayerScreen extends Screen {
             if (style == MenuStyle.BETA) {
                 float cx = width * 0.85f;
                 float cy = height * 0.70f;
-                GlowPipeline.radial(context, cx, cy, 140.0f, withAlpha(NeonEdge.cool(), Math.round(30 * visible)));
+                GlowPipeline.radial(context, cx, cy, 140.0f, ColorMath.withAlpha(NeonEdge.cool(), Math.round(30 * visible)));
             }
         }
 
@@ -274,9 +268,9 @@ public final class CustomMultiplayerScreen extends Screen {
         }
 
         float titleX = backX + backW + 16.0f;
-        if (titleFont != null) {
-            MsdfText.draw(context, titleFont, I18n.get("multiplayer.title"), titleX, headerY + 4.0f, 10.0f,
-                withAlpha(0xFFFFFF, Math.round(240 * visible)));
+        if (Fonts.titleFont() != null) {
+            MsdfText.draw(context, Fonts.titleFont(), I18n.get("multiplayer.title"), titleX, headerY + 4.0f, 10.0f,
+                ColorMath.withAlpha(0xFFFFFF, Math.round(240 * visible)));
         }
 
         // Pagination controls & server count in header
@@ -303,11 +297,11 @@ public final class CustomMultiplayerScreen extends Screen {
 
         // Page Indicator
         String pageStr = (currentPage + 1) + " / " + totalPages;
-        if (titleFont != null) {
-            MsdfText.drawCenteredOn(context, titleFont, pageStr, pageX + pageControlW * 0.5f, headerY + btnH * 0.5f, 7.5f,
-                withAlpha(0xD8E0EE, Math.round(230 * visible)));
+        if (Fonts.titleFont() != null) {
+            MsdfText.drawCenteredOn(context, Fonts.titleFont(), pageStr, pageX + pageControlW * 0.5f, headerY + btnH * 0.5f, 7.5f,
+                ColorMath.withAlpha(0xD8E0EE, Math.round(230 * visible)));
         } else {
-            context.drawCenteredTextWithShadow(textRenderer, pageStr, Math.round(pageX + pageControlW * 0.5f), Math.round(headerY + 6.0f), withAlpha(0xD8E0EE, Math.round(230 * visible)));
+            context.drawCenteredTextWithShadow(textRenderer, pageStr, Math.round(pageX + pageControlW * 0.5f), Math.round(headerY + 6.0f), ColorMath.withAlpha(0xD8E0EE, Math.round(230 * visible)));
         }
 
         // Next Button
@@ -322,11 +316,11 @@ public final class CustomMultiplayerScreen extends Screen {
         float gridH = height - gridY - 48.0f;
 
         if (entries.isEmpty()) {
-            if (titleFont != null && textFont != null) {
-                MsdfText.drawCenteredOn(context, titleFont, I18n.get("multiplayer.no_servers"), width * 0.5f, gridY + gridH * 0.45f, 9.5f,
-                    withAlpha(0x6A758A, Math.round(180 * visible)));
-                MsdfText.drawCenteredOn(context, textFont, I18n.get("multiplayer.prompt_add"), width * 0.5f, gridY + gridH * 0.45f + 16.0f, 7.0f,
-                    withAlpha(0x4B5568, Math.round(160 * visible)));
+            if (Fonts.titleFont() != null && Fonts.textFont() != null) {
+                MsdfText.drawCenteredOn(context, Fonts.titleFont(), I18n.get("multiplayer.no_servers"), width * 0.5f, gridY + gridH * 0.45f, 9.5f,
+                    ColorMath.withAlpha(0x6A758A, Math.round(180 * visible)));
+                MsdfText.drawCenteredOn(context, Fonts.textFont(), I18n.get("multiplayer.prompt_add"), width * 0.5f, gridY + gridH * 0.45f + 16.0f, 7.0f,
+                    ColorMath.withAlpha(0x4B5568, Math.round(160 * visible)));
             }
             return;
         }
@@ -360,18 +354,18 @@ public final class CustomMultiplayerScreen extends Screen {
             // Card body (Deep frosted acrylic obsidian glass)
             int fillAlpha = Math.round((isSelected ? 230 : (150 + hov * 45)) * visible);
             int fillColor = isSelected ? 0x141C2B : 0x0C0E14;
-            RoundedRectPipeline.draw(context, cx, cy, cardW, cardH, withAlpha(fillColor, fillAlpha));
+            RoundedRectPipeline.draw(context, cx, cy, cardW, cardH, ColorMath.withAlpha(fillColor, fillAlpha));
 
             // Card outline with NeonEdge
             int borderAlpha = Math.round((isSelected ? 255 : (25 + hov * 85)) * visible);
             int borderColor = isSelected ? NeonEdge.cool() : (hov > 0.05f ? 0x6080A8 : 0x242A38);
-            RoundedRectPipeline.drawOutline(context, cx, cy, cardW, cardH, withAlpha(borderColor, borderAlpha));
+            RoundedRectPipeline.drawOutline(context, cx, cy, cardW, cardH, ColorMath.withAlpha(borderColor, borderAlpha));
 
             // Left vertical accent strip
             if (isSelected || hov > 0.05f) {
                 float barAlpha = isSelected ? 240.0f : (hov * 180.0f);
                 RoundedRectPipeline.draw(context, cx + 2.0f, cy + 4.0f, 2.5f, cardH - 8.0f,
-                    withAlpha(NeonEdge.cool(), Math.round(barAlpha * visible)));
+                    ColorMath.withAlpha(NeonEdge.cool(), Math.round(barAlpha * visible)));
             }
 
             renderCardContent(context, entry.info, cx, cy, cardW, cardH, visible);
@@ -390,7 +384,7 @@ public final class CustomMultiplayerScreen extends Screen {
         } else {
             pingCol = 0xFFF87171; // red
         }
-        CirclePipeline.draw(context, cx + 12.0f, cy + 9.0f, 3.0f, withAlpha(pingCol, Math.round(240 * visible)));
+        CirclePipeline.draw(context, cx + 12.0f, cy + 9.0f, 3.0f, ColorMath.withAlpha(pingCol, Math.round(240 * visible)));
 
         // 2. Server Name (Truncated cleanly)
         String sName = info.name != null ? info.name : "Server";
@@ -398,10 +392,10 @@ public final class CustomMultiplayerScreen extends Screen {
         if (sName.length() > maxNameChars) {
             sName = sName.substring(0, maxNameChars - 2) + "...";
         }
-        if (titleFont != null && titleFont.canRender(sName)) {
-            MsdfText.draw(context, titleFont, sName, cx + 20.0f, cy + 4.0f, 8.0f, withAlpha(0xFFFFFF, Math.round(245 * visible)));
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(sName)) {
+            MsdfText.draw(context, Fonts.titleFont(), sName, cx + 20.0f, cy + 4.0f, 8.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(245 * visible)));
         } else {
-            context.drawTextWithShadow(textRenderer, sName, Math.round(cx + 20.0f), Math.round(cy + 5.0f), withAlpha(0xFFFFFF, Math.round(245 * visible)));
+            context.drawTextWithShadow(textRenderer, sName, Math.round(cx + 20.0f), Math.round(cy + 5.0f), ColorMath.withAlpha(0xFFFFFF, Math.round(245 * visible)));
         }
 
         // 3. Ping Tag Top Right
@@ -414,12 +408,12 @@ public final class CustomMultiplayerScreen extends Screen {
             pingText = info.ping + " ms";
             pingTextCol = 0x88CCAA;
         }
-        if (textFont != null && textFont.canRender(pingText)) {
-            MsdfText.drawRightOn(context, textFont, pingText, cx + cw - 10.0f, cy + 9.0f, 6.5f, withAlpha(pingTextCol, Math.round(220 * visible)));
+        if (Fonts.textFont() != null && Fonts.textFont().canRender(pingText)) {
+            MsdfText.drawRightOn(context, Fonts.textFont(), pingText, cx + cw - 10.0f, cy + 9.0f, 6.5f, ColorMath.withAlpha(pingTextCol, Math.round(220 * visible)));
         } else {
             context.drawTextWithShadow(textRenderer, pingText,
                 Math.round(cx + cw - textRenderer.getWidth(pingText) - 10.0f), Math.round(cy + 5.0f),
-                withAlpha(pingTextCol, Math.round(220 * visible)));
+                ColorMath.withAlpha(pingTextCol, Math.round(220 * visible)));
         }
 
         // 4. Server Description (MOTD) - 100% vanilla colors & formatting
@@ -428,33 +422,33 @@ public final class CustomMultiplayerScreen extends Screen {
             List<net.minecraft.text.OrderedText> lines = textRenderer.wrapLines(info.label, motdWidth);
             for (int l = 0; l < Math.min(2, lines.size()); l++) {
                 context.drawTextWithShadow(textRenderer, lines.get(l),
-                    Math.round(cx + 12.0f), Math.round(cy + 17.0f + l * 10.0f), withAlpha(0xFFFFFF, Math.round(230 * visible)));
+                    Math.round(cx + 12.0f), Math.round(cy + 17.0f + l * 10.0f), ColorMath.withAlpha(0xFFFFFF, Math.round(230 * visible)));
             }
         } else if (info.ping < 0L) {
             String pingingStr = I18n.get("multiplayer.pinging");
-            context.drawTextWithShadow(textRenderer, pingingStr, Math.round(cx + 12.0f), Math.round(cy + 17.0f), withAlpha(0x758298, Math.round(190 * visible)));
+            context.drawTextWithShadow(textRenderer, pingingStr, Math.round(cx + 12.0f), Math.round(cy + 17.0f), ColorMath.withAlpha(0x758298, Math.round(190 * visible)));
         }
 
         // 5. Bottom line: Server IP & Players Count Pill
-        if (textFont != null && textFont.canRender(info.address)) {
-            MsdfText.draw(context, textFont, info.address, cx + 12.0f, cy + ch - 14.0f, 6.8f, withAlpha(0x566278, Math.round(180 * visible)));
+        if (Fonts.textFont() != null && Fonts.textFont().canRender(info.address)) {
+            MsdfText.draw(context, Fonts.textFont(), info.address, cx + 12.0f, cy + ch - 14.0f, 6.8f, ColorMath.withAlpha(0x566278, Math.round(180 * visible)));
         } else {
-            context.drawTextWithShadow(textRenderer, info.address, Math.round(cx + 12.0f), Math.round(cy + ch - 14.0f), withAlpha(0x566278, Math.round(180 * visible)));
+            context.drawTextWithShadow(textRenderer, info.address, Math.round(cx + 12.0f), Math.round(cy + ch - 14.0f), ColorMath.withAlpha(0x566278, Math.round(180 * visible)));
         }
 
         String players = info.playerCountLabel != null ? info.playerCountLabel.getString() : "";
         if (!players.isEmpty()) {
-            int pw = (textFont != null && textFont.canRender(players))
-                ? Math.round(textFont.width(players, 6.8f)) : textRenderer.getWidth(players);
+            int pw = (Fonts.textFont() != null && Fonts.textFont().canRender(players))
+                ? Math.round(Fonts.textFont().width(players, 6.8f)) : textRenderer.getWidth(players);
             float pillX = cx + cw - pw - 18.0f;
             float pillY = cy + ch - 16.0f;
             float pillW = pw + 10.0f;
-            RoundedRectPipeline.draw(context, pillX, pillY, pillW, 12.0f, withAlpha(0x111624, Math.round(180 * visible)));
-            RoundedRectPipeline.drawOutline(context, pillX, pillY, pillW, 12.0f, withAlpha(0x283850, Math.round(200 * visible)));
-            if (textFont != null && textFont.canRender(players)) {
-                MsdfText.drawCenteredOn(context, textFont, players, pillX + pillW * 0.5f, pillY + 6.0f, 6.5f, withAlpha(0x8A98B0, Math.round(220 * visible)));
+            RoundedRectPipeline.draw(context, pillX, pillY, pillW, 12.0f, ColorMath.withAlpha(0x111624, Math.round(180 * visible)));
+            RoundedRectPipeline.drawOutline(context, pillX, pillY, pillW, 12.0f, ColorMath.withAlpha(0x283850, Math.round(200 * visible)));
+            if (Fonts.textFont() != null && Fonts.textFont().canRender(players)) {
+                MsdfText.drawCenteredOn(context, Fonts.textFont(), players, pillX + pillW * 0.5f, pillY + 6.0f, 6.5f, ColorMath.withAlpha(0x8A98B0, Math.round(220 * visible)));
             } else {
-                context.drawCenteredTextWithShadow(textRenderer, players, Math.round(pillX + pillW * 0.5f), Math.round(pillY + 2.0f), withAlpha(0x8A98B0, Math.round(220 * visible)));
+                context.drawCenteredTextWithShadow(textRenderer, players, Math.round(pillX + pillW * 0.5f), Math.round(pillY + 2.0f), ColorMath.withAlpha(0x8A98B0, Math.round(220 * visible)));
             }
         }
     }
@@ -566,14 +560,14 @@ public final class CustomMultiplayerScreen extends Screen {
         int mx = getModalX();
         int my = getModalY();
 
-        GlowPipeline.radial(context, mx + mw * 0.5f, my + mh * 0.5f, mw * 0.7f, withAlpha(NeonEdge.cool(), 36));
+        GlowPipeline.radial(context, mx + mw * 0.5f, my + mh * 0.5f, mw * 0.7f, ColorMath.withAlpha(NeonEdge.cool(), 36));
 
         // Frosted acrylic modal background
         RoundedRectPipeline.draw(context, mx, my, mw, mh, 0xFA0B0E15);
         RoundedRectPipeline.drawOutline(context, mx, my, mw, mh, 0xFF243044);
 
         // Top neon accent line
-        PanelPipeline.draw(context, mx + 16.0f, my + 1.2f, mw - 32.0f, 1.4f, withAlpha(NeonEdge.cool(), 180));
+        PanelPipeline.draw(context, mx + 16.0f, my + 1.2f, mw - 32.0f, 1.4f, ColorMath.withAlpha(NeonEdge.cool(), 180));
 
         // Header accent divider line
         PanelPipeline.draw(context, mx + 16.0f, my + 34.0f, mw - 32.0f, 1.0f, 0x1E3A4D68);
@@ -586,11 +580,11 @@ public final class CustomMultiplayerScreen extends Screen {
         modalCloseHover = lerpHover(modalCloseHover, closeHov, deltaSeconds);
         if (modalCloseHover > 0.01f) {
             RoundedRectPipeline.draw(context, closeX, closeY, closeSize, closeSize,
-                withAlpha(0x242F42, Math.round(180 * modalCloseHover)));
+                ColorMath.withAlpha(0x242F42, Math.round(180 * modalCloseHover)));
             RoundedRectPipeline.drawOutline(context, closeX, closeY, closeSize, closeSize,
-                withAlpha(NeonEdge.cool(), Math.round(200 * modalCloseHover)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round(200 * modalCloseHover)));
         }
-        int closeColor = WidgetStylePipeline.mix(0x8A96AA, 0xFFFFFF, modalCloseHover);
+        int closeColor = ColorMath.mix(0x8A96AA, 0xFFFFFF, modalCloseHover);
         context.drawCenteredTextWithShadow(textRenderer, "✕", Math.round(closeX + closeSize * 0.5f), Math.round(closeY + 5.0f), closeColor);
 
         String title = switch (activeModal) {
@@ -601,8 +595,8 @@ public final class CustomMultiplayerScreen extends Screen {
             default -> "";
         };
 
-        if (titleFont != null && titleFont.canRender(title)) {
-            MsdfText.draw(context, titleFont, title, mx + 20.0f, my + 13.0f, 9.2f, 0xFFFFFFFF);
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(title)) {
+            MsdfText.draw(context, Fonts.titleFont(), title, mx + 20.0f, my + 13.0f, 9.2f, 0xFFFFFFFF);
         } else {
             context.drawTextWithShadow(textRenderer, title, mx + 20, my + 13, 0xFFFFFFFF);
         }
@@ -612,8 +606,8 @@ public final class CustomMultiplayerScreen extends Screen {
 
         if (activeModal == Modal.DIRECT_CONNECT) {
             String addrLabel = I18n.get("multiplayer.server_address");
-            if (textFont != null && textFont.canRender(addrLabel)) {
-                MsdfText.draw(context, textFont, addrLabel, fieldX + 2.0f, my + 48.0f, 7.0f, 0xFF94A3B8);
+            if (Fonts.textFont() != null && Fonts.textFont().canRender(addrLabel)) {
+                MsdfText.draw(context, Fonts.textFont(), addrLabel, fieldX + 2.0f, my + 48.0f, 7.0f, 0xFF94A3B8);
             } else {
                 context.drawTextWithShadow(textRenderer, addrLabel, Math.round(fieldX + 2.0f), my + 48, 0xFF94A3B8);
             }
@@ -627,23 +621,23 @@ public final class CustomMultiplayerScreen extends Screen {
             addressField.render(context, mouseX, mouseY, 0.0f);
         } else if (activeModal == Modal.DELETE_CONFIRM) {
             String prompt = I18n.get("multiplayer.modal_delete_prompt");
-            if (textFont != null && textFont.canRender(prompt)) {
-                MsdfText.drawCenteredOn(context, textFont, prompt, mx + mw * 0.5f, my + 52.0f, 7.5f, 0xFFCCD5E4);
+            if (Fonts.textFont() != null && Fonts.textFont().canRender(prompt)) {
+                MsdfText.drawCenteredOn(context, Fonts.textFont(), prompt, mx + mw * 0.5f, my + 52.0f, 7.5f, 0xFFCCD5E4);
             } else {
                 context.drawCenteredTextWithShadow(textRenderer, prompt, mx + mw / 2, my + 52, 0xFFCCD5E4);
             }
             if (selectedIndex >= 0 && selectedIndex < entries.size()) {
                 String delName = entries.get(selectedIndex).info.name;
-                if (titleFont != null && titleFont.canRender(delName)) {
-                    MsdfText.drawCenteredOn(context, titleFont, delName, mx + mw * 0.5f, my + 72.0f, 8.8f, NeonEdge.cool());
+                if (Fonts.titleFont() != null && Fonts.titleFont().canRender(delName)) {
+                    MsdfText.drawCenteredOn(context, Fonts.titleFont(), delName, mx + mw * 0.5f, my + 72.0f, 8.8f, NeonEdge.cool());
                 } else {
                     context.drawCenteredTextWithShadow(textRenderer, delName, mx + mw / 2, my + 72, NeonEdge.cool());
                 }
             }
         } else {
             String nameLabel = I18n.get("multiplayer.server_name");
-            if (textFont != null && textFont.canRender(nameLabel)) {
-                MsdfText.draw(context, textFont, nameLabel, fieldX + 2.0f, my + 42.0f, 7.0f, 0xFF94A3B8);
+            if (Fonts.textFont() != null && Fonts.textFont().canRender(nameLabel)) {
+                MsdfText.draw(context, Fonts.textFont(), nameLabel, fieldX + 2.0f, my + 42.0f, 7.0f, 0xFF94A3B8);
             } else {
                 context.drawTextWithShadow(textRenderer, nameLabel, Math.round(fieldX + 2.0f), my + 42, 0xFF94A3B8);
             }
@@ -657,8 +651,8 @@ public final class CustomMultiplayerScreen extends Screen {
             nameField.render(context, mouseX, mouseY, 0.0f);
 
             String addrLabel = I18n.get("multiplayer.server_address");
-            if (textFont != null && textFont.canRender(addrLabel)) {
-                MsdfText.draw(context, textFont, addrLabel, fieldX + 2.0f, my + 92.0f, 7.0f, 0xFF94A3B8);
+            if (Fonts.textFont() != null && Fonts.textFont().canRender(addrLabel)) {
+                MsdfText.draw(context, Fonts.textFont(), addrLabel, fieldX + 2.0f, my + 92.0f, 7.0f, 0xFF94A3B8);
             } else {
                 context.drawTextWithShadow(textRenderer, addrLabel, Math.round(fieldX + 2.0f), my + 92, 0xFF94A3B8);
             }
@@ -1130,10 +1124,6 @@ public final class CustomMultiplayerScreen extends Screen {
         if (client != null) {
             client.setScreen(parent);
         }
-    }
-
-    private static int withAlpha(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
     }
 
     private static final class ServerEntry {

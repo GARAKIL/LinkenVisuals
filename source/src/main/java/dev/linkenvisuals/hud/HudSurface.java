@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.render.GlassPanelPipeline;
 import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.RoundedRectPipeline;
@@ -18,8 +19,8 @@ public final class HudSurface {
             return;
         }
         GlassPanelPipeline.draw(context, x, y, width, height,
-            argb(Theme.hudTint(element), Math.round(225 * alpha)));
-        RoundedRectPipeline.draw(context, x, y, width, height, argb(BODY, Math.round(206 * alpha)));
+            ColorMath.withAlpha(Theme.hudTint(element), Math.round(225 * alpha)));
+        RoundedRectPipeline.draw(context, x, y, width, height, ColorMath.withAlpha(BODY, Math.round(206 * alpha)));
         NeonEdge.frame(context, x, y, width, height, 0, alpha);
     }
 
@@ -29,13 +30,10 @@ public final class HudSurface {
             return;
         }
         GlassPanelPipeline.draw(context, x, y, width, height,
-            argb(Theme.hudTint(element), Math.round(215 * alpha)));
-        RoundedRectPipeline.draw(context, x, y, width, height, argb(BODY, Math.round(200 * alpha)));
+            ColorMath.withAlpha(Theme.hudTint(element), Math.round(215 * alpha)));
+        RoundedRectPipeline.draw(context, x, y, width, height, ColorMath.withAlpha(BODY, Math.round(200 * alpha)));
         RoundedRectPipeline.drawOutline(context, x, y, width, height,
-            argb(0xFFFFFF, Math.round(20 * alpha)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(20 * alpha)));
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

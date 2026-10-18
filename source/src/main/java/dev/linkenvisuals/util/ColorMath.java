@@ -4,7 +4,8 @@ package dev.linkenvisuals.util;
  * Pure ARGB/HSB-free color math shared by cosmetics, HUD and UI code.
  * All methods are allocation-free and depend on nothing but {@code java.lang.Math}.
  *
- * <p>Alpha conventions: {@link #argb(int, float)} builds a color with alpha from 0..1;
+ * <p>Alpha conventions: {@link #argb(int, float)} builds a color with alpha from 0..1,
+ * {@link #withAlpha(int, int)} with a byte alpha in 0..255 (both clamped);
  * {@link #mix(int, int, float)} interpolates RGB and drops alpha on purpose
  * (current visual behavior of the cosmetic material pipeline).
  */
@@ -16,6 +17,11 @@ public final class ColorMath {
     public static int argb(int rgb, float alpha) {
         int clamped = Math.max(0, Math.min(255, Math.round(alpha * 255.0f)));
         return clamped << 24 | rgb & 0xFFFFFF;
+    }
+
+    /** Packs {@code rgb} with a byte alpha in 0..255 (clamped). */
+    public static int withAlpha(int rgb, int alpha) {
+        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
     }
 
     /** Linear RGB interpolation toward white. */

@@ -1,5 +1,6 @@
 package dev.linkenvisuals.mixin;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.LoadingOverlay;
@@ -74,7 +75,7 @@ public abstract class ConnectScreenMixin extends Screen {
         } else {
             RoundedRectPipeline.draw(context, btnX, btnY, btnW, btnH, hov ? 0xEE1E2433 : 0xDD12151D);
             RoundedRectPipeline.drawOutline(context, btnX, btnY, btnW, btnH, hov ? NeonEdge.cool() : 0xFF2F3648);
-            GlyphAtlas titleFont = LoadingOverlay.titleFont();
+            GlyphAtlas titleFont = Fonts.titleFont();
             if (titleFont != null) {
                 MsdfText.drawCenteredOn(context, titleFont, I18n.get("loading.cancel"), btnX + btnW * 0.5f, btnY + btnH * 0.5f, 7.5f, hov ? 0xFFFFFF : 0xC0C6D4);
             }

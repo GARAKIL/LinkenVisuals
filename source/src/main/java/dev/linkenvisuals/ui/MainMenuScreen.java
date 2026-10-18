@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui;
 
+import dev.linkenvisuals.render.Fonts;
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.BackgroundPipeline;
@@ -47,8 +49,6 @@ public final class MainMenuScreen extends Screen {
     private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
     private static final Identifier ICON_DATA = LinkenVisuals.id("fonts/msdf/wtmico.json");
     private static final Identifier ICON_ATLAS = LinkenVisuals.id("fonts/msdf/wtmico.png");
-    private static final Identifier TITLE_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier TITLE_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
     private static final Identifier BRAND_DATA = LinkenVisuals.id("fonts/msdf/brands.json");
     private static final Identifier BRAND_ATLAS = LinkenVisuals.id("fonts/msdf/brands.png");
 
@@ -72,7 +72,6 @@ public final class MainMenuScreen extends Screen {
     private final Spring discordHover = new Spring(0.0, 280.0, 20.0);
 
     private GlyphAtlas icons;
-    private GlyphAtlas titleFont;
     private GlyphAtlas brands;
     private long lastFrame = System.nanoTime();
     private long openedAt;
@@ -106,7 +105,6 @@ public final class MainMenuScreen extends Screen {
     protected void init() {
         Pipelines.warmUp();
         icons = GlyphAtlas.load(ICON_DATA, ICON_ATLAS);
-        titleFont = GlyphAtlas.load(TITLE_FONT_DATA, TITLE_FONT_ATLAS);
         brands = GlyphAtlas.load(BRAND_DATA, BRAND_ATLAS);
 
         MainMenuConfig.load();
@@ -152,7 +150,7 @@ public final class MainMenuScreen extends Screen {
             Identifier customTex = CustomTextureLoader.getCustomTexture();
             if (customTex != null) {
                 int imgAlpha = Math.round(menuCfg.imageOpacity * 255);
-                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, withAlpha(0xFFFFFF, imgAlpha));
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, ColorMath.withAlpha(0xFFFFFF, imgAlpha));
             } else {
                 BackgroundPipeline.draw(vis, menuCfg.shaderPreset.id, menuCfg.shaderIntensity, menuCfg.imageDarkening, 1.0f);
             }
@@ -164,7 +162,7 @@ public final class MainMenuScreen extends Screen {
             Identifier customTex = CustomTextureLoader.getCustomTexture();
             if (customTex != null) {
                 int imgAlpha = Math.round(menuCfg.imageOpacity * 255);
-                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, withAlpha(0xFFFFFF, imgAlpha));
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, customTex, 0, 0, 0.0f, 0.0f, width, height, width, height, width, height, ColorMath.withAlpha(0xFFFFFF, imgAlpha));
             }
             int darkAlpha = Math.round(menuCfg.imageDarkening * 255);
             if (darkAlpha > 0) {
@@ -177,7 +175,7 @@ public final class MainMenuScreen extends Screen {
 
         if (menuCfg.shaderOverlayEnabled && menuCfg.shaderEffect != MainMenuConfig.ShaderEffect.NONE) {
             int glowAlpha = Math.round(menuCfg.shaderIntensity * 60);
-            GlowPipeline.radial(context, width * 0.5f, height * 0.5f, width * 0.45f, withAlpha(NeonEdge.cool(), glowAlpha));
+            GlowPipeline.radial(context, width * 0.5f, height * 0.5f, width * 0.45f, ColorMath.withAlpha(NeonEdge.cool(), glowAlpha));
         }
 
         if (!soundPlayed && client != null) {
@@ -256,7 +254,7 @@ public final class MainMenuScreen extends Screen {
         context.getMatrices().translate(cx, cy);
         context.getMatrices().scale(size / 120.0f, size / 120.0f);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO, -60, -60, 0.0f, 0.0f,
-            120, 120, 120, 120, withAlpha(0xFFFFFF, Math.round(16 * appear)));
+            120, 120, 120, 120, ColorMath.withAlpha(0xFFFFFF, Math.round(16 * appear)));
         context.getMatrices().popMatrix();
     }
 
@@ -281,13 +279,13 @@ public final class MainMenuScreen extends Screen {
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO,
             Math.round(-logoSize * 0.5f), Math.round(-logoSize * 0.5f), 0.0f, 0.0f,
             Math.round(logoSize), Math.round(logoSize), 120, 120, 120, 120,
-            withAlpha(0xFFFFFF, Math.round(255 * logoAppear)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(255 * logoAppear)));
         context.getMatrices().popMatrix();
 
         if (dev.linkenvisuals.ui.style.StyleManager.getStyle() != dev.linkenvisuals.ui.style.MenuStyle.VANILLA && logoAppear < 0.999f) {
             GlowPipeline.radial(context, x + logoSize * 0.5f, top + logoSize * 0.5f,
                 logoSize * (0.6f + logoAppear * 2.2f),
-                withAlpha(NeonEdge.cool(), Math.round(90 * (1.0f - logoAppear))));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round(90 * (1.0f - logoAppear))));
         }
 
         int brandCol = dev.linkenvisuals.ui.style.StyleManager.getStyle() == dev.linkenvisuals.ui.style.MenuStyle.VANILLA
@@ -330,28 +328,28 @@ public final class MainMenuScreen extends Screen {
         }
         float lineHeight = size * 1.35f;
         if (progress >= 0.999f) {
-            spaced(context, line, x, top, size, tracking, withAlpha(colour, alpha));
+            spaced(context, line, x, top, size, tracking, ColorMath.withAlpha(colour, alpha));
             return;
         }
         context.enableScissor(Math.round(x - 6.0f), Math.round(top - 2.0f),
             Math.round(x + width), Math.round(top + lineHeight));
         spaced(context, line, x, top + (1.0f - progress) * lineHeight, size, tracking,
-            withAlpha(colour, Math.round(alpha * Math.min(1.0f, progress * 1.6f))));
+            ColorMath.withAlpha(colour, Math.round(alpha * Math.min(1.0f, progress * 1.6f))));
         context.disableScissor();
     }
 
     private void spaced(DrawContext context, String line, float x, float top, float size,
                         float tracking, int argb) {
-        if (titleFont == null) return;
+        if (Fonts.titleFont() == null) return;
         if (tracking <= 0.0f) {
-            MsdfText.draw(context, titleFont, line, x, top, size, argb);
+            MsdfText.draw(context, Fonts.titleFont(), line, x, top, size, argb);
             return;
         }
         float cursor = x;
         for (int i = 0; i < line.length(); i++) {
             String glyph = line.substring(i, i + 1);
-            MsdfText.draw(context, titleFont, glyph, cursor, top, size, argb);
-            cursor += titleFont.width(glyph, size) + tracking;
+            MsdfText.draw(context, Fonts.titleFont(), glyph, cursor, top, size, argb);
+            cursor += Fonts.titleFont().width(glyph, size) + tracking;
         }
     }
 
@@ -388,29 +386,29 @@ public final class MainMenuScreen extends Screen {
             }
 
             RoundedRectPipeline.draw(context, rowX, y, w, h,
-                withAlpha(0x0E0F14, Math.round((150 + hover * 60) * appear)));
+                ColorMath.withAlpha(0x0E0F14, Math.round((150 + hover * 60) * appear)));
             RoundedRectPipeline.drawOutline(context, rowX, y, w, h,
-                withAlpha(mix(0xFFFFFF, NeonEdge.cool(), hover), Math.round((20 + hover * 75) * appear)));
+                ColorMath.withAlpha(mix(0xFFFFFF, NeonEdge.cool(), hover), Math.round((20 + hover * 75) * appear)));
             if (hover > 0.01f) {
                 PanelPipeline.draw(context, rowX + 2.0f, y + 4.0f * scale, 1.6f, h - 8.0f * scale,
-                    withAlpha(NeonEdge.cool(), Math.round(235 * hover * appear)));
+                    ColorMath.withAlpha(NeonEdge.cool(), Math.round(235 * hover * appear)));
             }
 
             if (appear > 0.05f && appear < 0.995f) {
                 float across = appear * (w + 50.0f) - 25.0f;
                 GlowPipeline.lineVertical(context, rowX + across, y + h * 0.5f, 30.0f, h,
-                    withAlpha(NeonEdge.cool(), Math.round(90 * (1.0f - appear))));
+                    ColorMath.withAlpha(NeonEdge.cool(), Math.round(90 * (1.0f - appear))));
             }
 
             if (icons != null) {
                 IconPipeline.draw(context, icons, entry.icon, rowX + 17.0f * scale, y + h * 0.5f, 6.2f * scale,
-                    withAlpha(mix(0xB9BFCC, 0xFFFFFF, hover), Math.round((205 + hover * 50) * appear)));
+                    ColorMath.withAlpha(mix(0xB9BFCC, 0xFFFFFF, hover), Math.round((205 + hover * 50) * appear)));
             }
 
             String label = I18n.get(entry.labelKey);
-            int labelCol = withAlpha(mix(0xD7DCE6, 0xFFFFFF, hover), Math.round((215 + hover * 40) * appear));
-            if (titleFont != null && titleFont.canRender(label)) {
-                MsdfText.drawOn(context, titleFont, label, rowX + 30.0f * scale, y + h * 0.5f, 8.0f * scale, labelCol);
+            int labelCol = ColorMath.withAlpha(mix(0xD7DCE6, 0xFFFFFF, hover), Math.round((215 + hover * 40) * appear));
+            if (Fonts.titleFont() != null && Fonts.titleFont().canRender(label)) {
+                MsdfText.drawOn(context, Fonts.titleFont(), label, rowX + 30.0f * scale, y + h * 0.5f, 8.0f * scale, labelCol);
             } else {
                 context.drawTextWithShadow(textRenderer, label, Math.round(rowX + 30.0f * scale), Math.round(y + (h - 8.0f) * 0.5f), labelCol);
             }
@@ -450,32 +448,32 @@ public final class MainMenuScreen extends Screen {
         }
 
         RoundedRectPipeline.draw(context, x, top, plate, plate,
-            withAlpha(0xFFFFFF, Math.round(18 * appear)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(18 * appear)));
         RoundedRectPipeline.drawOutline(context, x, top, plate, plate,
-            withAlpha(0xFFFFFF, Math.round(28 * appear)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(28 * appear)));
 
         Identifier skin = skinTexture();
         int alpha = Math.round(255 * appear);
         int face = Math.round(plate - 8.0f * scale);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, skin, Math.round(x + 4.0f * scale),
             Math.round(top + 4.0f * scale), 8.0f, 8.0f, face, face, 8, 8, 64, 64,
-            withAlpha(0xFFFFFF, alpha));
+            ColorMath.withAlpha(0xFFFFFF, alpha));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, skin, Math.round(x + 4.0f * scale),
             Math.round(top + 4.0f * scale), 40.0f, 8.0f, face, face, 8, 8, 64, 64,
-            withAlpha(0xFFFFFF, alpha));
+            ColorMath.withAlpha(0xFFFFFF, alpha));
 
         String name = client != null && client.getSession() != null
             ? client.getSession().getUsername() : "Player";
-        int nameCol = withAlpha(0xFFFFFF, Math.round(240 * appear));
-        if (titleFont != null && titleFont.canRender(name)) {
-            MsdfText.drawOn(context, titleFont, name, x + plate + 9.0f * scale, top + 8.0f * scale, 8.4f * scale, nameCol);
+        int nameCol = ColorMath.withAlpha(0xFFFFFF, Math.round(240 * appear));
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(name)) {
+            MsdfText.drawOn(context, Fonts.titleFont(), name, x + plate + 9.0f * scale, top + 8.0f * scale, 8.4f * scale, nameCol);
         } else {
             context.drawTextWithShadow(textRenderer, name, Math.round(x + plate + 9.0f * scale), Math.round(top + 8.0f * scale - 4.0f), nameCol);
         }
         String verDate = version() + "  ·  " + TODAY.format(LocalDate.now());
-        int verCol = withAlpha(0xFFFFFF, Math.round(105 * appear));
-        if (titleFont != null && titleFont.canRender(verDate)) {
-            MsdfText.drawOn(context, titleFont, verDate, x + plate + 9.0f * scale, top + 18.0f * scale, 6.2f * scale, verCol);
+        int verCol = ColorMath.withAlpha(0xFFFFFF, Math.round(105 * appear));
+        if (Fonts.titleFont() != null && Fonts.titleFont().canRender(verDate)) {
+            MsdfText.drawOn(context, Fonts.titleFont(), verDate, x + plate + 9.0f * scale, top + 18.0f * scale, 6.2f * scale, verCol);
         } else {
             context.drawTextWithShadow(textRenderer, verDate, Math.round(x + plate + 9.0f * scale), Math.round(top + 18.0f * scale - 4.0f), verCol);
         }
@@ -504,9 +502,9 @@ public final class MainMenuScreen extends Screen {
         context.getMatrices().scale(scale, scale);
         context.getMatrices().translate(-cx, -cy);
         CirclePipeline.draw(context, cx, cy, radius,
-            withAlpha(0x0E0F14, Math.round((150 + hover * 60) * visible)));
+            ColorMath.withAlpha(0x0E0F14, Math.round((150 + hover * 60) * visible)));
         IconPipeline.draw(context, brands, codepoint, cx, cy, radius * 0.9f,
-            withAlpha(mix(0xB9BFCC, 0xFFFFFF, hover), Math.round((190 + hover * 65) * visible)));
+            ColorMath.withAlpha(mix(0xB9BFCC, 0xFFFFFF, hover), Math.round((190 + hover * 65) * visible)));
         context.getMatrices().popMatrix();
     }
 
@@ -662,18 +660,10 @@ public final class MainMenuScreen extends Screen {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private static int withAlpha(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
-
+    /** Like {@link ColorMath#mix}, but forces full opacity (0xFF alpha), as this screen did before. */
     private static int mix(int from, int to, float amount) {
-        float t = Math.max(0.0f, Math.min(1.0f, amount));
-        int r = Math.round(((from >> 16) & 0xFF) + (((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t);
-        int g = Math.round(((from >> 8) & 0xFF) + (((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t);
-        int b = Math.round((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
+        return ColorMath.withAlpha(ColorMath.mix(from, to, amount), 255);
     }
-
     private void playClick() {
         if (client != null) {
             client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 1.0f));

@@ -1,5 +1,6 @@
 package dev.linkenvisuals.clickgui;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
@@ -45,9 +46,6 @@ public final class ClickGuiScreen extends Screen {
     private static final Identifier TEXT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
     private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
     private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
-
-    private static final float CAP_HEIGHT = 0.70f;
-    private static final float ASCENDER = 0.952f;
 
     private static final float WINDOW_W = 496.0f;
     private static final float WINDOW_H = 271.0f;
@@ -200,10 +198,6 @@ public final class ClickGuiScreen extends Screen {
         return Math.round((height - WINDOW_H) * 0.5f);
     }
 
-    private static float centredTop(float centerY, float size) {
-        return centerY + CAP_HEIGHT * size * 0.5f - ASCENDER * size;
-    }
-
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         long now = System.nanoTime();
@@ -235,7 +229,7 @@ public final class ClickGuiScreen extends Screen {
         } catch (IllegalStateException ignored) {
             // Vanilla post-process blur is disabled or unsupported in current device context
         }
-        context.fill(0, 0, width, height, argb(0x000000, Math.round(80 * openT)));
+        context.fill(0, 0, width, height, ColorMath.withAlpha(0x000000, Math.round(80 * openT)));
 
         float slide = Math.round((1.0f - openT) * 14.0f);
         float wx = windowX();
@@ -245,9 +239,9 @@ public final class ClickGuiScreen extends Screen {
         matrices.pushMatrix();
         matrices.translate(0.0f, slide);
 
-        GlassWindowPipeline.draw(context, wx, wy, WINDOW_W, WINDOW_H, argb(Theme.glassTint(), Math.round(238 * openT)));
+        GlassWindowPipeline.draw(context, wx, wy, WINDOW_W, WINDOW_H, ColorMath.withAlpha(Theme.glassTint(), Math.round(238 * openT)));
         RoundedRectPipeline.draw(context, wx, wy, WINDOW_W, WINDOW_H,
-            argb(0x101116, Math.round(232 * openT)));
+            ColorMath.withAlpha(0x101116, Math.round(232 * openT)));
         renderSheen(context, wx, wy, openT);
         renderFrameGlow(context, wx, wy, openT);
 
@@ -281,7 +275,7 @@ public final class ClickGuiScreen extends Screen {
         float strength = (float) Math.sin(travel * Math.PI);
         GlowPipeline.lineVertical(context, wx - 30.0f + travel * (WINDOW_W + 60.0f),
             wy + WINDOW_H * 0.5f, 46.0f, WINDOW_H,
-            argb(0xFFFFFF, Math.round(11 * strength * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(11 * strength * openT)));
     }
 
     private float phase(float delay) {
@@ -311,22 +305,22 @@ public final class ClickGuiScreen extends Screen {
     private void renderFrameGlow(DrawContext context, float wx, float wy, float openT) {
         NeonEdge.frame(context, wx, wy, WINDOW_W, WINDOW_H, 5, openT * 0.55f);
         RoundedRectPipeline.drawOutline(context, wx, wy, WINDOW_W, WINDOW_H,
-            argb(0xFFFFFF, Math.round(30 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(30 * openT)));
     }
 
     private void drawContainer(DrawContext context, float x, float y, float w, float h, float openT) {
-        RoundedRectPipeline.draw(context, x, y, w, h, argb(0x0A0B0E, Math.round(150 * openT)));
-        RoundedRectPipeline.drawOutline(context, x, y, w, h, argb(0xFFFFFF, Math.round(20 * openT)));
+        RoundedRectPipeline.draw(context, x, y, w, h, ColorMath.withAlpha(0x0A0B0E, Math.round(150 * openT)));
+        RoundedRectPipeline.drawOutline(context, x, y, w, h, ColorMath.withAlpha(0xFFFFFF, Math.round(20 * openT)));
     }
 
     private void drawContainerLight(DrawContext context, float x, float y, float w, float h, float openT) {
-        RoundedRectPipeline.draw(context, x, y, w, h, argb(0xFFFFFF, Math.round(9 * openT)));
-        RoundedRectPipeline.drawOutline(context, x, y, w, h, argb(0xFFFFFF, Math.round(22 * openT)));
+        RoundedRectPipeline.draw(context, x, y, w, h, ColorMath.withAlpha(0xFFFFFF, Math.round(9 * openT)));
+        RoundedRectPipeline.drawOutline(context, x, y, w, h, ColorMath.withAlpha(0xFFFFFF, Math.round(22 * openT)));
     }
 
     private void drawTick(DrawContext context, float cx, float y, float openT) {
         context.fill(Math.round(cx - TICK_W * 0.5f), Math.round(y), Math.round(cx + TICK_W * 0.5f), Math.round(y) + 1,
-            argb(0xD9D9D9, Math.round(23 * openT)));
+            ColorMath.withAlpha(0xD9D9D9, Math.round(23 * openT)));
     }
 
     private void renderHeader(DrawContext context, float wx, float wy, int mouseX, int mouseY, float openT) {
@@ -337,27 +331,27 @@ public final class ClickGuiScreen extends Screen {
 
         float markR = 6.5f;
         float markX = wx + EDGE + 12.0f;
-        GlowPipeline.radial(context, markX, boxMid, markR * 2.0f, argb(NeonEdge.cool(), Math.round(70 * openT)));
-        CirclePipeline.draw(context, markX, boxMid, markR, argb(0xFFFFFF, Math.round(26 * openT)));
-        CirclePipeline.draw(context, markX, boxMid, markR - 1.6f, argb(NeonEdge.cool(), Math.round(200 * openT)));
+        GlowPipeline.radial(context, markX, boxMid, markR * 2.0f, ColorMath.withAlpha(NeonEdge.cool(), Math.round(70 * openT)));
+        CirclePipeline.draw(context, markX, boxMid, markR, ColorMath.withAlpha(0xFFFFFF, Math.round(26 * openT)));
+        CirclePipeline.draw(context, markX, boxMid, markR - 1.6f, ColorMath.withAlpha(NeonEdge.cool(), Math.round(200 * openT)));
 
         String username = client != null && client.getSession() != null ? client.getSession().getUsername() : "Player";
         MsdfText.draw(context, bold, username, markX + markR + 8.0f, boxMid - 3.6f, 7.2f,
-            argb(0xFFFFFF, Math.round(205 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(205 * openT)));
 
         String section = selected.label().toUpperCase(Locale.ROOT);
         float sectionW = MsdfText.width(bold, section, 6.0f);
         MsdfText.draw(context, bold, section, boxRight - 11.0f - sectionW,
-            boxMid - 3.0f, 6.0f, argb(0xFFFFFF, Math.round(95 * openT)));
+            boxMid - 3.0f, 6.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(95 * openT)));
 
         context.fill(Math.round(wx + EDGE), Math.round(wy + HEADER_H), Math.round(boxRight),
-            Math.round(wy + HEADER_H) + 1, argb(0xFFFFFF, Math.round(26 * openT)));
+            Math.round(wy + HEADER_H) + 1, ColorMath.withAlpha(0xFFFFFF, Math.round(26 * openT)));
         context.fill(Math.round(wx + RAIL_DIVIDER_X), Math.round(wy + EDGE), Math.round(wx + RAIL_DIVIDER_X) + 1,
-            Math.round(wy + CONTENT_BOTTOM), argb(0xFFFFFF, Math.round(22 * openT)));
+            Math.round(wy + CONTENT_BOTTOM), ColorMath.withAlpha(0xFFFFFF, Math.round(22 * openT)));
         if (selected != Category.CONFIG) {
             float columnX = wx + (LIST_X + LIST_W + PANEL_X) * 0.5f;
             context.fill(Math.round(columnX), Math.round(wy + LIST_TOP), Math.round(columnX) + 1,
-                Math.round(wy + CONTENT_BOTTOM), argb(0xFFFFFF, Math.round(13 * openT)));
+                Math.round(wy + CONTENT_BOTTOM), ColorMath.withAlpha(0xFFFFFF, Math.round(13 * openT)));
         }
     }
 
@@ -377,18 +371,18 @@ public final class ClickGuiScreen extends Screen {
 
         float logoSize = 15.0f;
         float logoCy = wy + RAIL_LOGO_Y;
-        GlowPipeline.radial(context, wx + RAIL_CENTER_X, logoCy, logoSize * 1.3f, argb(0xFFFFFF, Math.round(85 * openT)));
+        GlowPipeline.radial(context, wx + RAIL_CENTER_X, logoCy, logoSize * 1.3f, ColorMath.withAlpha(0xFFFFFF, Math.round(85 * openT)));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO,
             Math.round(wx + RAIL_CENTER_X - logoSize * 0.5f), Math.round(logoCy - logoSize * 0.5f), 0.0f, 0.0f,
-            Math.round(logoSize), Math.round(logoSize), 48, 48, 48, 48, argb(0xFFFFFF, Math.round(255 * openT)));
+            Math.round(logoSize), Math.round(logoSize), 48, 48, 48, 48, ColorMath.withAlpha(0xFFFFFF, Math.round(255 * openT)));
 
         drawTick(context, wx + RAIL_CENTER_X, (logoCy + wy + RAIL_FIRST_Y) * 0.5f, openT);
 
         float markerY = wy + RAIL_FIRST_Y + (float) railIndicator.get() * RAIL_SPACING;
         RoundedRectPipeline.draw(context, wx + RAIL_CENTER_X - 9.0f, markerY - 9.0f, 18.0f, 18.0f,
-            argb(0xFFFFFF, Math.round(20 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(20 * openT)));
         GlowPipeline.radial(context, wx + RAIL_CENTER_X, markerY, 14.0f,
-            argb(NeonEdge.cool(), Math.round(70 * openT)));
+            ColorMath.withAlpha(NeonEdge.cool(), Math.round(70 * openT)));
 
         for (int i = 0; i < categories.length; i++) {
             Category category = categories[i];
@@ -405,7 +399,7 @@ public final class ClickGuiScreen extends Screen {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, category.icon(),
                 Math.round(cx - RAIL_ICON * 0.5f), Math.round(cy - RAIL_ICON * 0.5f), 0.0f, 0.0f,
                 Math.round(RAIL_ICON), Math.round(RAIL_ICON), 48, 48, 48, 48,
-                argb(mix(0xFFFFFF, NeonEdge.cool(), nearness), Math.round(tint * openT)));
+                ColorMath.withAlpha(ColorMath.mix(0xFFFFFF, NeonEdge.cool(), nearness), Math.round(tint * openT)));
 
             if (i < categories.length - 1) {
                 drawTick(context, cx, cy + RAIL_SPACING * 0.5f, openT);
@@ -416,13 +410,13 @@ public final class ClickGuiScreen extends Screen {
         float searchCy = wy + SEARCH_Y;
         drawTick(context, searchCx, searchCy - RAIL_SPACING * 0.5f, openT);
         if (searchOpen) {
-            RoundedRectPipeline.draw(context, searchCx - 9.0f, searchCy - 9.0f, 18.0f, 18.0f, argb(0xFFFFFF, Math.round(20 * openT)));
-            GlowPipeline.radial(context, searchCx, searchCy, 13.0f, argb(0xFFFFFF, Math.round(45 * openT)));
+            RoundedRectPipeline.draw(context, searchCx - 9.0f, searchCy - 9.0f, 18.0f, 18.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(20 * openT)));
+            GlowPipeline.radial(context, searchCx, searchCy, 13.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(45 * openT)));
         }
         context.drawTexture(RenderPipelines.GUI_TEXTURED, SEARCH_ICON,
             Math.round(searchCx - RAIL_ICON * 0.5f), Math.round(searchCy - RAIL_ICON * 0.5f), 0.0f, 0.0f,
             Math.round(RAIL_ICON), Math.round(RAIL_ICON), 48, 48, 48, 48,
-            argb(0xFFFFFF, Math.round((searchOpen ? 245 : 115) * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round((searchOpen ? 245 : 115) * openT)));
     }
 
     private void renderList(DrawContext context, float wx, float wy, int mouseX, int mouseY, double deltaSeconds, float openT) {
@@ -470,8 +464,8 @@ public final class ClickGuiScreen extends Screen {
         float travel = viewHeight - barHeight;
         float atShare = Math.max(0.0f, Math.min(1.0f, scroll / (contentSize - viewHeight)));
         float barY = y + travel * atShare;
-        PanelPipeline.draw(context, x, y, 1.5f, viewHeight, argb(0xFFFFFF, Math.round(12 * openT)));
-        PanelPipeline.draw(context, x, barY, 1.5f, barHeight, argb(0xFFFFFF, Math.round(70 * openT)));
+        PanelPipeline.draw(context, x, y, 1.5f, viewHeight, ColorMath.withAlpha(0xFFFFFF, Math.round(12 * openT)));
+        PanelPipeline.draw(context, x, barY, 1.5f, barHeight, ColorMath.withAlpha(0xFFFFFF, Math.round(70 * openT)));
     }
 
     private static float stagger(float age, int index) {
@@ -484,16 +478,16 @@ public final class ClickGuiScreen extends Screen {
         drawContainer(context, x, y, LIST_W, SEARCH_BAR_H, openT);
 
         RoundedRectPipeline.drawOutline(context, x, y, LIST_W, SEARCH_BAR_H,
-            argb(NeonEdge.cool(), Math.round(70 * openT)));
+            ColorMath.withAlpha(NeonEdge.cool(), Math.round(70 * openT)));
 
         String query = search.toString();
         float textX = x + 13.0f;
         float textY = y + (SEARCH_BAR_H - 7.0f) * 0.5f;
 
         if (query.isEmpty()) {
-            MsdfText.draw(context, text, I18n.get("gui.search.placeholder"), textX + 4.0f, textY, 7.0f, argb(0xFFFFFF, Math.round(70 * openT)));
+            MsdfText.draw(context, text, I18n.get("gui.search.placeholder"), textX + 4.0f, textY, 7.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(70 * openT)));
         } else {
-            MsdfText.draw(context, bold, query, textX, textY, 7.0f, argb(0xFFFFFF, Math.round(240 * openT)));
+            MsdfText.draw(context, bold, query, textX, textY, 7.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(240 * openT)));
         }
 
         caretTarget = textX + MsdfText.width(bold, query, 7.0f) + 1.0f;
@@ -505,9 +499,9 @@ public final class ClickGuiScreen extends Screen {
             : 0.45f + 0.55f * (float) Math.sin(System.currentTimeMillis() / 1000.0 * 3.4);
 
         GlowPipeline.radial(context, caretX, y + SEARCH_BAR_H * 0.5f, 7.0f,
-            argb(NeonEdge.cool(), Math.round(70 * blink * openT)));
+            ColorMath.withAlpha(NeonEdge.cool(), Math.round(70 * blink * openT)));
         PanelPipeline.draw(context, caretX, y + 5.5f, 1.3f, SEARCH_BAR_H - 11.0f,
-            argb(Theme.lighten(NeonEdge.cool(), 0.2f), Math.round(240 * blink * openT)));
+            ColorMath.withAlpha(Theme.lighten(NeonEdge.cool(), 0.2f), Math.round(240 * blink * openT)));
     }
 
     private void renderCard(DrawContext context, ModuleInfo module, float x, float y, int mouseX, int mouseY,
@@ -522,33 +516,33 @@ public final class ClickGuiScreen extends Screen {
         float presence = Math.max(on, Math.max(hover * 0.55f, isFocused ? 0.45f : 0.0f));
 
         RoundedRectPipeline.draw(context, x, y, LIST_W, CARD_H,
-            argb(0x16171C, Math.round((118 + hover * 46) * openT)));
+            ColorMath.withAlpha(0x16171C, Math.round((118 + hover * 46) * openT)));
         if (isFocused) {
             RoundedRectPipeline.draw(context, x, y, LIST_W, CARD_H,
-                argb(0xFFFFFF, Math.round(12 * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round(12 * openT)));
         }
         if (presence > 0.02f) {
             RoundedRectPipeline.drawOutline(context, x, y, LIST_W, CARD_H,
-                argb(mix(0xFFFFFF, NeonEdge.cool(), on), Math.round((18 + on * 64) * openT * presence)));
+                ColorMath.withAlpha(ColorMath.mix(0xFFFFFF, NeonEdge.cool(), on), Math.round((18 + on * 64) * openT * presence)));
         }
 
         if (on > 0.02f) {
             PanelPipeline.draw(context, x + 3.0f, y + 5.5f, 1.6f, CARD_H - 11.0f,
-                argb(NeonEdge.cool(), Math.round(235 * on * openT)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round(235 * on * openT)));
         }
 
         float textX = x + 10.0f + hover * 2.5f;
         int nameAlpha = Math.round((70 + presence * 175) * openT);
 
-        MsdfText.draw(context, bold, module.name(), textX, centredTop(y + CARD_H * 0.5f, 7.4f), 7.4f,
-            argb(0xFFFFFF, nameAlpha));
+        MsdfText.draw(context, bold, module.name(), textX, MsdfText.topFor(y + CARD_H * 0.5f, 7.4f), 7.4f,
+            ColorMath.withAlpha(0xFFFFFF, nameAlpha));
 
         float sinceToggle = (System.currentTimeMillis() - module.lastToggle()) / 420.0f;
         if (sinceToggle >= 0.0f && sinceToggle < 1.0f) {
             float sweepX = x + sinceToggle * (LIST_W + 40.0f) - 20.0f;
             float strength = (1.0f - sinceToggle) * openT;
             GlowPipeline.lineVertical(context, sweepX, y + CARD_H * 0.5f, 26.0f, CARD_H,
-                argb(NeonEdge.cool(), Math.round(120 * strength)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round(120 * strength)));
         }
 
         float pillW = 14.0f;
@@ -556,11 +550,11 @@ public final class ClickGuiScreen extends Screen {
         float pillX = x + LIST_W - 8.0f - pillW;
         float pillY = y + (CARD_H - pillH) * 0.5f;
         RoundedRectPipeline.draw(context, pillX, pillY, pillW, pillH,
-            argb(mix(0x2A2C33, NeonEdge.cool(), on), Math.round((150 + on * 90) * openT)));
+            ColorMath.withAlpha(ColorMath.mix(0x2A2C33, NeonEdge.cool(), on), Math.round((150 + on * 90) * openT)));
         float knob = pillH - 3.0f;
         CirclePipeline.draw(context, pillX + 1.5f + knob * 0.5f + on * (pillW - 3.0f - knob),
             pillY + pillH * 0.5f, knob * 0.5f,
-            argb(mix(0x8A8D96, 0xFFFFFF, on), Math.round((200 + on * 55) * openT)));
+            ColorMath.withAlpha(ColorMath.mix(0x8A8D96, 0xFFFFFF, on), Math.round((200 + on * 55) * openT)));
 
         String key = keyLabel(module);
         if (key != null) {
@@ -570,14 +564,14 @@ public final class ClickGuiScreen extends Screen {
             float chipH = 10.0f;
             float chipY = y + (CARD_H - chipH) * 0.5f;
             RoundedRectPipeline.draw(context, chipX, chipY, chipW, chipH,
-                argb(arming ? NeonEdge.cool() : 0x000000, Math.round((arming ? 55 : 60) * openT)));
+                ColorMath.withAlpha(arming ? NeonEdge.cool() : 0x000000, Math.round((arming ? 55 : 60) * openT)));
             if (arming) {
                 RoundedRectPipeline.drawOutline(context, chipX, chipY, chipW, chipH,
-                    argb(NeonEdge.cool(), Math.round(150 * openT)));
+                    ColorMath.withAlpha(NeonEdge.cool(), Math.round(150 * openT)));
             }
             MsdfText.drawCentered(context, bold, key, chipX + chipW * 0.5f,
-                centredTop(chipY + 5.0f, 5.8f), 5.8f,
-                argb(arming ? NeonEdge.cool() : 0xFFFFFF,
+                MsdfText.topFor(chipY + 5.0f, 5.8f), 5.8f,
+                ColorMath.withAlpha(arming ? NeonEdge.cool() : 0xFFFFFF,
                     Math.round((arming ? 235 : 70 + presence * 110) * openT)));
         }
     }
@@ -586,7 +580,7 @@ public final class ClickGuiScreen extends Screen {
         settingBounds.clear();
         if (focused == null) {
             MsdfText.drawCentered(context, text, "No module selected", wx + (PANEL_X + PANEL_RIGHT) * 0.5f,
-                wy + 130.0f, 7.5f, argb(0xFFFFFF, Math.round(70 * openT)));
+                wy + 130.0f, 7.5f, ColorMath.withAlpha(0xFFFFFF, Math.round(70 * openT)));
             return;
         }
 
@@ -600,15 +594,15 @@ public final class ClickGuiScreen extends Screen {
         float iconSize = 12.0f;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, selected.icon(),
             Math.round(left), Math.round(headerY), 0.0f, 0.0f,
-            Math.round(iconSize), Math.round(iconSize), 128, 128, 128, 128, argb(0xFFFFFF, Math.round(190 * openT)));
+            Math.round(iconSize), Math.round(iconSize), 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, Math.round(190 * openT)));
         float dividerX = left + iconSize + 7.0f;
         context.fill(Math.round(dividerX), Math.round(headerY + 1.0f), Math.round(dividerX) + 1,
-            Math.round(headerY + iconSize - 1.0f), argb(0xFFFFFF, Math.round(38 * openT)));
+            Math.round(headerY + iconSize - 1.0f), ColorMath.withAlpha(0xFFFFFF, Math.round(38 * openT)));
         MsdfText.draw(context, bold, focused.name(), dividerX + 8.0f, headerY - 1.0f, 8.0f,
-            argb(0xFFFFFF, Math.round(225 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(225 * openT)));
 
         MsdfText.draw(context, text, focused.description(), dividerX + 8.0f, headerY + 9.0f, 6.0f,
-            argb(0xFFFFFF, Math.round(95 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(95 * openT)));
 
         focused.enableGlow.step(focused.enabled() ? 1.0 : 0.0, deltaSeconds);
         float moduleOn = (float) focused.enableGlow.get();
@@ -619,7 +613,7 @@ public final class ClickGuiScreen extends Screen {
 
         float underline = headerY + iconSize + 8.0f;
         context.fill(Math.round(left), Math.round(underline), Math.round(right), Math.round(underline) + 1,
-            argb(0xFFFFFF, Math.round(20 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(20 * openT)));
 
         List<Setting> settings = new ArrayList<>(focused.leftSettings());
         settings.addAll(focused.rightSettings());
@@ -697,18 +691,18 @@ public final class ClickGuiScreen extends Screen {
         int accent = NeonEdge.cool();
 
         RoundedRectPipeline.draw(context, x, y, w, h,
-            argb(0x1A1B21, Math.round((110 + (hovered ? 34 : 0)) * openT)));
+            ColorMath.withAlpha(0x1A1B21, Math.round((110 + (hovered ? 34 : 0)) * openT)));
         if (hovered) {
-            RoundedRectPipeline.drawOutline(context, x, y, w, h, argb(0xFFFFFF, Math.round(20 * openT)));
+            RoundedRectPipeline.drawOutline(context, x, y, w, h, ColorMath.withAlpha(0xFFFFFF, Math.round(20 * openT)));
         }
 
         boolean stacked = setting instanceof SliderSetting
             || (setting instanceof ModeSetting stack && chipped(stack));
         float labelCenter = stacked ? y + 8.0f : y + h * 0.5f;
-        float labelY = centredTop(labelCenter, 6.4f);
+        float labelY = MsdfText.topFor(labelCenter, 6.4f);
 
         MsdfText.draw(context, text, setting.name(), x + 7.0f, labelY, 6.4f,
-            argb(0xFFFFFF, Math.round((hovered ? 195 : 150) * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round((hovered ? 195 : 150) * openT)));
 
         if (setting instanceof BooleanSetting boolSetting) {
             boolSetting.glow.step(boolSetting.value() ? 1.0 : 0.0, deltaSeconds);
@@ -717,21 +711,21 @@ public final class ClickGuiScreen extends Screen {
         } else if (setting instanceof SliderSetting slider) {
             String shown = slider.display();
             MsdfText.draw(context, bold, shown, right - 7.0f - MsdfText.width(bold, shown, 6.2f),
-                centredTop(labelCenter, 6.2f), 6.2f, argb(accent, Math.round((hovered ? 250 : 215) * openT)));
+                MsdfText.topFor(labelCenter, 6.2f), 6.2f, ColorMath.withAlpha(accent, Math.round((hovered ? 250 : 215) * openT)));
 
             float trackX = x + 7.0f;
             float trackW = w - 14.0f;
             float trackY = y + 16.5f;
-            PanelPipeline.draw(context, trackX, trackY, trackW, 2.5f, argb(0x000000, Math.round(120 * openT)));
+            PanelPipeline.draw(context, trackX, trackY, trackW, 2.5f, ColorMath.withAlpha(0x000000, Math.round(120 * openT)));
             float fillW = Math.max(2.5f, trackW * slider.fraction());
             PanelPipeline.draw(context, trackX, trackY, fillW, 2.5f,
-                argb(accent, Math.round((hovered ? 255 : 220) * openT)));
+                ColorMath.withAlpha(accent, Math.round((hovered ? 255 : 220) * openT)));
             float knobX = trackX + trackW * slider.fraction();
             boolean held = draggingSlider == slider;
             CirclePipeline.draw(context, knobX, trackY + 1.25f, held ? 3.6f : 3.1f,
-                argb(0xFFFFFF, Math.round(250 * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round(250 * openT)));
             CirclePipeline.draw(context, knobX, trackY + 1.25f, held ? 2.1f : 1.7f,
-                argb(accent, Math.round(255 * openT)));
+                ColorMath.withAlpha(accent, Math.round(255 * openT)));
         } else if (setting instanceof ModeSetting mode) {
             String current = mode.current();
             if (chipped(mode)) {
@@ -747,27 +741,27 @@ public final class ClickGuiScreen extends Screen {
                     }
                     boolean active = option.equals(current);
                     RoundedRectPipeline.draw(context, chipX + used, chipY, chip, 10.0f,
-                        argb(active ? accent : 0x000000, Math.round((active ? 60 : 70) * openT)));
+                        ColorMath.withAlpha(active ? accent : 0x000000, Math.round((active ? 60 : 70) * openT)));
                     if (active) {
                         RoundedRectPipeline.drawOutline(context, chipX + used, chipY, chip, 10.0f,
-                            argb(accent, Math.round(145 * openT)));
+                            ColorMath.withAlpha(accent, Math.round(145 * openT)));
                     }
                     MsdfText.drawCentered(context, text, option, chipX + used + chip * 0.5f,
-                        centredTop(chipY + 5.0f, 6.0f), 6.0f,
-                        argb(active ? accent : 0xFFFFFF, Math.round((active ? 250 : 115) * openT)));
+                        MsdfText.topFor(chipY + 5.0f, 6.0f), 6.0f,
+                        ColorMath.withAlpha(active ? accent : 0xFFFFFF, Math.round((active ? 250 : 115) * openT)));
                     used += chip + 3.0f;
                 }
             } else {
                 float boxW = Math.max(86.0f, MsdfText.width(text, current, 6.0f) + 24.0f);
                 float boxX = right - 7.0f - boxW;
                 float boxY = y + (h - 12.0f) * 0.5f;
-                RoundedRectPipeline.draw(context, boxX, boxY, boxW, 12.0f, argb(0x000000, Math.round(80 * openT)));
+                RoundedRectPipeline.draw(context, boxX, boxY, boxW, 12.0f, ColorMath.withAlpha(0x000000, Math.round(80 * openT)));
                 RoundedRectPipeline.drawOutline(context, boxX, boxY, boxW, 12.0f,
-                    argb(0xFFFFFF, Math.round((mode.open() ? 60 : 22) * openT)));
-                MsdfText.draw(context, text, current, boxX + 8.0f, centredTop(boxY + 6.0f, 6.0f), 6.0f,
-                    argb(accent, Math.round(235 * openT)));
+                    ColorMath.withAlpha(0xFFFFFF, Math.round((mode.open() ? 60 : 22) * openT)));
+                MsdfText.draw(context, text, current, boxX + 8.0f, MsdfText.topFor(boxY + 6.0f, 6.0f), 6.0f,
+                    ColorMath.withAlpha(accent, Math.round(235 * openT)));
                 drawChevron(context, boxX + boxW - 7.0f, boxY + 6.0f, mode.open(),
-                    argb(0xFFFFFF, Math.round(140 * openT)));
+                    ColorMath.withAlpha(0xFFFFFF, Math.round(140 * openT)));
                 if (mode.open()) {
                     openDropdown = mode;
                     dropdownX = boxX;
@@ -782,27 +776,27 @@ public final class ClickGuiScreen extends Screen {
             float chip = Math.max(22.0f, MsdfText.width(text, label, 6.0f) + 12.0f);
             float chipX = right - 7.0f - chip;
             float chipY = y + (h - 11.0f) * 0.5f;
-            RoundedRectPipeline.draw(context, chipX, chipY, chip, 11.0f, argb(0x000000, Math.round(80 * openT)));
+            RoundedRectPipeline.draw(context, chipX, chipY, chip, 11.0f, ColorMath.withAlpha(0x000000, Math.round(80 * openT)));
             RoundedRectPipeline.drawOutline(context, chipX, chipY, chip, 11.0f,
-                argb(0xFFFFFF, Math.round(22 * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round(22 * openT)));
             MsdfText.drawCentered(context, text, label, chipX + chip * 0.5f,
-                centredTop(chipY + 5.5f, 6.0f), 6.0f,
-                argb(0xFFFFFF, Math.round(195 * openT)));
+                MsdfText.topFor(chipY + 5.5f, 6.0f), 6.0f,
+                ColorMath.withAlpha(0xFFFFFF, Math.round(195 * openT)));
         }
     }
 
     private void drawCheck(DrawContext context, float x, float y, float on, float openT) {
         float size = 10.0f;
         RoundedRectPipeline.draw(context, x, y, size, size,
-            argb(mix(0x000000, NeonEdge.cool(), on), Math.round((80 + on * 70) * openT)));
+            ColorMath.withAlpha(ColorMath.mix(0x000000, NeonEdge.cool(), on), Math.round((80 + on * 70) * openT)));
         RoundedRectPipeline.drawOutline(context, x, y, size, size,
-            argb(mix(0xFFFFFF, NeonEdge.cool(), on), Math.round((28 + on * 150) * openT)));
+            ColorMath.withAlpha(ColorMath.mix(0xFFFFFF, NeonEdge.cool(), on), Math.round((28 + on * 150) * openT)));
 
         if (on <= 0.02f) {
             return;
         }
 
-        int ink = argb(0xFFFFFF, Math.round(250 * openT));
+        int ink = ColorMath.withAlpha(0xFFFFFF, Math.round(250 * openT));
 
         float cx = x + size * 0.5f - 0.67f;
         float cy = y + size * 0.5f + 1.17f;
@@ -825,11 +819,11 @@ public final class ClickGuiScreen extends Screen {
         float pillW = 14.0f;
         float pillH = 8.0f;
         RoundedRectPipeline.draw(context, x, y, pillW, pillH,
-            argb(mix(0x2A2C33, NeonEdge.cool(), on), Math.round((150 + on * 95) * openT)));
+            ColorMath.withAlpha(ColorMath.mix(0x2A2C33, NeonEdge.cool(), on), Math.round((150 + on * 95) * openT)));
         float knob = pillH - 3.0f;
         CirclePipeline.draw(context, x + 1.5f + knob * 0.5f + on * (pillW - 3.0f - knob),
             y + pillH * 0.5f, knob * 0.5f,
-            argb(mix(0x8A8D96, 0xFFFFFF, on), Math.round((205 + on * 50) * openT)));
+            ColorMath.withAlpha(ColorMath.mix(0x8A8D96, 0xFFFFFF, on), Math.round((205 + on * 50) * openT)));
     }
 
     private static final float SWATCH = 11.0f;
@@ -862,13 +856,13 @@ public final class ClickGuiScreen extends Screen {
         float chipX = right - 7.0f - chip;
 
         CirclePipeline.draw(context, chipX + chip * 0.5f, centerY, chip * 0.5f,
-            argb(0xFFFFFF, Math.round((color.open() ? 90 : 45) * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round((color.open() ? 90 : 45) * openT)));
         CirclePipeline.draw(context, chipX + chip * 0.5f, centerY, chip * 0.5f - 1.0f,
-            argb(selected, Math.round(255 * openT)));
+            ColorMath.withAlpha(selected, Math.round(255 * openT)));
 
         String hex = String.format(Locale.ROOT, "#%06X", selected & 0xFFFFFF);
         MsdfText.draw(context, text, hex, chipX - 6.0f - MsdfText.width(text, hex, 6.0f),
-            centredTop(centerY, 6.0f), 6.0f, argb(0xFFFFFF, Math.round(155 * openT)));
+            MsdfText.topFor(centerY, 6.0f), 6.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(155 * openT)));
 
         if (!color.open()) {
             return;
@@ -930,38 +924,38 @@ public final class ClickGuiScreen extends Screen {
         int selected = color.rgb();
 
         GlowPipeline.radial(context, px + w * 0.5f, py + h * 0.5f, Math.max(w, h) * 0.62f,
-            argb(0x000000, Math.round(150 * openT)));
-        GlassWindowPipeline.draw(context, px, py, w, h, argb(Theme.glassTint(), Math.round(240 * openT)));
-        RoundedRectPipeline.drawOutline(context, px, py, w, h, argb(0xFFFFFF, Math.round(38 * openT)));
+            ColorMath.withAlpha(0x000000, Math.round(150 * openT)));
+        GlassWindowPipeline.draw(context, px, py, w, h, ColorMath.withAlpha(Theme.glassTint(), Math.round(240 * openT)));
+        RoundedRectPipeline.drawOutline(context, px, py, w, h, ColorMath.withAlpha(0xFFFFFF, Math.round(38 * openT)));
 
         for (int i = 0; i < 3; i++) {
             float gripY = py + 4.0f + i * 2.0f;
             context.fill(Math.round(px + w * 0.5f - 7.0f), Math.round(gripY),
                 Math.round(px + w * 0.5f + 7.0f), Math.round(gripY) + 1,
-                argb(0xFFFFFF, Math.round(45 * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round(45 * openT)));
         }
 
         float fieldX = px + PICKER_PAD;
         float fieldY = py + PICKER_PAD + PICKER_GRIP;
         ColorFieldPipeline.field(context, fieldX, fieldY, PICKER_SIZE, PICKER_SIZE,
-            argb(color.hueColor(), Math.round(255 * openT)));
+            ColorMath.withAlpha(color.hueColor(), Math.round(255 * openT)));
         RoundedRectPipeline.drawOutline(context, fieldX, fieldY, PICKER_SIZE, PICKER_SIZE,
-            argb(0xFFFFFF, Math.round(26 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(26 * openT)));
 
         float knobX = fieldX + color.saturation() * PICKER_SIZE;
         float knobY = fieldY + (1.0f - color.value()) * PICKER_SIZE;
-        GlowPipeline.radial(context, knobX, knobY, 9.0f, argb(selected, Math.round(120 * openT)));
-        CirclePipeline.draw(context, knobX, knobY, 3.6f, argb(0xFFFFFF, Math.round(240 * openT)));
-        CirclePipeline.draw(context, knobX, knobY, 2.3f, argb(selected, Math.round(255 * openT)));
+        GlowPipeline.radial(context, knobX, knobY, 9.0f, ColorMath.withAlpha(selected, Math.round(120 * openT)));
+        CirclePipeline.draw(context, knobX, knobY, 3.6f, ColorMath.withAlpha(0xFFFFFF, Math.round(240 * openT)));
+        CirclePipeline.draw(context, knobX, knobY, 2.3f, ColorMath.withAlpha(selected, Math.round(255 * openT)));
 
         float hueX = fieldX + PICKER_SIZE + PICKER_PAD;
         ColorFieldPipeline.hueVertical(context, hueX, fieldY, PICKER_HUE_W, PICKER_SIZE, Math.round(255 * openT));
         float hueY = fieldY + color.hue() * PICKER_SIZE;
         GlowPipeline.radial(context, hueX + PICKER_HUE_W * 0.5f, hueY, 9.0f,
-            argb(color.hueColor(), Math.round(110 * openT)));
-        CirclePipeline.draw(context, hueX + PICKER_HUE_W * 0.5f, hueY, 3.8f, argb(0xFFFFFF, Math.round(245 * openT)));
+            ColorMath.withAlpha(color.hueColor(), Math.round(110 * openT)));
+        CirclePipeline.draw(context, hueX + PICKER_HUE_W * 0.5f, hueY, 3.8f, ColorMath.withAlpha(0xFFFFFF, Math.round(245 * openT)));
         CirclePipeline.draw(context, hueX + PICKER_HUE_W * 0.5f, hueY, 2.5f,
-            argb(color.hueColor(), Math.round(255 * openT)));
+            ColorMath.withAlpha(color.hueColor(), Math.round(255 * openT)));
 
         float swatchY = presetY();
         for (int i = 0; i < ColorSetting.PRESETS.length; i++) {
@@ -970,8 +964,8 @@ public final class ClickGuiScreen extends Screen {
             float cx = presetX(i) + SWATCH * 0.5f;
             float cy = swatchY + SWATCH * 0.5f;
             CirclePipeline.draw(context, cx, cy, SWATCH * 0.5f,
-                argb(0xFFFFFF, Math.round((active ? 90 : 38) * openT)));
-            CirclePipeline.draw(context, cx, cy, SWATCH * 0.5f - 1.1f, argb(preset, Math.round(255 * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round((active ? 90 : 38) * openT)));
+            CirclePipeline.draw(context, cx, cy, SWATCH * 0.5f - 1.1f, ColorMath.withAlpha(preset, Math.round(255 * openT)));
         }
     }
 
@@ -1050,11 +1044,11 @@ public final class ClickGuiScreen extends Screen {
         }
 
         GlowPipeline.radial(context, dropdownX + dropdownW * 0.5f, listY + listH * 0.5f,
-            Math.max(dropdownW, listH) * 0.6f, argb(0x000000, Math.round(120 * openT)));
+            Math.max(dropdownW, listH) * 0.6f, ColorMath.withAlpha(0x000000, Math.round(120 * openT)));
         RoundedRectPipeline.draw(context, dropdownX, listY, dropdownW, listH,
-            argb(0x101114, Math.round(246 * openT)));
+            ColorMath.withAlpha(0x101114, Math.round(246 * openT)));
         RoundedRectPipeline.drawOutline(context, dropdownX, listY, dropdownW, listH,
-            argb(0xFFFFFF, Math.round(40 * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(40 * openT)));
 
         for (int i = 0; i < options.size(); i++) {
             float rowY = listY + 3.0f + i * rowH;
@@ -1064,14 +1058,14 @@ public final class ClickGuiScreen extends Screen {
 
             if (hovered || active) {
                 RoundedRectPipeline.draw(context, dropdownX + 3.0f, rowY, dropdownW - 6.0f, rowH,
-                    argb(0xFFFFFF, Math.round((active ? 22 : 12) * openT)));
+                    ColorMath.withAlpha(0xFFFFFF, Math.round((active ? 22 : 12) * openT)));
             }
             if (active) {
                 PanelPipeline.draw(context, dropdownX + 5.0f, rowY + 3.0f, 1.6f, rowH - 6.0f,
-                    argb(NeonEdge.cool(), Math.round(235 * openT)));
+                    ColorMath.withAlpha(NeonEdge.cool(), Math.round(235 * openT)));
             }
             MsdfText.draw(context, text, options.get(i), dropdownX + 11.0f, rowY + rowH * 0.5f - 3.0f, 6.0f,
-                argb(0xFFFFFF, Math.round((active ? 240 : 145) * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round((active ? 240 : 145) * openT)));
         }
     }
 
@@ -1372,18 +1366,6 @@ public final class ClickGuiScreen extends Screen {
     @Override
     public boolean shouldCloseOnEsc() {
         return true;
-    }
-
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
-
-    private static int mix(int from, int to, float amount) {
-        float t = Math.max(0.0f, Math.min(1.0f, amount));
-        int r = Math.round(((from >> 16) & 0xFF) + (((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t);
-        int g = Math.round(((from >> 8) & 0xFF) + (((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t);
-        int b = Math.round((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
-        return r << 16 | g << 8 | b;
     }
 
     private record CardBounds(ModuleInfo module, float x, float y) {

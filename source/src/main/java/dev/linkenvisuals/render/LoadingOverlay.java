@@ -19,36 +19,8 @@ import net.minecraft.util.Identifier;
  */
 public final class LoadingOverlay {
     public static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
-    private static final Identifier TITLE_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier TITLE_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
-    private static final Identifier TEXT_FONT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_FONT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
-
-    private static GlyphAtlas titleFont;
-    private static GlyphAtlas textFont;
 
     private LoadingOverlay() {
-    }
-
-    /** Lazily loads the MSDF fonts once (same warm-up/load block as before, now shared). */
-    public static GlyphAtlas titleFont() {
-        ensureFonts();
-        return titleFont;
-    }
-
-    /** @see #titleFont() */
-    public static GlyphAtlas textFont() {
-        ensureFonts();
-        return textFont;
-    }
-
-    private static void ensureFonts() {
-        if (titleFont != null) {
-            return;
-        }
-        Pipelines.warmUp();
-        titleFont = GlyphAtlas.load(TITLE_FONT_DATA, TITLE_FONT_ATLAS);
-        textFont = GlyphAtlas.load(TEXT_FONT_DATA, TEXT_FONT_ATLAS);
     }
 
     /** Passes {@code Screen#renderPanoramaBackground} (protected) out of the mixins. */
@@ -93,8 +65,8 @@ public final class LoadingOverlay {
             Math.round(cx - 23.0f), Math.round(logoY), 0.0f, 0.0f,
             46, 46, 120, 120, 120, 120, 0xFFFFFFFF);
 
-        GlyphAtlas tf = titleFont();
-        GlyphAtlas sf = textFont();
+        GlyphAtlas tf = Fonts.titleFont();
+        GlyphAtlas sf = Fonts.textFont();
         if (tf != null) {
             MsdfText.drawCentered(context, tf, title, cx, titleY, 11.5f, 0xFFFFFFFF);
         }

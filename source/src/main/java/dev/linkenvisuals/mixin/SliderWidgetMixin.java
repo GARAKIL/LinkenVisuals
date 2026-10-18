@@ -1,5 +1,6 @@
 package dev.linkenvisuals.mixin;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.render.WidgetStylePipeline;
@@ -73,7 +74,7 @@ public abstract class SliderWidgetMixin extends ClickableWidget {
             RoundedRectPipeline.draw(context, x, y, w, h, (fillAlpha << 24) | 0x0E0F14);
 
             // 2. Subtle ambient outline
-            int borderRgb = WidgetStylePipeline.mix(0xFFFFFF, NeonEdge.cool(), hover);
+            int borderRgb = ColorMath.mix(0xFFFFFF, NeonEdge.cool(), hover);
             int borderAlpha = Math.round(20.0f + hover * 75.0f);
             RoundedRectPipeline.drawOutline(context, x, y, w, h, (borderAlpha << 24) | (borderRgb & 0xFFFFFF));
 
@@ -87,12 +88,12 @@ public abstract class SliderWidgetMixin extends ClickableWidget {
             // 4. Thumb handle
             float thumbW = 8.0f;
             float thumbX = (float) (x + (w - thumbW) * Math.max(0.0, Math.min(1.0, value)));
-            int thumbColor = WidgetStylePipeline.mix(0x1E2638, 0xFFFFFF, hover);
+            int thumbColor = ColorMath.mix(0x1E2638, 0xFFFFFF, hover);
             RoundedRectPipeline.draw(context, thumbX, y + 2.0f, thumbW, h - 4.0f, 0xEE000000 | thumbColor);
             RoundedRectPipeline.drawOutline(context, thumbX, y + 2.0f, thumbW, h - 4.0f, NeonEdge.cool());
 
             // 5. Centered label
-            int textRgb = this.active ? WidgetStylePipeline.mix(0xD7DCE6, 0xFFFFFF, hover) : 0x657185;
+            int textRgb = this.active ? ColorMath.mix(0xD7DCE6, 0xFFFFFF, hover) : 0x657185;
             WidgetStylePipeline.drawCenteredLabel(context, getMessage(), x, y, w, h, 0xFF000000 | textRgb);
 
             ci.cancel();

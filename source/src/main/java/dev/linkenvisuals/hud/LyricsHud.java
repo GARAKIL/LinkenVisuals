@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.media.Lyrics;
@@ -160,14 +161,11 @@ public final class LyricsHud {
 
         GlowPipeline.radial(context, screenX, screenY + size * 0.35f,
             MsdfText.width(bold, text, size) * 0.5f + size,
-            argb(colour, Math.round(75 * fade)));
+            ColorMath.withAlpha(colour, Math.round(75 * fade)));
         MsdfText.drawCentered(context, bold, text, screenX + size * 0.06f, screenY + size * 0.06f, size,
-            argb(0x000000, Math.round(170 * fade)));
+            ColorMath.withAlpha(0x000000, Math.round(170 * fade)));
         MsdfText.drawCentered(context, bold, text, screenX, screenY, size,
-            argb(Theme.lighten(colour, 0.15f), alpha));
+            ColorMath.withAlpha(Theme.lighten(colour, 0.15f), alpha));
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

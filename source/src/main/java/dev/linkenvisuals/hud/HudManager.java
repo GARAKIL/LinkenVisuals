@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.anim.Animations;
 import dev.linkenvisuals.hands.HandEditor;
@@ -94,7 +95,7 @@ public final class HudManager {
                 // Vanilla post-process blur is disabled or unsupported in current device context
             }
             int veilAlpha = Math.round(45 * blurAmount);
-            context.fill(0, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight(), argb(0x000000, veilAlpha));
+            context.fill(0, 0, context.getScaledWindowWidth(), context.getScaledWindowHeight(), ColorMath.withAlpha(0x000000, veilAlpha));
         }
 
         HudGlassCapture.refresh();
@@ -246,8 +247,8 @@ public final class HudManager {
             menuFont = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
         }
         float menuHeight = MENU_PAD * 2.0f + MENU_ROW_H * 2.0f;
-        RoundedRectPipeline.draw(context, menuX, menuY, MENU_W, menuHeight, argb(0x121318, 245));
-        RoundedRectPipeline.drawOutline(context, menuX, menuY, MENU_W, menuHeight, argb(0xFFFFFF, 55));
+        RoundedRectPipeline.draw(context, menuX, menuY, MENU_W, menuHeight, ColorMath.withAlpha(0x121318, 245));
+        RoundedRectPipeline.drawOutline(context, menuX, menuY, MENU_W, menuHeight, ColorMath.withAlpha(0xFFFFFF, 55));
 
         PotionLayoutMode.Mode current = PotionLayoutMode.get();
         drawMenuRow(context, "Block", menuX, menuY + MENU_PAD, current == PotionLayoutMode.Mode.BLOCK);
@@ -256,10 +257,10 @@ public final class HudManager {
 
     private static void drawMenuRow(DrawContext context, String label, float x, float y, boolean selected) {
         if (selected) {
-            RoundedRectPipeline.draw(context, x + 3.0f, y + 1.0f, MENU_W - 6.0f, MENU_ROW_H - 2.0f, argb(0xFFFFFF, 24));
+            RoundedRectPipeline.draw(context, x + 3.0f, y + 1.0f, MENU_W - 6.0f, MENU_ROW_H - 2.0f, ColorMath.withAlpha(0xFFFFFF, 24));
         }
         MsdfText.draw(context, menuFont, label, x + 9.0f, y + MENU_ROW_H * 0.5f - 3.2f, 7.0f,
-            argb(0xFFFFFF, selected ? 250 : 200));
+            ColorMath.withAlpha(0xFFFFFF, selected ? 250 : 200));
     }
 
     private static HudElement findElementAt(float mouseX, float mouseY, int screenWidth, int screenHeight) {
@@ -321,7 +322,7 @@ public final class HudManager {
         for (float dy = DOT_SPACING * 0.5f; dy < height; dy += DOT_SPACING) {
             for (float dx = DOT_SPACING * 0.5f; dx < width; dx += DOT_SPACING) {
                 context.fill(Math.round(dx) - 1, Math.round(dy) - 1, Math.round(dx) + 1, Math.round(dy) + 1,
-                    argb(0xFFFFFF, dotAlpha));
+                    ColorMath.withAlpha(0xFFFFFF, dotAlpha));
             }
         }
     }
@@ -338,10 +339,10 @@ public final class HudManager {
         boolean onScreenCenterY = Math.abs(centerY - screenHeight * 0.5f) < 0.6f;
 
         if (onScreenCenterX) {
-            tick(context, centerX, centerY, false, argb(0xFFFFFF, Math.round(220 * alpha)));
+            tick(context, centerX, centerY, false, ColorMath.withAlpha(0xFFFFFF, Math.round(220 * alpha)));
         }
         if (onScreenCenterY) {
-            tick(context, centerX, centerY, true, argb(0xFFFFFF, Math.round(220 * alpha)));
+            tick(context, centerX, centerY, true, ColorMath.withAlpha(0xFFFFFF, Math.round(220 * alpha)));
         }
 
         for (HudElement other : ELEMENTS) {
@@ -351,10 +352,10 @@ public final class HudManager {
             float otherX = other.centerX(screenWidth);
             float otherY = other.centerY(screenHeight);
             if (Math.abs(centerX - otherX) < 0.6f) {
-                tick(context, centerX, centerY, false, argb(0xFFFFFF, Math.round(190 * alpha)));
+                tick(context, centerX, centerY, false, ColorMath.withAlpha(0xFFFFFF, Math.round(190 * alpha)));
             }
             if (Math.abs(centerY - otherY) < 0.6f) {
-                tick(context, centerX, centerY, true, argb(0xFFFFFF, Math.round(190 * alpha)));
+                tick(context, centerX, centerY, true, ColorMath.withAlpha(0xFFFFFF, Math.round(190 * alpha)));
             }
         }
     }
@@ -375,7 +376,4 @@ public final class HudManager {
         HudLayoutStorage.save(positions);
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

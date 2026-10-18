@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud.notify;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.hud.HudSurface;
 import dev.linkenvisuals.render.GlassPanelPipeline;
@@ -115,24 +116,24 @@ public final class NotificationManager {
         float centerY = y + HEIGHT * 0.5f;
         float iconX = x + PADDING;
         float iconY = centerY - ICON_SIZE * 0.5f;
-        GlowPipeline.radial(context, iconX + ICON_SIZE * 0.5f, centerY, ICON_SIZE * 1.5f, argb(accent, Math.round(75 * appear)));
+        GlowPipeline.radial(context, iconX + ICON_SIZE * 0.5f, centerY, ICON_SIZE * 1.5f, ColorMath.withAlpha(accent, Math.round(75 * appear)));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, ICON, Math.round(iconX), Math.round(iconY), 0.0f, 0.0f,
-            Math.round(ICON_SIZE), Math.round(ICON_SIZE), 128, 128, 128, 128, argb(accent, Math.round(255 * appear)));
+            Math.round(ICON_SIZE), Math.round(ICON_SIZE), 128, 128, 128, 128, ColorMath.withAlpha(accent, Math.round(255 * appear)));
 
         float dividerX = x + PADDING + ICON_SIZE + GAP_ICON * 0.5f;
         context.fill(Math.round(dividerX), Math.round(y + 4.0f), Math.round(dividerX) + 1, Math.round(y + HEIGHT - 4.0f),
-            argb(0xFFFFFF, Math.round(32 * appear)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(32 * appear)));
 
         float textX = x + PADDING + ICON_SIZE + GAP_ICON + DIVIDER_GAP;
         float textY = y + (HEIGHT - TEXT_SIZE) * 0.5f - 0.5f;
         String prefix = "Module ";
         String state = toast.enabled ? " enabled" : " disabled";
 
-        MsdfText.draw(context, bold, prefix, textX, textY, TEXT_SIZE, argb(0xFFFFFF, Math.round(250 * appear)));
+        MsdfText.draw(context, bold, prefix, textX, textY, TEXT_SIZE, ColorMath.withAlpha(0xFFFFFF, Math.round(250 * appear)));
         float cursor = textX + MsdfText.width(bold, prefix, TEXT_SIZE);
-        MsdfText.draw(context, bold, toast.name, cursor, textY, TEXT_SIZE, argb(0x8B8D93, Math.round(240 * appear)));
+        MsdfText.draw(context, bold, toast.name, cursor, textY, TEXT_SIZE, ColorMath.withAlpha(0x8B8D93, Math.round(240 * appear)));
         cursor += MsdfText.width(bold, toast.name, TEXT_SIZE);
-        MsdfText.draw(context, bold, state, cursor, textY, TEXT_SIZE, argb(accent, Math.round(255 * appear)));
+        MsdfText.draw(context, bold, state, cursor, textY, TEXT_SIZE, ColorMath.withAlpha(accent, Math.round(255 * appear)));
     }
 
     private static float measureWidth(ModuleToast toast) {
@@ -142,7 +143,4 @@ public final class NotificationManager {
         return PADDING + ICON_SIZE + GAP_ICON + DIVIDER_GAP + textWidth + PADDING;
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

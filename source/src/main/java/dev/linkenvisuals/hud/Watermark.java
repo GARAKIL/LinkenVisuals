@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.CirclePipeline;
 import dev.linkenvisuals.render.GlassPanelPipeline;
@@ -104,21 +105,21 @@ public final class Watermark extends HudElement {
 
         float logoY = centerY - LOGO_SIZE * 0.5f;
         GlowPipeline.radial(context, cursor + LOGO_SIZE * 0.5f, centerY, LOGO_SIZE * 1.2f,
-            argb(NeonEdge.cool(), 75));
+            ColorMath.withAlpha(NeonEdge.cool(), 75));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO, Math.round(cursor), Math.round(logoY),
-            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), 120, 120, 120, 120, argb(0xFFFFFF, 255));
+            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), 120, 120, 120, 120, ColorMath.withAlpha(0xFFFFFF, 255));
         cursor += LOGO_SIZE + GAP;
 
         MsdfText.draw(context, bold, username, cursor, topFor(centerY, NAME_SIZE), NAME_SIZE,
-            argb(Theme.lighten(NeonEdge.cool(), 0.18f), 255));
+            ColorMath.withAlpha(Theme.lighten(NeonEdge.cool(), 0.18f), 255));
         cursor += nameSpan + GAP;
 
         float fpsWidth = MsdfText.width(bold, fps, QUIET_SIZE);
         MsdfText.draw(context, bold, fps, cursor + fpsSlot - fpsWidth, topFor(centerY, QUIET_SIZE), QUIET_SIZE,
-            argb(0xFFFFFF, 205));
+            ColorMath.withAlpha(0xFFFFFF, 205));
         cursor += fpsSlot + 1.5f;
         MsdfText.draw(context, text, "fps", cursor, topFor(centerY, QUIET_SIZE), QUIET_SIZE,
-            argb(0xFFFFFF, 90));
+            ColorMath.withAlpha(0xFFFFFF, 90));
         cursor += unitWidth + GAP;
 
         cursor = drawQuiet(context, ping, cursor, centerY);
@@ -128,9 +129,9 @@ public final class Watermark extends HudElement {
     private float drawQuiet(DrawContext context, String value, float cursor, float centerY) {
         float ruleX = cursor - GAP * 0.5f;
         context.fill(Math.round(ruleX), Math.round(centerY - 4.0f), Math.round(ruleX) + 1,
-            Math.round(centerY + 4.0f), argb(0xFFFFFF, 30));
+            Math.round(centerY + 4.0f), ColorMath.withAlpha(0xFFFFFF, 30));
         MsdfText.draw(context, text, value, cursor, topFor(centerY, QUIET_SIZE), QUIET_SIZE,
-            argb(0xFFFFFF, 150));
+            ColorMath.withAlpha(0xFFFFFF, 150));
         return cursor + MsdfText.width(text, value, QUIET_SIZE) + GAP;
     }
     private static int currentPing(MinecraftClient client) {
@@ -141,7 +142,4 @@ public final class Watermark extends HudElement {
         return entry != null ? entry.getLatency() : 0;
     }
 
-    private static int argb(int rgb, int alpha) {
-        return alpha << 24 | rgb & 0xFFFFFF;
-    }
 }

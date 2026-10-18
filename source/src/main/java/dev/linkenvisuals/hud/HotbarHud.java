@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlassPanelPipeline;
 import dev.linkenvisuals.render.GlowPipeline;
@@ -78,10 +79,10 @@ public final class HotbarHud {
 
         float indicatorCenterX = x + PADDING + ((float) indicatorX.get() + 0.5f) * SLOT_W;
         RoundedRectPipeline.draw(context, indicatorCenterX - SLOT_W * 0.5f + 1.5f, y + 2.0f,
-            SLOT_W - 3.0f, BAR_H - 4.0f, argb(0xFFFFFF, 14));
+            SLOT_W - 3.0f, BAR_H - 4.0f, ColorMath.withAlpha(0xFFFFFF, 14));
         context.fill(Math.round(indicatorCenterX - 5.0f), Math.round(y + BAR_H - 4.0f),
             Math.round(indicatorCenterX + 5.0f), Math.round(y + BAR_H - 3.0f),
-            argb(NeonEdge.cool(), 235));
+            ColorMath.withAlpha(NeonEdge.cool(), 235));
 
         for (int i = 0; i < SLOTS; i++) {
             float focus = (float) slotFocus[i].get();
@@ -93,13 +94,13 @@ public final class HotbarHud {
 
             if (empty && focus < 0.98f) {
                 MsdfText.drawCenteredOn(context, bold, String.valueOf(i + 1), slotCenterX, centerY,
-                    NUMBER_SIZE, argb(0xFFFFFF, Math.round(34 * (1.0f - focus))));
+                    NUMBER_SIZE, ColorMath.withAlpha(0xFFFFFF, Math.round(34 * (1.0f - focus))));
             }
 
             if (!empty) {
                 float itemY = centerY - 8.0f - focus * ITEM_LIFT;
                 if (focus > 0.02f) {
-                    GlowPipeline.radial(context, slotCenterX, itemY + 8.0f, 11.0f, argb(0xFFFFFF, Math.round(45 * focus)));
+                    GlowPipeline.radial(context, slotCenterX, itemY + 8.0f, 11.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(45 * focus)));
                 }
                 int itemX = Math.round(slotCenterX - 8.0f);
                 context.drawItem(stack, itemX, Math.round(itemY));
@@ -115,7 +116,7 @@ public final class HotbarHud {
         if (stack.getCount() > 1) {
             String count = String.valueOf(stack.getCount());
             MsdfText.drawRightOn(context, bold, count, itemX + 17.0f, itemY + 14.0f, 6.6f,
-                argb(0xFFFFFF, 235));
+                ColorMath.withAlpha(0xFFFFFF, 235));
         }
 
         float cooldown = client.player == null ? 0.0f
@@ -123,7 +124,7 @@ public final class HotbarHud {
                 client.getRenderTickCounter().getTickProgress(true));
         if (cooldown > 0.0f) {
             int top = Math.round(itemY + 16.0f - 16.0f * cooldown);
-            context.fill(itemX, top, itemX + 16, itemY + 16, argb(0xFFFFFF, 90));
+            context.fill(itemX, top, itemX + 16, itemY + 16, ColorMath.withAlpha(0xFFFFFF, 90));
         }
 
         if (!stack.isDamageable() || !stack.isDamaged()) {
@@ -134,11 +135,11 @@ public final class HotbarHud {
         float barHeight = 13.0f;
         float barX = itemX + 17.0f;
         float barTop = slotCenterY - barHeight * 0.5f;
-        PanelPipeline.draw(context, barX, barTop, 1.5f, barHeight, argb(0x000000, 130));
+        PanelPipeline.draw(context, barX, barTop, 1.5f, barHeight, ColorMath.withAlpha(0x000000, 130));
         float filled = Math.max(1.0f, barHeight * left);
         int tone = left > 0.28f ? 0xFFFFFF : Theme.lighten(NeonEdge.warm(), 0.1f);
         PanelPipeline.draw(context, barX, barTop + barHeight - filled, 1.5f, filled,
-            argb(tone, left > 0.28f ? 210 : 245));
+            ColorMath.withAlpha(tone, left > 0.28f ? 210 : 245));
     }
 
     private static void renderOffhand(DrawContext context, MinecraftClient client, float barX, float barY, float barWidth) {
@@ -155,12 +156,9 @@ public final class HotbarHud {
 
         int itemX = Math.round(islandX + islandSize * 0.5f - 8.0f);
         int itemY = Math.round(barY + islandSize * 0.5f - 8.0f);
-        GlowPipeline.radial(context, islandX + islandSize * 0.5f, barY + islandSize * 0.5f, 11.0f, argb(0xFFFFFF, 30));
+        GlowPipeline.radial(context, islandX + islandSize * 0.5f, barY + islandSize * 0.5f, 11.0f, ColorMath.withAlpha(0xFFFFFF, 30));
         context.drawItem(offhand, itemX, itemY);
         overlay(context, client, offhand, itemX, itemY, barY + islandSize * 0.5f);
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

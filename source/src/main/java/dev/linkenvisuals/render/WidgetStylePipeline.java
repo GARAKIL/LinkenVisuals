@@ -1,5 +1,6 @@
 package dev.linkenvisuals.render;
 
+import dev.linkenvisuals.util.ColorMath;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -88,7 +89,7 @@ public final class WidgetStylePipeline {
         RoundedRectPipeline.draw(context, x, y, w, h, (fillAlpha << 24) | 0x0E0F14);
 
         // 2. Ambient neon outline (soft white 20 -> NeonEdge.cool() 95)
-        int defaultBorder = mix(0xFFFFFF, NeonEdge.cool(), hover);
+        int defaultBorder = ColorMath.mix(0xFFFFFF, NeonEdge.cool(), hover);
         int borderRgb = customBorderColor != 0 ? (customBorderColor & 0xFFFFFF) : defaultBorder;
         int borderAlpha = Math.round((20.0f + hover * 75.0f) * visible);
         RoundedRectPipeline.drawOutline(context, x, y, w, h, (borderAlpha << 24) | (borderRgb & 0xFFFFFF));
@@ -104,9 +105,9 @@ public final class WidgetStylePipeline {
         // 4. Crisp high-contrast label & icon
         int textRgb;
         if (customTextColor != 0) {
-            textRgb = mix(customTextColor, 0x88FF88, hover * 0.35f);
+            textRgb = ColorMath.mix(customTextColor, 0x88FF88, hover * 0.35f);
         } else {
-            textRgb = mix(0xD7DCE6, 0xFFFFFF, hover);
+            textRgb = ColorMath.mix(0xD7DCE6, 0xFFFFFF, hover);
         }
         int textColor = (Math.round((215.0f + hover * 40.0f) * visible) << 24) | (textRgb & 0xFFFFFF);
         drawButtonText(context, label, iconGlyph, iconFont, null, x, y, w, h, textColor);
@@ -127,7 +128,7 @@ public final class WidgetStylePipeline {
         RoundedRectPipeline.draw(context, x, y, w, h, (fillAlpha << 24) | 0x0E0F14);
 
         // 2. Ambient neon outline (soft white 20 -> NeonEdge.cool() 95)
-        int borderRgb = customBorderColor != 0 ? customBorderColor : mix(0xFFFFFF, NeonEdge.cool(), hover);
+        int borderRgb = customBorderColor != 0 ? customBorderColor : ColorMath.mix(0xFFFFFF, NeonEdge.cool(), hover);
         int borderAlpha = Math.round((20.0f + hover * 75.0f) * visible);
         RoundedRectPipeline.drawOutline(context, x, y, w, h, (borderAlpha << 24) | (borderRgb & 0xFFFFFF));
 
@@ -139,7 +140,7 @@ public final class WidgetStylePipeline {
         }
 
         // 4. Crisp high-contrast label & icon
-        int textRgb = mix(0xD7DCE6, 0xFFFFFF, hover);
+        int textRgb = ColorMath.mix(0xD7DCE6, 0xFFFFFF, hover);
         int textColor = (Math.round((215.0f + hover * 40.0f) * visible) << 24) | (textRgb & 0xFFFFFF);
         drawButtonText(context, label, 0, null, iconTexture, x, y, w, h, textColor);
     }
@@ -149,7 +150,7 @@ public final class WidgetStylePipeline {
                                       float x, float y, float w, float h, int color) {
         if (label == null) label = "";
         String cleanLabel = label.replaceAll("§[0-9a-fk-or]", "");
-        GlyphAtlas font = getTitleFont();
+        GlyphAtlas font = Fonts.titleFont();
         MinecraftClient client = MinecraftClient.getInstance();
 
         if (iconTexture != null) {
@@ -198,26 +199,10 @@ public final class WidgetStylePipeline {
         drawButtonText(context, label, iconGlyph, iconFont, null, x, y, w, h, color);
     }
 
-    private static final net.minecraft.util.Identifier TITLE_FONT_DATA = dev.linkenvisuals.LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final net.minecraft.util.Identifier TITLE_FONT_ATLAS = dev.linkenvisuals.LinkenVisuals.id("fonts/msdf/sf_bold.png");
-    private static GlyphAtlas titleFont;
-
-    public static GlyphAtlas getTitleFont() {
-        if (titleFont == null) {
-            try {
-                Pipelines.warmUp();
-                titleFont = GlyphAtlas.load(TITLE_FONT_DATA, TITLE_FONT_ATLAS);
-            } catch (Exception e) {
-                dev.linkenvisuals.LinkenVisuals.LOGGER.warn("Failed to load title font: {}", e.getMessage());
-            }
-        }
-        return titleFont;
-    }
-
     public static void drawCenteredLabel(DrawContext context, Text message, int x, int y, int w, int h, int color) {
         String str = message.getString();
         String cleanStr = str.replaceAll("§[0-9a-fk-or]", "");
-        GlyphAtlas font = getTitleFont();
+        GlyphAtlas font = Fonts.titleFont();
         int customColor = color;
         if (message.getStyle() != null && message.getStyle().getColor() != null) {
             customColor = (color & 0xFF000000) | (message.getStyle().getColor().getRgb() & 0x00FFFFFF);
@@ -234,11 +219,4 @@ public final class WidgetStylePipeline {
         }
     }
 
-    public static int mix(int from, int to, float amount) {
-        float t = Math.max(0.0f, Math.min(1.0f, amount));
-        int r = Math.round(((from >> 16) & 0xFF) + (((to >> 16) & 0xFF) - ((from >> 16) & 0xFF)) * t);
-        int g = Math.round(((from >> 8) & 0xFF) + (((to >> 8) & 0xFF) - ((from >> 8) & 0xFF)) * t);
-        int b = Math.round((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
-        return (r << 16) | (g << 8) | b;
-    }
 }

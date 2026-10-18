@@ -23,7 +23,8 @@
 2. [x] Миксины: локализованные эвристики убраны (новый `util/TextKeys`; `TitleScreenMixin`/`GameMenuScreenMixin`/`VanillaStylePipeline` — ключи перевода вместо `contains`); `TextFieldWidgetMixin` и `CameraMixin.setRotation` — slice-анкеры по байткоду (javap build.4), два булевых аргумента `Camera.update` — ordinal с обоснованием (в проде нет LVT-имён аргументов) — v1.0.37, D9.
 3. [x] Четыре клона loading-миксинов → общий `render/LoadingOverlay` (статические хелперы; `withAlpha` ×4 → `ColorMath.argb`; кэш MSDF-шрифтов на все экраны): 645 → 317 стр. миксинов + 165 стр. хелпер (net −163) — v1.0.38, D10.
 - (хотфикс 1.0.38→1.0.39) [x] Крэш при лоаде: неремапленная цель `getScale` в `CameraMixin` → `clipToSpace`; введён обязательный javap-скан member-ref'ов всех миксинов (0 yarn-имён, 24/24 intermediary) — v1.0.39, D11.
-4. Единый `ColorUtil` вместо ~22 клонов mix/withAlpha/argb.
+4. [x] Единый цветовой util: `ColorMath.withAlpha(rgb, 0..255)`; клоны `argb`×13 / `withAlpha`×3 удалены (302 вызова), `mix`×3 → `ColorMath.mix` (`MainMenuScreen.mix` — делегат с непрозрачной семантикой), `centredTop`×2 → `MsdfText.topFor` (17 вызовов); единый `render/Fonts` вместо MSDF-обвязки в `LoadingOverlay`/`WidgetStylePipeline`/3 экранах — v1.0.40, D12.
+4b. [ ] (отложено из п.4) Шрифтовые константы `TEXT_DATA/BOLD_DATA` в 12 HUD-файлах + ClickGuiScreen → `Fonts`; поля `bold`/`text`/`regular`/`menuFont` — нужен пофайловый проход (токен `text` небезопасен для слепой замены).
 5. Атомарные записи `HudLayoutStorage`, `PotionLayoutMode`; общий persistence-хелпер; `configVersion`.
 6. Пер-кадровые аллокации: `KeybindPanel`, `Cosmetics`, `HudManager.snap`; убрать `Pipelines.warmUp()` из кадра.
 7. `MediaWatcher`: PowerShell `-ExecutionPolicy Bypass` → «unsupported platform» + опциональный внешний скрипт.

@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hands;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlassPanelPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
@@ -87,12 +88,12 @@ public final class HandPanel {
         lastFrame = now;
 
         float h = height();
-        GlassPanelPipeline.draw(context, X, Y, WIDTH, h, argb(Theme.glassTint(), 238));
+        GlassPanelPipeline.draw(context, X, Y, WIDTH, h, ColorMath.withAlpha(Theme.glassTint(), 238));
         NeonEdge.frame(context, X, Y, WIDTH, h, 23, 0.9f);
 
         float cursor = Y + PADDING;
         MsdfText.draw(context, bold, "View Model", X + PADDING, cursor, TITLE_SIZE,
-            argb(Theme.lighten(Theme.accent(), 0.3f), 255));
+            ColorMath.withAlpha(Theme.lighten(Theme.accent(), 0.3f), 255));
         cursor += 11.0f;
 
         cursor = readout(context, "right", Arm.RIGHT, cursor);
@@ -112,7 +113,7 @@ public final class HandPanel {
     private static float readout(DrawContext context, String name, Arm arm, float top) {
         boolean moved = HandPose.moved(arm);
         MsdfText.draw(context, text, name, X + PADDING, top, LABEL_SIZE,
-            argb(0xFFFFFF, moved ? 165 : 90));
+            ColorMath.withAlpha(0xFFFFFF, moved ? 165 : 90));
 
         String value = moved
             ? String.format("%.2f  %.2f  %.2f  ×%.2f", HandPose.x(arm), HandPose.y(arm),
@@ -120,7 +121,7 @@ public final class HandPanel {
             : "default";
         float width = MsdfText.width(text, value, LABEL_SIZE);
         MsdfText.draw(context, text, value, X + WIDTH - PADDING - width, top, LABEL_SIZE,
-            argb(moved ? Theme.lighten(Theme.accent(), 0.25f) : 0xFFFFFF, moved ? 220 : 70));
+            ColorMath.withAlpha(moved ? Theme.lighten(Theme.accent(), 0.25f) : 0xFFFFFF, moved ? 220 : 70));
         return top + 9.0f;
     }
 
@@ -130,14 +131,14 @@ public final class HandPanel {
         float tall = ROW - 3.0f;
 
         RoundedRectPipeline.draw(context, left, top, width, tall,
-            argb(0xFFFFFF, Math.round(8 + hover * 26)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(8 + hover * 26)));
         if (hover > 0.01f) {
             NeonEdge.frame(context, left, top, width, tall, 41, hover * 0.8f);
         }
 
         MsdfText.draw(context, text, action.label, left + 7.0f + hover * 3.0f,
             top + (tall - LABEL_SIZE) * 0.5f - 1.2f, LABEL_SIZE,
-            argb(0xFFFFFF, Math.round(140 + hover * 110)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round(140 + hover * 110)));
     }
 
     public static void renderHint(DrawContext context, String hint, boolean held) {
@@ -150,10 +151,10 @@ public final class HandPanel {
         float x = (context.getScaledWindowWidth() - boxWidth) * 0.5f;
         float y = context.getScaledWindowHeight() - 46.0f;
 
-        GlassPanelPipeline.draw(context, x, y, boxWidth, boxHeight, argb(Theme.glassTint(), 225));
+        GlassPanelPipeline.draw(context, x, y, boxWidth, boxHeight, ColorMath.withAlpha(Theme.glassTint(), 225));
         NeonEdge.frame(context, x, y, boxWidth, boxHeight, 57, held ? 1.0f : 0.6f);
         MsdfText.draw(context, text, hint, x + padding, y + (boxHeight - size) * 0.5f - 1.1f, size,
-            argb(held ? Theme.lighten(Theme.accent(), 0.45f) : 0xFFFFFF, held ? 245 : 180));
+            ColorMath.withAlpha(held ? Theme.lighten(Theme.accent(), 0.45f) : 0xFFFFFF, held ? 245 : 180));
     }
 
     private static float rowsTop() {
@@ -167,10 +168,6 @@ public final class HandPanel {
         if (bold == null) {
             bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
         }
-    }
-
-    private static int argb(int rgb, int alpha) {
-        return alpha << 24 | rgb & 0xFFFFFF;
     }
 
     private enum Kind {

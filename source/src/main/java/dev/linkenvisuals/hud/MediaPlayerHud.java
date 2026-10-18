@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.media.MediaArt;
@@ -102,7 +103,7 @@ public final class MediaPlayerHud extends HudElement {
 
         if (!artist.isBlank()) {
             MsdfText.draw(context, text, clip(text, artist, ARTIST_SIZE, contentW - 44.0f), contentX, y + 6.0f,
-                ARTIST_SIZE, argb(0xFFFFFF, Math.round(105 * ease)));
+                ARTIST_SIZE, ColorMath.withAlpha(0xFFFFFF, Math.round(105 * ease)));
         }
         drawTransport(context, contentRight - 30.0f, y + 9.0f, track.playing(), ease);
 
@@ -110,11 +111,11 @@ public final class MediaPlayerHud extends HudElement {
         drawScrollingTitle(context, title, contentX, titleY, contentW, delta, ease);
 
         float railY = y + HEIGHT - 7.0f;
-        PanelPipeline.draw(context, contentX, railY, contentW, 1.2f, argb(0xFFFFFF, Math.round(26 * ease)));
+        PanelPipeline.draw(context, contentX, railY, contentW, 1.2f, ColorMath.withAlpha(0xFFFFFF, Math.round(26 * ease)));
         if (track.length() > 0L) {
             float progress = Math.max(0.0f, Math.min(1.0f, track.position() / (float) track.length()));
             PanelPipeline.draw(context, contentX, railY, contentW * progress, 1.2f,
-                argb(NeonEdge.cool(), Math.round(215 * ease)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round(215 * ease)));
         }
     }
 
@@ -122,7 +123,7 @@ public final class MediaPlayerHud extends HudElement {
         float discX = artX + ART * 0.5f;
         float discY = artY + ART * 0.5f;
 
-        RoundedRectPipeline.draw(context, artX, artY, ART, ART, argb(0xFFFFFF, Math.round(18 * ease)));
+        RoundedRectPipeline.draw(context, artX, artY, ART, ART, ColorMath.withAlpha(0xFFFFFF, Math.round(18 * ease)));
         if (MediaArt.available()) {
             Matrix3x2fStack matrices = context.getMatrices();
             matrices.pushMatrix();
@@ -131,21 +132,21 @@ public final class MediaPlayerHud extends HudElement {
             matrices.translate(-discX, -discY);
             context.drawTexture(RenderPipelines.GUI_TEXTURED, MediaArt.textureId(),
                 Math.round(artX), Math.round(artY), 0.0f, 0.0f, Math.round(ART), Math.round(ART),
-                Math.round(ART), Math.round(ART), argb(0xFFFFFF, alpha));
+                Math.round(ART), Math.round(ART), ColorMath.withAlpha(0xFFFFFF, alpha));
             matrices.popMatrix();
         } else {
-            GlowPipeline.radial(context, discX, discY, ART * 0.52f, argb(NeonEdge.cool(), Math.round(60 * ease)));
-            CirclePipeline.draw(context, discX, discY, ART * 0.30f, argb(0xFFFFFF, Math.round(40 * ease)));
+            GlowPipeline.radial(context, discX, discY, ART * 0.52f, ColorMath.withAlpha(NeonEdge.cool(), Math.round(60 * ease)));
+            CirclePipeline.draw(context, discX, discY, ART * 0.30f, ColorMath.withAlpha(0xFFFFFF, Math.round(40 * ease)));
         }
-        CirclePipeline.draw(context, discX, discY, ART * 0.11f, argb(0x101114, alpha));
-        CirclePipeline.draw(context, discX, discY, ART * 0.05f, argb(NeonEdge.cool(), Math.round(220 * ease)));
-        RoundedRectPipeline.drawOutline(context, artX, artY, ART, ART, argb(0xFFFFFF, Math.round(34 * ease)));
+        CirclePipeline.draw(context, discX, discY, ART * 0.11f, ColorMath.withAlpha(0x101114, alpha));
+        CirclePipeline.draw(context, discX, discY, ART * 0.05f, ColorMath.withAlpha(NeonEdge.cool(), Math.round(220 * ease)));
+        RoundedRectPipeline.drawOutline(context, artX, artY, ART, ART, ColorMath.withAlpha(0xFFFFFF, Math.round(34 * ease)));
     }
 
     private void drawScrollingTitle(DrawContext context, String title, float x, float y, float maxWidth,
                                     float delta, float ease) {
         float titleWidth = MsdfText.width(bold, title, TITLE_SIZE);
-        int ink = argb(0xFFFFFF, Math.round(242 * ease));
+        int ink = ColorMath.withAlpha(0xFFFFFF, Math.round(242 * ease));
 
         if (titleWidth <= maxWidth) {
             scroll = 0.0f;
@@ -163,7 +164,7 @@ public final class MediaPlayerHud extends HudElement {
     }
 
     private void drawTransport(DrawContext context, float x, float centerY, boolean playing, float ease) {
-        int ink = argb(0xFFFFFF, Math.round(215 * ease));
+        int ink = ColorMath.withAlpha(0xFFFFFF, Math.round(215 * ease));
         float gap = 13.0f;
 
         drawSkip(context, x, centerY, true, ink);
@@ -207,7 +208,4 @@ public final class MediaPlayerHud extends HudElement {
         return trimmed + "...";
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }

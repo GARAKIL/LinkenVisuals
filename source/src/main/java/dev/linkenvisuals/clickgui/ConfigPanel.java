@@ -1,5 +1,6 @@
 package dev.linkenvisuals.clickgui;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.MsdfText;
@@ -36,8 +37,6 @@ final class ConfigPanel {
     }
 
     // Mirrors ClickGuiScreen MSDF metrics so text vertical centering stays pixel-identical.
-    private static final float CAP_HEIGHT = 0.70f;
-    private static final float ASCENDER = 0.952f;
 
     private GlyphAtlas text;
     private GlyphAtlas bold;
@@ -81,23 +80,23 @@ final class ConfigPanel {
         inputH = 22.0f;
 
         RoundedRectPipeline.draw(context, inputX, inputY, inputW, inputH,
-            argb(0x0C0E14, Math.round(230 * openT)));
+            ColorMath.withAlpha(0x0C0E14, Math.round(230 * openT)));
         RoundedRectPipeline.drawOutline(context, inputX, inputY, inputW, inputH,
-            inputFocused ? argb(NeonEdge.cool(), Math.round(210 * openT))
-                         : argb(0xFFFFFF, Math.round(28 * openT)));
+            inputFocused ? ColorMath.withAlpha(NeonEdge.cool(), Math.round(210 * openT))
+                         : ColorMath.withAlpha(0xFFFFFF, Math.round(28 * openT)));
 
-        float inputTextY = centredTop(inputY + inputH * 0.5f, 6.6f);
+        float inputTextY = MsdfText.topFor(inputY + inputH * 0.5f, 6.6f);
         if (nameInput.length() == 0) {
             MsdfText.draw(context, text, I18n.get("gui.config.input_placeholder"),
-                inputX + 8.0f, inputTextY, 6.6f, argb(0x777E90, Math.round(180 * openT)));
+                inputX + 8.0f, inputTextY, 6.6f, ColorMath.withAlpha(0x777E90, Math.round(180 * openT)));
         } else {
             MsdfText.draw(context, bold, nameInput.toString(), inputX + 8.0f, inputTextY, 6.6f,
-                argb(0xFFFFFF, Math.round(230 * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round(230 * openT)));
         }
         if (inputFocused && (System.currentTimeMillis() % 1000L) < 500L) {
             float curX = inputX + 8.0f + (nameInput.length() == 0 ? 0.0f : MsdfText.width(bold, nameInput.toString(), 6.6f) + 1.0f);
             context.fill(Math.round(curX), Math.round(inputY + 5.0f), Math.round(curX + 1.0f), Math.round(inputY + inputH - 5.0f),
-                argb(NeonEdge.cool(), Math.round(230 * openT)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round(230 * openT)));
         }
 
         // Button "Create"
@@ -107,12 +106,12 @@ final class ConfigPanel {
         createH = 22.0f;
         boolean createHov = mouseX >= createX && mouseX <= createX + createW && mouseY >= createY && mouseY <= createY + createH;
         RoundedRectPipeline.draw(context, createX, createY, createW, createH,
-            createHov ? argb(NeonEdge.cool(), Math.round(55 * openT)) : argb(0xFFFFFF, Math.round(15 * openT)));
+            createHov ? ColorMath.withAlpha(NeonEdge.cool(), Math.round(55 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(15 * openT)));
         RoundedRectPipeline.drawOutline(context, createX, createY, createW, createH,
-            argb(NeonEdge.cool(), Math.round((createHov ? 200 : 70) * openT)));
+            ColorMath.withAlpha(NeonEdge.cool(), Math.round((createHov ? 200 : 70) * openT)));
         MsdfText.drawCentered(context, bold, I18n.get("gui.config.create"), createX + createW * 0.5f,
-            centredTop(createY + createH * 0.5f, 6.2f), 6.2f,
-            argb(0xFFFFFF, Math.round((createHov ? 255 : 210) * openT)));
+            MsdfText.topFor(createY + createH * 0.5f, 6.2f), 6.2f,
+            ColorMath.withAlpha(0xFFFFFF, Math.round((createHov ? 255 : 210) * openT)));
 
         // Button "Folder"
         folderX = createX + createW + 5.0f;
@@ -121,12 +120,12 @@ final class ConfigPanel {
         folderH = 22.0f;
         boolean folderHov = mouseX >= folderX && mouseX <= folderX + folderW && mouseY >= folderY && mouseY <= folderY + folderH;
         RoundedRectPipeline.draw(context, folderX, folderY, folderW, folderH,
-            folderHov ? argb(0xFFFFFF, Math.round(30 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
+            folderHov ? ColorMath.withAlpha(0xFFFFFF, Math.round(30 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * openT)));
         RoundedRectPipeline.drawOutline(context, folderX, folderY, folderW, folderH,
-            argb(0xFFFFFF, Math.round((folderHov ? 90 : 35) * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round((folderHov ? 90 : 35) * openT)));
         MsdfText.drawCentered(context, bold, I18n.get("gui.config.folder"), folderX + folderW * 0.5f,
-            centredTop(folderY + folderH * 0.5f, 6.2f), 6.2f,
-            argb(0xFFFFFF, Math.round((folderHov ? 255 : 200) * openT)));
+            MsdfText.topFor(folderY + folderH * 0.5f, 6.2f), 6.2f,
+            ColorMath.withAlpha(0xFFFFFF, Math.round((folderHov ? 255 : 200) * openT)));
 
         // Button "Refresh"
         refreshX = folderX + folderW + 5.0f;
@@ -135,12 +134,12 @@ final class ConfigPanel {
         refreshH = 22.0f;
         boolean refreshHov = mouseX >= refreshX && mouseX <= refreshX + refreshW && mouseY >= refreshY && mouseY <= refreshY + refreshH;
         RoundedRectPipeline.draw(context, refreshX, refreshY, refreshW, refreshH,
-            refreshHov ? argb(0xFFFFFF, Math.round(30 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
+            refreshHov ? ColorMath.withAlpha(0xFFFFFF, Math.round(30 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * openT)));
         RoundedRectPipeline.drawOutline(context, refreshX, refreshY, refreshW, refreshH,
-            argb(0xFFFFFF, Math.round((refreshHov ? 90 : 35) * openT)));
+            ColorMath.withAlpha(0xFFFFFF, Math.round((refreshHov ? 90 : 35) * openT)));
         MsdfText.drawCentered(context, bold, I18n.get("gui.config.refresh"), refreshX + refreshW * 0.5f,
-            centredTop(refreshY + refreshH * 0.5f, 6.0f), 6.0f,
-            argb(0xFFFFFF, Math.round((refreshHov ? 255 : 200) * openT)));
+            MsdfText.topFor(refreshY + refreshH * 0.5f, 6.0f), 6.0f,
+            ColorMath.withAlpha(0xFFFFFF, Math.round((refreshHov ? 255 : 200) * openT)));
 
         // Button "AutoSave"
         autoX = refreshX + refreshW + 6.0f;
@@ -150,34 +149,34 @@ final class ConfigPanel {
         boolean autoHov = mouseX >= autoX && mouseX <= autoX + autoW && mouseY >= autoY && mouseY <= autoY + autoH;
         boolean autoOn = ModuleRegistry.configAutoSave() != null && ModuleRegistry.configAutoSave().value();
         RoundedRectPipeline.draw(context, autoX, autoY, autoW, autoH,
-            autoOn ? argb(0x4ADE80, Math.round((autoHov ? 40 : 22) * openT))
-                   : argb(0xFFFFFF, Math.round((autoHov ? 25 : 12) * openT)));
+            autoOn ? ColorMath.withAlpha(0x4ADE80, Math.round((autoHov ? 40 : 22) * openT))
+                   : ColorMath.withAlpha(0xFFFFFF, Math.round((autoHov ? 25 : 12) * openT)));
         RoundedRectPipeline.drawOutline(context, autoX, autoY, autoW, autoH,
-            autoOn ? argb(0x4ADE80, Math.round(140 * openT))
-                   : argb(0xFFFFFF, Math.round(30 * openT)));
+            autoOn ? ColorMath.withAlpha(0x4ADE80, Math.round(140 * openT))
+                   : ColorMath.withAlpha(0xFFFFFF, Math.round(30 * openT)));
         MsdfText.drawCentered(context, bold, I18n.get(autoOn ? "gui.config.autosave_on" : "gui.config.autosave_off"),
-            autoX + autoW * 0.5f, centredTop(autoY + autoH * 0.5f, 5.8f), 5.8f,
-            autoOn ? argb(0x4ADE80, Math.round(230 * openT)) : argb(0x999999, Math.round(180 * openT)));
+            autoX + autoW * 0.5f, MsdfText.topFor(autoY + autoH * 0.5f, 5.8f), 5.8f,
+            autoOn ? ColorMath.withAlpha(0x4ADE80, Math.round(230 * openT)) : ColorMath.withAlpha(0x999999, Math.round(180 * openT)));
 
         // 2. Sub-Bar (Y = topY + 27.0f)
         float subY = topY + 27.0f;
         String activePrefix = I18n.get("gui.config.active_prefix");
         MsdfText.draw(context, text, activePrefix, areaLeft + 2.0f, subY, 6.2f,
-            argb(0x888EA0, Math.round(190 * openT)));
+            ColorMath.withAlpha(0x888EA0, Math.round(190 * openT)));
         float prefixW = MsdfText.width(text, activePrefix, 6.2f);
         MsdfText.draw(context, bold, ConfigManager.getActiveProfile(), areaLeft + 2.0f + prefixW, subY, 6.2f,
-            argb(0x4ADE80, Math.round(240 * openT)));
+            ColorMath.withAlpha(0x4ADE80, Math.round(240 * openT)));
 
         if (statusMessage != null && System.currentTimeMillis() - statusTime < 3500L) {
             float statW = MsdfText.width(bold, statusMessage, 6.2f);
             MsdfText.draw(context, bold, statusMessage, areaRight - statW - 2.0f, subY, 6.2f,
-                argb(statusColor, Math.round(230 * openT)));
+                ColorMath.withAlpha(statusColor, Math.round(230 * openT)));
         } else {
             List<String> profs = ConfigManager.getProfiles();
             String cntStr = I18n.get("gui.config.total", profs.size());
             float cntW = MsdfText.width(text, cntStr, 6.0f);
             MsdfText.draw(context, text, cntStr, areaRight - cntW - 2.0f, subY, 6.0f,
-                argb(0x666D80, Math.round(160 * openT)));
+                ColorMath.withAlpha(0x666D80, Math.round(160 * openT)));
         }
 
         // 3. Config Cards List
@@ -230,66 +229,66 @@ final class ConfigPanel {
             // Card background
             if (isActive) {
                 RoundedRectPipeline.draw(context, areaLeft, cardY, cardW, cardH,
-                    argb(0x101D16, Math.round(235 * openT)));
+                    ColorMath.withAlpha(0x101D16, Math.round(235 * openT)));
                 RoundedRectPipeline.drawOutline(context, areaLeft, cardY, cardW, cardH,
-                    argb(0x4ADE80, Math.round(90 * openT)));
+                    ColorMath.withAlpha(0x4ADE80, Math.round(90 * openT)));
                 // Active green strip
                 RoundedRectPipeline.draw(context, areaLeft, cardY, 3.0f, cardH,
-                    argb(0x4ADE80, Math.round(230 * openT)));
+                    ColorMath.withAlpha(0x4ADE80, Math.round(230 * openT)));
             } else {
                 RoundedRectPipeline.draw(context, areaLeft, cardY, cardW, cardH,
-                    argb(0x0C0E14, Math.round(220 * openT)));
+                    ColorMath.withAlpha(0x0C0E14, Math.round(220 * openT)));
                 RoundedRectPipeline.drawOutline(context, areaLeft, cardY, cardW, cardH,
-                    argb(0xFFFFFF, Math.round((cardHov ? 35 : 18) * openT)));
+                    ColorMath.withAlpha(0xFFFFFF, Math.round((cardHov ? 35 : 18) * openT)));
             }
 
             // Name & Info
             float nameX = areaLeft + 12.0f;
-            float nameY = centredTop(cardY + cardH * 0.5f, 7.0f);
+            float nameY = MsdfText.topFor(cardY + cardH * 0.5f, 7.0f);
             MsdfText.draw(context, bold, profile, nameX, nameY, 7.0f,
-                isActive ? argb(0x4ADE80, Math.round(240 * openT)) : argb(0xFFFFFF, Math.round(220 * openT)));
+                isActive ? ColorMath.withAlpha(0x4ADE80, Math.round(240 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(220 * openT)));
 
             float nameW = MsdfText.width(bold, profile, 7.0f);
             if (isActive) {
                 MsdfText.draw(context, bold, I18n.get("gui.config.active_badge"), nameX + nameW + 8.0f, nameY + 0.6f, 5.6f,
-                    argb(0x4ADE80, Math.round(200 * openT)));
+                    ColorMath.withAlpha(0x4ADE80, Math.round(200 * openT)));
             } else {
                 MsdfText.draw(context, text, profile + ".json", nameX + nameW + 8.0f, nameY + 0.6f, 5.6f,
-                    argb(0x666D80, Math.round(150 * openT)));
+                    ColorMath.withAlpha(0x666D80, Math.round(150 * openT)));
             }
 
             // Load Button
             boolean loadHov = mouseX >= loadX && mouseX <= loadX + loadW && mouseY >= loadY && mouseY <= loadY + loadH;
             RoundedRectPipeline.draw(context, loadX, loadY, loadW, loadH,
-                loadHov ? argb(NeonEdge.cool(), Math.round(60 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
+                loadHov ? ColorMath.withAlpha(NeonEdge.cool(), Math.round(60 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * openT)));
             RoundedRectPipeline.drawOutline(context, loadX, loadY, loadW, loadH,
-                argb(NeonEdge.cool(), Math.round((loadHov ? 180 : 50) * openT)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round((loadHov ? 180 : 50) * openT)));
             MsdfText.drawCentered(context, bold, I18n.get("gui.config.load"), loadX + loadW * 0.5f,
-                centredTop(loadY + loadH * 0.5f, 5.6f), 5.6f,
-                argb(0xFFFFFF, Math.round((loadHov ? 255 : 200) * openT)));
+                MsdfText.topFor(loadY + loadH * 0.5f, 5.6f), 5.6f,
+                ColorMath.withAlpha(0xFFFFFF, Math.round((loadHov ? 255 : 200) * openT)));
 
             // Save Button
             boolean saveHov = mouseX >= saveX && mouseX <= saveX + saveW && mouseY >= saveY && mouseY <= saveY + saveH;
             RoundedRectPipeline.draw(context, saveX, saveY, saveW, saveH,
-                saveHov ? argb(0x4ADE80, Math.round(50 * openT)) : argb(0xFFFFFF, Math.round(14 * openT)));
+                saveHov ? ColorMath.withAlpha(0x4ADE80, Math.round(50 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * openT)));
             RoundedRectPipeline.drawOutline(context, saveX, saveY, saveW, saveH,
-                argb(0x4ADE80, Math.round((saveHov ? 160 : 50) * openT)));
+                ColorMath.withAlpha(0x4ADE80, Math.round((saveHov ? 160 : 50) * openT)));
             MsdfText.drawCentered(context, bold, I18n.get("gui.config.save"), saveX + saveW * 0.5f,
-                centredTop(saveY + saveH * 0.5f, 5.6f), 5.6f,
-                argb(0xFFFFFF, Math.round((saveHov ? 255 : 200) * openT)));
+                MsdfText.topFor(saveY + saveH * 0.5f, 5.6f), 5.6f,
+                ColorMath.withAlpha(0xFFFFFF, Math.round((saveHov ? 255 : 200) * openT)));
 
             // Delete Button
             boolean canDel = profiles.size() > 1;
             boolean delHov = canDel && mouseX >= delX && mouseX <= delX + delW && mouseY >= delY && mouseY <= delY + delH;
             RoundedRectPipeline.draw(context, delX, delY, delW, delH,
-                delHov ? argb(0xFF4444, Math.round(65 * openT)) : argb(0xFFFFFF, Math.round(canDel ? 12 : 5 * openT)));
+                delHov ? ColorMath.withAlpha(0xFF4444, Math.round(65 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(canDel ? 12 : 5 * openT)));
             RoundedRectPipeline.drawOutline(context, delX, delY, delW, delH,
-                canDel ? (delHov ? argb(0xFF4444, Math.round(180 * openT)) : argb(0xFF4444, Math.round(55 * openT)))
-                       : argb(0xFFFFFF, Math.round(15 * openT)));
+                canDel ? (delHov ? ColorMath.withAlpha(0xFF4444, Math.round(180 * openT)) : ColorMath.withAlpha(0xFF4444, Math.round(55 * openT)))
+                       : ColorMath.withAlpha(0xFFFFFF, Math.round(15 * openT)));
             MsdfText.drawCentered(context, bold, "✕", delX + delW * 0.5f,
-                centredTop(delY + delH * 0.5f, 6.2f), 6.2f,
-                canDel ? (delHov ? argb(0xFF6B6B, Math.round(255 * openT)) : argb(0xDD6B6B, Math.round(180 * openT)))
-                       : argb(0x555555, Math.round(100 * openT)));
+                MsdfText.topFor(delY + delH * 0.5f, 6.2f), 6.2f,
+                canDel ? (delHov ? ColorMath.withAlpha(0xFF6B6B, Math.round(255 * openT)) : ColorMath.withAlpha(0xDD6B6B, Math.round(180 * openT)))
+                       : ColorMath.withAlpha(0x555555, Math.round(100 * openT)));
         }
 
         context.disableScissor();
@@ -443,14 +442,6 @@ final class ConfigPanel {
         if (client != null) {
             client.getSoundManager().play(PositionedSoundInstance.ui(sound, 1.0f, 1.0f));
         }
-    }
-
-    private static float centredTop(float centerY, float size) {
-        return centerY + CAP_HEIGHT * size * 0.5f - ASCENDER * size;
-    }
-
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
     }
 
     private static final class ActionBounds {

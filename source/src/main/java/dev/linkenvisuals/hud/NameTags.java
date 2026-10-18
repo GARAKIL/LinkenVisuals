@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.render.CirclePipeline;
@@ -178,17 +179,17 @@ public final class NameTags {
         int size = Math.round(FACE);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, skin, Math.round(cursor),
             Math.round(centerY - FACE * 0.5f), 8.0f, 8.0f, size, size, 8, 8, 64, 64,
-            argb(0xFFFFFF, faceAlpha));
+            ColorMath.withAlpha(0xFFFFFF, faceAlpha));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, skin, Math.round(cursor),
             Math.round(centerY - FACE * 0.5f), 40.0f, 8.0f, size, size, 8, 8, 64, 64,
-            argb(0xFFFFFF, faceAlpha));
+            ColorMath.withAlpha(0xFFFFFF, faceAlpha));
         cursor += FACE + GAP;
 
         if (!rankPieces.isEmpty()) {
             drawRuns(context, rankPieces, rankColours, cursor, centerY, SMALL_SIZE, 240);
             cursor += rankWidth;
         }
-        MsdfText.drawOnExact(context, bold, name, cursor, centerY, NAME_SIZE, argb(0xFFFFFF, 245));
+        MsdfText.drawOnExact(context, bold, name, cursor, centerY, NAME_SIZE, ColorMath.withAlpha(0xFFFFFF, 245));
         cursor += nameWidth + GAP;
 
         if (showItem) {
@@ -202,7 +203,7 @@ public final class NameTags {
 
         heart(context, cursor + 4.5f, centerY, !known, player);
         MsdfText.drawOnExact(context, bold, health, cursor + 11.0f, centerY, SMALL_SIZE,
-            argb(known ? healthColour(player) : 0xFFFFFF, known ? 245 : 130));
+            ColorMath.withAlpha(known ? healthColour(player) : 0xFFFFFF, known ? 245 : 130));
 
         matrices.popMatrix();
     }
@@ -213,13 +214,13 @@ public final class NameTags {
         int alpha = hidden ? 120 : 245;
 
         float lift = cy - 0.35f;
-        CirclePipeline.draw(context, cx - 1.35f, lift - 0.85f, 1.75f, argb(colour, alpha));
-        CirclePipeline.draw(context, cx + 1.35f, lift - 0.85f, 1.75f, argb(colour, alpha));
+        CirclePipeline.draw(context, cx - 1.35f, lift - 0.85f, 1.75f, ColorMath.withAlpha(colour, alpha));
+        CirclePipeline.draw(context, cx + 1.35f, lift - 0.85f, 1.75f, ColorMath.withAlpha(colour, alpha));
         Matrix3x2fStack matrices = context.getMatrices();
         matrices.pushMatrix();
         matrices.translate(cx, lift);
         matrices.rotate((float) Math.toRadians(45.0));
-        RoundedRectPipeline.draw(context, -1.9f, -1.9f, 3.8f, 3.8f, argb(colour, alpha));
+        RoundedRectPipeline.draw(context, -1.9f, -1.9f, 3.8f, 3.8f, ColorMath.withAlpha(colour, alpha));
         matrices.popMatrix();
     }
 
@@ -227,17 +228,9 @@ public final class NameTags {
         float share = Math.max(0.0f, Math.min(1.0f,
             player.getHealth() / Math.max(1.0f, player.getMaxHealth())));
         if (share >= 0.6f) {
-            return mix(0xE8D65B, 0x6FE39A, Math.min(1.0f, (share - 0.6f) / 0.4f));
+            return ColorMath.mix(0xE8D65B, 0x6FE39A, Math.min(1.0f, (share - 0.6f) / 0.4f));
         }
-        return mix(0xFF5C5C, 0xE8D65B, Math.min(1.0f, (share - 0.2f) / 0.4f));
-    }
-
-    private static int mix(int from, int to, float amount) {
-        float t = Math.max(0.0f, Math.min(1.0f, amount));
-        int r = Math.round((from >> 16 & 0xFF) + ((to >> 16 & 0xFF) - (from >> 16 & 0xFF)) * t);
-        int g = Math.round((from >> 8 & 0xFF) + ((to >> 8 & 0xFF) - (from >> 8 & 0xFF)) * t);
-        int b = Math.round((from & 0xFF) + ((to & 0xFF) - (from & 0xFF)) * t);
-        return r << 16 | g << 8 | b;
+        return ColorMath.mix(0xFF5C5C, 0xE8D65B, Math.min(1.0f, (share - 0.2f) / 0.4f));
     }
 
     private static void collect(Text source, java.util.List<String> pieces,
@@ -270,7 +263,7 @@ public final class NameTags {
         for (int i = 0; i < pieces.size(); i++) {
             String piece = pieces.get(i);
             MsdfText.drawOnExact(context, bold, piece, cursor, centerY, size,
-                argb(colours.get(i), alpha));
+                ColorMath.withAlpha(colours.get(i), alpha));
             cursor += MsdfText.width(bold, piece, size);
         }
         return cursor - x;
@@ -289,7 +282,4 @@ public final class NameTags {
         return ModuleRegistry.nameTags().enabled();
     }
 
-    private static int argb(int rgb, int alpha) {
-        return Math.max(0, Math.min(255, alpha)) << 24 | rgb & 0xFFFFFF;
-    }
 }
