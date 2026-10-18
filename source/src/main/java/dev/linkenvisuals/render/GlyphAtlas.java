@@ -1,13 +1,16 @@
 package dev.linkenvisuals.render;
 
 import com.google.gson.Gson;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.linkenvisuals.util.IntFloatMap;
+import dev.linkenvisuals.util.IntObjectMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class GlyphAtlas {
@@ -17,22 +20,28 @@ public final class GlyphAtlas {
     private final float atlasWidth;
     private final float atlasHeight;
     private final float ascender;
-    private final Map<Integer, Glyph> glyphs;
-    private final Map<Long, Float> kerning;
+    private final IntObjectMap<Glyph> glyphs;
+    private final IntObjectMap<IntFloatMap> kerning;
+    private final WidthCache widthCache = new WidthCache(1024);
 
     private GlyphAtlas(Identifier texture, Data data) {
         this.texture = texture;
         this.atlasWidth = data.atlas.width;
         this.atlasHeight = data.atlas.height;
         this.ascender = data.metrics.ascender;
-        this.glyphs = new HashMap<>();
+        this.glyphs = new IntObjectMap<>(Math.max(16, data.glyphs.length * 2));
         for (GlyphData source : data.glyphs) {
             glyphs.put(source.unicode, new Glyph(source, atlasWidth, atlasHeight));
         }
-        this.kerning = new HashMap<>();
+        this.kerning = new IntObjectMap<>(16);
         if (data.kerning != null) {
             for (KerningData pair : data.kerning) {
-                kerning.put(key(pair.unicode1, pair.unicode2), pair.advance);
+                IntFloatMap inner = kerning.get(pair.unicode1);
+                if (inner == null) {
+                    inner = new IntFloatMap(8);
+                    kerning.put(pair.unicode1, inner);
+                }
+                inner.put(pair.unicode2, pair.advance);
             }
         }
     }
@@ -108,10 +117,16 @@ public final class GlyphAtlas {
         if (left < 0) {
             return 0.0f;
         }
-        return kerning.getOrDefault(key(left, right), 0.0f);
+        IntFloatMap inner = kerning.get(left);
+        return inner == null ? 0.0f : inner.get(right);
     }
 
     public float width(String text, float size) {
+        RenderSystem.assertOnRenderThread();
+        Float cached = widthCache.get(text, size);
+        if (cached != null) {
+            return cached;
+        }
         float width = 0.0f;
         int previous = -1;
         for (int offset = 0; offset < text.length(); ) {
@@ -124,11 +139,44 @@ public final class GlyphAtlas {
             }
             offset += Character.charCount(codepoint);
         }
+        widthCache.put(text, size, width);
         return width;
     }
 
-    private static long key(int left, int right) {
-        return (long) left << 32 | right & 0xFFFFFFFFL;
+    /**
+     * Bounded LRU cache for measured string widths (donor's width-cache win).
+     * The atlas is immutable after load, so entries never go stale.
+     * Render thread only, like the rest of this class.
+     */
+    static final class WidthCache {
+        private final LinkedHashMap<WidthKey, Float> map;
+
+        WidthCache(int capacity) {
+            map = new LinkedHashMap<>(capacity, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<WidthKey, Float> eldest) {
+                    return size() > capacity;
+                }
+            };
+        }
+
+        Float get(String text, float size) {
+            return map.get(new WidthKey(text, size));
+        }
+
+        void put(String text, float size, float width) {
+            map.put(new WidthKey(text, size), width);
+        }
+
+        int size() {
+            return map.size();
+        }
+
+        private record WidthKey(String text, int sizeBits) {
+            WidthKey(String text, float size) {
+                this(text, Float.floatToIntBits(size));
+            }
+        }
     }
 
     public static final class Glyph {

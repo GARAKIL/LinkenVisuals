@@ -1,6 +1,7 @@
 package dev.linkenvisuals.render;
 
 import net.minecraft.client.gui.DrawContext;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 public final class MsdfText {
     private static final float CAP_HEIGHT = 0.70f;
@@ -47,6 +48,7 @@ public final class MsdfText {
     }
 
     private static void write(DrawContext context, GlyphAtlas font, String text, float x, float baseline, float size, int argb) {
+        RenderSystem.assertOnRenderThread();
         float cursor = x;
         int previous = -1;
         for (int offset = 0; offset < text.length(); ) {

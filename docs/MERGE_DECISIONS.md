@@ -177,3 +177,25 @@
 - Тест `module/ModuleLifecycleTest` (3 кейса): регистрация видна через `Modules.get`/`ModuleRegistry.module`/`all()`; тоггл → `onEnable`/`onDisable` ровно по разу; `toggleSilently` → lifecycle молчит. Тест-безопасность: `NotificationManager.push` нулл-безопасен (`getInstance()` guard), clinit-цепочка та же, что у зелёного `HudManagerEditModeTest`.
 - Evidence: javac-парсинг новых файлов — только ошибки отсутствующего classpath, синтаксис чист; `grep .toggle()` — пути тоггла сверены; сборка/тесты — на CI и агенте пользователя (локальный Gradle заблокирован песочницей).
 - Out of scope: миграция legacy-статиков (оппортунистически, позже); донор не использовался.
+
+## 2026-10-18 · D22 · Фаза 5.1: MSDF — портированы 3 из 4 выигрышей донора — v1.0.50
+- Контекст: ROADMAP 5.1. Сверены донорские `api/render/msdf/MsdfFont.java` (188 строк), `MsdfGlyph.java`, `FontData.java` с нашими `render/MsdfText.java` (83), `render/GlyphAtlas.java` (207), `render/Fonts.java` (57). Заменять целиком не стали — взяли доказанные выигрыши.
+- Выигрыш 1 — примитивные лукапы вместо fastutil: донор использует `Int2ObjectOpenHashMap` (без боксинга `Integer` на каждый символ; кириллица > 127 боксится всегда). fastutil как зависимость не тянем (нужно разрешение пользователя; в build.gradle его нет). Вместо этого — свои `util/IntObjectMap<V>` и `util/IntFloatMap` (open addressing, linear probing, ~70 строк каждый, ноль зависимостей). `GlyphAtlas`: `Map<Integer, Glyph>` → `IntObjectMap<Glyph>`; `Map<Long, Float>` кернинга → двухуровневый `IntObjectMap<IntFloatMap>` (как у донора: outer — левый кодпоинт). Хот-путь `MsdfText.write` + `width()`: было ~3 боксинга/символ (`Integer`, `Long`, `Float`), стало 0.
+- Выигрыш 2 — кэш ширин строк: было — `width()` пересчитывал каждый вызов (а `drawCentered`/`drawRight` зовут его на каждую отрисовку). Стало — `GlyphAtlas.WidthCache`: LRU на 1024 записи (access-order `LinkedHashMap` + `removeEldestEntry`), ключ `(text, floatBits(size))`. Атлас иммутабелен после загрузки — инвалидация не нужна.
+- Выигрыш 3 — thread-asserts: `RenderSystem.assertOnRenderThread()` в `MsdfText.write()` и `GlyphAtlas.width()` (все вызывающие — render-пути: сверено грепом `\.width\(` — только `ClickGuiScreen`, `ConfigPanel`, `MsdfText`).
+- Не взят — `ensureLinearFiltering` донора: смена фильтрации текстуры атласа меняет визуал, без глазной проверки рискованно (священные фичи §7). Не взят как отдельный пункт — init через `recordRenderCall`: init и так ленивый на render-треде (`Fonts.ensure()`), GL-вызовов при инициализации нет (текстура — ванильная).
+- Тесты (новые, 9 кейсов): `util/IntObjectMapTest` (6: round-trip, miss→null, overwrite, resize×500, ключ 0, negative→IAE), `util/IntFloatMapTest` (3: round-trip, miss→0.0f, resize×300), `render/WidthCacheTest` (3: hit, разделение по size, LRU-evict). Итого в проекте: 33 + 3 (Ф4) + 9 = 45 тестов.
+- Evidence: донорские файлы прочитаны (read-only, копипасты нет — только идеи структур); javac-парсинг новых файлов чист; `grep -n "HashMap\|key(" GlyphAtlas.java` — остатков старых карт нет; сборка/тесты — CI + агент пользователя.
+- Out of scope: замена всего MSDF-движка; fastutil-зависимость; смена фильтрации текстуры.
+
+## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
+- Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
+- Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).
+- Реализация:
+  - `module/Module.java` (new): `id()`, `info()`, `enabled()`; `onEnable()`/`onDisable()` — вызываются из `onToggle`-колбэка `ModuleInfo`, т.е. на любом пользовательском тоггле; `toggleSilently` (восстановление конфига, `ConfigJson:59`) lifecycle не триггерит — семантика как у legacy-модулей.
+  - `module/Modules.java` (new): фасад — `register`, `get(id)`, `init()` (вызывается из `LinkenVisuals` init; первые модули приедут с портами Фазы 5); типизированные аксёры (`wayPoints()` и т.д.) добавляются по мере портов.
+  - `clickgui/ModuleRegistry`: + `Map<String, Module> OBJECT_MODULES` (LinkedHashMap), `registerModule(Module)` (карта + `MODULES.add(info)` — ClickGUI, бинды, `ConfigJson` подхватывают без изменений), `module(id)`. Существующие static-поля/аксёры не тронуты.
+  - `LinkenVisuals`: `Modules.init()` в конце `onInitializeClient`.
+- Тест `module/ModuleLifecycleTest` (3 кейса): регистрация видна через `Modules.get`/`ModuleRegistry.module`/`all()`; тоггл → `onEnable`/`onDisable` ровно по разу; `toggleSilently` → lifecycle молчит. Тест-безопасность: `NotificationManager.push` нулл-безопасен (`getInstance()` guard), clinit-цепочка та же, что у зелёного `HudManagerEditModeTest`.
+- Evidence: javac-парсинг новых файлов — только ошибки отсутствующего classpath, синтаксис чист; `grep .toggle()` — пути тоггла сверены; сборка/тесты — на CI и агенте пользователя (локальный Gradle заблокирован песочницей).
+- Out of scope: миграция legacy-статиков (оппортунистически, позже); донор не использовался.

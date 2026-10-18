@@ -36,7 +36,7 @@
 `module/Module` (id/info/enabled, `onEnable`/`onDisable` через `onToggle`), `module/Modules` (фасад, `init()`), `ModuleRegistry.registerModule`/`module(id)`; legacy-статики не тронуты; тест `ModuleLifecycleTest` (3). Без этого п.5.7 не стартует — теперь стартует.
 
 ## Фаза 5 — переносы из донора (по фиче на коммит; перед каждой — таблица «параметр → реализация на 1.21.11»)
-- [ ] 5.1 MSDF (S): сверка с донорскими `MsdfFont/FontData/MsdfGlyph`; брать только доказанные выигрыши (fastutil, кэш ширин, `recordRenderCall`, thread-asserts).
+- [ ] 5.1 MSDF (S): сверка с донорскими `MsdfFont/FontData/MsdfGlyph`; брать только доказанные выигрыши (fastutil, кэш ширин, `recordRenderCall`, thread-asserts). → [x] закрыта, D22, v1.0.50: примитивные `IntObjectMap`/`IntFloatMap` вместо fastutil (без новой зависимости), LRU-кэш ширин (1024), thread-asserts в `write()`/`width()`; фильтрация текстуры не тронута (визуальный риск); 9 новых тестов (итого 45).
 - [ ] 5.2 BlockOverlay + 10 шейдерных эффектов (M) → `RenderPipeline.builder()`.
 - [ ] 5.3 Liquid Glass (L): сверка с `GlassPanelPipeline`/`HudGlassCapture`/`ScreenCapture` от дублей цепочек.
 - [ ] 5.4 MotionBlur (M): без сырого `glUseProgram(0)`.
