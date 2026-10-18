@@ -22,6 +22,7 @@
 1. [x] `ClickGuiScreen` (1794 → 1394 стр.): config-окно (строки 473–804) вынесено в `ConfigPanel.java` (486 стр.); RU-строки → `I18n` (`gui.config.*`, en/ru/uk) — v1.0.36, D8.
 2. [x] Миксины: локализованные эвристики убраны (новый `util/TextKeys`; `TitleScreenMixin`/`GameMenuScreenMixin`/`VanillaStylePipeline` — ключи перевода вместо `contains`); `TextFieldWidgetMixin` и `CameraMixin.setRotation` — slice-анкеры по байткоду (javap build.4), два булевых аргумента `Camera.update` — ordinal с обоснованием (в проде нет LVT-имён аргументов) — v1.0.37, D9.
 3. [x] Четыре клона loading-миксинов → общий `render/LoadingOverlay` (статические хелперы; `withAlpha` ×4 → `ColorMath.argb`; кэш MSDF-шрифтов на все экраны): 645 → 317 стр. миксинов + 165 стр. хелпер (net −163) — v1.0.38, D10.
+- (хотфикс 1.0.38→1.0.39) [x] Крэш при лоаде: неремапленная цель `getScale` в `CameraMixin` → `clipToSpace`; введён обязательный javap-скан member-ref'ов всех миксинов (0 yarn-имён, 24/24 intermediary) — v1.0.39, D11.
 4. Единый `ColorUtil` вместо ~22 клонов mix/withAlpha/argb.
 5. Атомарные записи `HudLayoutStorage`, `PotionLayoutMode`; общий persistence-хелпер; `configVersion`.
 6. Пер-кадровые аллокации: `KeybindPanel`, `Cosmetics`, `HudManager.snap`; убрать `Pipelines.warmUp()` из кадра.

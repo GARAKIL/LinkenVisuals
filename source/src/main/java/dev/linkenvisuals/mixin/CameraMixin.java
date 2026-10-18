@@ -44,12 +44,16 @@ public abstract class CameraMixin {
     // Camera.yaw/pitch fields and applied right before the camera-distance block. Anchored with
     // named bytecode landmarks instead of an ordinal:
     //   from: the only yaw field read in update()
-    //   to:   LivingEntity.getScale() of the distance block
-    // Verified via javap on the yarn build.4 jar: yaw@258, setRotation@269, getScale@294.
+    //   to:   the clipToSpace() call of the camera-distance block
+    // Verified via javap on the yarn build.4 jar: yaw@258, setRotation@269, clipToSpace@379.
+    // NOTE: the to-landmark MUST remap into intermediary in the built jar. A former
+    // LivingEntity.getScale() landmark shipped unremapped (yarn name kept) and crashed the game
+    // on load ("Invalid name: getScale:") - every new @At target must be re-verified with
+    // javap on the built jar (targets must be class_*/method_*/field_* names).
     @ModifyArgs(method = "update",
         slice = @Slice(
             from = @At(value = "FIELD", target = "Lnet/minecraft/client/render/Camera;yaw:F"),
-            to = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;getScale:()F")),
+            to = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;clipToSpace(F)F")),
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/Camera;setRotation(FF)V"))
     private void linkenvisuals$easeFlip(Args args) {
         float flip = Animations.flip();
