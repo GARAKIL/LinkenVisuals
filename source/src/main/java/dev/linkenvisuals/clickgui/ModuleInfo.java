@@ -23,6 +23,9 @@ public final class ModuleInfo {
     private boolean binding;
     private boolean keyDown;
 
+    /** Monotonic counter of keybind/binding mutations; see {@link #revision()}. */
+    private static int revision;
+
     private long lastToggle = Long.MIN_VALUE;
 
     public final Spring enableGlow = new Spring(0.0, 900.0, 46.0);
@@ -116,8 +119,14 @@ public final class ModuleInfo {
         return binding;
     }
 
+    /** Monotonic counter of keybind/binding mutations; lets views cache keybind-derived state. */
+    public static int revision() {
+        return revision;
+    }
+
     public void armBinding() {
         binding = true;
+        revision++;
     }
 
     public void startBinding() {
@@ -126,18 +135,21 @@ public final class ModuleInfo {
 
     public void cancelBinding() {
         binding = false;
+        revision++;
     }
 
     public void resolveBinding(int code) {
         this.keyCode = code;
         this.keybind = KeyNames.of(code);
         this.binding = false;
+        revision++;
     }
 
     public void clearBinding() {
         this.keyCode = -1;
         this.keybind = "NONE";
         this.binding = false;
+        revision++;
     }
 
     public boolean keyDown() {

@@ -26,7 +26,7 @@
 4. [x] Единый цветовой util: `ColorMath.withAlpha(rgb, 0..255)`; клоны `argb`×13 / `withAlpha`×3 удалены (302 вызова), `mix`×3 → `ColorMath.mix` (`MainMenuScreen.mix` — делегат с непрозрачной семантикой), `centredTop`×2 → `MsdfText.topFor` (17 вызовов); единый `render/Fonts` вместо MSDF-обвязки в `LoadingOverlay`/`WidgetStylePipeline`/3 экранах — v1.0.40, D12.
 4b. [x] Шрифтовые константы 13 файлов → `Fonts` (18 load-сайтов; поля-алиасы сохранены, `FontDraw.getFont` упрощён) — v1.0.41, D13.
 5. [x] Атомарные записи `HudLayoutStorage`, `PotionLayoutMode` + 4 файла с ручными копиями (AccountStorage, HandPose, MacroManager, MainMenuConfig) → `util.AtomicFiles` (укреплён cleanup'ом tmp при сбое); `ConfigManager.CONFIG_VERSION` пишется в 3 файла-источника и проверяется warn'ом на «файл новее сборки» — v1.0.42, D14.
-6. Пер-кадровые аллокации: `KeybindPanel`, `Cosmetics`, `HudManager.snap`; убрать `Pipelines.warmUp()` из кадра.
+6. [x] Пер-кадровые аллокации: `KeybindPanel` (кэш по новому `ModuleInfo.revision()`, uppercase-ключ в `Entry`), `Cosmetics` (переиспользуемый `CosmeticContext.set()` вместо 6 аллокаций/кадр), `HudManager` (drag-путь без аллокаций: `SNAP_OUT` + `CURSOR_X/Y`); `Pipelines.warmUp()` из кадра → в одноразовый блок первого кадра — v1.0.43, D15.
 7. `MediaWatcher`: PowerShell `-ExecutionPolicy Bypass` → «unsupported platform» + опциональный внешний скрипт.
 8. `HudManager`: edit-mode не через «is a ChatScreen»; убрать тихий catch.
 9. README-дрейф (адрес конфига, категории, несуществующая косметика «Bandana»).

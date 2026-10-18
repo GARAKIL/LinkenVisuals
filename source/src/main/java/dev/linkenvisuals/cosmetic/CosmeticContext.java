@@ -6,7 +6,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 public final class CosmeticContext {
-    public final VertexConsumer target;
+    public VertexConsumer target;
 
     public static final int SOLID = 0;
 
@@ -14,25 +14,38 @@ public final class CosmeticContext {
 
     public static final int LIGHT = 2;
 
-    public final int pass;
-    public final boolean lit;
-    public final Matrix4f matrix;
+    public int pass;
+    public boolean lit;
+    public Matrix4f matrix;
 
     public final Vector3f eye = new Vector3f();
-    public final AbstractClientPlayerEntity player;
+    public AbstractClientPlayerEntity player;
 
-    public final float time;
-    public final float size;
-    public final int color;
+    public float time;
+    public float size;
+    public int color;
 
-    public final float speed;
+    public float speed;
 
-    public final float hurt;
-    public final float height;
+    public float hurt;
+    public float height;
+
+    public CosmeticContext() {
+    }
 
     public CosmeticContext(VertexConsumer target, int pass, Matrix4f matrix,
                            AbstractClientPlayerEntity player, float time, float size, int color,
                            float speed, float hurt, float height) {
+        set(target, pass, matrix, player, time, size, color, speed, hurt, height);
+    }
+
+    /**
+     * Rebinds this context to new render state; the values are valid only until the next
+     * {@code set} call. Lets hot paths keep one context instead of allocating per frame.
+     */
+    public void set(VertexConsumer target, int pass, Matrix4f matrix,
+                    AbstractClientPlayerEntity player, float time, float size, int color,
+                    float speed, float hurt, float height) {
         this.target = target;
         this.pass = pass;
         this.lit = pass == LIGHT;

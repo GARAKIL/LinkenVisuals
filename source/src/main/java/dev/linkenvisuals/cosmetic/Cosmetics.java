@@ -16,6 +16,8 @@ import net.minecraft.util.math.Vec3d;
 public final class Cosmetics {
     private static final float CROWN_CHASE = 7.5f;
 
+    private static final CosmeticContext CONTEXT = new CosmeticContext();
+
     private static float crownYaw;
     private static float clock;
     private static long lastFrame = System.nanoTime();
@@ -106,7 +108,9 @@ public final class Cosmetics {
     private static CosmeticContext context(VertexConsumer target, int pass, MatrixStack matrices,
                                            AbstractClientPlayerEntity player, float size, int color,
                                            float speed, float hurt) {
-        return new CosmeticContext(target, pass, matrices.peek().getPositionMatrix(), player,
+        // Shared, re-set on every call: valid until the next context(...) in the pass loop.
+        CONTEXT.set(target, pass, matrices.peek().getPositionMatrix(), player,
             clock, size, color, speed, hurt, player.getHeight());
+        return CONTEXT;
     }
 }

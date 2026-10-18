@@ -23,6 +23,10 @@ import java.util.Map;
 public final class HudManager {
     private static final float DOT_SPACING = 26.0f;
     private static final float SNAP_DISTANCE = 5.0f;
+    // Reused scratch buffers: the edit-mode path runs every frame, so it must not allocate.
+    private static final float[] SNAP_OUT = new float[2];
+    private static final double[] CURSOR_X = new double[1];
+    private static final double[] CURSOR_Y = new double[1];
 
     private static final float MENU_W = 78.0f;
     private static final float MENU_ROW_H = 16.0f;
@@ -52,8 +56,9 @@ public final class HudManager {
     }
 
     public static void render(DrawContext context) {
-        dev.linkenvisuals.render.Pipelines.warmUp();
         if (!loaded) {
+            // One-time render-thread warm-up; was called on every frame before Ф3.6.
+            dev.linkenvisuals.render.Pipelines.warmUp();
             Map<String, float[]> stored = HudLayoutStorage.load();
             for (HudElement element : ELEMENTS) {
                 element.loadFraction(stored.get(element.id()));
@@ -153,13 +158,11 @@ public final class HudManager {
         boolean rightMouseDown = GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
         boolean freeMove = GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_LEFT_CONTROL) == GLFW.GLFW_PRESS
             || GLFW.glfwGetKey(handle, GLFW.GLFW_KEY_RIGHT_CONTROL) == GLFW.GLFW_PRESS;
-        double[] rawX = new double[1];
-        double[] rawY = new double[1];
-        GLFW.glfwGetCursorPos(handle, rawX, rawY);
+        GLFW.glfwGetCursorPos(handle, CURSOR_X, CURSOR_Y);
         int screenWidth = client.getWindow().getScaledWidth();
         int screenHeight = client.getWindow().getScaledHeight();
-        float mouseX = (float) (rawX[0] * screenWidth / client.getWindow().getWidth());
-        float mouseY = (float) (rawY[0] * screenHeight / client.getWindow().getHeight());
+        float mouseX = (float) (CURSOR_X[0] * screenWidth / client.getWindow().getWidth());
+        float mouseY = (float) (CURSOR_Y[0] * screenHeight / client.getWindow().getHeight());
 
         if (rightMouseDown && !previousRightMouseDown) {
             HudElement target = findElementAt(mouseX, mouseY, screenWidth, screenHeight);
@@ -192,20 +195,18 @@ public final class HudManager {
         } else if (dragging != null) {
             float targetX = mouseX - dragOffsetX;
             float targetY = mouseY - dragOffsetY;
-            if (!freeMove) {
+            if (freeMove) {
+                dragging.moveTo(targetX, targetY, screenWidth, screenHeight);
+            } else {
                 float halfW = dragging.width() * 0.5f;
                 float halfH = dragging.height() * 0.5f;
                 targetX = Math.max(halfW, Math.min(screenWidth - halfW, targetX));
                 targetY = Math.max(halfH, Math.min(screenHeight - halfH, targetY));
+                snap(dragging, targetX, targetY, screenWidth, screenHeight);
+                SNAP_OUT[0] = Math.max(halfW, Math.min(screenWidth - halfW, SNAP_OUT[0]));
+                SNAP_OUT[1] = Math.max(halfH, Math.min(screenHeight - halfH, SNAP_OUT[1]));
+                dragging.moveTo(SNAP_OUT[0], SNAP_OUT[1], screenWidth, screenHeight);
             }
-            float[] snapped = freeMove ? new float[]{targetX, targetY} : snap(dragging, targetX, targetY, screenWidth, screenHeight);
-            if (!freeMove) {
-                float halfW = dragging.width() * 0.5f;
-                float halfH = dragging.height() * 0.5f;
-                snapped[0] = Math.max(halfW, Math.min(screenWidth - halfW, snapped[0]));
-                snapped[1] = Math.max(halfH, Math.min(screenHeight - halfH, snapped[1]));
-            }
-            dragging.moveTo(snapped[0], snapped[1], screenWidth, screenHeight);
         }
 
         previousMouseDown = mouseDown;
@@ -274,7 +275,8 @@ public final class HudManager {
         return null;
     }
 
-    private static float[] snap(HudElement element, float centerX, float centerY, int screenWidth, int screenHeight) {
+    /** Computes the snapped drag position into {@link #SNAP_OUT} (called per frame while dragging). */
+    private static void snap(HudElement element, float centerX, float centerY, int screenWidth, int screenHeight) {
         float snappedX = centerX;
         float snappedY = centerY;
         float gridX = Math.round(centerX / DOT_SPACING) * DOT_SPACING;
@@ -308,7 +310,8 @@ public final class HudManager {
                 snappedY = otherY;
             }
         }
-        return new float[]{snappedX, snappedY};
+        SNAP_OUT[0] = snappedX;
+        SNAP_OUT[1] = snappedY;
     }
 
     private static void renderGrid(DrawContext context, float alpha) {

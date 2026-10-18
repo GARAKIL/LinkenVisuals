@@ -38,6 +38,7 @@ public final class KeybindPanel extends HudElement {
     private final List<Entry> entries = new ArrayList<>();
     private float cachedWidth = MIN_WIDTH;
     private float cachedHeight;
+    private int cachedRevision = -1;
 
     public KeybindPanel() {
         super("keybinds", 0.9f, 0.16f);
@@ -53,10 +54,16 @@ public final class KeybindPanel extends HudElement {
     }
 
     private void refresh() {
+        int revision = ModuleInfo.revision();
+        if (revision == cachedRevision) {
+            return;
+        }
+        cachedRevision = revision;
+
         entries.clear();
         for (ModuleInfo module : ModuleRegistry.all()) {
             if (module.hasKeybind() && !module.binding()) {
-                entries.add(new Entry(module.name(), module.keybind(), module.category().icon()));
+                entries.add(new Entry(module.name(), module.keybind().toUpperCase(Locale.ROOT), module.category().icon()));
             }
         }
 
@@ -70,7 +77,7 @@ public final class KeybindPanel extends HudElement {
         float widest = MsdfText.width(bold, "Keybinds", 6.8f) + ICON_W + 8.0f;
         for (Entry entry : entries) {
             float rowWidth = ROW_ICON + 6.0f + MsdfText.width(bold, entry.name, 6.6f) + 12.0f
-                + MsdfText.width(bold, entry.key.toUpperCase(Locale.ROOT), 5.9f);
+                + MsdfText.width(bold, entry.key, 5.9f);
             widest = Math.max(widest, rowWidth);
         }
         cachedWidth = Math.max(MIN_WIDTH, widest + PADDING * 2.0f);
@@ -121,8 +128,7 @@ public final class KeybindPanel extends HudElement {
             MsdfText.drawOn(context, bold, entry.name, x + PADDING + ROW_ICON + 6.0f, centerY, 6.6f,
                 ColorMath.withAlpha(0xFFFFFF, 230));
 
-            String label = entry.key.toUpperCase(Locale.ROOT);
-            MsdfText.drawRightOn(context, bold, label, x + cachedWidth - PADDING, centerY, 5.9f,
+            MsdfText.drawRightOn(context, bold, entry.key, x + cachedWidth - PADDING, centerY, 5.9f,
                 ColorMath.withAlpha(0xFFFFFF, 140));
 
             rowY += ROW_H;
