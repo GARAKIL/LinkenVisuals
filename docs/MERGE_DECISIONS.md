@@ -240,6 +240,21 @@
 - Out of scope: Gaussian blur отдельным пассом; интеграция в `GlassPanelPipeline` (аддитивно, без регрессий).
 - Evidence: донорские `liquidglassnew.fsh` (117 строк), `LiquidGlassNewBuilder.java`, `BuiltLiquidGlassNew.java`, `LiquidGlassCaptureBlur.java`, `LiquidGlassReflectionCache.java` прочитаны; UBO сверен Python-скриптом (96 Б).
 
+## 2026-10-19 · D25 · Фаза 5.4: MotionBlur — v1.0.55
+- Контекст: ROADMAP 5.4. Кадровый бленд (persistence of vision, как OptiFine).
+- Таблица «параметр → реализация»:
+  - Сырой `ShaderProgram` (GL20 `glUseProgram`, `glGetUniformLocation`) → ЗАПРЕЩЁН → `RenderPipeline.builder()` + UBO `MotionBlur` (16 Б: `strength`).
+  - `GL30.glBlitFramebuffer` + `GL11.glGetIntegerv` → `BlitPipeline.run()` (уже есть).
+  - `SimpleFramebuffer` → тот же (1:1).
+  - `motionblur.fsh` (linear-space blend) → как текст, заголовок `#version 330` + UBO; `motionblur.vsh` → упрощён (Position+UV0, без `layout(location)`).
+  - `MotionBlur` (донорский Module, `NumberSetting` 5..90% def 50%) → `MotionBlurModule` (наш `Module`, `SliderSetting`, id `motionblur`, default OFF — безопаснее).
+  - Вызов «в конце renderWorld» → `WorldRenderEvents.END_MAIN` (javadoc: после мира, до частиц/рук/GUI — HUD не смазывается).
+  - `onDisable() → release()` → наш `onDisable()` → `MotionBlurRenderer.shutdown()`.
+- Алгоритм 1:1: `accum` (предыдущий) + `temp` (результат); первый кадр — прайминг `accum` текущим (без тёмной вспышки); `temp = mix(current, prev, strength)`; `temp→main`, `temp→accum`.
+- Тесты: `Std140LayoutTest` + кейс `motion_blur.fsh` (16 Б) + `motionBlurUboIs16Bytes`; `MotionBlurModuleTest` (2: дефолты, регистрация). Итого: 50 + 3 = 53 теста.
+- Out of scope: интеграция в старые GUI; `NumberSetting` донора не портирован (у нас `SliderSetting`).
+- Evidence: `MotionBlurRenderer.java` (248 строк, легаси GL), `MotionBlur.java`, `motionblur.fsh`/`vsh` прочитаны; UBO сверен (16 Б).
+
 ## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
 - Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
 - Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).

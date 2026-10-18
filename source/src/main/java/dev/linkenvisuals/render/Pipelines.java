@@ -30,6 +30,7 @@ public final class Pipelines {
         CardPipeline.init();
         CirclePipeline.init();
         LiquidGlassPipeline.init();
+        MotionBlurPipeline.init();
         ColorFieldPipeline.init();
         DownsamplePipeline.init();
         GlassPanelPipeline.init();
