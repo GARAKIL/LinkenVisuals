@@ -81,6 +81,13 @@ remapJar.doLast {
         println "=========================================================="
         return
     }
+    // Remove stale builds of this mod first: two jars with the same mod id
+    // make Fabric refuse to launch ("Duplicate mod").
+    def currentJarName = remapJar.archiveFile.get().asFile.name
+    modsDir.listFiles().findAll {
+        it.isFile() && it.name.startsWith("${project.archives_base_name}-") && it.name.endsWith('.jar') && it.name != currentJarName
+    }.each { it.delete() }
+
     copy {
         from remapJar.archiveFile
         into modsDir
