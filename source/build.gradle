@@ -40,6 +40,14 @@ dependencies {
     mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 processResources {
@@ -59,17 +67,25 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+// Optional local deploy: copies the remapped jar into a Minecraft mods folder
+// when -PmultiMcModsDir=<path> is passed (set it in ~/.gradle/gradle.properties,
+// never hardcode machine-specific paths in the repository).
 remapJar.doLast {
-    def modsDir = project.hasProperty('multiMcModsDir')
-        ? file(project.property('multiMcModsDir'))
-        : file('D:/MultiMC/instances/1.21.111/.minecraft/mods')
-    if (modsDir.exists()) {
-        copy {
-            from remapJar.archiveFile
-            into modsDir
-        }
-        println "=========================================================="
-        println " [StrangeVisuals] Copied ${remapJar.archiveFile.get().asFile.name} to ${modsDir.absolutePath}!"
-        println "=========================================================="
+    if (!project.hasProperty('multiMcModsDir')) {
+        return
     }
+    def modsDir = file(project.property('multiMcModsDir'))
+    if (!modsDir.exists()) {
+        println "=========================================================="
+        println " [LinkenVisuals] multiMcModsDir does not exist: ${modsDir.absolutePath} — skipping deploy"
+        println "=========================================================="
+        return
+    }
+    copy {
+        from remapJar.archiveFile
+        into modsDir
+    }
+    println "=========================================================="
+    println " [LinkenVisuals] Copied ${remapJar.archiveFile.get().asFile.name} to ${modsDir.absolutePath}!"
+    println "=========================================================="
 }
