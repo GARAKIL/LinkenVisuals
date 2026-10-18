@@ -4,15 +4,19 @@ import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.module.Module;
 
 import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class ModuleRegistry {
     private static final List<ModuleInfo> MODULES = new ArrayList<>();
+    private static final Map<String, Module> OBJECT_MODULES = new LinkedHashMap<>();
 
     private static ModeSetting guiStyle;
     private static ModeSetting closeAnimation;
@@ -677,6 +681,21 @@ public final class ModuleRegistry {
 
     public static List<ModuleInfo> all() {
         return MODULES;
+    }
+
+    /**
+     * Registers an object-based module (Phase 4+). Its {@link ModuleInfo} joins
+     * the GUI list, so ClickGUI, keybinds and {@code ConfigJson} pick it up
+     * with no extra wiring. Legacy static modules are untouched.
+     */
+    public static void registerModule(Module module) {
+        OBJECT_MODULES.put(module.id(), module);
+        MODULES.add(module.info());
+    }
+
+    /** Object-based module by id, or null. */
+    public static Module module(String id) {
+        return OBJECT_MODULES.get(id);
     }
 
     public static ModuleInfo customScreens() {

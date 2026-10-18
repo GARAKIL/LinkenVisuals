@@ -165,3 +165,15 @@
 - Открытый вопрос пользователю: пакет `dev.linkenvisuals.module.impl` (предлагаю) vs `dev.linkenvisuals.clickgui.module`.
 - Evidence: `ModuleRegistry.java` (789 строк) прочитан целиком; `ModuleInfo` API и `ConfigJson.build/apply(ModuleRegistry.all())` сверены; сериализация уже generic — новый модуль сериализуется автоматически через свой `ModuleInfo`.
 - Статус: ЖДУ ПОДТВЕРЖДЕНИЯ. Код не писан.
+
+## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
+- Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
+- Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).
+- Реализация:
+  - `module/Module.java` (new): `id()`, `info()`, `enabled()`; `onEnable()`/`onDisable()` — вызываются из `onToggle`-колбэка `ModuleInfo`, т.е. на любом пользовательском тоггле; `toggleSilently` (восстановление конфига, `ConfigJson:59`) lifecycle не триггерит — семантика как у legacy-модулей.
+  - `module/Modules.java` (new): фасад — `register`, `get(id)`, `init()` (вызывается из `LinkenVisuals` init; первые модули приедут с портами Фазы 5); типизированные аксёры (`wayPoints()` и т.д.) добавляются по мере портов.
+  - `clickgui/ModuleRegistry`: + `Map<String, Module> OBJECT_MODULES` (LinkedHashMap), `registerModule(Module)` (карта + `MODULES.add(info)` — ClickGUI, бинды, `ConfigJson` подхватывают без изменений), `module(id)`. Существующие static-поля/аксёры не тронуты.
+  - `LinkenVisuals`: `Modules.init()` в конце `onInitializeClient`.
+- Тест `module/ModuleLifecycleTest` (3 кейса): регистрация видна через `Modules.get`/`ModuleRegistry.module`/`all()`; тоггл → `onEnable`/`onDisable` ровно по разу; `toggleSilently` → lifecycle молчит. Тест-безопасность: `NotificationManager.push` нулл-безопасен (`getInstance()` guard), clinit-цепочка та же, что у зелёного `HudManagerEditModeTest`.
+- Evidence: javac-парсинг новых файлов — только ошибки отсутствующего classpath, синтаксис чист; `grep .toggle()` — пути тоггла сверены; сборка/тесты — на CI и агенте пользователя (локальный Gradle заблокирован песочницей).
+- Out of scope: миграция legacy-статиков (оппортунистически, позже); донор не использовался.

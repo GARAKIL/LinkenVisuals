@@ -15,6 +15,7 @@ import dev.linkenvisuals.clickgui.MenuCloseEffect;
 import dev.linkenvisuals.clickgui.ModuleInfo;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.mixin.FogRendererAccessor;
+import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -127,6 +128,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(KillShaderRenderer::render);
         WorldRenderEvents.END_MAIN.register(AmbienceRenderer::render);
         WorldRenderEvents.END_MAIN.register(ScreenFilterRenderer::renderWorld);
+        Modules.init();
     }
 
     /** Releases all world-scoped GPU pipelines. Must run on the render thread. */
