@@ -218,6 +218,13 @@
 - Урок в AGENTS.md: новые API сверять с Yarn-маппингом/существующим кодом до коммита, особенно имена констант и аксёры сеттингов.
 - Evidence: Yarn tiny mappings `1.21.11+build.4` скачаны и прогнаны grep'ом; `Std140LayoutTest` и остальные тесты не трогались (чистые).
 
+## 2026-10-18 · D23-fix2 · Точные ошибки из лога CI — v1.0.53 — BUILD SUCCESS
+- Пользователь прислал лог. Три ошибки `compileJava`:
+  1. `package net.minecraft.client.renderer.state does not exist` — ветка `1.21.11` Fabric API НОВЕЕ чем 0.141.3: там `BlockOutlineRenderState`, а в 0.141.3 — `net.minecraft.client.render.state.OutlineRenderState` (доказано: javap сигнатуры `class_12074` + Yarn).
+  2. `cannot find symbol: class BlockOutlineRenderState` — следствие (1).
+  3. `cannot find symbol: method getPos()` — у `Camera` нет `getPos()`; правильно `getCameraPos()` (как в компилирующемся `Cosmetics.java:51`).
+- Фикс: 3 строки в `BlockOverlayRenderer.java`. CI `ebba4538` — **success**. Урок: сверять API с ТОЧНОЙ версией зависимости (0.141.3), а не с HEAD ветки.
+
 ## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
 - Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
 - Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).
