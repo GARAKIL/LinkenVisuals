@@ -1,0 +1,29 @@
+# Directories and artifacts the coding agent should never scan or edit.
+# Mirrors .gitignore for the agent's file visibility layer.
+
+# Build outputs and caches
+build/
+.gradle/
+source/build/
+source/.gradle/
+source/out/
+mappings/
+source/mappings/
+
+# Runtime logs
+logs/
+source/logs/
+source/run/
+*.log
+*.tmp
+
+# Compiled artifacts
+*.jar
+
+# Asset pipeline working dirs
+source/tools/cache/
+source/tools/cache2/
+source/tools/cache_noice/
+source/tools/cache_noice_enhanced/
+source/tools/extracted/
+source/tools/_dead_shaders_backup/

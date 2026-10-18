@@ -1,0 +1,17 @@
+# Normalize text files to LF in the repository to avoid CRLF noise
+* text=auto eol=lf
+
+# Windows scripts stay CRLF so cmd.exe batch labels keep working
+*.bat text eol=crlf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.otf binary
+*.ttf binary
+*.ogg binary
+*.wav binary
+*.jar binary
+*.zip binary

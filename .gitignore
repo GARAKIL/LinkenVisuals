@@ -1,0 +1,45 @@
+# Gradle & Build caches
+.gradle/
+build/
+out/
+source/.gradle/
+source/build/
+source/out/
+
+# Loom mappings cache
+mappings/
+source/mappings/
+
+# Compiled jars (keep the Gradle wrapper jar tracked)
+*.jar
+!source/gradle/wrapper/gradle-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.classpath
+.project
+.settings/
+
+# Runtime test runs
+run/
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Asset pipeline working dirs (regenerable caches, unpacked 3rd-party jars,
+# quarantined dead shaders pending final deletion) — never commit
+source/tools/cache/
+source/tools/cache2/
+source/tools/cache_noice/
+source/tools/cache_noice_enhanced/
+source/tools/extracted/
+source/tools/_dead_shaders_backup/
+*.tmp
