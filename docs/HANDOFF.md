@@ -7,16 +7,18 @@
 ### Сделано
 1. Git-репозиторий инициализирован в корне `C:\Users\gameg\Desktop\StrangeVisuals-1.21.11` (remote: `https://github.com/KurumaOfficial/LinkenVisuals`). Baseline-коммит `2e15f5e` = v1.0.32 до переименования.
 2. Единый README/LICENSE/.gitignore в корне; добавлены `.gitattributes`, `.opencodeignore` (D1).
-3. **Переименование по приказу пользователя**: mod id/package/assets/lang/README → LinkenVisuals; shiny `dev.linkenvisuals`; класс `LinkenVisuals`; версия 1.0.33. Миграция легаси-файлов `strangevisuals*` → `linkenvisuals*` (класс `LegacyConfigMigration`, копирование без удаления оригинала). Коммит `7a5b638`.
+3. **Переименование по приказу пользователя**: mod id/package/assets/lang/README → LinkenVisuals; пакет `dev.linkenvisuals`; класс `LinkenVisuals`; версия 1.0.33. Миграция легаси-файлов `strangevisuals*` → `linkenvisuals*` (класс `LegacyConfigMigration`, копирование без удаления оригинала). Коммит `7a5b638`.
 4. `build.gradle`: хардкод `D:/MultiMC/instances/1.21.111` удалён → opt-in `-PmultiMcModsDir` (локально прописан в `%USERPROFILE%\.gradle\gradle.properties`); добавлен JUnit 5 (bom 5.11.4 + jupiter + platform-launcher), `test { useJUnitPlatform() }`. Коммит `568c692`.
-5. Первый `build` после переименования зелёный; jar `source/build/libs/linkenvisuals-1.0.33.jar` (52.9 МБ) задеплоен в `D:\MultiMC\instances\1.21.111\.minecraft\mods`.
-6. `docs/`: созданы `AUDIT_BASELINE.md` (из §10 мастер-промта), `ROADMAP.md`, `PORT_STATUS.md`, `MERGE_DECISIONS.md`, `HANDOFF.md` (этот файл).
+5. `docs/`: `AUDIT_BASELINE.md` (из §10 мастер-промта), `ROADMAP.md`, `PORT_STATUS.md`, `MERGE_DECISIONS.md`, `HANDOFF.md` (этот файл).
+6. Тестовый набор Фазы 0: 27 тестов в 9 классах (см. D5) — зелёные. Микро-рефакторинг тестируемости: `util/ProfileNames`, `util/AtomicFiles`, `util/ColorMath`, `clickgui/ConfigJson`, `hands/HandPoseMath`; публичные константы UBO.
+7. CI `.github/workflows/build.yml` (JDK 21 temurin, build+test). Полный `build` зелёный; jar `source/build/libs/linkenvisuals-1.0.33.jar` собран и задеплоен в `D:\MultiMC\instances\1.21.111\.minecraft\mods`.
 
-### Следующая задача (Фаза 0, добить)
-1. Тесты на чистую логику + микро-рефакторинг из D4: `util/ProfileNames`, `util/AtomicFiles`, `clickgui/ConfigJson`, `hands/HandPoseMath`, `util/ColorMath`; public-константы размеров UBO.
-2. Тесты: ConfigJson round-trip, ProfileNames, AtomicFiles, HandPoseMath, ColorMath, lang-паритет en/ru/uk, std140-парсер ↔ константы Java, миграция `LegacyConfigMigration`.
-3. CI: `.github/workflows/build.yml` (JDK 21 temurin, `gradlew build`, кэш Gradle).
-4. После тестов — Фаза 1: один пакетный вопрос пользователю (авторство ассетов донора; список удалений; белый список модулей/косметик).
+### Следующая задача (старт нового чата)
+**Фаза 1 — один пакетный вопрос пользователю** (без него нельзя удалять/переносить ассеты и код):
+(а) подтвердить авторство донорских шейдеров/ассетов/звуков (см. `THIRD_PARTY_ASSETS.md` донора) и панорам/звуков проекта перед публичным релизом;
+(б) список «дребедени» к удалению в проекте (кандидаты: редактор главного меню и пресеты стилей, `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`, `MacroScreen`);
+(в) белый список модулей/косметик к переносу (Фаза 5).
+До ответа ничего не удалять и не переносить ассеты. После ответа — Фаза 2 (чистка, каждое удаление отдельным коммитом с миграцией конфигов), затем Фаза 3 (фиксы).
 
 ### Открытые решения (ждём пользователя)
 - LICENSE не менялся: в копирайт-строке осталось «StrangeVisuals Team & Contributors» — решить, обновлять ли держателя (правило «лицензию не менять» пока в силе).

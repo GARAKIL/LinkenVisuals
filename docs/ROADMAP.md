@@ -6,9 +6,9 @@
 - [x] Git-корень (корень репо), `.gitattributes`, `.opencodeignore`, baseline-коммит, remote `KurumaOfficial/LinkenVisuals`, push. → D1
 - [x] Переименование StrangeVisuals → LinkenVisuals + миграция легаси-данных (приказ пользователя). → D2
 - [x] `build.gradle`: убран хардкод MultiMC, JUnit 5 (bom + jupiter + platform-launcher), `useJUnitPlatform()`. → D3
-- [ ] `docs/`: HANDOFF, MERGE_DECISIONS, ROADMAP, PORT_STATUS, AUDIT_BASELINE (этот коммит).
-- [ ] Первые тесты: ConfigJson round-trip, ProfileNames, AtomicFiles, HandPoseMath clamp, ColorMath, lang-паритет en/ru/uk, std140 ↔ константы Java (kill 224 B, hit 416 B, rain 192 B, hand_outline 96 B, hand_trail 32 B, filter 64 B, ambience 64 B, background 48 B, sky 64 B), миграция LegacyConfigMigration.
-- [ ] CI `.github/workflows` (JDK 21, build+test).
+- [x] `docs/`: HANDOFF, MERGE_DECISIONS, ROADMAP, PORT_STATUS, AUDIT_BASELINE (этот коммит).
+- [x] Первые тесты: ConfigJson round-trip, ProfileNames, AtomicFiles, HandPoseMath clamp, ColorMath, lang-паритет en/ru/uk, std140 ↔ константы Java (kill 224 B, hit 416 B, rain 192 B, hand_outline 96 B, hand_trail 32 B, filter 64 B, ambience 64 B, background 48 B, sky 64 B), миграция LegacyConfigMigration. → 27 тестов зелёные, D5.
+- [x] CI `.github/workflows/build.yml` (JDK 21, build+test).
 
 ## Фаза 1 — один пакетный вопрос пользователю (S)
 (а) авторство донорских шейдеров/ассетов/звуков + панорам/звуков проекта до публичного релиза; (б) список «дребедени» к удалению (кандидаты: редактор главного меню и пресеты, `MainMenuScreen`, `CustomMultiplayerScreen`, `AltManagerScreen`, `MacroScreen`); (в) белый список модулей и косметик к переносу. До ответа ничего не удалять и не переносить ассеты.
