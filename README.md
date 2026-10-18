@@ -44,7 +44,7 @@
 - **MSDF Font Engine Fallbacks**: Seamless Cyrillic and Ukrainian letter support in the vector glyph renderer.
 
 ### 🎛️ Modern Fluent ClickGUI & Presets
-- **Intuitive Categories**: `Render`, `Visuals`, `HUD`, `Player`, and `Config`.
+- **Intuitive Categories**: `Combat`, `Movement`, `Visual`, `Player`, `Misc`, and `Config`.
 - **Spring-Physics Animations**: Fluid, responsive ease animations across menus and container dialogs.
 - **Color Pickers & Sliders**: Fine-grained color palettes (HSV/RGB) and numeric sliders.
 - **Full JSON Persistence**: Module states, keybindings, menu style, language, and layout are automatically saved to `config/`.
@@ -72,7 +72,7 @@ LinkenVisuals/
 │   │   ├── account/                  # Account switcher & session cache
 │   │   ├── clickgui/                 # ClickGUI engine, widgets & ConfigManager
 │   │   │   └── setting/              # Boolean, Slider, Mode, and Color settings
-│   │   ├── cosmetic/                 # Custom cosmetic items (Wings, Halos, Bandanas)
+│   │   ├── cosmetic/                 # Procedural cosmetics (Embers, Halo, Kagune, Orbit, Runes, Seraph, Shards, Spires, Tendrils)
 │   │   ├── hands/                    # HandEditor, HandPose, HandOutline pipelines
 │   │   ├── hud/                      # HUD elements, potion tracker, notifications
 │   │   ├── media/                    # MediaWatcher, Lyrics (LRC), MediaArt
@@ -103,7 +103,7 @@ LinkenVisuals/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/LinkenVisuals.git
+   git clone https://github.com/KurumaOfficial/LinkenVisuals.git
    cd LinkenVisuals/source
    ```
 
@@ -119,7 +119,7 @@ LinkenVisuals/
 3. **Locate the compiled JAR:**
    The output artifact will be placed in:
    ```text
-   source/build/libs/LinkenVisuals-1.0.0.jar
+   source/build/libs/linkenvisuals-<version>.jar
    ```
 
 4. **Launch the Minecraft client for testing:**
@@ -131,8 +131,16 @@ LinkenVisuals/
 
 ## ⚙️ Configuration File
 
-Configuration is saved in standard JSON format in your Minecraft profile directory:
-`.minecraft/config/linkenvisuals_config.json`
+Settings are saved as JSON files in your Minecraft profile directory (`.minecraft/config/`):
+
+- `linkenvisuals_config.json` — module states, keybindings, settings
+- `linkenvisuals_hud.json` — HUD element layout
+- `linkenvisuals_potion_layout.txt` — potion tracker layout
+- `linkenvisuals_hands.json` — hand pose offsets
+- `linkenvisuals_macros.json` — macros
+- `linkenvisuals_menu.json` — main menu style
+- `linkenvisuals_accounts.json` — account switcher
+- `linkenvisuals/configs/<name>.json` — named config profiles
 
 Example structure:
 ```json

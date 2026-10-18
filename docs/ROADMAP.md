@@ -29,7 +29,7 @@
 6. [x] Пер-кадровые аллокации: `KeybindPanel` (кэш по новому `ModuleInfo.revision()`, uppercase-ключ в `Entry`), `Cosmetics` (переиспользуемый `CosmeticContext.set()` вместо 6 аллокаций/кадр), `HudManager` (drag-путь без аллокаций: `SNAP_OUT` + `CURSOR_X/Y`); `Pipelines.warmUp()` из кадра → в одноразовый блок первого кадра — v1.0.43, D15.
 7. [x] `MediaWatcher`: `-ExecutionPolicy Bypass` убран (политика не гейтит stdin-команды — доказано прогоном под форс-`Restricted`); SCRIPT → 9 строк, каждая законченный statement (построчный stdin-режим PS 5.1 подтверждён A/B-стендами Java/.NET); не-Windows → один INFO «unsupported platform»; внешний скрипт `config/linkenvisuals_media.cmd|.sh` (формат в javadoc); `MediaWatcherTest` (5) — v1.0.44, D16.
 8. [x] `HudManager`: edit-mode через явный флаг (`ChatScreenMixin` выставляет `setEditing` на `init`/`removed`; `instanceof ChatScreen` убран); тихий catch `applyBlur()` → `LOGGER.warn` один раз — v1.0.45, D17.
-9. README-дрейф (адрес конфига, категории, несуществующая косметика «Bandana»).
+9. [x] README-дрейф устранён (категории ClickGUI → факт `Category.java`; 8 файлов конфига вместо одного; косметика → 9 реальных носимых, «Bandana» удалена; плюс clone-URL и имя jar) — v1.0.46, D18.
 10. Проверить (не удалять без приказа): секреты в `AccountStorage`, миксины `Yggdrasil*`, совместимость Sodium/Iris (описать конфликтные места).
 
 ## Фаза 4 — каркас модулей (M)

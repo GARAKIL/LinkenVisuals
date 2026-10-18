@@ -44,7 +44,7 @@
 - **Поддержка шрифта MSDF**: Векторный рендерер шрифта с поддержкой всех букв кириллицы и украинского алфавита.
 
 ### 🎛️ Современный Fluent ClickGUI и система настроек
-- **Удобные категории**: `Render`, `Visuals`, `HUD`, `Player`, `Config`.
+- **Удобные категории**: `Combat`, `Movement`, `Visual`, `Player`, `Misc`, `Config`.
 - **Spring-анимации**: плавные физические переходы и анимации интерфейсов и контейнеров.
 - **Палитра цветов и слайдеры**: точная настройка цветов (RGB / HSV) и числовых значений.
 - **Сохранение конфигурации в JSON**: все переключатели, бинды, слайдеры, язык, стиль и раскладка меню автоматически сохраняются в файл `.minecraft/config/`.
@@ -72,7 +72,7 @@ LinkenVisuals/
 │   │   ├── account/                  # Менеджер аккаунтов и кэш сессий
 │   │   ├── clickgui/                 # Движок ClickGUI, виджеты и ConfigManager
 │   │   │   └── setting/              # Настройки Boolean, Slider, Mode, Color
-│   │   ├── cosmetic/                 # Косметические предметы (крылья, нимбы, банданы)
+│   │   ├── cosmetic/                 # Процедурная косметика (Embers, Halo, Kagune, Orbit, Runes, Seraph, Shards, Spires, Tendrils)
 │   │   ├── hands/                    # Пайплайны HandEditor, HandPose, HandOutline
 │   │   ├── hud/                      # Элементы HUD, трекер зелий, уведомления
 │   │   ├── media/                    # MediaWatcher, Lyrics (LRC), MediaArt
@@ -103,7 +103,7 @@ LinkenVisuals/
 
 1. **Клонируйте репозиторий:**
    ```bash
-   git clone https://github.com/your-username/LinkenVisuals.git
+   git clone https://github.com/KurumaOfficial/LinkenVisuals.git
    cd LinkenVisuals/source
    ```
 
@@ -119,7 +119,7 @@ LinkenVisuals/
 3. **Готовый файл:**
    Скомпилированный файл мода будет находиться по пути:
    ```text
-   source/build/libs/LinkenVisuals-1.0.0.jar
+   source/build/libs/linkenvisuals-<version>.jar
    ```
 
 4. **Запуск тестового клиента:**
@@ -131,8 +131,16 @@ LinkenVisuals/
 
 ## ⚙️ Файл конфигурации
 
-Конфигурация хранится в стандартном формате JSON в папке игры:
-`.minecraft/config/linkenvisuals_config.json`
+Настройки хранятся в виде JSON-файлов в папке игры (`.minecraft/config/`):
+
+- `linkenvisuals_config.json` — состояния модулей, бинды, настройки
+- `linkenvisuals_hud.json` — раскладка элементов HUD
+- `linkenvisuals_potion_layout.txt` — раскладка трекера зелий
+- `linkenvisuals_hands.json` — поза рук
+- `linkenvisuals_macros.json` — макросы
+- `linkenvisuals_menu.json` — стиль главного меню
+- `linkenvisuals_accounts.json` — менеджер аккаунтов
+- `linkenvisuals/configs/<name>.json` — именованные профили конфигов
 
 Пример содержимого:
 ```json
