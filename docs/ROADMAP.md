@@ -30,7 +30,7 @@
 7. [x] `MediaWatcher`: `-ExecutionPolicy Bypass` убран (политика не гейтит stdin-команды — доказано прогоном под форс-`Restricted`); SCRIPT → 9 строк, каждая законченный statement (построчный stdin-режим PS 5.1 подтверждён A/B-стендами Java/.NET); не-Windows → один INFO «unsupported platform»; внешний скрипт `config/linkenvisuals_media.cmd|.sh` (формат в javadoc); `MediaWatcherTest` (5) — v1.0.44, D16.
 8. [x] `HudManager`: edit-mode через явный флаг (`ChatScreenMixin` выставляет `setEditing` на `init`/`removed`; `instanceof ChatScreen` убран); тихий catch `applyBlur()` → `LOGGER.warn` один раз — v1.0.45, D17.
 9. [x] README-дрейф устранён (категории ClickGUI → факт `Category.java`; 8 файлов конфига вместо одного; косметика → 9 реальных носимых, «Bandana» удалена; плюс clone-URL и имя jar) — v1.0.46, D18.
-10. Проверить (не удалять без приказа): секреты в `AccountStorage`, миксины `Yggdrasil*`, совместимость Sodium/Iris (описать конфликтные места).
+10. [x] Проверено (код не тронут): секретов в `AccountStorage` нет (только ники + offline-UUID); миксины `Yggdrasil*` (2 шт.) — нормализация неподписанных текстур, обхода аутентификации нет, риск минимальный; Sodium/Iris — 0 упоминаний в коде и `fabric.mod.json`; пост-цепочка через `WorldRenderEvents.END_MAIN` + глубина из главного фреймбуфера: с Sodium конфликтов архитектуры нет (не тестировалось), с шейдерами Iris пост-эффекты/небо в финальный кадр, скорее всего, не попадут — v1.0.47, D19.
 
 ## Фаза 4 — каркас модулей (M)
 `ModuleRegistry` — статические поля. Предложить минимальный дизайн `Module`/`Setting` (без event-bus и зависимостей), получить подтверждение, затем вводить. Без этого п.5.7 не стартует.
