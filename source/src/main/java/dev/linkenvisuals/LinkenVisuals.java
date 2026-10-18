@@ -96,45 +96,17 @@ public final class LinkenVisuals implements ClientModInitializer {
             // Free fullscreen VRAM: every post pipeline holds its own scene-size
             // buffers (Ambience x4, Rain, Kill, Bubble, Filter, Hands x4, HUD glass).
             // Without this they survive world switches at 1440p/4K indefinitely.
+            // DISCONNECT fires on the netty thread, but RenderSystem calls must
+            // happen on the render thread, otherwise GL prints
+            // "Rendersystem called from wrong thread".
             try {
-                dev.linkenvisuals.render.AmbiencePipeline.shutdown();
+                if (client.isOnThread()) {
+                    shutdownWorldGpu();
+                } else {
+                    client.execute(LinkenVisuals::shutdownWorldGpu);
+                }
             } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown AmbiencePipeline: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.render.RainRenderer.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown RainRenderer: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.render.KillShaderRenderer.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown KillShaderRenderer: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.render.HitBubbleRenderer.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown HitBubbleRenderer: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.render.ScreenFilterRenderer.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown ScreenFilterRenderer: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.render.ScreenCapture.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown ScreenCapture: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.render.HudGlassCapture.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown HudGlassCapture: {}", t.getMessage());
-            }
-            try {
-                dev.linkenvisuals.hands.HandOutline.shutdown();
-            } catch (Throwable t) {
-                LOGGER.warn("Failed to shutdown HandOutline: {}", t.getMessage());
+                LOGGER.warn("Failed to schedule world GPU shutdown: {}", t.getMessage());
             }
             ConfigManager.save();
         });
@@ -155,6 +127,50 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(KillShaderRenderer::render);
         WorldRenderEvents.END_MAIN.register(AmbienceRenderer::render);
         WorldRenderEvents.END_MAIN.register(ScreenFilterRenderer::renderWorld);
+    }
+
+    /** Releases all world-scoped GPU pipelines. Must run on the render thread. */
+    private static void shutdownWorldGpu() {
+        try {
+            dev.linkenvisuals.render.AmbiencePipeline.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown AmbiencePipeline: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.RainRenderer.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown RainRenderer: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.KillShaderRenderer.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown KillShaderRenderer: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.HitBubbleRenderer.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown HitBubbleRenderer: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.ScreenFilterRenderer.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown ScreenFilterRenderer: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.ScreenCapture.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown ScreenCapture: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.HudGlassCapture.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown HudGlassCapture: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.hands.HandOutline.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown HandOutline: {}", t.getMessage());
+        }
     }
 
     private static void migrateLegacyPlayerData() {
