@@ -1,7 +1,7 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
-import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.media.Lyrics;
 import dev.linkenvisuals.media.MediaWatcher;
@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Random;
 
 public final class LyricsHud {
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final float LIFE = 7.0f;
     private static final float FADE = 0.7f;
@@ -51,7 +49,7 @@ public final class LyricsHud {
             return;
         }
         if (bold == null) {
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            bold = Fonts.titleFont();
         }
 
         MediaWatcher.ensureRunning();

@@ -1,7 +1,7 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
-import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.media.MediaArt;
 import dev.linkenvisuals.media.MediaWatcher;
@@ -21,10 +21,6 @@ import net.minecraft.util.Identifier;
 import org.joml.Matrix3x2fStack;
 
 public final class MediaPlayerHud extends HudElement {
-    private static final Identifier TEXT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final float WIDTH = 152.0f;
     private static final float HEIGHT = 34.0f;
@@ -64,8 +60,8 @@ public final class MediaPlayerHud extends HudElement {
             return;
         }
         if (text == null) {
-            text = GlyphAtlas.load(TEXT_DATA, TEXT_ATLAS);
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            text = Fonts.textFont();
+            bold = Fonts.titleFont();
         }
         MediaWatcher.ensureRunning();
 

@@ -1,5 +1,6 @@
 package dev.linkenvisuals.clickgui;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
@@ -42,10 +43,6 @@ import java.util.Map;
 public final class ClickGuiScreen extends Screen {
     private static final Identifier LOGO = LinkenVisuals.id("textures/gui/ico_logo.png");
     private static final Identifier SEARCH_ICON = LinkenVisuals.id("textures/gui/ico_search.png");
-    private static final Identifier TEXT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final float WINDOW_W = 496.0f;
     private static final float WINDOW_H = 271.0f;
@@ -140,8 +137,8 @@ public final class ClickGuiScreen extends Screen {
     @Override
     protected void init() {
         ModuleRegistry.syncFromMenuConfig();
-        text = GlyphAtlas.load(TEXT_DATA, TEXT_ATLAS);
-        bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+        text = Fonts.textFont();
+        bold = Fonts.titleFont();
         configPanel.bind(text, bold, this::scrollbar);
         for (Category category : Category.values()) {
             railHover.computeIfAbsent(category, key -> new Spring(0.0, 900.0, 48.0));

@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.CirclePipeline;
@@ -18,10 +19,6 @@ import net.minecraft.util.Identifier;
 
 public final class Watermark extends HudElement {
     private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
-    private static final Identifier TEXT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final float HEIGHT = 17.0f;
     private static final float PADDING = 7.0f;
@@ -43,10 +40,10 @@ public final class Watermark extends HudElement {
 
     private void ensureLoaded() {
         if (text == null) {
-            text = GlyphAtlas.load(TEXT_DATA, TEXT_ATLAS);
+            text = Fonts.textFont();
         }
         if (bold == null) {
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            bold = Fonts.titleFont();
         }
         if (fpsSlot < 0.0f) {
             fpsSlot = MsdfText.width(bold, "999", QUIET_SIZE);

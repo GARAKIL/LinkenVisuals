@@ -1,7 +1,7 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
-import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.anim.Animations;
 import dev.linkenvisuals.hands.HandEditor;
 import dev.linkenvisuals.hud.notify.NotificationManager;
@@ -23,9 +23,6 @@ import java.util.Map;
 public final class HudManager {
     private static final float DOT_SPACING = 26.0f;
     private static final float SNAP_DISTANCE = 5.0f;
-
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final float MENU_W = 78.0f;
     private static final float MENU_ROW_H = 16.0f;
@@ -244,7 +241,7 @@ public final class HudManager {
 
     private static void renderContextMenu(DrawContext context) {
         if (menuFont == null) {
-            menuFont = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            menuFont = Fonts.titleFont();
         }
         float menuHeight = MENU_PAD * 2.0f + MENU_ROW_H * 2.0f;
         RoundedRectPipeline.draw(context, menuX, menuY, MENU_W, menuHeight, ColorMath.withAlpha(0x121318, 245));

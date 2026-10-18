@@ -1,7 +1,7 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
-import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlassPanelPipeline;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
@@ -19,8 +19,6 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 
 public final class HotbarHud {
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final int SLOTS = 9;
     private static final float SLOT_W = 20.0f;
@@ -47,7 +45,7 @@ public final class HotbarHud {
             return;
         }
         if (bold == null) {
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            bold = Fonts.titleFont();
         }
 
         long now = System.nanoTime();

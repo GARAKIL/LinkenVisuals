@@ -1,7 +1,7 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
-import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.render.CirclePipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
@@ -27,10 +27,6 @@ import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
 public final class NameTags {
-    private static final Identifier TEXT_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier TEXT_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final float HEIGHT = 18.0f;
     private static final float PAD = 5.0f;
@@ -83,8 +79,8 @@ public final class NameTags {
             return;
         }
         if (text == null) {
-            text = GlyphAtlas.load(TEXT_DATA, TEXT_ATLAS);
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            text = Fonts.textFont();
+            bold = Fonts.titleFont();
         }
 
         float tickDelta = client.getRenderTickCounter().getTickProgress(false);

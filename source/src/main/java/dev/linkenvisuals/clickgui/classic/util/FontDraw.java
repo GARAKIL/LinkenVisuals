@@ -1,6 +1,6 @@
 package dev.linkenvisuals.clickgui.classic.util;
 
-import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.MsdfText;
 import net.minecraft.client.MinecraftClient;
@@ -11,14 +11,6 @@ import org.joml.Matrix3x2fStack;
 
 public final class FontDraw {
 
-    private static final Identifier REGULAR_DATA = LinkenVisuals.id("fonts/msdf/sf_regular.json");
-    private static final Identifier REGULAR_ATLAS = LinkenVisuals.id("fonts/msdf/sf_regular.png");
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
-
-    private static GlyphAtlas regular;
-    private static GlyphAtlas bold;
-
     public enum FontType {
         MEDIUM,
         SEMIBOLD
@@ -28,20 +20,8 @@ public final class FontDraw {
     }
 
     private static GlyphAtlas getFont(FontType type) {
-        try {
-            if (type == FontType.SEMIBOLD) {
-                if (bold == null) bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
-                return bold;
-            } else {
-                if (regular == null) regular = GlyphAtlas.load(REGULAR_DATA, REGULAR_ATLAS);
-                return regular;
-            }
-        } catch (Exception e) {
-            dev.linkenvisuals.LinkenVisuals.LOGGER.warn("Classic GUI failed to load font {}: {}", type, e.getMessage());
-            return null;
-        }
+        return type == FontType.SEMIBOLD ? Fonts.titleFont() : Fonts.textFont();
     }
-
     public static void drawText(FontType fontType, DrawContext ctx, String text, float x, float y, int size, int color) {
         drawText(fontType, ctx, text, x, y, size, color, false);
     }

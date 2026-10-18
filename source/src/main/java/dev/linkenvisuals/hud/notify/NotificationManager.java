@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud.notify;
 
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.hud.HudSurface;
@@ -20,8 +21,6 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public final class NotificationManager {
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
     private static final Identifier ICON = LinkenVisuals.id("textures/gui/toast_icon.png");
 
     private static final int COLOR_ENABLED = 0x4ADE80;
@@ -64,7 +63,7 @@ public final class NotificationManager {
             return;
         }
         if (bold == null) {
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            bold = Fonts.titleFont();
         }
 
         long now = System.nanoTime() / 1_000_000L;

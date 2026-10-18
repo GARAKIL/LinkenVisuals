@@ -1,6 +1,6 @@
 package dev.linkenvisuals.hud;
 
-import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.render.GlyphAtlas;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -12,8 +12,6 @@ import net.minecraft.util.Identifier;
 import java.util.Map;
 
 public final class PotionSlot extends HudElement {
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     final int index;
     private GlyphAtlas bold;
@@ -25,7 +23,7 @@ public final class PotionSlot extends HudElement {
 
     private void ensureLoaded() {
         if (bold == null) {
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            bold = Fonts.titleFont();
         }
     }
 

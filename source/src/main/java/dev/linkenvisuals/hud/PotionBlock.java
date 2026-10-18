@@ -1,6 +1,6 @@
 package dev.linkenvisuals.hud;
 
-import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.render.GlyphAtlas;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.effect.StatusEffect;
@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 public final class PotionBlock extends HudElement {
-    private static final Identifier BOLD_DATA = LinkenVisuals.id("fonts/msdf/sf_bold.json");
-    private static final Identifier BOLD_ATLAS = LinkenVisuals.id("fonts/msdf/sf_bold.png");
 
     private static final int MAX_PER_ROW = 6;
     private static final float GAP = 5.0f;
@@ -26,7 +24,7 @@ public final class PotionBlock extends HudElement {
 
     private void ensureLoaded() {
         if (bold == null) {
-            bold = GlyphAtlas.load(BOLD_DATA, BOLD_ATLAS);
+            bold = Fonts.titleFont();
         }
     }
 
