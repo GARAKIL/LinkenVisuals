@@ -26,6 +26,7 @@ public final class Pipelines {
         warmed = true;
 
         BlitPipeline.init();
+        BlockOverlayPipelines.init();
         CardPipeline.init();
         CirclePipeline.init();
         ColorFieldPipeline.init();

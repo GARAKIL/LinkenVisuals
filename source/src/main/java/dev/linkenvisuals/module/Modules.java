@@ -1,6 +1,7 @@
 package dev.linkenvisuals.module;
 
 import dev.linkenvisuals.clickgui.ModuleRegistry;
+import dev.linkenvisuals.module.impl.BlockOverlayModule;
 
 /**
  * Typed facade over object-based modules. Per-module accessors are added here
@@ -8,6 +9,8 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
  * accessors stay in {@link ModuleRegistry} until migrated one by one.
  */
 public final class Modules {
+    private static BlockOverlayModule blockOverlay;
+
     private Modules() {
     }
 
@@ -19,10 +22,15 @@ public final class Modules {
         return ModuleRegistry.module(id);
     }
 
+    public static BlockOverlayModule blockOverlay() {
+        return blockOverlay;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
-     * The first object-based modules land with the Phase 5 ports.
      */
     public static void init() {
+        blockOverlay = new BlockOverlayModule();
+        register(blockOverlay);
     }
 }

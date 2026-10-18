@@ -188,6 +188,25 @@
 - Evidence: донорские файлы прочитаны (read-only, копипасты нет — только идеи структур); javac-парсинг новых файлов чист; `grep -n "HashMap\|key(" GlyphAtlas.java` — остатков старых карт нет; сборка/тесты — CI + агент пользователя.
 - Out of scope: замена всего MSDF-движка; fastutil-зависимость; смена фильтрации текстуры.
 
+## 2026-10-18 · D23 · Фаза 5.2: BlockOverlay — 9 шейдерных эффектов на 1.21.11 — v1.0.51
+- Контекст: ROADMAP 5.2. Первый настоящий `Module` (упражняет каркас Фазы 4).
+- Таблица «параметр → реализация»:
+  - `ShaderProgramKey` + 9 `.json` → мёртвы (JSON-программы не существуют на 1.21.11) → 9 `RenderPipeline` через `builder(TRANSFORMS_AND_PROJECTION_SNIPPET)` + UBO `BlockOverlay` (48 Б std140).
+  - `GlUniform.set("time"/"screenSize"/"baseColor"/"alpha"/"zoomFactor")` → `ByteBuffer` (time@0, screenSize@8, baseColor@16, alpha@32, zoomFactor@36, паддинг до 48) + `encoder.writeToBuffer`.
+  - `RenderSystem.setShader` → `pass.setPipeline`; `BufferBuilder`/`BufferRenderer` → `GpuBuffer` (36 вершин POSITION_TEX) + `pass.draw`.
+  - `WorldRenderEvents.BLOCK_OUTLINE` (1.21.4, `BlockOutlineContext`, `GL11`) → НЕ СУЩЕСТВУЕТ на 1.21.11: в extraction-модели его заменили `BEFORE_BLOCK_OUTLINE` (`(context, BlockOutlineRenderState) -> boolean`; возврат `false` гасит ваниль) — доказано чтением `WorldRenderEvents.java` ветки `1.21.11` Fabric API (события `AFTER_BLOCK_OUTLINE_EXTRACTION`/`END_EXTRACTION`/`START_MAIN` — новая модель). Заливка рисуется на `END_MAIN` явным encoder/pass (как `HitBubbleRenderer`), без nested-pass внутри outline-события.
+  - `MatrixStack` → `PoseStack` (напрямую не нужен: вершины camera-relative, как требует javadoc `consumers()`; матрицы — `RenderSystem.bindDefaultUniforms(pass)`).
+  - `VertexRendering.drawBox` + `RenderLayer.getLines()` → свои `LINES`-пайплайн и `putLineBox` (12 рёбер); градиентная заливка (non-shader путь) → свой `FLAT`-пайплайн (POSITION_COLOR).
+  - `java.awt.Color` → `int` + `ColorMath.mix`/`withAlpha`; `EnumSetting` → `ModeSetting` + `FillMode` enum (9 режимов, `shaderName()`).
+  - Донорский `Module` → наш `module.Module` (`BlockOverlayModule`, id `blockoverlay`, настройки 1:1: fill/useShader/fillMode/fillAlpha/outlineAlpha/shaderSpeed, дефолты как у донора, enabled=true); регистрация в `Modules.init()` + аксёры `Modules.blockOverlay()`.
+  - Палитры `FillPalette` перенесены 1:1 (8 шт.); Aurora (у донора — `getGlobalColor`) → фиксированная тройка (0x2DE1A8, 0x54C8FF, 0xB46BFF) — осознанное отличие, задокументировано.
+  - Время анимации — монотонное `(nanoTime - epoch)/4e9 * speed` (как у донора, без сброса).
+- GLSL: 9 `.fsh` — тело как текст донора (CRLF→LF), заголовок заменён на `#version 330` + UBO-блок; общий `block_overlay.vsh` (Position+UV0→texCoord). `block_overlay_effect.fsh` донора — мёртвый файл (не покрыт ни одним FillMode), не портирован.
+- Тесты: `Std140LayoutTest` +9 кейсов (все `block_overlay_*.fsh` == 48 Б) + `blockOverlayUboIs48Bytes`; `BlockOverlayModuleTest` (4: 9 режимов/имена шейдеров, дефолты 1:1 с донором, `mode()` по индексу, регистрация). Итого: 45 + 4 = 49 тестов. Маппинг режим→пайплайн не покрыт unit-тестом (нужен MC bootstrap для `RenderPipelines.register`) — проверка на CI/сборке.
+- Риск под глазной контроль пользователя: `bindDefaultUniforms` на `END_MAIN` (если бокс «поплывёт» — первый подозреваемый; запасной план — запечь MVP в UBO как у `HitBubbleRenderer`). Шаги: прицел на блок → заливка+рамка вместо ванили; 9 режимов; Use Shader=false → градиент; Fill=false → только рамка; окклюзия за блоками.
+- Evidence: `WorldRenderEvents.java` (ветка 1.21.11, GitHub) прочитан построчно; донорские `BlockOverlay.java`/`BlockOverlayShaderRenderer.java`/`BlockOverlayRenderHooks.java`/`FillPalette`/9 `.fsh` сверены; javac-парсинг новых файлов чист (только ошибки classpath); `Pipelines.warmUp` + `shutdown` подключены.
+- Out of scope: `block_overlay_effect.fsh`; LangParity не тронут (новых lang-ключей нет — имена модулей литералы, как у существующих).
+
 ## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
 - Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
 - Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).

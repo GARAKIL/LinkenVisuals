@@ -34,7 +34,16 @@ class Std140LayoutTest {
         new BlockCase("ambience_composite.fsh", "Uniforms", AmbiencePipeline.UNIFORM_SIZE),
         new BlockCase("bright_pass.fsh", "Uniforms", AmbiencePipeline.UNIFORM_SIZE),
         new BlockCase("menu_background.fsh", "MenuBackgroundData", BackgroundPipeline.UNIFORM_SIZE),
-        new BlockCase("shader_sky.fsh", "Uniforms", ShaderSkyPipeline.UNIFORM_SIZE)
+        new BlockCase("shader_sky.fsh", "Uniforms", ShaderSkyPipeline.UNIFORM_SIZE),
+        new BlockCase("block_overlay_aurora.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_plasma.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_cosmos.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_cobweb.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_fireworks.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_galaxy.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_nebula.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_starfield.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("block_overlay_stars.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE)
     );
 
     @Test
@@ -49,6 +58,11 @@ class Std140LayoutTest {
     @Test
     void killEffectsUboIs224Bytes() {
         assertEquals(224, KillShaderRenderer.UNIFORM_SIZE);
+    }
+
+    @Test
+    void blockOverlayUboIs48Bytes() {
+        assertEquals(48, BlockOverlayPipelines.UNIFORM_SIZE);
     }
 
     /** Computes the std140 block size (rounded up to 16) for the given block name. */

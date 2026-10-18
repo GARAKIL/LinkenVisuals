@@ -16,6 +16,7 @@ import dev.linkenvisuals.clickgui.ModuleInfo;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.mixin.FogRendererAccessor;
 import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.render.BlockOverlayRenderer;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -128,6 +129,8 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(KillShaderRenderer::render);
         WorldRenderEvents.END_MAIN.register(AmbienceRenderer::render);
         WorldRenderEvents.END_MAIN.register(ScreenFilterRenderer::renderWorld);
+        WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(BlockOverlayRenderer::onBeforeBlockOutline);
+        WorldRenderEvents.END_MAIN.register(BlockOverlayRenderer::onEndMain);
         Modules.init();
     }
 
@@ -152,6 +155,11 @@ public final class LinkenVisuals implements ClientModInitializer {
             dev.linkenvisuals.render.HitBubbleRenderer.shutdown();
         } catch (Throwable t) {
             LOGGER.warn("Failed to shutdown HitBubbleRenderer: {}", t.getMessage());
+        }
+        try {
+            dev.linkenvisuals.render.BlockOverlayRenderer.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown BlockOverlayRenderer: {}", t.getMessage());
         }
         try {
             dev.linkenvisuals.render.ScreenFilterRenderer.shutdown();
