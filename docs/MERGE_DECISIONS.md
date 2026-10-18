@@ -225,6 +225,21 @@
   3. `cannot find symbol: method getPos()` — у `Camera` нет `getPos()`; правильно `getCameraPos()` (как в компилирующемся `Cosmetics.java:51`).
 - Фикс: 3 строки в `BlockOverlayRenderer.java`. CI `ebba4538` — **success**. Урок: сверять API с ТОЧНОЙ версией зависимости (0.141.3), а не с HEAD ветки.
 
+## 2026-10-19 · D24 · Фаза 5.3: Liquid Glass — v1.0.54
+- Контекст: ROADMAP 5.3. Порт донорского `liquidglassnew` (SDF + fresnel + distortion + radial blur).
+- Таблица «параметр → реализация»:
+  - `ShaderProgramKey` + `liquidglassnew.json` → мёртвы → `RenderPipeline.builder(TRANSFORMS_AND_PROJECTION_SNIPPET)` + UBO `LiquidGlass` (96 Б std140).
+  - 14 `GlUniform.set(...)` → `ByteBuffer` (size@0, radius@16, params1@32, params2@48, fresnelColor@64, backdropSize@80, distortStrength@88, fresnelInvert@92).
+  - `BufferBuilder`/`BufferRenderer` + `GL11` → `GpuBuffer` (quad POSITION_TEXTURE_COLOR) + `RenderPass.draw`.
+  - `LiquidGlassCaptureBlur` (GL11 separable Gaussian) → НЕ портирован: наша `HudGlassCapture` (1/2→1/4→1/8 downscale + linear) уже даёт блюр; шейдер делает radial blur in-shader (30 taps). Дублировать цепочку захвата запрещено задачей.
+  - `LiquidGlassReflectionCache` (417 строк, 3 источника) → НЕ портирован: `HudGlassCapture` + `ScreenCapture` покрывают.
+  - `LiquidGlassNewBuilder`/`BuiltLiquidGlassNew` (builder-фреймворк, batching) → НЕ портирован: у нас нет builder-фреймворка; вместо него `LiquidGlassPipeline.Params` record + `draw()`.
+  - `rvertexcoord(gl_VertexID)` → не нужен: `FragCoord` = UV (0-1 quad); backdrop UV из `gl_FragCoord` (как в `glass_panel.fsh`).
+- `LiquidGlassPipeline.draw(x, y, w, h, params, tint)` — свой encoder/pass (как `BlitPipeline`), т.к. `DrawContext` не даёт привязать UBO. Параметры по умолчанию = донорские (`Params.defaults()`).
+- Тесты: `Std140LayoutTest` + кейс `liquid_glass.fsh` (96 Б) + `liquidGlassUboIs96Bytes`. Итого: 49 + 1 = 50 тестов.
+- Out of scope: Gaussian blur отдельным пассом; интеграция в `GlassPanelPipeline` (аддитивно, без регрессий).
+- Evidence: донорские `liquidglassnew.fsh` (117 строк), `LiquidGlassNewBuilder.java`, `BuiltLiquidGlassNew.java`, `LiquidGlassCaptureBlur.java`, `LiquidGlassReflectionCache.java` прочитаны; UBO сверен Python-скриптом (96 Б).
+
 ## 2026-10-18 · D21 · Фаза 4: каркас модулей введён (дизайн D20 утверждён) — v1.0.49
 - Пользователь утвердил D20 («давай дальше»), пакет — `dev.linkenvisuals.module.impl`.
 - Уточнение D20: `Module` сам строит свой `ModuleInfo` внутри конструктора (а не принимает готовый) — иначе lifecycle не цеплялся бы: GUI тогглит модули напрямую через `info().toggle()` (`ClickGuiScreen:1152,1159,1168`, `ClassicGuiMouseHandler:98`).

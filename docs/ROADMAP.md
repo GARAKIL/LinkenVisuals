@@ -38,7 +38,7 @@
 ## Фаза 5 — переносы из донора (по фиче на коммит; перед каждой — таблица «параметр → реализация на 1.21.11»)
 - [ ] 5.1 MSDF (S): сверка с донорскими `MsdfFont/FontData/MsdfGlyph`; брать только доказанные выигрыши (fastutil, кэш ширин, `recordRenderCall`, thread-asserts). → [x] закрыта, D22, v1.0.50: примитивные `IntObjectMap`/`IntFloatMap` вместо fastutil (без новой зависимости), LRU-кэш ширин (1024), thread-asserts в `write()`/`width()`; фильтрация текстуры не тронута (визуальный риск); 9 новых тестов (итого 45).
 - [ ] 5.2 BlockOverlay + 10 шейдерных эффектов (M) → `RenderPipeline.builder()`. → [x] закрыта, D23, v1.0.51: 9 эффектов (10-й `.fsh` донора мёртвый — не покрыт FillMode); `BEFORE_BLOCK_OUTLINE`+`END_MAIN` (старого `BLOCK_OUTLINE` нет на 1.21.11 — extraction-модель); UBO 48 Б; первый `Module` (`BlockOverlayModule`); 4 новых теста (итого 49). Глазной контроль: матрицы на END_MAIN, окклюзия.
-- [ ] 5.3 Liquid Glass (L): сверка с `GlassPanelPipeline`/`HudGlassCapture`/`ScreenCapture` от дублей цепочек.
+- [x] 5.3 Liquid Glass (L) → D24, v1.0.54: `liquidglassnew.fsh` портирован (SDF+fresnel+distortion+radial blur), UBO 96 Б, `LiquidGlassPipeline` (свой encoder/pass, переиспользует `HudGlassCapture`); `LiquidGlassCaptureBlur`/`ReflectionCache`/билдеры НЕ портированы (дубли) — см. D24.
 - [ ] 5.4 MotionBlur (M): без сырого `glUseProgram(0)`.
 - [ ] 5.5 Оптимизации-идеи (S): LRU `VoxelShape`, int-ядро линий, scratch-буферы, batched dot-grid/hatch — только где есть соответствующие циклы.
 - [ ] 5.6 Косметика в настройках модуля Cosmetics (L): spike инфраструктуры, затем wave-плащ, питомцы, ChinaHat, Nimb, Naruto, CosmeticEffects, Spheres. Каталог не переносим.

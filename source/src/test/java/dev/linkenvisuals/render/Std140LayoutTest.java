@@ -43,7 +43,8 @@ class Std140LayoutTest {
         new BlockCase("block_overlay_galaxy.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
         new BlockCase("block_overlay_nebula.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
         new BlockCase("block_overlay_starfield.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
-        new BlockCase("block_overlay_stars.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE)
+        new BlockCase("block_overlay_stars.fsh", "BlockOverlay", BlockOverlayPipelines.UNIFORM_SIZE),
+        new BlockCase("liquid_glass.fsh", "LiquidGlass", LiquidGlassPipeline.UNIFORM_SIZE)
     );
 
     @Test
@@ -63,6 +64,11 @@ class Std140LayoutTest {
     @Test
     void blockOverlayUboIs48Bytes() {
         assertEquals(48, BlockOverlayPipelines.UNIFORM_SIZE);
+    }
+
+    @Test
+    void liquidGlassUboIs96Bytes() {
+        assertEquals(96, LiquidGlassPipeline.UNIFORM_SIZE);
     }
 
     /** Computes the std140 block size (rounded up to 16) for the given block name. */

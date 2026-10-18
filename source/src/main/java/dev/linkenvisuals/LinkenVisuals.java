@@ -162,6 +162,11 @@ public final class LinkenVisuals implements ClientModInitializer {
             LOGGER.warn("Failed to shutdown BlockOverlayRenderer: {}", t.getMessage());
         }
         try {
+            dev.linkenvisuals.render.LiquidGlassPipeline.shutdown();
+        } catch (Throwable t) {
+            LOGGER.warn("Failed to shutdown LiquidGlassPipeline: {}", t.getMessage());
+        }
+        try {
             dev.linkenvisuals.render.ScreenFilterRenderer.shutdown();
         } catch (Throwable t) {
             LOGGER.warn("Failed to shutdown ScreenFilterRenderer: {}", t.getMessage());
