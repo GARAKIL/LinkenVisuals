@@ -9,7 +9,6 @@ import dev.linkenvisuals.render.AmbienceRenderer;
 import dev.linkenvisuals.render.ScreenFilterRenderer;
 import dev.linkenvisuals.render.HitBubbleRenderer;
 import dev.linkenvisuals.render.KillShaderRenderer;
-import dev.linkenvisuals.render.PanoramaManager;
 import dev.linkenvisuals.render.RainFall;
 import dev.linkenvisuals.render.RainRenderer;
 import dev.linkenvisuals.clickgui.MenuCloseEffect;
@@ -63,12 +62,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         KeyBinding.Category.create(Identifier.of(MOD_ID, "main"));
 
     private static KeyBinding clickGuiKey;
-    private static KeyBinding switchPanoramaKey;
     private static boolean fogSuppressed;
-
-    public static KeyBinding getSwitchPanoramaKey() {
-        return switchPanoramaKey;
-    }
 
     @Override
     public void onInitializeClient() {
@@ -148,9 +142,6 @@ public final class LinkenVisuals implements ClientModInitializer {
         clickGuiKey = KeyBindingHelper.registerKeyBinding(
             new KeyBinding("key.linkenvisuals.clickgui", GLFW.GLFW_KEY_RIGHT_SHIFT, LINKENVISUALS_CATEGORY));
 
-        switchPanoramaKey = KeyBindingHelper.registerKeyBinding(
-            new KeyBinding("key.linkenvisuals.next_panorama", GLFW.GLFW_KEY_INSERT, LINKENVISUALS_CATEGORY));
-
         ClientTickEvents.END_CLIENT_TICK.register(LinkenVisuals::onTick);
         WorldRenderEvents.AFTER_ENTITIES.register(MenuCloseEffect::render);
         WorldRenderEvents.AFTER_ENTITIES.register(Cosmetics::render);
@@ -181,12 +172,6 @@ public final class LinkenVisuals implements ClientModInitializer {
     }
 
     private static void onTick(MinecraftClient client) {
-        PanoramaManager.tick();
-
-        while (switchPanoramaKey.wasPressed()) {
-            PanoramaManager.triggerTransition();
-        }
-
         while (clickGuiKey.wasPressed()) {
             if (client.currentScreen instanceof ClassicGuiScreen classic) {
                 classic.close();

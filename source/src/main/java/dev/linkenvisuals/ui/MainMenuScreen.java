@@ -171,12 +171,6 @@ public final class MainMenuScreen extends Screen {
                 context.fill(0, 0, width, height, (darkAlpha << 24));
             }
             BackgroundPipeline.draw(vis, menuCfg.shaderPreset.id, menuCfg.shaderIntensity, 0.0f, menuCfg.shaderOpacity);
-        } else if (menuCfg.backgroundMode == MainMenuConfig.BackgroundMode.PANORAMA) {
-            dev.linkenvisuals.render.PanoramaManager.render(context, dev.linkenvisuals.render.PanoramaManager.getProceduralMainMenuType(), width, height, delta);
-            int darkAlpha = Math.round(menuCfg.imageDarkening * 255);
-            if (darkAlpha > 0) {
-                context.fill(0, 0, width, height, (darkAlpha << 24));
-            }
         } else {
             BackgroundPipeline.draw(vis, menuCfg.shaderPreset.id, menuCfg.shaderIntensity, menuCfg.imageDarkening, 1.0f);
         }

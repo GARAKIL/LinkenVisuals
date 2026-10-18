@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.RotatingCubeMapRenderer;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -338,7 +339,7 @@ public final class VanillaStylePipeline {
     }
 
     public static void renderOptionsBackground(DrawContext context, int width, int height) {
-        PanoramaManager.render(context, PanoramaManager.PanoramaType.SETTINGS, width, height, 0.0f);
+        renderVanillaPanorama(context, width, height);
         context.fillGradient(0, 0, width, height, 0x1A000000, 0x30000000);
 
         // Header and footer separators (seamlessly repeated across screen width)
@@ -361,8 +362,27 @@ public final class VanillaStylePipeline {
     }
 
     public static void renderDirtBackground(DrawContext context, int width, int height) {
-        PanoramaManager.render(context, PanoramaManager.getProceduralLoadingType(), width, height, 0.0f);
+        renderVanillaPanorama(context, width, height);
         context.fillGradient(0, 0, width, height, 0x1A000000, 0x30000000);
+    }
+
+    /**
+     * Renders the stock vanilla rotating panorama (cube map from the game's own assets),
+     * with a dark gradient fallback when the renderer is unavailable.
+     */
+    public static void renderVanillaPanorama(DrawContext context, int width, int height) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client != null && client.gameRenderer != null) {
+            RotatingCubeMapRenderer renderer = client.gameRenderer.getRotatingPanoramaRenderer();
+            if (renderer != null) {
+                try {
+                    renderer.render(context, width, height, true);
+                    return;
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        context.fillGradient(0, 0, width, height, 0xFF141720, 0xFF0E1017);
     }
 
     public static void drawBorder(DrawContext context, int x, int y, int w, int h, int color) {

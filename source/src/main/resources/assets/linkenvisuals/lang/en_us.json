@@ -1,7 +1,6 @@
 {
   "key.category.linkenvisuals.main": "LinkenVisuals",
   "key.linkenvisuals.clickgui": "Open ClickGUI",
-  "key.linkenvisuals.next_panorama": "Switch Panorama",
   "linkenvisuals.gui.binds": "Keybinds",
   "linkenvisuals.gui.macros": "Macros",
   "linkenvisuals.macro.title": "Command Macros",

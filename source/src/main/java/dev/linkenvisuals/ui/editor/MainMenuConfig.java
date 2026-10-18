@@ -46,8 +46,7 @@ public final class MainMenuConfig {
     public enum BackgroundMode {
         SHADER,
         CUSTOM_IMAGE,
-        IMAGE_AND_SHADER,
-        PANORAMA
+        IMAGE_AND_SHADER
     }
 
     public enum ShaderPreset {
@@ -271,6 +270,7 @@ public final class MainMenuConfig {
             save();
         } else {
             if (instance.shaderPreset == null) instance.shaderPreset = ShaderPreset.COSMOS;
+            // BackgroundMode.PANORAMA was removed in 1.0.34; Gson maps unknown enum names to null.
             if (instance.backgroundMode == null) instance.backgroundMode = BackgroundMode.SHADER;
             if (instance.shaderIntensity <= 0.05f) instance.shaderIntensity = 1.0f;
             if (instance.shaderOpacity <= 0.05f) instance.shaderOpacity = 0.85f;

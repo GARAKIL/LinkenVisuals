@@ -1,19 +1,16 @@
 package dev.linkenvisuals.mixin;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.hands.HandEditor;
 import dev.linkenvisuals.render.BackgroundPipeline;
 import dev.linkenvisuals.render.GlowPipeline;
-import dev.linkenvisuals.render.PanoramaManager;
+import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.ui.editor.CustomTextureLoader;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.RotatingCubeMapRenderer;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
@@ -76,7 +73,7 @@ public abstract class ScreenMixin {
                 if (client.world != null) {
                     context.fillGradient(0, 0, width, height, 0x99000000, 0xCC000000);
                 } else {
-                    PanoramaManager.render(context, screen, width, height, delta);
+                    VanillaStylePipeline.renderVanillaPanorama(context, width, height);
                     context.fillGradient(0, 0, width, height, 0x1A000000, 0x30000000);
                 }
                 ci.cancel();
@@ -133,23 +130,4 @@ public abstract class ScreenMixin {
         }
     }
 
-    @WrapOperation(
-        method = "renderPanoramaBackground",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/RotatingCubeMapRenderer;render(Lnet/minecraft/client/gui/DrawContext;IIZ)V")
-    )
-    private void linkenvisuals$wrapPanoramaRender(RotatingCubeMapRenderer originalRenderer, DrawContext context, int width, int height, boolean rotate, Operation<Void> original) {
-        PanoramaManager.render(context, width, height, 0.0f);
-    }
-
-    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
-    private void linkenvisuals$handleScreenKey(net.minecraft.client.input.KeyInput input, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
-        if (LinkenVisuals.getSwitchPanoramaKey() != null && LinkenVisuals.getSwitchPanoramaKey().matchesKey(input)) {
-            Screen self = (Screen) (Object) this;
-            if (self.getFocused() instanceof net.minecraft.client.gui.widget.TextFieldWidget) {
-                return;
-            }
-            PanoramaManager.triggerTransition();
-            cir.setReturnValue(true);
-        }
-    }
 }

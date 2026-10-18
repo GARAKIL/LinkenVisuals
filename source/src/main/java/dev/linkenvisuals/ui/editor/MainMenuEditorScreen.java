@@ -206,12 +206,6 @@ public final class MainMenuEditorScreen extends Screen {
                 context.fill(0, 0, width, height, (darkAlpha << 24));
             }
             BackgroundPipeline.draw(opened, config.shaderPreset.id, config.shaderIntensity, 0.0f, config.shaderOpacity);
-        } else if (config.backgroundMode == MainMenuConfig.BackgroundMode.PANORAMA) {
-            dev.linkenvisuals.render.PanoramaManager.render(context, dev.linkenvisuals.render.PanoramaManager.getProceduralMainMenuType(), width, height, 0.0f);
-            int darkAlpha = Math.round(config.imageDarkening * 255);
-            if (darkAlpha > 0) {
-                context.fill(0, 0, width, height, (darkAlpha << 24));
-            }
         } else {
             BackgroundPipeline.draw(opened, config.shaderPreset.id, config.shaderIntensity, config.imageDarkening, 1.0f);
         }
@@ -442,7 +436,6 @@ public final class MainMenuEditorScreen extends Screen {
             case SHADER -> "Mode: Shader";
             case CUSTOM_IMAGE -> "Mode: Photo";
             case IMAGE_AND_SHADER -> "Mode: Both";
-            case PANORAMA -> "Mode: 3D Panorama";
         };
         float modeW = 96.0f;
         drawToolBtn(context, modeStr, curX, btnY, modeW, btnH, mouseX, mouseY, NeonEdge.cool());
@@ -858,8 +851,7 @@ public final class MainMenuEditorScreen extends Screen {
             config.backgroundMode = switch (config.backgroundMode) {
                 case SHADER -> MainMenuConfig.BackgroundMode.CUSTOM_IMAGE;
                 case CUSTOM_IMAGE -> MainMenuConfig.BackgroundMode.IMAGE_AND_SHADER;
-                case IMAGE_AND_SHADER -> MainMenuConfig.BackgroundMode.PANORAMA;
-                case PANORAMA -> MainMenuConfig.BackgroundMode.SHADER;
+                case IMAGE_AND_SHADER -> MainMenuConfig.BackgroundMode.SHADER;
             };
             MainMenuConfig.save();
             return true;

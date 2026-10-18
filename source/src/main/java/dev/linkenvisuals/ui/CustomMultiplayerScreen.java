@@ -7,11 +7,11 @@ import dev.linkenvisuals.render.CirclePipeline;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.IconPipeline;
-import dev.linkenvisuals.render.PanoramaManager;
 import dev.linkenvisuals.render.MsdfText;
 import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.PanelPipeline;
 import dev.linkenvisuals.render.RoundedRectPipeline;
+import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.render.WidgetStylePipeline;
 import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
@@ -231,7 +231,7 @@ public final class CustomMultiplayerScreen extends Screen {
         float visible = visibility();
         MenuStyle style = StyleManager.getStyle();
         if (style == MenuStyle.VANILLA) {
-            PanoramaManager.render(context, PanoramaManager.PanoramaType.MULTIPLAYER, width, height, 0.0f);
+            VanillaStylePipeline.renderVanillaPanorama(context, width, height);
             context.fillGradient(0, 0, width, height, 0x66000000, 0x88000000);
         } else {
             BackgroundPipeline.draw(visible);
