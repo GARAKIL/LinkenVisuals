@@ -3,6 +3,7 @@ package dev.linkenvisuals.ui.editor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.linkenvisuals.ui.style.MenuStyle;
+import dev.linkenvisuals.util.AtomicFiles;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -293,30 +294,10 @@ public final class MainMenuConfig {
 
     public static synchronized void save() {
         if (instance == null) return;
-        Path parent = FILE.getParent();
-        if (parent != null) {
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException e) {
-                dev.linkenvisuals.LinkenVisuals.LOGGER.warn("[LinkenVisuals] Failed to create directories for main menu config: {}", e.getMessage());
-                return;
-            }
-        }
-        Path tempFile = FILE.resolveSibling(FILE.getFileName().toString() + ".tmp");
-        try {
-            try (Writer writer = Files.newBufferedWriter(tempFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(instance, writer);
-            }
-            try {
-                Files.move(tempFile, FILE, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
-            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
-                Files.move(tempFile, FILE, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
+        try (Writer writer = AtomicFiles.openWriter(FILE)) {
+            GSON.toJson(instance, writer);
         } catch (Exception e) {
             dev.linkenvisuals.LinkenVisuals.LOGGER.warn("[LinkenVisuals] Failed to save main menu config: {}", e.getMessage());
-            try {
-                Files.deleteIfExists(tempFile);
-            } catch (IOException ignored) {}
         }
     }
 

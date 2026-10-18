@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.util.AtomicFiles;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.StringHelper;
 
@@ -65,30 +66,10 @@ public final class AccountStorage {
                 names.add(account.username());
             }
         }
-        Path parent = FILE.getParent();
-        if (parent != null) {
-            try {
-                Files.createDirectories(parent);
-            } catch (IOException e) {
-                LinkenVisuals.LOGGER.error("Failed to create directories for accounts: {}", e.getMessage());
-                return;
-            }
-        }
-        Path tempFile = FILE.resolveSibling(FILE.getFileName().toString() + ".tmp");
-        try {
-            try (Writer writer = Files.newBufferedWriter(tempFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(names, LIST_TYPE, writer);
-            }
-            try {
-                Files.move(tempFile, FILE, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
-            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
-                Files.move(tempFile, FILE, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
+        try (Writer writer = AtomicFiles.openWriter(FILE)) {
+            GSON.toJson(names, LIST_TYPE, writer);
         } catch (IOException e) {
             LinkenVisuals.LOGGER.error("Failed to save accounts: {}", e.getMessage());
-            try {
-                Files.deleteIfExists(tempFile);
-            } catch (IOException ignored) {}
         }
     }
 

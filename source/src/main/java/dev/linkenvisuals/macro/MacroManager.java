@@ -3,6 +3,7 @@ package dev.linkenvisuals.macro;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import dev.linkenvisuals.util.AtomicFiles;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
@@ -46,30 +47,10 @@ public final class MacroManager {
     }
 
     public static synchronized void save() {
-        Path parent = FILE.getParent();
-        if (parent != null) {
-            try {
-                Files.createDirectories(parent);
-            } catch (Exception e) {
-                dev.linkenvisuals.LinkenVisuals.LOGGER.error("Failed to create directories for macros: {}", e.getMessage());
-                return;
-            }
-        }
-        Path tempFile = FILE.resolveSibling(FILE.getFileName().toString() + ".tmp");
-        try {
-            try (Writer writer = Files.newBufferedWriter(tempFile, StandardCharsets.UTF_8)) {
-                GSON.toJson(MACROS, LIST_TYPE, writer);
-            }
-            try {
-                Files.move(tempFile, FILE, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
-            } catch (java.nio.file.AtomicMoveNotSupportedException e) {
-                Files.move(tempFile, FILE, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            }
+        try (Writer writer = AtomicFiles.openWriter(FILE)) {
+            GSON.toJson(MACROS, LIST_TYPE, writer);
         } catch (Exception e) {
             dev.linkenvisuals.LinkenVisuals.LOGGER.error("Failed to save macros: {}", e.getMessage());
-            try {
-                Files.deleteIfExists(tempFile);
-            } catch (Exception ignored) {}
         }
     }
 

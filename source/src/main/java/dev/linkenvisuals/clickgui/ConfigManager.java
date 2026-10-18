@@ -31,6 +31,9 @@ public final class ConfigManager {
     private static final Path CONFIG_FILE = FabricLoader.getInstance().getConfigDir().resolve("linkenvisuals_config.json");
     private static final Path CONFIGS_DIR = FabricLoader.getInstance().getConfigDir().resolve("linkenvisuals").resolve("configs");
 
+    /** Schema version stamped into every config file; bump on format changes. */
+    public static final int CONFIG_VERSION = 1;
+
     private static String activeProfile = "default";
 
     private ConfigManager() {
@@ -126,6 +129,7 @@ public final class ConfigManager {
             }
             JsonObject root = new JsonObject();
             root.addProperty("name", clean);
+            root.addProperty("configVersion", CONFIG_VERSION);
             root.add("modules", buildModulesJson());
 
             Path file = profilePath(clean);
@@ -159,6 +163,7 @@ public final class ConfigManager {
             JsonElement elem = JsonParser.parseReader(reader);
             if (elem.isJsonObject()) {
                 JsonObject obj = elem.getAsJsonObject();
+                checkConfigVersion(obj, "profile " + clean);
                 JsonObject modules = obj.has("modules") && obj.get("modules").isJsonObject()
                     ? obj.getAsJsonObject("modules") : obj;
                 applyModulesJson(modules);
@@ -188,6 +193,7 @@ public final class ConfigManager {
                 JsonElement rootElement = JsonParser.parseReader(reader);
                 if (rootElement.isJsonObject()) {
                     root = rootElement.getAsJsonObject();
+                    checkConfigVersion(root, "main config");
                 }
             } catch (Exception e) {
                 dev.linkenvisuals.LinkenVisuals.LOGGER.error("Failed to read main config: {}", e.getMessage());
@@ -228,6 +234,7 @@ public final class ConfigManager {
             if (root != null && root.has("modules") && root.get("modules").isJsonObject()) {
                 JsonObject defObj = new JsonObject();
                 defObj.addProperty("name", "default");
+                defObj.addProperty("configVersion", CONFIG_VERSION);
                 defObj.add("modules", root.getAsJsonObject("modules"));
                 Path defPath = profilePath("default");
                 if (defPath != null) {
@@ -261,6 +268,7 @@ public final class ConfigManager {
                 JsonElement profElem = JsonParser.parseReader(reader);
                 if (profElem.isJsonObject()) {
                     JsonObject profObj = profElem.getAsJsonObject();
+                    checkConfigVersion(profObj, "profile " + activeProfile);
                     JsonObject modulesObj = profObj.has("modules") && profObj.get("modules").isJsonObject()
                         ? profObj.getAsJsonObject("modules") : profObj;
                     applyModulesJson(modulesObj);
@@ -280,6 +288,7 @@ public final class ConfigManager {
     private static void saveGlobal() {
         try {
             JsonObject root = new JsonObject();
+            root.addProperty("configVersion", CONFIG_VERSION);
             root.addProperty("activeProfile", activeProfile);
             root.addProperty("menuStyle", dev.linkenvisuals.ui.style.StyleManager.getStyle().name());
             root.addProperty("language", dev.linkenvisuals.i18n.I18n.getLanguageOverride());
@@ -307,6 +316,20 @@ public final class ConfigManager {
 
     private static void applyModulesJson(JsonObject modulesObj) {
         ConfigJson.apply(ModuleRegistry.all(), modulesObj);
+    }
+
+    /** Warns when a file was written by a newer build than this one (unknown fields are ignored). */
+    private static void checkConfigVersion(JsonObject root, String source) {
+        if (!root.has("configVersion") || !root.get("configVersion").isJsonPrimitive()
+            || !root.getAsJsonPrimitive("configVersion").isNumber()) {
+            return;
+        }
+        int fileVersion = root.get("configVersion").getAsInt();
+        if (fileVersion > CONFIG_VERSION) {
+            dev.linkenvisuals.LinkenVisuals.LOGGER.warn(
+                "{} was written by a newer build (configVersion {} > {}); unknown settings are ignored",
+                source, fileVersion, CONFIG_VERSION);
+        }
     }
 
     public static String sanitizeName(String name) {

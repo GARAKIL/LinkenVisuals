@@ -23,6 +23,8 @@ public final class AtomicFiles {
 
     /**
      * Returns a Writer that commits atomically on {@link Writer#close()}.
+     * On any failure the temporary file is removed (best effort), so no
+     * {@code .tmp} leftovers accumulate.
      */
     public static Writer openWriter(Path target) throws IOException {
         Path parent = target.getParent();
@@ -30,9 +32,14 @@ public final class AtomicFiles {
             Files.createDirectories(parent);
         }
         Path tmp = target.resolveSibling(target.getFileName().toString() + ".tmp");
-        BufferedWriter buf =
-            Files.newBufferedWriter(tmp, StandardCharsets.UTF_8,
+        BufferedWriter buf;
+        try {
+            buf = Files.newBufferedWriter(tmp, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        } catch (IOException e) {
+            deleteQuietly(tmp);
+            throw e;
+        }
         return new FilterWriter(buf) {
             private boolean committed;
 
@@ -42,15 +49,29 @@ public final class AtomicFiles {
                     return;
                 }
                 committed = true;
-                super.close();
                 try {
-                    Files.move(tmp, target,
-                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-                } catch (AtomicMoveNotSupportedException fallback) {
-                    Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+                    super.close();
+                    try {
+                        Files.move(tmp, target,
+                            StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (AtomicMoveNotSupportedException fallback) {
+                        Files.move(tmp, target, StandardCopyOption.REPLACE_EXISTING);
+                    }
+                } catch (IOException e) {
+                    deleteQuietly(tmp);
+                    throw e;
                 }
             }
         };
+    }
+
+    /** Best-effort cleanup used on failure paths; never throws. */
+    private static void deleteQuietly(Path tmp) {
+        try {
+            Files.deleteIfExists(tmp);
+        } catch (IOException ignored) {
+            // A leftover .tmp is harmless: the next write truncates it.
+        }
     }
 
     /** Writes the whole string atomically. */

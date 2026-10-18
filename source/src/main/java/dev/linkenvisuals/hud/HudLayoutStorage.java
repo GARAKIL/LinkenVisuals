@@ -3,6 +3,7 @@ package dev.linkenvisuals.hud;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import dev.linkenvisuals.util.AtomicFiles;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -37,11 +38,8 @@ public final class HudLayoutStorage {
     }
 
     public static void save(Map<String, float[]> positions) {
-        try {
-            Files.createDirectories(FILE.getParent());
-            try (Writer writer = Files.newBufferedWriter(FILE, StandardCharsets.UTF_8)) {
-                GSON.toJson(positions, MAP_TYPE, writer);
-            }
+        try (Writer writer = AtomicFiles.openWriter(FILE)) {
+            GSON.toJson(positions, MAP_TYPE, writer);
         } catch (IOException e) {
             dev.linkenvisuals.LinkenVisuals.LOGGER.error("Failed to save HUD layout: {}", e.getMessage());
         }

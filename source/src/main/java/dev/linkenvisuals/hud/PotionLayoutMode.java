@@ -1,5 +1,6 @@
 package dev.linkenvisuals.hud;
 
+import dev.linkenvisuals.util.AtomicFiles;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -30,8 +31,7 @@ public final class PotionLayoutMode {
     public static void set(Mode mode) {
         current = mode;
         try {
-            Files.createDirectories(FILE.getParent());
-            Files.writeString(FILE, mode.name(), StandardCharsets.UTF_8);
+            AtomicFiles.writeString(FILE, mode.name());
         } catch (IOException e) {
             dev.linkenvisuals.LinkenVisuals.LOGGER.error("Failed to save potion layout: {}", e.getMessage());
         }
