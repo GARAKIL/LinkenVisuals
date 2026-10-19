@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-19 (чат №7) — v1.0.64
+
+### Сделано
+1. **Пачка 2 Ф5.7 (D35, v1.0.64)**: `ItemScroller` (drag по модификаторам: shift/alt+shift — стаки, alt — по совпадению, ctrl — по одному; колесо — переносы одного предмета/стаков/всего; хуки `HandledScreenMixin.mouseClicked/mouseDragged/mouseReleased/mouseScrolled` + `HandledScreenAccessor` из пачки 1; чистая логика `util/ItemScrollerMath` + MoveBudget, анти-кик пол 50 мс), `ElytraSwap` (фазовый своп через слот 6, 1 клик/тик; временный InventoryScreen; `util/InventoryMath.pickBest`; без Instant и `/fly` — D35), `TotemTracker` (хук `ClientPlayNetworkHandlerMixin.onEntityStatus` + чат-сообщение с меткой зачарованности; дедуп `util/PopDedupe`), HUD `TotemCounterHud`/`UseTrackerHud` в `HudManager.ELEMENTS` (видны в edit-mode).
+2. **Гигиена catch закрыта**: не 6, а 11 проглоченных исключений (ещё 5 — в `CustomTextureLoader`) → LOGGER (warn / warn-once для пер-кадровых путей / debug для best-effort cleanup). TODO/FIXME/System.out/catch-ignored по `src/main/java` = 0.
+3. **Тесты**: 104, 0 падений (+21: ItemScrollerMath 11, InventoryMath 5, PopDedupe 5; −1: `inventoryIndexToSlot` переехал в `InventoryMathTest`, `DragPath` — только сэмплирование).
+4. **Ремап-скан** jar 1.0.64: 47 миксинов, 0 yarn-имён; аннотации новых инжектов ремапнуты (`method_25394`, `method_11113`; `getStatus` → `method_11470:()B`). Стабильные `rotation(float)`/`getString()`/`comp_*` валидированы по `minecraft-merged-intermediary` (не method_* — так и должно быть).
+
+### Следующая задача
+**StreamerMode** (остаток пачки 2 Ф5.7) — отдельной сессией: `StreamerModeUtils` (3048 строк) + `StreamerModePatterns`/`StreamerModeState` + FriendManager-зависимость; таблицу паттернов в ресурс; фильтры ChatHud/PlayerListHud/scoreboard. Перед стартом уточнить объём у пользователя (полный донорский фильтр vs минимальный). Затем `WayPoints/GPS` (нет команды добавления точек — открытый вопрос).
+
+### Открытые решения (ждём пользователя)
+- LICENSE: копирайт-строка «StrangeVisuals Team & Contributors» — обновлять ли держателя (правило «лицензию не менять» пока в силе).
+- `MASTER_PROMPT.md` — убирать ли из публичного репо.
+- UK-глифы: в MSDF-атласах нет нативных і/ї/є/ґ (фолбэк і/ї→i, є→э, ґ→г) — нужна ли регенерация атласа.
+- `source/tools/*` — проверить актуальность скриптов при переносах Фазы 5.
+- `WaypointsRenderer.clear()` намеренно ничего не делает (комментарий «Keep waypoints on disable») — решить: чистить при disable или нет.
+- `WaypointsModule` — нет команды добавления точек (`addWaypoint` нигде не вызывается). Нужен ли `/wp add`?
+- StreamerMode: объём порта (см. «Следующая задача»).
+
 ## Состояние на 2026-10-19 (чат №6) — v1.0.63
 
 ### Сделано

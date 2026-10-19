@@ -69,8 +69,10 @@ public final class AtomicFiles {
     private static void deleteQuietly(Path tmp) {
         try {
             Files.deleteIfExists(tmp);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
             // A leftover .tmp is harmless: the next write truncates it.
+            dev.linkenvisuals.LinkenVisuals.LOGGER.debug(
+                "Temp file cleanup failed for {}: {}", tmp, e.getMessage());
         }
     }
 

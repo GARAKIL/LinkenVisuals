@@ -23,6 +23,8 @@ public final class VanillaStylePipeline {
     public static final Identifier DIRT_BG = Identifier.ofVanilla("textures/block/dirt.png");
     public static final Identifier LIGHT_DIRT_BG = LinkenVisuals.id("textures/gui/vanilla/light_dirt_background.png");
     public static final Identifier HEADER_SEP = LinkenVisuals.id("textures/gui/vanilla/header_separator.png");
+    /** The panorama failure warning is logged once; menus render every frame. */
+    private static boolean panoramaFailureLogged;
     public static final Identifier FOOTER_SEP = LinkenVisuals.id("textures/gui/vanilla/footer_separator.png");
 
     public static final Identifier ICONS_MAIN = LinkenVisuals.id("textures/gui/vanilla/main_menu.png");
@@ -318,7 +320,15 @@ public final class VanillaStylePipeline {
                 try {
                     renderer.render(context, width, height, true);
                     return;
-                } catch (Throwable ignored) {
+                } catch (Throwable t) {
+                    // Logged once: the menu renders every frame, and the gradient
+                    // fallback below keeps the menu usable.
+                    if (!panoramaFailureLogged) {
+                        panoramaFailureLogged = true;
+                        LinkenVisuals.LOGGER.warn(
+                            "Vanilla panorama renderer failed, using gradient fallback: {}",
+                            t.toString());
+                    }
                 }
             }
         }

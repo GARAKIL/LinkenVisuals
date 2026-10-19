@@ -42,12 +42,4 @@ class DragPathTest {
     void nonPositiveBudgetYieldsNothing() {
         assertTrue(DragPath.sample(0.0, 0.0, 10.0, 10.0, 0).isEmpty());
     }
-
-    @Test
-    void mapsHotbarIndicesToHandlerSlots() {
-        assertEquals(36, DragPath.inventoryIndexToSlot(0));
-        assertEquals(44, DragPath.inventoryIndexToSlot(8));
-        assertEquals(9, DragPath.inventoryIndexToSlot(9));
-        assertEquals(35, DragPath.inventoryIndexToSlot(35));
-    }
 }

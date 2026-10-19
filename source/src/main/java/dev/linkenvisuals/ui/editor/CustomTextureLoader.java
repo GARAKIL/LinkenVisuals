@@ -76,19 +76,9 @@ public final class CustomTextureLoader {
         cachedConfigPath = null;
         NativeImage stale = pendingImage;
         pendingImage = null;
-        if (stale != null) {
-            try {
-                stale.close();
-            } catch (Exception ignored) {
-            }
-        }
-        if (currentTexture != null) {
-            try {
-                currentTexture.close();
-            } catch (Exception ignored) {
-            }
-            currentTexture = null;
-        }
+        closeImage(stale);
+        closeTexture(currentTexture);
+        currentTexture = null;
     }
 
     /**
@@ -111,12 +101,7 @@ public final class CustomTextureLoader {
             try {
                 NativeImageBackedTexture texture = new NativeImageBackedTexture(() -> "custom_background", ready);
                 ready = null; // ownership moved to texture
-                if (currentTexture != null) {
-                    try {
-                        currentTexture.close();
-                    } catch (Exception ignored) {
-                    }
-                }
+                closeTexture(currentTexture);
                 currentTexture = texture;
                 MinecraftClient.getInstance().getTextureManager().registerTexture(CUSTOM_BG_ID, texture);
                 lastLoadedPath = pathStr;
@@ -124,10 +109,7 @@ public final class CustomTextureLoader {
                 loaded = true;
                 cachedConfigPath = config.customImagePath == null ? "" : config.customImagePath;
             } catch (Exception e) {
-                try {
-                    ready.close();
-                } catch (Exception ignored) {
-                }
+                closeImage(ready);
                 LinkenVisuals.LOGGER.warn("[LinkenVisuals] Custom background upload failed: {}", e.getMessage());
                 return loaded && currentTexture != null ? CUSTOM_BG_ID : null;
             }
@@ -200,14 +182,32 @@ public final class CustomTextureLoader {
             pendingPathStr = currentPathStr;
             pendingModified = currentModified;
             pendingImage = image;
-            if (prev != null) {
-                try {
-                    prev.close();
-                } catch (Exception ignored) {
-                }
-            }
+            closeImage(prev);
         } finally {
             LOAD_IN_FLIGHT.set(false);
+        }
+    }
+
+    /** Image/texture close is best-effort; failures are logged, never thrown. */
+    private static void closeImage(NativeImage image) {
+        if (image == null) {
+            return;
+        }
+        try {
+            image.close();
+        } catch (Exception e) {
+            LinkenVisuals.LOGGER.debug("[LinkenVisuals] Background image close failed: {}", e.getMessage());
+        }
+    }
+
+    private static void closeTexture(NativeImageBackedTexture texture) {
+        if (texture == null) {
+            return;
+        }
+        try {
+            texture.close();
+        } catch (Exception e) {
+            LinkenVisuals.LOGGER.debug("[LinkenVisuals] Background texture close failed: {}", e.getMessage());
         }
     }
 

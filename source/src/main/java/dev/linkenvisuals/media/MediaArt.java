@@ -121,7 +121,9 @@ public final class MediaArt {
     private static NativeImage decode(byte[] bytes) {
         try {
             return NativeImage.read(bytes);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            dev.linkenvisuals.LinkenVisuals.LOGGER.debug(
+                "NativeImage.read failed, trying ImageIO: {}", e.getMessage());
         }
         try {
             BufferedImage buffered = ImageIO.read(new ByteArrayInputStream(bytes));
@@ -135,7 +137,9 @@ public final class MediaArt {
                 }
             }
             return image;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            dev.linkenvisuals.LinkenVisuals.LOGGER.warn(
+                "Failed to decode album art: {}", e.getMessage());
             return null;
         }
     }

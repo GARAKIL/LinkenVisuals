@@ -186,7 +186,8 @@ public final class MediaWatcher {
     private static long parseLong(String value) {
         try {
             return Long.parseLong(value.trim());
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
+            LinkenVisuals.LOGGER.debug("MediaWatcher: non-numeric timestamp '{}'", value);
             return 0L;
         }
     }

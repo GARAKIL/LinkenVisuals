@@ -93,6 +93,8 @@ public final class ClickGuiScreen extends Screen {
     private static ModuleInfo focused;
     private static final StringBuilder search = new StringBuilder();
     private static boolean searchOpen;
+    /** The blur warning is logged once; the render path runs every frame. */
+    private static boolean blurUnsupportedLogged;
     private boolean closing;
     private long lastFrame = System.nanoTime();
     private static float scrollTarget;
@@ -223,8 +225,13 @@ public final class ClickGuiScreen extends Screen {
 
         try {
             context.applyBlur();
-        } catch (IllegalStateException ignored) {
-            // Vanilla post-process blur is disabled or unsupported in current device context
+        } catch (IllegalStateException e) {
+            // Vanilla post-process blur is disabled or unsupported in the current device
+            // context. Logged once: this path runs every frame while the screen is open.
+            if (!blurUnsupportedLogged) {
+                blurUnsupportedLogged = true;
+                LinkenVisuals.LOGGER.warn("ClickGUI blur unavailable: {}", e.toString());
+            }
         }
         context.fill(0, 0, width, height, ColorMath.withAlpha(0x000000, Math.round(80 * openT)));
 

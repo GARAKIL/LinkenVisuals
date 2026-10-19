@@ -15,7 +15,7 @@
 | 5.6b | Wave-плащ (`CapeSimulation`) | ⛔ | без сетевого синка |
 | 5.6c | Питомцы (`RemotePets`/`PetWanderController`/Rudy) | ⛔ | проверить зависимость от их сети — вероятно адаптировать |
 | 5.6d | ChinaHat, Nimb, Naruto, CosmeticEffects, Spheres | ⛔ | каждая отдельным подтверждённым пунктом |
-| 5.7 | Модули: WayPoints/GPS, ItemPhysics, ItemScroller, ChatHelper, MineHelper, FastExp, ElytraSwap, HitSound, HandSwap, SwingAnimation, Trails, JumpCircles, Crosshair, HitColor, TargetEsp, Zoom, Freelook, Fullbright, TimeChanger, TotemCounter/Tracker, UseTracker, StreamerMode | 🔄 | D34/v1.0.63: SwingAnimation, HitColor, Freelook, ItemPhysics — полные порты с хуками и тестами. Остаток: ItemScroller, ElytraSwap, StreamerMode (таблица → ресурс), TotemTracker-событие, HUD-элементы |
+| 5.7 | Модули: WayPoints/GPS, ItemPhysics, ItemScroller, ChatHelper, MineHelper, FastExp, ElytraSwap, HitSound, HandSwap, SwingAnimation, Trails, JumpCircles, Crosshair, HitColor, TargetEsp, Zoom, Freelook, Fullbright, TimeChanger, TotemCounter/Tracker, UseTracker, StreamerMode | 🔄 | D34/v1.0.63 + D35/v1.0.64: SwingAnimation, HitColor, Freelook, ItemPhysics, ItemScroller, ElytraSwap, TotemTracker (событие + HUD TotemCounter/UseTracker) — полные порты с хуками и тестами. Остаток: StreamerMode (таблица 3048 строк → ресурс, отдельная сессия), WayPoints/GPS (нет команды добавления) |
 | 5.8 | ViewModel-паритет (`Hands`, `ViewModel`) | ⛔ | референс параметров → `HandEditor`/`HandPose` |
 | — | Идеи compat: soft-dep рефлексия, Iris-детект, Pojav/gl4es | ⛔ | паттерны, не код |
 | — | Антипаттерны донора | 🚫 | 184 проглоченных catch, сырые GL-вызовы, god-классы, жёсткие IP — не переносим |

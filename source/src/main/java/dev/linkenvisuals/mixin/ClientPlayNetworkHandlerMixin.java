@@ -2,10 +2,18 @@ package dev.linkenvisuals.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.TotemTrackerModule;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.entity.EntityStatuses;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.EntityStatusS2CPacket;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin {
@@ -19,5 +27,23 @@ public abstract class ClientPlayNetworkHandlerMixin {
             return;
         }
         original.call(logger, format, arg1, arg2);
+    }
+
+    @Inject(method = "onEntityStatus", at = @At("HEAD"))
+    private void linkenvisuals$trackTotemPop(EntityStatusS2CPacket packet, CallbackInfo ci) {
+        if (packet.getStatus() != EntityStatuses.USE_TOTEM_OF_UNDYING) {
+            return;
+        }
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.world == null) {
+            return;
+        }
+        TotemTrackerModule module = Modules.totemTracker();
+        if (module == null || !module.enabled()) {
+            return;
+        }
+        if (packet.getEntity(client.world) instanceof PlayerEntity player) {
+            module.onTotemPop(player, client);
+        }
     }
 }

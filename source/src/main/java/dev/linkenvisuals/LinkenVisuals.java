@@ -240,6 +240,24 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.module.impl.FastExpModule.tick();
         dev.linkenvisuals.module.impl.TotemCounterModule.tick();
         dev.linkenvisuals.module.impl.UseTrackerModule.tick();
+        tickElytraSwap(client);
+        tickTotemTracker(client);
+    }
+
+    private static void tickElytraSwap(MinecraftClient client) {
+        dev.linkenvisuals.module.impl.ElytraSwapModule module =
+            dev.linkenvisuals.module.Modules.elytraSwap();
+        if (module != null) {
+            module.tick(client);
+        }
+    }
+
+    private static void tickTotemTracker(MinecraftClient client) {
+        dev.linkenvisuals.module.impl.TotemTrackerModule module =
+            dev.linkenvisuals.module.Modules.totemTracker();
+        if (module != null) {
+            module.tick(client);
+        }
     }
 
     private static void tickHandSwap(MinecraftClient client) {

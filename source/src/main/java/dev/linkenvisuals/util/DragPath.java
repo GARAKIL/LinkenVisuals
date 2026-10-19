@@ -43,12 +43,4 @@ public final class DragPath {
         }
         return points;
     }
-
-    /** Inventory index (0..35) to player-screen-handler slot id. */
-    public static int inventoryIndexToSlot(int index) {
-        if (index >= 0 && index <= 8) {
-            return 36 + index;
-        }
-        return index;
-    }
 }
