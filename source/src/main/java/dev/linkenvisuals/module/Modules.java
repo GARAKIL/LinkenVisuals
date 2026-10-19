@@ -11,6 +11,7 @@ import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
+import dev.linkenvisuals.module.impl.SwingAnimationModule;
 import dev.linkenvisuals.module.impl.TimeChangerModule;
 import dev.linkenvisuals.module.impl.TotemCounterModule;
 import dev.linkenvisuals.module.impl.TotemTrackerModule;
@@ -42,6 +43,7 @@ public final class Modules {
     private static TotemTrackerModule totemTracker;
     private static WaypointsModule waypoints;
     private static UseTrackerModule useTracker;
+    private static SwingAnimationModule swingAnimation;
 
     private Modules() {
     }
@@ -122,6 +124,10 @@ public final class Modules {
         return useTracker;
     }
 
+    public static SwingAnimationModule swingAnimation() {
+        return swingAnimation;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -160,5 +166,7 @@ public final class Modules {
         register(waypoints);
         useTracker = new UseTrackerModule();
         register(useTracker);
+        swingAnimation = new SwingAnimationModule();
+        register(swingAnimation);
     }
 }
