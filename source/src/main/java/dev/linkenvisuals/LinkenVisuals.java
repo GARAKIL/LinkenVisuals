@@ -17,6 +17,7 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.mixin.FogRendererAccessor;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.render.BlockOverlayRenderer;
+import dev.linkenvisuals.render.JumpCirclesRenderer;
 import dev.linkenvisuals.render.MotionBlurRenderer;
 import dev.linkenvisuals.render.TrailsRenderer;
 import dev.linkenvisuals.player.FakePlayer;
@@ -135,6 +136,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(BlockOverlayRenderer::onEndMain);
         WorldRenderEvents.END_MAIN.register(MotionBlurRenderer::onEndMain);
         WorldRenderEvents.END_MAIN.register(TrailsRenderer::render);
+        WorldRenderEvents.END_MAIN.register(JumpCirclesRenderer::render);
         Modules.init();
     }
 
@@ -228,6 +230,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         updateFog();
         FakePlayer.tick(client);
         dev.linkenvisuals.render.TrailsRenderer.tick();
+        dev.linkenvisuals.render.JumpCirclesRenderer.tick();
     }
 
     private static void updateFog() {
