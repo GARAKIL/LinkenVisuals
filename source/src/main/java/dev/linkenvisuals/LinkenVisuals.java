@@ -18,6 +18,7 @@ import dev.linkenvisuals.mixin.FogRendererAccessor;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.render.BlockOverlayRenderer;
 import dev.linkenvisuals.render.MotionBlurRenderer;
+import dev.linkenvisuals.render.TrailsRenderer;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -133,6 +134,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register(BlockOverlayRenderer::onBeforeBlockOutline);
         WorldRenderEvents.END_MAIN.register(BlockOverlayRenderer::onEndMain);
         WorldRenderEvents.END_MAIN.register(MotionBlurRenderer::onEndMain);
+        WorldRenderEvents.END_MAIN.register(TrailsRenderer::render);
         Modules.init();
     }
 
@@ -225,6 +227,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         }
         updateFog();
         FakePlayer.tick(client);
+        dev.linkenvisuals.render.TrailsRenderer.tick();
     }
 
     private static void updateFog() {
