@@ -20,6 +20,7 @@ import dev.linkenvisuals.render.BlockOverlayRenderer;
 import dev.linkenvisuals.render.JumpCirclesRenderer;
 import dev.linkenvisuals.render.MotionBlurRenderer;
 import dev.linkenvisuals.render.TrailsRenderer;
+import dev.linkenvisuals.render.WaypointsRenderer;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -137,6 +138,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(MotionBlurRenderer::onEndMain);
         WorldRenderEvents.END_MAIN.register(TrailsRenderer::render);
         WorldRenderEvents.END_MAIN.register(JumpCirclesRenderer::render);
+        WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         Modules.init();
     }
 
