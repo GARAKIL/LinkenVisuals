@@ -2,6 +2,32 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-19 (чат №9) — v1.0.68
+
+### Сделано
+1. **Хотфикс D38 (v1.0.67): пайплайн Trails ронял загрузку шейдеров.** `TrailsRenderer` (с коммита b5bcf1e, «v1.0.62») ссылался на `linkenvisuals:core/position_color`, файлов не было → любая сборка 1.0.62–1.0.66 падала на reload (`Failed to load required shader programs` → сброс ресурспаков; каскадом терялись и ванильные шейдеры), т.к. пайплайн регистрируется на старте в `Pipelines.warmUp()`. Добавлены `assets/linkenvisuals/shaders/core/position_color.vsh/.fsh` (семантика ванильной пары 1.21.11). Evidence: повторный dev-запуск — 1 reload, 0 ошибок, `precompile deferred` = 0. У пользователя не проявлялся: последняя сессия MultiMC — v1.0.45 (лог 18.10).
+2. **Фаза 5.6: Rudy — порт персонажа (D39, v1.0.68).** Ассеты `characters/rudy.*` (CC-BY-4.0) + чистое ядро `RudyMesh` (парсер, 8 тестов) + `RudyCharacter` (загрузка/текстуры/submit/эмиссия/поза) + 4 новых миксина и WrapOperation над `submitModel` в `LivingEntityRendererMixin`. Архитектура: `submitCustom` по одному на материал, `setAngles` перевызывается в draw-лямбде (поза на submit не финальна), пивоты/хват — из донора, броня скрыта, только локальный игрок. UI: Cosmetics → «Character» (Default/Rudy).
+3. **Тесты**: 135, 0 падений (+8 RudyMeshTest); build зелёный; jar `linkenvisuals-1.0.68.jar`, автодеплой в MultiMC сработал (запись «путь 1.21.111 не существует» в разделе v1.0.66 неактуальна).
+4. **Ремап-скан jar 1.0.68**: 53 миксин-класса (включая 4 новых), 0 yarn-имён в member-рефах — dev-запуск ремап НЕ проверяет (named-маппинги), скан обязателен.
+
+### Следующая задача
+**Питомцы (5.6c-остаток = CosmeticEffects-задача)**: локальная адаптация донорского `Raven` (≈2950 строк: симуляция, 11 скинов ванильных мобов, ULT-анимация воронов) + `PetWanderController`/`PetGroundSampler` — **без UserSyncManager** (п.3); перед стартом уточнить у пользователя состав (какие скины, ULT — да/нет). После — Ф6 по утверждённому порядку: 1) перф-аудит аллокаций, 2) draw-calls, 3) инвентарь ресурсов, 4) README/доки, 5) релизная сборка.
+
+### Открытые решения (ждём пользователя)
+- Питомцы: состав порта (скины, ULT-анимация воронов).
+- Trails: был неработоспособен с 1.0.62 — в игровой приёмке посмотреть визуал (упрощённые billboard'ы).
+- LICENSE: копирайт-строка — держатель не менялся (правило «лицензию не менять» в силе).
+- `MASTER_PROMPT.md` — убирать ли из публичного репо.
+- UK-глифы MSDF (фолбэк і/ї→i, є→э, ґ→г) — нужна ли регенерация атласа.
+- `source/tools/*` — проверить актуальность при переносах Ф5.
+- WayPoints: дополнительный UX (кейбинд/GUI) — нужен ли.
+- StreamerMode: nametag-санитаризация — нужна ли отдельной задачей.
+
+### Проверенные факты (для следующего чата)
+- **Dev-прогон перед выдачей jar — обязателен** (после D38): `runClient` (окно), лог `source/run/logs/latest.log`, DEBUG — в `debug.log` (`precompilation deferred`); ресурсы — из `build/resources/main`; закрытие — kill `java.exe` с `devlaunchinjector` в CommandLine. Ловит битые шейдеры/ресурсы на reload; ремап целей — НЕ проверяет (named-маппинги).
+- **Шейдеры в пайплайнах**: ванильные — `Identifier.of("minecraft", "core/…")` (пример: CirclePipeline); свои — файлы `assets/linkenvisuals/shaders/core/<name>.vsh|.fsh` (`#version 330` — как в большинстве; `#moj_import <minecraft:dynamictransforms.glsl>`/`projection.glsl`); сверка ссылок: `Select-String -Pattern '"core/([a-zA-Z_0-9]+)"'` по java × список файлов.
+- **Rudy-факты**: draw-лямбда `submitCustom` обязана сама звать `model.setAngles(state)`; `matrices.peek().copy()` — снимок матриц для лямбды; «невидим для игрока» = `invisible && !invisibleToPlayer`; свои текстуры — `NativeImage.read` + `NativeImageBackedTexture(id::toString, image)` + `registerTexture`; флаги по render state — duck-интерфейс + миксин на state (`@Unique` поле; паттерн HitColor/Rudy).
+
 ## Состояние на 2026-10-19 (чат №8) — v1.0.66
 
 ### Сделано

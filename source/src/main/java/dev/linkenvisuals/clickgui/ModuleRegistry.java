@@ -104,6 +104,7 @@ public final class ModuleRegistry {
     private static ModeSetting cosmeticCrown;
     private static ModeSetting cosmeticBack;
     private static ModeSetting cosmeticAura;
+    private static ModeSetting cosmeticCharacter;
     private static ColorSetting cosmeticColor;
     private static SliderSetting cosmeticSize;
     private static SliderSetting cosmeticSpeed;
@@ -244,12 +245,13 @@ public final class ModuleRegistry {
         cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb"), 1);
         cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape"), 1);
         cosmeticAura = new ModeSetting("Aura", List.of("None", "Shards", "Embers", "Runes", "Spheres"), 0);
+        cosmeticCharacter = new ModeSetting("Character", List.of("Default", "Rudy"), 0);
         cosmeticColor = new ColorSetting("Colour", Theme.DEFAULT_ACCENT);
 
         cosmeticSize = new SliderSetting("Size", 0.6f, 1.5f, 0.05f, 1.0f, "x");
         cosmeticSpeed = new SliderSetting("Speed", 0.2f, 3.0f, 0.05f, 1.0f, "x");
         cosmetics = new ModuleInfo("Cosmetics", "worn light, yours only", Category.VISUAL,
-            List.of(cosmeticCrown, cosmeticBack, cosmeticAura),
+            List.of(cosmeticCrown, cosmeticBack, cosmeticAura, cosmeticCharacter),
             List.of(cosmeticColor, cosmeticSize, cosmeticSpeed));
         cosmetics.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.PLAYER);
         MODULES.add(cosmetics);
@@ -451,6 +453,7 @@ public final class ModuleRegistry {
             case "crown" -> cosmeticCrown.current();
             case "back" -> cosmeticBack.current();
             case "aura" -> cosmeticAura.current();
+            case "character" -> cosmeticCharacter.current();
             default -> "None";
         };
     }

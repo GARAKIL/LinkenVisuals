@@ -51,7 +51,11 @@
     "YggdrasilServicesKeyInfoMixin",
     "ClientPlayNetworkHandlerMixin",
     "AddServerScreenMixin",
-    "DirectConnectScreenMixin"
+    "DirectConnectScreenMixin",
+    "PlayerEntityRenderStateMixin",
+    "PlayerEntityRendererMixin",
+    "PlayerEntityModelMixin",
+    "ArmorFeatureRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
