@@ -84,6 +84,7 @@ public final class Cosmetics {
                 case "Shards" -> Shards.render(worn);
                 case "Embers" -> Embers.render(worn);
                 case "Runes" -> Runes.render(worn);
+                case "Spheres" -> Spheres.render(worn);
                 default -> { }
             }
             matrices.pop();
