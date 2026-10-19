@@ -2,6 +2,33 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-19 (чат №9, продолжение 2) — v1.0.70
+
+### Сделано
+1. **Фаза 5.6 (остаток): ULT-анимация воронов (D41, v1.0.70).** Донорская 19-с сцена — `pet/PetUltimate.java` (константы 1:1: 2.4 s подъём → 2.6 s стягивание → 9.2 s удержание → 2.8 s разлёт → 3.0 s дисперсия, обрезка на 19 s). Hero + 42 иллюзии — `PetRig.renderUltRaven` (`entityTranslucent(textures/pet/voron.png)` + ARGB); перья (7/птицу, `dens = 1.05+1.55·attach`) и свечение — билборды пайплайнами `position_tex_color` (перья TRANSLUCENT, свечение `BlendFunction.LIGHTNING`; `NO_DEPTH_TEST`, без depth-write/cull); возврат 850 мс (`snapFlyTo`). Триггер — бинд `Pet ULT` (Cosmetics, дефолт NONE) + GLFW edge-poll (`PetRig.frame`; гейты «экран закрыт» + «скин Raven»; мид-сцена — игнор, во время возврата — перезапуск). Настройки: `Pet Alpha` 82 %, `Pet Glow` 65 %, `Pet Glow Colour` 0xFF141414. Звук `linkenvisuals:pet/ult` → `sounds/pet/itachi.ogg`. `oblok.png` не импортирован (0 ссылок в доноре); остальные отклонения — в D41.
+2. **Находка dev-прогона (исправлена до выдачи jar)**: звуковой путь резолвился как `sounds/pet/sounds/itachi.ogg` (двойной `sounds/`) — файл переложен в `sounds/pet/`, имя в `sounds.json` — `linkenvisuals:pet/itachi`; заодно ассеты питомцев приведены к общему layout `textures/pet/*`. Повторный прогон чистый.
+3. **Тесты**: **149, 0 падений** (+7: `PetUltimateTest` — окна фаз/перекрытие дисперсии, attach/detach, альфа птиц, smoothstep; `KeyNamesTest` — round-trip, NONE/−1, «KEY n»). Build зелёный; автодеплой `linkenvisuals-1.0.70.jar` в MultiMC.
+4. **Dev-прогон**: 1 «Reloading ResourceManager», 0 «Failed to load»/«Couldn't find source», 0 ошибок миксинов, 0 звуковых предупреждений; клиент дошёл до титульного экрана, закрыт штатно (2 ERROR в логе — дев-шум: user properties/Realms offline).
+
+### Следующая задача
+Игровая приёмка пользователем: v1.0.68 (Rudy — поза/крылья/хват; Trails), v1.0.69 (11 скинов), **v1.0.70 (ULT)**: в Cosmetics забиндить `Pet ULT`, выбрать скин Raven, нажать в мире — 19-с сцена (подъём → стягивание/удержание → разлёт, перья/свечение) со звуком темы Itachi, в конце возврат на плечо за 850 мс; повторное нажатие мид-сцены игнорируется (во время возврата — перезапуск). Затем Фаза 6 в утверждённом порядке: 1) аудит пер-кадровых аллокаций, 2) аудит draw-calls, 3) инвентарь ресурсов, 4) README/доки, 5) релизная сборка. Тег/релиз — только по слову пользователя.
+
+### Проверенные факты (для следующего чата)
+- **Yarn-кэш**: проект собирается против `yarn 1.21.11+build.4`; в кэше fabric-loom лежат лишние `build.3` и `build.6` — javap по ним **врёт**. Пример: `PositionedSoundInstance.master(SoundEvent, float)` в build.4 переименован в `ui(...)`.
+- **Ресурсы**: id-путь текстур — точный путь под `assets/<ns>/` (префикс `textures/` не добавляется автоматически); у нас вся графика — `textures/…` и в id указывается `textures/…`. Для `sounds.json`: имя `[<ns>:]<path>` ↔ файл `assets/<ns>/sounds/<path>.ogg`.
+- **ULT-рендер**: `Camera.getRotation(): Quaternionf`; `camera.getHorizontalPlane()/getVerticalPlane()` — билборды; `RenderPipelines.POSITION_TEX_COLOR_SNIPPET` + `RenderPipelines.register` + `RenderLayer.of(...RenderSetup.texture("Sampler0", id)...)` (паттерн `Material.java`); `RenderLayers.entityTranslucent(id)` + цвет-аргумент `submitModel(..., color)` — альфа без шейдера.
+- **ULT-константы (locked тестами)**: 19000/2400/2600/9200/2800/3000 мс; 42 иллюзии (сид `now ^ 0x9E3779B97F4A7C15L`); спавн птицы `520 + 14·i` мс + фейд 860 мс; detach после break = 0.95; постоянный фейд `i·0.0085`.
+- **KeybindSetting**: ярлык + код; `KeyNames.codeOf` (обратный маппинг); персистенция в `ConfigJson`.
+
+### Открытые решения (ждём пользователя)
+- Игровая приёмка v1.0.68 (Rudy, Trails), v1.0.69 (11 скинов) и v1.0.70 (ULT) — за пользователем.
+- LICENSE: копирайт-строка — держатель не менялся (правило «лицензию не менять» в силе).
+- `MASTER_PROMPT.md` — убирать ли из публичного репо.
+- UK-глифы MSDF (фолбэк і/ї→i, є→э, ґ→г) — нужна ли регенерация атласа.
+- `source/tools/*` — проверить актуальность при переносах Ф5.
+- WayPoints: дополнительный UX (кейбинд/GUI) — нужен ли.
+- StreamerMode: nametag-санитаризация — нужна ли отдельной задачей.
+
 ## Состояние на 2026-10-19 (чат №9, продолжение) — v1.0.69
 
 ### Сделано

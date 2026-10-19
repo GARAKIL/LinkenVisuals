@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.KeySetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
@@ -102,6 +103,8 @@ public final class ConfigJson {
                     color.set(val.getAsInt());
                 } else if (setting instanceof KeySetting key) {
                     key.setValue(val.getAsInt());
+                } else if (setting instanceof KeybindSetting bind) {
+                    bind.resolve(val.getAsString());
                 } else if (setting instanceof StringSetting text) {
                     text.setValue(val.getAsString());
                 }
@@ -123,6 +126,8 @@ public final class ConfigJson {
                 settingsObj.addProperty(setting.name(), color.rgb());
             } else if (setting instanceof KeySetting key) {
                 settingsObj.addProperty(setting.name(), key.value());
+            } else if (setting instanceof KeybindSetting bind) {
+                settingsObj.addProperty(setting.name(), bind.raw());
             } else if (setting instanceof StringSetting text) {
                 settingsObj.addProperty(setting.name(), text.value());
             }

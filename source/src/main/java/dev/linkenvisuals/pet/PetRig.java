@@ -8,7 +8,9 @@ import net.minecraft.client.model.Model;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderLayers;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRenderManager;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -68,7 +70,7 @@ public final class PetRig {
     private static final PetRig INSTANCE = new PetRig();
 
     /** Raven pet texture (asset ported from the donor). */
-    private static final Identifier VORON_TEXTURE = Identifier.of("linkenvisuals", "pet/voron.png");
+    private static final Identifier VORON_TEXTURE = Identifier.of("linkenvisuals", "textures/pet/voron.png");
 
     // --- flyer orbit (port of the donor's updateShoulderOrbit state) ---
     private boolean flyInited;
@@ -111,6 +113,7 @@ public final class PetRig {
     private boolean animFailed;
     private long petBlockedUntilMs;
     private long lastFailureLogMs;
+    private final PetUltimate ult = new PetUltimate();
 
     private PetRig() {
     }
@@ -126,6 +129,7 @@ public final class PetRig {
     }
 
     private void resetAll() {
+        ult.reset();
         resetMotion();
         entity = null;
         lastWorld = null;
@@ -182,9 +186,21 @@ public final class PetRig {
             return;
         }
 
-        // The donor keeps the pet visible in first person unless the user opts out.
+        // Raven ULT trigger (the donor's configurable "raven scene" bind). Blocked while a screen
+        // is open so typing in a GUI can never fire the scene.
+        if (want == PetSkins.RAVEN) {
+            if (client.currentScreen == null) {
+                ult.pollKey(client, ModuleRegistry.cosmeticPetUlt().code());
+            }
+        } else {
+            ult.reset();
+        }
+
+        // The donor keeps the pet visible in first person unless the user opts out; an active
+        // ULT scene (and its return flight) keeps rendering in first person regardless.
         if (client.options != null && client.options.getPerspective() == Perspective.FIRST_PERSON
-            && !ModuleRegistry.cosmeticPetFirstPerson().value()) {
+            && !ModuleRegistry.cosmeticPetFirstPerson().value()
+            && !ult.active() && !ult.returnActive()) {
             return;
         }
 
@@ -197,7 +213,7 @@ public final class PetRig {
         }
 
         try {
-            renderPet(client, matrices, queue, cameraState, want, nowMs);
+            renderPet(client, matrices, queue, cameraState, want, nowMs, context.consumers());
         } catch (RuntimeException failed) {
             // Safety net: a broken pet must never take the render thread down. The failure is logged
             // (throttled) and the pet retries after a short pause.
@@ -211,7 +227,8 @@ public final class PetRig {
     }
 
     private void renderPet(MinecraftClient client, MatrixStack matrices, OrderedRenderCommandQueue queue,
-                           CameraRenderState cameraState, PetSkins want, long nowMs) {
+                           CameraRenderState cameraState, PetSkins want, long nowMs,
+                           VertexConsumerProvider consumers) {
         PlayerEntity player = client.player;
         World world = client.world;
         EntityRenderManager manager = client.getEntityRenderDispatcher();
@@ -272,7 +289,7 @@ public final class PetRig {
 
         switch (want.kind()) {
             case FLYER -> renderFlyer(manager, queue, cameraState, matrices, ent, player, pt, dt, px, py, pz,
-                forward, side, radiusBase, heightBase, speed, scale, t, nowMs, eye);
+                forward, side, radiusBase, heightBase, speed, scale, t, nowMs, eye, consumers);
             case PUFFER -> renderPuffer(manager, queue, cameraState, matrices, ent, player, pt, dt, px, py, pz,
                 forward, side, radiusBase, heightBase, speed, scale, t, nowMs, eye);
             case WALKER -> renderWalker(manager, queue, cameraState, matrices, ent, world, player, pt, dt,
@@ -341,8 +358,15 @@ public final class PetRig {
                              CameraRenderState cameraState, MatrixStack matrices, LivingEntity ent,
                              PlayerEntity player, float pt, float dt, double px, double py, double pz,
                              Vec3d forward, Vec3d side, float radiusBase, float heightBase,
-                             float speed, float scale, double t, long nowMs, Vec3d eye) {
+                             float speed, float scale, double t, long nowMs, Vec3d eye,
+                             VertexConsumerProvider consumers) {
         updateShoulderOrbit(player, dt, px, py, pz, forward, side, radiusBase, heightBase, speed, t);
+
+        // Raven ULT / return flight replaces the normal raven rendering for the frame.
+        if (skin == PetSkins.RAVEN && ult.render(this, consumers, manager, queue, cameraState, matrices, ent,
+                player, pt, dt, px, py, pz, forward, side, radiusBase, speed, scale, t, nowMs, eye)) {
+            return;
+        }
 
         float renderPitch = flyPitch;
         float tickMul = 1.0f;
@@ -393,7 +417,7 @@ public final class PetRig {
      * {@code (sin(lerp(lastFlapProgress, flapProgress, pt)) + 1) * lerp(lastMaxWingDeviation,
      * maxWingDeviation, pt)}, so advancing these four entity fields drives a steady flap.
      */
-    private static void animateParrotWings(ParrotEntity bird, double t, float flapSpeed) {
+    static void animateParrotWings(ParrotEntity bird, double t, float flapSpeed) {
         float flap = (float) (Math.sin(t * flapSpeed * 6.2) * 0.5 + 0.5);
         bird.lastMaxWingDeviation = bird.maxWingDeviation;
         bird.maxWingDeviation = 0.10f + flap * 0.24f;
@@ -476,8 +500,8 @@ public final class PetRig {
         flyPitch += (targetPitch - flyPitch) * (1.0f - (float) Math.exp(-dt / 0.20f));
     }
 
-    private static Vec3d computeLeftShoulder(double px, double py, double pz, PlayerEntity player,
-                                             Vec3d forward, Vec3d side, double t) {
+    static Vec3d computeLeftShoulder(double px, double py, double pz, PlayerEntity player,
+                                     Vec3d forward, Vec3d side, double t) {
         double baseY = py + player.getStandingEyeHeight() * 0.74 + 0.08;
         baseY += Math.sin(t * 2.9) * 0.030;
         double lr = -0.34;
@@ -762,7 +786,8 @@ public final class PetRig {
         if (state != null) {
             patchState(state);
             if (raven) {
-                submitRaven(queue, manager, matrices, ent, state);
+                submitRaven(queue, manager, matrices, ent, state,
+                    RenderLayers.entityCutoutNoCull(VORON_TEXTURE), 0xFFFFFFFF);
             } else {
                 // x/y/z are raw offsets added on top of the current matrix (vanilla subtracts the
                 // camera position in its caller); the matrix is already camera-relative here.
@@ -775,14 +800,43 @@ public final class PetRig {
     /** Raven skin: the parrot model with the donor's {@code voron.png} texture instead of vanilla. */
     @SuppressWarnings({"rawtypes", "unchecked"})
     private void submitRaven(OrderedRenderCommandQueue queue, EntityRenderManager manager, MatrixStack matrices,
-                             LivingEntity ent, EntityRenderState state) {
+                             LivingEntity ent, EntityRenderState state, RenderLayer layer, int color) {
         EntityRenderer<?, ?> renderer = manager.getRenderer(ent);
         if (!(renderer instanceof LivingEntityRenderer livingRenderer)) {
             return;
         }
         Model model = livingRenderer.getModel();
-        queue.submitModel(model, state, matrices, RenderLayers.entityCutoutNoCull(VORON_TEXTURE),
-            LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, 0xFFFFFFFF, null);
+        queue.submitModel(model, state, matrices, layer,
+            LightmapTextureManager.MAX_LIGHT_COORDINATE, OverlayTexture.DEFAULT_UV, color, null);
+    }
+
+    /**
+     * ULT ravens (hero + illusions): the raven skin's model, alpha-blended through the translucent
+     * entity layer so the donor's per-bird fade-in / fade-out stays smooth.
+     */
+    void renderUltRaven(EntityRenderManager manager, OrderedRenderCommandQueue queue, MatrixStack matrices,
+                        LivingEntity ent, Vec3d pos, float pt, float scale, Vec3d eye, float alpha) {
+        matrices.push();
+        matrices.translate(pos.x - eye.x, pos.y - eye.y, pos.z - eye.z);
+        matrices.scale(scale, scale, scale);
+
+        EntityRenderState state = manager.getAndUpdateRenderState(ent, pt);
+        if (state != null) {
+            patchState(state);
+            int a = MathHelper.clamp(Math.round(alpha * 255.0f), 0, 255);
+            submitRaven(queue, manager, matrices, ent, state,
+                RenderLayers.entityTranslucent(VORON_TEXTURE), (a << 24) | 0xFFFFFF);
+        }
+        matrices.pop();
+    }
+
+    /** Return flight finished: pin the orbit state to the shoulder so normal flight continues seamlessly. */
+    void snapFlyTo(Vec3d pos, float yaw, float pitch) {
+        flyInited = true;
+        flyPrevPos = pos;
+        flyPos = pos;
+        flyYaw = yaw;
+        flyPitch = pitch;
     }
 
     private void patchState(EntityRenderState state) {
@@ -857,8 +911,8 @@ public final class PetRig {
         }
     }
 
-    private static void applyPose(LivingEntity ent, Vec3d pos, float bodyYaw, float headYaw, float pitch,
-                                  int age, boolean onGround, EntityPose pose) {
+    static void applyPose(LivingEntity ent, Vec3d pos, float bodyYaw, float headYaw, float pitch,
+                          int age, boolean onGround, EntityPose pose) {
         ent.setPos(pos.x, pos.y, pos.z);
         ent.lastX = pos.x;
         ent.lastY = pos.y;

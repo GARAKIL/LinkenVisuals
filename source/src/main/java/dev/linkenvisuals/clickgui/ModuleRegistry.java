@@ -2,6 +2,7 @@ package dev.linkenvisuals.clickgui;
 
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.module.Module;
@@ -114,6 +115,10 @@ public final class ModuleRegistry {
     private static SliderSetting cosmeticPetSpeed;
     private static SliderSetting cosmeticPetScale;
     private static BooleanSetting cosmeticPetFirstPerson;
+    private static SliderSetting cosmeticPetAlpha;
+    private static SliderSetting cosmeticPetGlow;
+    private static ColorSetting cosmeticPetGlowColor;
+    private static KeybindSetting cosmeticPetUlt;
 
     private static ModuleInfo betterHands;
     private static ModeSetting handOutline;
@@ -262,10 +267,15 @@ public final class ModuleRegistry {
         cosmeticPetSpeed = new SliderSetting("Pet Speed", 0.05f, 5.0f, 0.05f, 1.15f, "x");
         cosmeticPetScale = new SliderSetting("Pet Size", 0.15f, 2.0f, 0.05f, 0.55f, "x");
         cosmeticPetFirstPerson = new BooleanSetting("Pet First Person", true);
+        cosmeticPetAlpha = new SliderSetting("Pet Alpha", 0f, 100f, 1f, 82f, "%");
+        cosmeticPetGlow = new SliderSetting("Pet Glow", 0f, 100f, 1f, 65f, "%");
+        cosmeticPetGlowColor = new ColorSetting("Pet Glow Colour", 0xFF141414);
+        cosmeticPetUlt = new KeybindSetting("Pet ULT", "NONE");
         cosmetics = new ModuleInfo("Cosmetics", "worn light, yours only", Category.VISUAL,
             List.of(cosmeticCrown, cosmeticBack, cosmeticAura, cosmeticCharacter, cosmeticPet),
             List.of(cosmeticColor, cosmeticSize, cosmeticSpeed, cosmeticPetRadius, cosmeticPetHeight,
-                cosmeticPetSpeed, cosmeticPetScale, cosmeticPetFirstPerson));
+                cosmeticPetSpeed, cosmeticPetScale, cosmeticPetFirstPerson, cosmeticPetAlpha,
+                cosmeticPetGlow, cosmeticPetGlowColor, cosmeticPetUlt));
         cosmetics.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.PLAYER);
         MODULES.add(cosmetics);
 
@@ -502,6 +512,22 @@ public final class ModuleRegistry {
 
     public static BooleanSetting cosmeticPetFirstPerson() {
         return cosmeticPetFirstPerson;
+    }
+
+    public static SliderSetting cosmeticPetAlpha() {
+        return cosmeticPetAlpha;
+    }
+
+    public static SliderSetting cosmeticPetGlow() {
+        return cosmeticPetGlow;
+    }
+
+    public static ColorSetting cosmeticPetGlowColor() {
+        return cosmeticPetGlowColor;
+    }
+
+    public static KeybindSetting cosmeticPetUlt() {
+        return cosmeticPetUlt;
     }
 
     public static ModuleInfo betterHands() {
