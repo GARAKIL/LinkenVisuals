@@ -4,6 +4,7 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
+import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
@@ -26,6 +27,7 @@ public final class Modules {
     private static ZoomModule zoom;
     private static TimeChangerModule timeChanger;
     private static HitSoundModule hitSound;
+    private static HandSwapModule handSwap;
 
     private Modules() {
     }
@@ -74,6 +76,10 @@ public final class Modules {
         return hitSound;
     }
 
+    public static HandSwapModule handSwap() {
+        return handSwap;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -96,5 +102,7 @@ public final class Modules {
         register(timeChanger);
         hitSound = new HitSoundModule();
         register(hitSound);
+        handSwap = new HandSwapModule();
+        register(handSwap);
     }
 }

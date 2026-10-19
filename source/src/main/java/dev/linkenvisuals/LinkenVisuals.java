@@ -233,7 +233,28 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.render.JumpCirclesRenderer.tick();
         tickZoom(client);
         dev.linkenvisuals.module.impl.TimeChangerModule.tick();
+        tickHandSwap(client);
     }
+
+    private static void tickHandSwap(MinecraftClient client) {
+        dev.linkenvisuals.module.impl.HandSwapModule module = dev.linkenvisuals.module.Modules.handSwap();
+        if (module == null || !module.enabled() || client.currentScreen != null) {
+            return;
+        }
+        int keyCode = module.key.value();
+        if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_UNKNOWN) {
+            return;
+        }
+        long handle = client.getWindow().getHandle();
+        // Simple edge detection: track previous state.
+        boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(handle, keyCode) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        if (down && !handSwapWasDown) {
+            dev.linkenvisuals.module.impl.HandSwapModule.onKeyPress();
+        }
+        handSwapWasDown = down;
+    }
+
+    private static boolean handSwapWasDown = false;
 
     private static void tickZoom(MinecraftClient client) {
         dev.linkenvisuals.module.impl.ZoomModule zoom = dev.linkenvisuals.module.Modules.zoom();
