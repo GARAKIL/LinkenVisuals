@@ -308,3 +308,8 @@
 - Тест `module/ModuleLifecycleTest` (3 кейса): регистрация видна через `Modules.get`/`ModuleRegistry.module`/`all()`; тоггл → `onEnable`/`onDisable` ровно по разу; `toggleSilently` → lifecycle молчит. Тест-безопасность: `NotificationManager.push` нулл-безопасен (`getInstance()` guard), clinit-цепочка та же, что у зелёного `HudManagerEditModeTest`.
 - Evidence: javac-парсинг новых файлов — только ошибки отсутствующего classpath, синтаксис чист; `grep .toggle()` — пути тоггла сверены; сборка/тесты — на CI и агенте пользователя (локальный Gradle заблокирован песочницей).
 - Out of scope: миграция legacy-статиков (оппортунистически, позже); донор не использовался.
+
+## 2026-10-19 · D32 · Фаза 5.7 (частично) + 5.8 — v1.0.73
+- 5.7: 13 модулей портировано (Fullbright, Trails, JumpCircles, Crosshair, Zoom, TimeChanger, HitSound, HandSwap, FastExp, MineHelper, ChatHelper, TotemCounter, TotemTracker). TargetEsp пропущен — ESP через стены, чит-признак (п.3 мастер-промта).
+- 5.7 остаток (9 сложных, требуют решения пользователя): WayPoints/GPS (852), StreamerMode (3048, таблицу в ресурс), ItemPhysics, ItemScroller, ElytraSwap (331), SwingAnimation, HitColor, Freelook (237), UseTracker.
+- 5.8: ViewModel-паритет — `HandPose` теперь per-axis scale (scaleX/Y/Z) как у донора; миграция старого uniform scale; `HeldItemRendererMixin` использует per-axis.
