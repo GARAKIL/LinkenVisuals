@@ -1,5 +1,7 @@
 package dev.linkenvisuals.mixin;
 
+import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -9,11 +11,14 @@ import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public abstract class ClientPlayerInteractionManagerMixin {
@@ -31,5 +36,14 @@ public abstract class ClientPlayerInteractionManagerMixin {
         Vec3d impact = MinecraftClient.getInstance().crosshairTarget instanceof EntityHitResult hit
             && hit.getEntity() == target ? hit.getPos() : null;
         HitEffects.add(target, player.getAttackCooldownProgress(0.5f), impact);
+    }
+
+    @Inject(method = "attackBlock", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$mineHelper(BlockPos pos, Direction direction,
+                                            CallbackInfoReturnable<Boolean> cir) {
+        MineHelperModule module = Modules.mineHelper();
+        if (module != null && module.shouldCancelBreak()) {
+            cir.setReturnValue(false);
+        }
     }
 }

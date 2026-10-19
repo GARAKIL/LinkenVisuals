@@ -8,6 +8,7 @@ import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
+import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.TimeChangerModule;
 import dev.linkenvisuals.module.impl.TrailsModule;
@@ -30,6 +31,7 @@ public final class Modules {
     private static HitSoundModule hitSound;
     private static HandSwapModule handSwap;
     private static FastExpModule fastExp;
+    private static MineHelperModule mineHelper;
 
     private Modules() {
     }
@@ -86,6 +88,10 @@ public final class Modules {
         return fastExp;
     }
 
+    public static MineHelperModule mineHelper() {
+        return mineHelper;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -112,5 +118,7 @@ public final class Modules {
         register(handSwap);
         fastExp = new FastExpModule();
         register(fastExp);
+        mineHelper = new MineHelperModule();
+        register(mineHelper);
     }
 }
