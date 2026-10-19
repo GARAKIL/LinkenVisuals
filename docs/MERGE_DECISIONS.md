@@ -264,7 +264,14 @@
 - ChinaHat: донорский `ChinaHat.java` (271 стр., Module) → наш `cosmetic/ChinaHat.java` (процедурный, слот "crown"). Упрощения: только локальный игрок (наш `Cosmetics` так работает), стиль Classic (конус); Layered/Halo-стили — follow-up. Геометрия: base (triangle fan) + side (strip) + rim — через `Material.bodyQuad`/`rimSmooth` (degenerate quads для треугольников).
 - Файлы: `cosmetic/ChinaHat.java` (new), `Cosmetics.java` (+case), `ModuleRegistry.java` (+опция "ChinaHat" в Crown).
 - Тесты: регрессий нет; визуал — глазами пользователя.
-- Остаток 5.6: Nimb, Spheres, CosmeticEffects (эффекты), Cape (CapeSimulation), Pets (проверка сети), модельная инфраструктура.
+- Остаток 5.6: Nimb, Spheres, CosmeticEffects (эффекты), Pets (проверка сети), модельная инфраструктура.
+
+## 2026-10-19 · D28 · Фаза 5.6 (часть 2): WaveCape — v1.0.58
+- Контекст: ROADMAP 5.6, порядок "по очереди": wave-плащ после ChinaHat.
+- Решение: НЕ портировать 4 миксина донора (замена ванильного плаща via FeatureRenderer) — в нашей архитектуре косметика процедурная. Портирована ТОЛЬКО физика (`CapeSimulation` 1:1 → `WaveCapeSimulation`, verlet, 16 сегментов), рендер — наш `WaveCape` (quad strip, слот "back").
+- Файлы: `cosmetic/WaveCapeSimulation.java` (new), `cosmetic/WaveCape.java` (new), `Cosmetics.java` (+case), `ModuleRegistry.java` (+опция "WaveCape" в Back).
+- Риск: `player.capeX`/`capeZ` — ванильные поля; если в 1.21.11 переименованы, CI покажет.
+- Остаток 5.6: питомцы (проверка сети), Nimb, CosmeticEffects/Naruto, Spheres.
 
 ## 2026-10-19 · D26 · Фаза 5.5: Оптимизации — v1.0.56
 - Контекст: ROADMAP 5.5. Применены идеи донора ТОЛЬКО где есть наши циклы (без копипаста).
