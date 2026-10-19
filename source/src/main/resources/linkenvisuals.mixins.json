@@ -17,6 +17,7 @@
     "HandledScreenMixin",
     "CameraMixin",
     "ChatScreenMixin",
+    "LightmapTextureManagerMixin",
     "TextFieldWidgetMixin",
     "GameRendererMixin",
     "HeldItemRendererMixin",

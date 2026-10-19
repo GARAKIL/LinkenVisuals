@@ -2,6 +2,7 @@ package dev.linkenvisuals.module;
 
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
+import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 
 /**
@@ -12,6 +13,7 @@ import dev.linkenvisuals.module.impl.MotionBlurModule;
 public final class Modules {
     private static BlockOverlayModule blockOverlay;
     private static MotionBlurModule motionBlur;
+    private static FullbrightModule fullbright;
 
     private Modules() {
     }
@@ -32,6 +34,10 @@ public final class Modules {
         return motionBlur;
     }
 
+    public static FullbrightModule fullbright() {
+        return fullbright;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -40,5 +46,7 @@ public final class Modules {
         register(blockOverlay);
         motionBlur = new MotionBlurModule();
         register(motionBlur);
+        fullbright = new FullbrightModule();
+        register(fullbright);
     }
 }
