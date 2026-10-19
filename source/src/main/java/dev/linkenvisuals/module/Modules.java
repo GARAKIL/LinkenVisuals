@@ -6,6 +6,7 @@ import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
+import dev.linkenvisuals.module.impl.TimeChangerModule;
 import dev.linkenvisuals.module.impl.TrailsModule;
 import dev.linkenvisuals.module.impl.ZoomModule;
 
@@ -22,6 +23,7 @@ public final class Modules {
     private static JumpCirclesModule jumpCircles;
     private static CrosshairModule crosshair;
     private static ZoomModule zoom;
+    private static TimeChangerModule timeChanger;
 
     private Modules() {
     }
@@ -62,6 +64,10 @@ public final class Modules {
         return zoom;
     }
 
+    public static TimeChangerModule timeChanger() {
+        return timeChanger;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -80,5 +86,7 @@ public final class Modules {
         register(crosshair);
         zoom = new ZoomModule();
         register(zoom);
+        timeChanger = new TimeChangerModule();
+        register(timeChanger);
     }
 }

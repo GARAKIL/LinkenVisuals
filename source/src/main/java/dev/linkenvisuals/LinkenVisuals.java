@@ -232,6 +232,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.render.TrailsRenderer.tick();
         dev.linkenvisuals.render.JumpCirclesRenderer.tick();
         tickZoom(client);
+        dev.linkenvisuals.module.impl.TimeChangerModule.tick();
     }
 
     private static void tickZoom(MinecraftClient client) {
