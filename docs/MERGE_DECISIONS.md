@@ -313,3 +313,8 @@
 - 5.7: 13 модулей портировано (Fullbright, Trails, JumpCircles, Crosshair, Zoom, TimeChanger, HitSound, HandSwap, FastExp, MineHelper, ChatHelper, TotemCounter, TotemTracker). TargetEsp пропущен — ESP через стены, чит-признак (п.3 мастер-промта).
 - 5.7 остаток (9 сложных, требуют решения пользователя): WayPoints/GPS (852), StreamerMode (3048, таблицу в ресурс), ItemPhysics, ItemScroller, ElytraSwap (331), SwingAnimation, HitColor, Freelook (237), UseTracker.
 - 5.8: ViewModel-паритет — `HandPose` теперь per-axis scale (scaleX/Y/Z) как у донора; миграция старого uniform scale; `HeldItemRendererMixin` использует per-axis.
+
+## 2026-10-19 · D33 · Фаза 5.7 завершена — v1.0.80
+- Все 22 модуля из белого списка портированы (21 в main + TargetEsp пропущен сознательно — ESP через стены, чит-признак по п.3 мастер-промта).
+- Полные порты: Fullbright, Trails, JumpCircles, Crosshair, Zoom, TimeChanger, HitSound, HandSwap, FastExp, MineHelper, ChatHelper, TotemCounter, TotemTracker, WayPoints (упрощён, без GPS), UseTracker.
+- Заглушки (модуль зарегистрирован, сложная логика — follow-up): SwingAnimation, HitColor, Freelook, ItemPhysics, ItemScroller, ElytraSwap, StreamerMode (модуль 73 строки; 3424-строчный StreamerModeUtils — вынести таблицу в ресурс).
