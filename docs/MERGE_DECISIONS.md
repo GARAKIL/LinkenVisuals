@@ -271,7 +271,16 @@
 - Решение: НЕ портировать 4 миксина донора (замена ванильного плаща via FeatureRenderer) — в нашей архитектуре косметика процедурная. Портирована ТОЛЬКО физика (`CapeSimulation` 1:1 → `WaveCapeSimulation`, verlet, 16 сегментов), рендер — наш `WaveCape` (quad strip, слот "back").
 - Файлы: `cosmetic/WaveCapeSimulation.java` (new), `cosmetic/WaveCape.java` (new), `Cosmetics.java` (+case), `ModuleRegistry.java` (+опция "WaveCape" в Back).
 - Риск: `player.capeX`/`capeZ` — ванильные поля; если в 1.21.11 переименованы, CI покажет.
-- Остаток 5.6: питомцы (проверка сети), Nimb, CosmeticEffects/Naruto, Spheres.
+- Остаток 5.6: CosmeticEffects/Naruto, Spheres.
+
+## 2026-10-19 · D30 · Фаза 5.6 (часть 4): Nimb — v1.0.59
+- Донорский `Nimb.java` (436 строк: TorusCache + per-node освещение + `UserSyncManager`) → наш `cosmetic/Nimb.java` (упрощённый тор 48×12, освещение через `Material`).
+- UserSyncManager-часть пропущена (запрет).
+- Слот "crown".
+
+## 2026-10-19 · D29 · Фаза 5.6 (часть 3): Pets — ПРОПУЩЕНЫ
+- Причина: `RemotePets` (338 строк) + `PetWanderController` (305 строк) — ТОЛЬКО для чужих петов через `UserSyncManager.getRemotePet()` (sync-сервер). `UserSyncManager` — под запретом (жёсткие IP, мастер-промт п.3). Локального режима нет.
+- Решение: не портировать. Документировано.
 
 ## 2026-10-19 · D26 · Фаза 5.5: Оптимизации — v1.0.56
 - Контекст: ROADMAP 5.5. Применены идеи донора ТОЛЬКО где есть наши циклы (без копипаста).
