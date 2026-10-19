@@ -6,8 +6,8 @@ import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.module.Module;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MiningToolItem;
 import net.minecraft.text.Text;
 
 import java.util.List;
@@ -66,7 +66,8 @@ public final class MineHelperModule extends Module {
     }
 
     private boolean isMiningTool(ItemStack stack) {
-        return stack != null && stack.isDamageable() && stack.getItem() instanceof MiningToolItem;
+        return stack != null && stack.isDamageable()
+            && stack.contains(DataComponentTypes.TOOL);
     }
 
     private double getDurabilityPercent(ItemStack stack) {

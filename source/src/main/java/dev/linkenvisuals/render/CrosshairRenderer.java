@@ -23,15 +23,12 @@ public final class CrosshairRenderer {
         switch (style) {
             case "Dot" -> context.fill(cx - 1, cy - 1, cx + 1, cy + 1, color);
             case "Circle" -> {
-                // Simple circle via 16 segments.
+                // Simple circle via 16 small fills (no drawLine in this API).
                 for (int i = 0; i < 16; i++) {
-                    double a0 = Math.PI * 2.0 * i / 16;
-                    double a1 = Math.PI * 2.0 * (i + 1) / 16;
-                    int x0 = cx + (int) (Math.cos(a0) * 5);
-                    int y0 = cy + (int) (Math.sin(a0) * 5);
-                    int x1 = cx + (int) (Math.cos(a1) * 5);
-                    int y1 = cy + (int) (Math.sin(a1) * 5);
-                    context.drawLine(x0, y0, x1, y1, color);
+                    double a = Math.PI * 2.0 * i / 16;
+                    int x = cx + (int) (Math.cos(a) * 5);
+                    int y = cy + (int) (Math.sin(a) * 5);
+                    context.fill(x - 1, y - 1, x + 1, y + 1, color);
                 }
             }
             default -> { // Cross

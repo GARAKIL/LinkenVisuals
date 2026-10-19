@@ -27,23 +27,8 @@ public final class TimeChangerModule extends Module {
         this.preset = preset;
     }
 
-    /** Called each tick to apply the time. */
+    /** Called each tick to apply the time. (No-op: time is overridden via mixin.) */
     public static void tick() {
-        TimeChangerModule module = dev.linkenvisuals.module.Modules.timeChanger();
-        if (module == null || !module.enabled()) {
-            return;
-        }
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.world == null) {
-            return;
-        }
-        long time = switch (module.preset.value()) {
-            case "Noon" -> 6000L;
-            case "Sunset" -> 12000L;
-            case "Night" -> 13000L;
-            case "Midnight" -> 18000L;
-            default -> 1000L; // Day
-        };
-        client.world.setTimeOfDay(time);
+        // Time override is handled by ClientWorldPropertiesMixin.
     }
 }

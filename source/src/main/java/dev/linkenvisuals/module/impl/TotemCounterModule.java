@@ -35,15 +35,16 @@ public final class TotemCounterModule extends Module {
             return;
         }
         int c = 0;
-        for (var stack : client.player.getInventory().main) {
+        var inventory = client.player.getInventory();
+        for (int i = 0; i < inventory.size(); i++) {
+            var stack = inventory.getStack(i);
             if (stack.isOf(Items.TOTEM_OF_UNDYING)) {
                 c += stack.getCount();
             }
         }
-        for (var stack : client.player.getInventory().offHand) {
-            if (stack.isOf(Items.TOTEM_OF_UNDYING)) {
-                c += stack.getCount();
-            }
+        var offhand = client.player.getOffHandStack();
+        if (offhand.isOf(Items.TOTEM_OF_UNDYING)) {
+            c += offhand.getCount();
         }
         module.count = c;
     }

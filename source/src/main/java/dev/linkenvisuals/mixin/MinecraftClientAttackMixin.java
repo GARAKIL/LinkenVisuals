@@ -44,6 +44,6 @@ public abstract class MinecraftClientAttackMixin {
             case "Pop" -> SoundEvents.ENTITY_CHICKEN_EGG.value();
             default -> SoundEvents.BLOCK_NOTE_BLOCK_BELL.value();
         };
-        client.getSoundManager().play(PositionedSoundInstance.master(sound, 1.0f, 1.0f));
+        client.getSoundManager().play(PositionedSoundInstance.ui(sound, 1.0f, 1.0f));
     }
 }
