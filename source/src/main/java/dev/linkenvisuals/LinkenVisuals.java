@@ -80,6 +80,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         AccountStorage.load();
         dev.linkenvisuals.macro.MacroManager.load();
         HandPose.load();
+        dev.linkenvisuals.waypoint.WaypointStorage.load();
         ConfigManager.load();
         dev.linkenvisuals.ui.editor.MainMenuConfig.load();
         ModuleRegistry.syncFromMenuConfig();
@@ -93,6 +94,7 @@ public final class LinkenVisuals implements ClientModInitializer {
             dev.linkenvisuals.ui.editor.MainMenuConfig.save();
             AccountStorage.save();
             HandPose.save();
+            dev.linkenvisuals.waypoint.WaypointStorage.save();
         }, "linkenvisuals-shutdown"));
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
@@ -140,6 +142,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(JumpCirclesRenderer::render);
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         Modules.init();
+        dev.linkenvisuals.command.WaypointCommand.register();
     }
 
     /** Releases all world-scoped GPU pipelines. Must run on the render thread. */

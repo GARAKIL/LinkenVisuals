@@ -221,5 +221,15 @@
   "gui.config.status.saved": "Конфиг '%s' сохранен",
   "gui.config.status.deleted": "Конфиг '%s' удален",
   "gui.config.status.created": "Конфиг '%s' создан",
-  "common.press": "Нажмите..."
+  "common.press": "Нажмите...",
+  "linkenvisuals.command.way.added": "Точка '%s' добавлена: X: %s, Y: %s, Z: %s",
+  "linkenvisuals.command.way.already": "Точка '%s' уже существует",
+  "linkenvisuals.command.way.blank": "Название точки не может быть пустым",
+  "linkenvisuals.command.way.cleared": "Все точки удалены",
+  "linkenvisuals.command.way.empty": "Список точек пуст",
+  "linkenvisuals.command.way.list_entry": "%s — X: %s, Y: %s, Z: %s",
+  "linkenvisuals.command.way.no_player": "Доступно только в мире",
+  "linkenvisuals.command.way.notfound": "Точка '%s' не найдена",
+  "linkenvisuals.command.way.removed": "Точка '%s' удалена",
+  "linkenvisuals.command.way.usage": "/way add <имя> me | /way add <имя> <x> <y> <z> | /way remove <имя> | /way list | /way clear"
 }

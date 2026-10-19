@@ -221,5 +221,15 @@
   "gui.config.status.saved": "Config '%s' saved",
   "gui.config.status.deleted": "Config '%s' deleted",
   "gui.config.status.created": "Config '%s' created",
-  "common.press": "Press..."
+  "common.press": "Press...",
+  "linkenvisuals.command.way.added": "Waypoint '%s' added at X: %s, Y: %s, Z: %s",
+  "linkenvisuals.command.way.already": "Waypoint '%s' already exists",
+  "linkenvisuals.command.way.blank": "Waypoint name must not be blank",
+  "linkenvisuals.command.way.cleared": "All waypoints cleared",
+  "linkenvisuals.command.way.empty": "Waypoint list is empty",
+  "linkenvisuals.command.way.list_entry": "%s — X: %s, Y: %s, Z: %s",
+  "linkenvisuals.command.way.no_player": "Only available in a world",
+  "linkenvisuals.command.way.notfound": "Waypoint '%s' not found",
+  "linkenvisuals.command.way.removed": "Waypoint '%s' removed",
+  "linkenvisuals.command.way.usage": "/way add <name> me | /way add <name> <x> <y> <z> | /way remove <name> | /way list | /way clear"
 }

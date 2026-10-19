@@ -6,6 +6,8 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.WaypointsModule;
+import dev.linkenvisuals.waypoint.Waypoint;
+import dev.linkenvisuals.waypoint.WaypointStorage;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -14,44 +16,27 @@ import net.minecraft.util.math.Vec3d;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
 /**
  * Waypoints renderer (Phase 5.7): draws markers at waypoint positions.
- * Simplified: vertical beacon-like lines + name via existing infra.
+ * Storage lives in {@link WaypointStorage} and is managed by the client
+ * {@code /way} command (donor {@code WaypointCommand} semantics).
  */
 public final class WaypointsRenderer {
-    public record Waypoint(String name, double x, double y, double z) {}
-
-    private static final List<Waypoint> waypoints = new ArrayList<>();
-
     private WaypointsRenderer() {
-    }
-
-    public static void clear() {
-        // Keep waypoints on disable; clear only via command.
-    }
-
-    public static void addWaypoint(String name, double x, double y, double z) {
-        waypoints.removeIf(w -> w.name().equalsIgnoreCase(name));
-        waypoints.add(new Waypoint(name, x, y, z));
-    }
-
-    public static boolean removeWaypoint(String name) {
-        return waypoints.removeIf(w -> w.name().equalsIgnoreCase(name));
-    }
-
-    public static List<Waypoint> getWaypoints() {
-        return List.copyOf(waypoints);
     }
 
     /** Called at END_MAIN to render markers. */
     public static void render(WorldRenderContext context) {
         WaypointsModule module = Modules.waypoints();
-        if (module == null || !module.enabled() || waypoints.isEmpty()) {
+        if (module == null || !module.enabled()) {
+            return;
+        }
+        List<Waypoint> waypoints = WaypointStorage.store().view();
+        if (waypoints.isEmpty()) {
             return;
         }
         MinecraftClient client = MinecraftClient.getInstance();

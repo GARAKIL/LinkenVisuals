@@ -2,24 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
-## Состояние на 2026-10-19 (чат №8) — v1.0.65
+## Состояние на 2026-10-19 (чат №8) — v1.0.66
 
 ### Сделано
 1. **Пачка 3 Ф5.7 (D36, v1.0.65): StreamerMode — полный порт движка без god-класса.** Таблица → ресурс `assets/linkenvisuals/streamer/patterns.json` (донат/монеты/анархия/гриф/26 парольных команд); чистый движок `util/text/StreamerRules` (предфильтр одним regex, whole-token ник, пары «друг=ник», донат/монеты, номера 999/666, маска `/login` с сохранением пробелов, §/&-коды и hex сохраняются); `util/text/StreamerTextSanitizer` (обход Text-компонент со стилями, без аллокаций на «мимо»; маска поля ввода той же длины); `util/text/StreamerPatterns` (Gson-загрузчик, громкий фейл). Хуки (7): ChatHud.addMessage ×2, PlayerListHud.getPlayerName/setHeader/setFooter, InGameHud.setOverlayMessage, ScoreboardObjective.getDisplayName, ScoreboardEntry.name/display/formatted, TextFieldWidget (маска в существующем WrapOperation).
 2. **Модуль**: `StreamerModeModule` — кеш `StreamerRules` с инвалидацией по настройкам/нику сессии, `rules()` (null при выключенном); мёртвый `shouldHideAnarchy()` удалён; FriendManager заменён строкой «real=nick» (отклонение, D36).
 3. **Тесты**: 119, 0 падений (+15: StreamerRulesTest 12, StreamerPatternsTest 3). BUILD SUCCESSFUL, jar `source/build/libs/linkenvisuals-1.0.65.jar` (1 786 339 байт).
 4. **Ремап-скан 1.0.65**: 6 затронутых миксинов — 0 yarn-остатков; все таргеты — методы по `minecraft-merged-intermediary`; `comp_2129()` — легальный метод-аксессор record-компонента (не дефект).
+5. **WayPoints активирован (D37, v1.0.66)**: клиентская команда `/way` (алиас `/waypoint`) — `add <name> me`, `add <name> x y z`, `remove`, `list`, `clear` (донорские семантика и отказ на дубликат); персистентность `config/linkenvisuals_waypoints.json` (AtomicFiles + configVersion); `WaypointsRenderer` переведён на общий стор, тоггл модуля больше не стирает точки; тесты 127 (+8 `WaypointStoreTest`). **Ф5.7 закрыта.**
 
 ### Следующая задача
-**Игровая приёмка пользователем** пачек 1–3 (jar 1.0.65; автодеплой в MultiMC недоступен — путь `D:\MultiMC\instances\1.21.111` на машине не существует, jar выдаётся вручную). Затем **WayPoints** — модуль и рендер есть (153eb29), но `WaypointsRenderer.addWaypoint` никем не вызывается: открытый вопрос — команда `/wp add`/UX. После — решение по Naruto/CosmeticEffects (5.6) и Ф6 (перф-профилирование, инвентарь ресурсов, релизная сборка).
+**Игровая приёмка пользователем** пачек 1–3 + WayPoints (jar 1.0.66; автодеплой в MultiMC недоступен — путь `D:\MultiMC\instances\1.21.111` на машине не существует, jar выдаётся вручную). Затем — решение по Naruto/CosmeticEffects (5.6) и Ф6 (перф-профилирование, инвентарь ресурсов, релизная сборка).
 
 ### Открытые решения (ждём пользователя)
 - LICENSE: копирайт-строка — держатель не менялся (правило «лицензию не менять» в силе).
 - `MASTER_PROMPT.md` — убирать ли из публичного репо.
 - UK-глифы MSDF (фолбэк і/ї→i, є→э, ґ→г) — нужна ли регенерация атласа.
 - `source/tools/*` — проверить актуальность при переносах Ф5.
-- `WaypointsRenderer.clear()` — чистить ли точки при disable.
-- `WaypointsModule` — нужна ли команда `/wp add` (без неё точки не добавить: `addWaypoint` никем не вызывается).
+- WayPoints: реализована команда `/way` (D37); нужен ли дополнительный UX (кейбинд/GUI для добавления) — скажи.
 - Naruto/CosmeticEffects (5.6): пропустить или портировать (Naruto — энейблер настроек; CosmeticEffects — зонтичный модуль, ghost-bloom ветки)?
 - Питомцы/Rudy (5.6c): D29 пропустил (только UserSyncManager-режим) — подтверди пропуск.
 - StreamerMode-остаток: nametag-санитаризация (подписи игроков в мире) отложена — нужна ли отдельной задачей.
