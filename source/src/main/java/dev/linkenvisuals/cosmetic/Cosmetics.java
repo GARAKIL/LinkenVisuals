@@ -77,6 +77,7 @@ public final class Cosmetics {
                 case "Kagune" -> Kagune.render(worn);
                 case "Seraph" -> Seraph.render(worn);
                 case "Tendrils" -> Tendrils.render(worn);
+                case "WaveCape" -> WaveCape.render(worn);
                 default -> { }
             }
             switch (ModuleRegistry.cosmeticSlot("aura")) {

@@ -242,7 +242,7 @@ public final class ModuleRegistry {
         MODULES.add(betterAnimations);
 
         cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat"), 1);
-        cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils"), 1);
+        cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape"), 1);
         cosmeticAura = new ModeSetting("Aura", List.of("None", "Shards", "Embers", "Runes"), 0);
         cosmeticColor = new ColorSetting("Colour", Theme.DEFAULT_ACCENT);
 
