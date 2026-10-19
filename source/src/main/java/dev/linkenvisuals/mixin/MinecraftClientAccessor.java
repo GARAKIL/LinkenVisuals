@@ -11,4 +11,11 @@ public interface MinecraftClientAccessor {
     @Mutable
     @Accessor("session")
     void linkenvisuals$setSession(Session session);
+
+    @Accessor("itemUseCooldown")
+    int linkenvisuals$getItemUseCooldown();
+
+    @Mutable
+    @Accessor("itemUseCooldown")
+    void linkenvisuals$setItemUseCooldown(int cooldown);
 }

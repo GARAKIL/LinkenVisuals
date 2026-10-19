@@ -3,6 +3,7 @@ package dev.linkenvisuals.module;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
+import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
@@ -28,6 +29,7 @@ public final class Modules {
     private static TimeChangerModule timeChanger;
     private static HitSoundModule hitSound;
     private static HandSwapModule handSwap;
+    private static FastExpModule fastExp;
 
     private Modules() {
     }
@@ -80,6 +82,10 @@ public final class Modules {
         return handSwap;
     }
 
+    public static FastExpModule fastExp() {
+        return fastExp;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -104,5 +110,7 @@ public final class Modules {
         register(hitSound);
         handSwap = new HandSwapModule();
         register(handSwap);
+        fastExp = new FastExpModule();
+        register(fastExp);
     }
 }

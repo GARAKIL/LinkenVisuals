@@ -234,6 +234,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         tickZoom(client);
         dev.linkenvisuals.module.impl.TimeChangerModule.tick();
         tickHandSwap(client);
+        dev.linkenvisuals.module.impl.FastExpModule.tick();
     }
 
     private static void tickHandSwap(MinecraftClient client) {
