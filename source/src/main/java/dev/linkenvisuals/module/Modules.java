@@ -4,6 +4,7 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
 import dev.linkenvisuals.module.impl.ChatHelperModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
+import dev.linkenvisuals.module.impl.ElytraSwapModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FreelookModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
@@ -11,9 +12,11 @@ import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.ItemPhysicsModule;
+import dev.linkenvisuals.module.impl.ItemScrollerModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
+import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
 import dev.linkenvisuals.module.impl.TimeChangerModule;
 import dev.linkenvisuals.module.impl.TotemCounterModule;
@@ -50,6 +53,9 @@ public final class Modules {
     private static HitColorModule hitColor;
     private static FreelookModule freelook;
     private static ItemPhysicsModule itemPhysics;
+    private static ItemScrollerModule itemScroller;
+    private static ElytraSwapModule elytraSwap;
+    private static StreamerModeModule streamerMode;
 
     private Modules() {
     }
@@ -146,6 +152,18 @@ public final class Modules {
         return itemPhysics;
     }
 
+    public static ItemScrollerModule itemScroller() {
+        return itemScroller;
+    }
+
+    public static ElytraSwapModule elytraSwap() {
+        return elytraSwap;
+    }
+
+    public static StreamerModeModule streamerMode() {
+        return streamerMode;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -192,5 +210,11 @@ public final class Modules {
         register(freelook);
         itemPhysics = new ItemPhysicsModule();
         register(itemPhysics);
+        itemScroller = new ItemScrollerModule();
+        register(itemScroller);
+        elytraSwap = new ElytraSwapModule();
+        register(elytraSwap);
+        streamerMode = new StreamerModeModule();
+        register(streamerMode);
     }
 }
