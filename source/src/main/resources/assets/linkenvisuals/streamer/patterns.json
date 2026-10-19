@@ -1,0 +1,10 @@
+{
+  "donateLabels": ["донат", "привилегия", "ранг", "rank", "donate", "prefix"],
+  "coinLabels": ["монеты", "монет", "коинов", "коины", "коин", "coins", "coin", "баланс", "balance"],
+  "anarchyWords": ["анархия", "anarchy"],
+  "griefWords": ["гриф", "grief", "grif"],
+  "sensitiveCommands": ["l", "login", "log", "pas", "pass", "passwd", "password", "reg", "register",
+    "authme", "auth", "changepassword", "changepass", "changepasswd", "chpass", "setpass",
+    "setpassword", "newpass", "resetpass", "password2", "repeat", "confirmpass", "2fa", "totp",
+    "session", "premium"]
+}

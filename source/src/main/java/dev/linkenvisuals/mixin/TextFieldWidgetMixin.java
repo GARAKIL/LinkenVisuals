@@ -3,6 +3,8 @@ package dev.linkenvisuals.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.linkenvisuals.anim.Animations;
+import dev.linkenvisuals.module.impl.StreamerModeModule;
+import dev.linkenvisuals.util.text.StreamerTextSanitizer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -11,11 +13,15 @@ import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.OrderedText;
 import org.joml.Matrix3x2fStack;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(TextFieldWidget.class)
 public abstract class TextFieldWidgetMixin {
+    @Shadow
+    public abstract String getText();
+
     // Anchored to the main text draw of the field: within renderWidget it is the single
     // drawText(OrderedText) call between format(String, int) and the following
     // TextRenderer.getWidth(OrderedText) (no drawText/format calls exist earlier in the
@@ -30,6 +36,13 @@ public abstract class TextFieldWidgetMixin {
     private void linkenvisuals$fadeInLetter(DrawContext context, TextRenderer renderer, OrderedText text,
                                              int x, int y, int color, boolean shadow,
                                              Operation<Void> original) {
+        // Стример-режим: пароль в /login-команде маскируется прямо в поле ввода (та же длина).
+        OrderedText masked = StreamerTextSanitizer.maskFieldText(getText(), text, StreamerModeModule.rules());
+        if (masked != null) {
+            original.call(context, renderer, masked, x, y, color, shadow);
+            return;
+        }
+
         String letter = Animations.typedLetter();
         float age = Animations.typeAge();
         MinecraftClient client = MinecraftClient.getInstance();
