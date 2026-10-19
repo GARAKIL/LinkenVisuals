@@ -73,12 +73,15 @@ public abstract class HeldItemRendererMixin {
         float pivotX = side * PIVOT_X;
         matrices.push();
 
-        float scale = HandPose.scale(arm);
+        float scaleX = HandPose.scaleX(arm);
+        float scaleY = HandPose.scaleY(arm);
+        float scaleZ = HandPose.scaleZ(arm);
 
         matrices.translate(pivotX + HandPose.x(arm), PIVOT_Y + HandPose.y(arm),
             PIVOT_Z + HandPose.z(arm));
-        if (Math.abs(scale - 1.0f) > 0.0001f) {
-            matrices.scale(scale, scale, scale);
+        if (Math.abs(scaleX - 1.0f) > 0.0001f || Math.abs(scaleY - 1.0f) > 0.0001f
+            || Math.abs(scaleZ - 1.0f) > 0.0001f) {
+            matrices.scale(scaleX, scaleY, scaleZ);
         }
         matrices.translate(-pivotX, -PIVOT_Y, -PIVOT_Z);
 
