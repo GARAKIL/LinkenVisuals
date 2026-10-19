@@ -11,6 +11,9 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Authentic enhanced Vanilla UI pipeline for LinkenVisuals.
  * Integrates pixel-art icon assets from Icons / Icons-Menus and polished
@@ -52,11 +55,27 @@ public final class VanillaStylePipeline {
      * ({@code linkenvisuals.menu.quit}, {@code multiplayer.join}, ...). Localized text is
      * never matched, so the result does not depend on the selected game language.
      */
+    private static final Map<String, IconRef> ICON_CACHE = new HashMap<>();
+
     public static IconRef getIconForKey(String key) {
         if (key == null || key.isBlank()) {
             return null;
         }
+        // Menus call this every frame per widget: cache the tiny records instead of
+        // re-allocating one per lookup (v1.0.71 allocation audit). The key set is bounded
+        // (UI translation keys).
+        IconRef cached = ICON_CACHE.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        IconRef resolved = resolveIcon(key);
+        if (resolved != null) {
+            ICON_CACHE.put(key, resolved);
+        }
+        return resolved;
+    }
 
+    private static IconRef resolveIcon(String key) {
         // Chat sub-options ("options.chat.visibility", "options.chat.opacity", ...) share the chat icon.
         if (key.startsWith("options.chat.")) {
             return new IconRef(ICONS_OPTIONS, 140, 0, 20, 20, 240, 20);

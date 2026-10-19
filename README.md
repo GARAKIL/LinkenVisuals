@@ -5,7 +5,7 @@
 [![Java](https://img.shields.io/badge/Java-21+-orange.svg?style=flat-square)](https://adoptium.net/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg?style=flat-square)](LICENSE)
 
-**LinkenVisuals** is a visual enhancement client mod for Minecraft Fabric 1.21.11. Engineered with Mojang's modern Blaze3D rendering backend and high-performance GLSL shaders, LinkenVisuals delivers custom post-processing, screen-space effects, first-person hand customizations, and an in-game media player with synchronized lyrics.
+**LinkenVisuals** is a visual enhancement client mod for Minecraft Fabric 1.21.11. Engineered with Mojang's modern Blaze3D rendering backend and high-performance GLSL shaders, LinkenVisuals delivers custom post-processing, screen-space effects, first-person hand customizations, cosmetics and roaming pets, and an in-game media player with synchronized lyrics.
 
 [🇷🇺 Читать на русском (README_RU.md)](README_RU.md)
 
@@ -23,6 +23,12 @@
 - **Hand Outlines**: Depth-buffer delta extraction creating crisp first-person silhouettes (`Line`, `Glow`, `Aura`, `Energy`).
 - **Motion & Smoke Trails**: Temporal frame retention for fluid smoke and speed trails trailing your weapon or hands.
 - **Hand Editor**: Interactive offsets, rotation, and scaling for mainhand and offhand items.
+
+### 🦜 Cosmetics, Pets & Waypoints
+- **11 Roaming Pet Skins**: Bat, Parrot, Raven, Fairy, Bee, Vex, Fox, Pig, Frog, Pufferfish, and Slime — client-side mobs that fly, walk, or float around you, with radius, lift, speed, size, alpha, glow, and glow-colour controls.
+- **Raven ULT — the "Pet ULT" keybind**: a 19-second illusion scene — the raven ascends, 42 illusion ravens spiral in through a feather fog, the formation holds, breaks and disperses to an original sound cue, and the pet glides back to your shoulder.
+- **Rudy Character**: optional full player-model replacement (Sketchfab model by amogusstrikesback2, CC BY 4.0) via the Cosmetics **Character** setting.
+- **Waypoints**: client-side `/way` command (`add <name> me`, `add <name> <x> <y> <z>`, `remove`, `list`, `clear`) with in-world markers, persisted to `config/linkenvisuals_waypoints.json`.
 
 ### 🎵 In-Game Media Player & Live Lyrics
 - **Windows Media Integration**: Seamlessly communicates with the Windows Media Control system (WinRT) to detect active playback from Spotify, Apple Music, YouTube Music, Deezer, Tidal, Foobar2000, and browsers.
@@ -59,6 +65,9 @@
 | **Open / Close ClickGUI** | `Right Shift` | Yes (Minecraft Controls) |
 | **Bind Module Key** | Click module in GUI & press key | Yes |
 | **Clear Module Key** | Right-click binding button | Yes |
+| **Trigger Pet ULT (Raven)** | Unbound — set **Pet ULT** in ClickGUI → Cosmetics | Yes |
+
+**Client commands:** `/way` (alias `/waypoint`) — `add` · `remove` · `list` · `clear` waypoints (client-side, never sent to the server).
 
 ---
 
@@ -72,17 +81,22 @@ LinkenVisuals/
 │   │   ├── account/                  # Account switcher & session cache
 │   │   ├── clickgui/                 # ClickGUI engine, widgets & ConfigManager
 │   │   │   └── setting/              # Boolean, Slider, Mode, and Color settings
-│   │   ├── cosmetic/                 # Procedural cosmetics (Embers, Halo, Kagune, Orbit, Runes, Seraph, Shards, Spires, Tendrils)
+│   │   ├── cosmetic/                 # Procedural cosmetics + Rudy character (Embers, Halo, Kagune, Orbit, Runes, Seraph, Shards, Spires, Tendrils, …)
 │   │   ├── hands/                    # HandEditor, HandPose, HandOutline pipelines
 │   │   ├── hud/                      # HUD elements, potion tracker, notifications
 │   │   ├── media/                    # MediaWatcher, Lyrics (LRC), MediaArt
 │   │   ├── mixin/                    # Clean Fabric bytecode mixins
+│   │   ├── pet/                      # Pet skins, wander AI, Raven ULT scene
 │   │   ├── player/                   # Target marks, kill effects, fake player
 │   │   ├── render/                   # Blaze3D pipelines, UBO buffers, GLSL shaders
-│   │   └── ui/                       # Main menu, custom buttons, spring animations
+│   │   ├── ui/                       # Main menu, custom buttons, spring animations
+│   │   └── waypoint/                 # /way command, storage, renderer
 │   └── src/main/resources/
 │       ├── assets/linkenvisuals/
-│       │   ├── shaders/core/         # Vertex & Fragment GLSL shaders
+│       │   ├── characters/           # Rudy model, textures & license attribution
+│       │   ├── lang/                 # en_us / ru_ru / uk_ua
+│       │   ├── shaders/core/         # Vertex & fragment GLSL shaders
+│       │   ├── sounds/               # UI cues + pet ULT cue
 │       │   └── textures/             # Fonts, icons, and UI assets
 │       ├── fabric.mod.json           # Mod metadata
 │       └── linkenvisuals.mixins.json# Mixin configuration
@@ -140,6 +154,7 @@ Settings are saved as JSON files in your Minecraft profile directory (`.minecraf
 - `linkenvisuals_macros.json` — macros
 - `linkenvisuals_menu.json` — main menu style
 - `linkenvisuals_accounts.json` — account switcher
+- `linkenvisuals_waypoints.json` — waypoints added with `/way`
 - `linkenvisuals/configs/<name>.json` — named config profiles
 
 Example structure:

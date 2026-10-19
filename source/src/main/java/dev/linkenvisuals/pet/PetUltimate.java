@@ -195,7 +195,6 @@ final class PetUltimate {
             il.burstMs = 0L;
             il.layer = frac((i * 0.6180339887f) + (il.seedA * 0.0007f));
             il.ang0 = (float) (i * (Math.PI * 2.0 / ULT_RAVENS));
-            il.lastBodyPoint = Vec3d.ZERO;
             illusions.add(il);
         }
 
@@ -320,35 +319,51 @@ final class PetUltimate {
             float jx = (float) (Math.sin(t * 6.4 + il.seedA) * jitter);
             float jz = (float) (Math.cos(t * 6.1 + il.seedB) * jitter);
 
-            Vec3d bodyPoint = new Vec3d(
-                center.x + Math.cos(ang) * bodyR,
-                yL,
-                center.z + Math.sin(ang) * bodyR);
+            // This loop runs 42 times per frame while the scene is active: the hot math stays on
+            // primitives (v1.0.71 allocation audit); Vec3d objects appear only on state changes.
+            double cosA = Math.cos(ang);
+            double sinA = Math.sin(ang);
 
-            Vec3d target = new Vec3d(
-                center.x + Math.cos(ang) * rr + jx,
-                yL + yW,
-                center.z + Math.sin(ang) * rr + jz);
+            double bx = center.x + cosA * bodyR;
+            double by = yL;
+            double bz = center.z + sinA * bodyR;
 
-            il.lastBodyPoint = bodyPoint;
+            double tx = center.x + cosA * rr + jx;
+            double ty = yL + yW;
+            double tz = center.z + sinA * rr + jz;
+
+            il.lastBodyX = bx;
+            il.lastBodyY = by;
+            il.lastBodyZ = bz;
 
             if (detach > 0.0f && !il.burst) {
                 il.burst = true;
                 il.burstMs = nowMs;
-                Vec3d out = target.subtract(center);
-                double l = out.length();
-                out = l > 1.0e-6 ? out.multiply(1.0 / l) : new Vec3d(0.0, 1.0, 0.0);
-                il.vel = out.multiply(2.8 + 7.2 * detach)
+                double ox = tx - center.x;
+                double oy = ty - center.y;
+                double oz = tz - center.z;
+                double l = Math.sqrt(ox * ox + oy * oy + oz * oz);
+                if (l > 1.0e-6) {
+                    double inv = 1.0 / l;
+                    ox *= inv;
+                    oy *= inv;
+                    oz *= inv;
+                } else {
+                    ox = 0.0;
+                    oy = 1.0;
+                    oz = 0.0;
+                }
+                il.vel = new Vec3d(ox, oy, oz).multiply(2.8 + 7.2 * detach)
                     .add(il.fly.multiply(2.4 + 6.4 * detach))
                     .add(0.0, 0.65 + 1.05 * detach, 0.0);
-                il.pos = target;
+                il.pos = new Vec3d(tx, ty, tz);
                 il.prevPos = il.pos;
                 il.hasPos = true;
             }
 
             if (!il.hasPos) {
-                il.pos = target;
-                il.prevPos = target;
+                il.pos = new Vec3d(tx, ty, tz);
+                il.prevPos = il.pos;
                 il.vel = Vec3d.ZERO;
                 il.hasPos = true;
             }
@@ -356,27 +371,34 @@ final class PetUltimate {
             il.prevPos = il.pos;
 
             if (!il.burst) {
-                Vec3d dv = target.subtract(il.pos);
-                Vec3d acc = dv.multiply(0.58 + 0.34 * attach);
-                il.vel = il.vel.add(acc.multiply(dt2 * 18.0));
-                il.vel = il.vel.multiply(0.84 + 0.10 * attach);
-                il.pos = il.pos.add(il.vel.multiply(dt2 * 18.0));
+                double k = 0.58 + 0.34 * attach;
+                double s = dt2 * 18.0;
+                double f = 0.84 + 0.10 * attach;
+                double vx = (il.vel.x + (tx - il.pos.x) * k * s) * f;
+                double vy = (il.vel.y + (ty - il.pos.y) * k * s) * f;
+                double vz = (il.vel.z + (tz - il.pos.z) * k * s) * f;
+                il.vel = new Vec3d(vx, vy, vz);
+                il.pos = new Vec3d(il.pos.x + vx * s, il.pos.y + vy * s, il.pos.z + vz * s);
             } else {
-                il.vel = il.vel.multiply(0.986);
-                il.vel = il.vel.add(0.0, -0.012 * dt2 * 60.0, 0.0);
-                il.vel = il.vel.add(
-                    Math.sin(t * 1.35 + il.seedA * 0.02) * 0.010 * dt2 * 60.0,
-                    Math.sin(t * 1.55 + il.seedB * 0.02) * 0.006 * dt2 * 60.0,
-                    Math.cos(t * 1.30 + il.seedB * 0.02) * 0.010 * dt2 * 60.0);
-                il.pos = il.pos.add(il.vel.multiply(dt2 * (19.5 + 10.5 * detach)));
+                double vx = il.vel.x * 0.986 + Math.sin(t * 1.35 + il.seedA * 0.02) * 0.010 * dt2 * 60.0;
+                double vy = il.vel.y * 0.986 + (-0.012 * dt2 * 60.0)
+                    + Math.sin(t * 1.55 + il.seedB * 0.02) * 0.006 * dt2 * 60.0;
+                double vz = il.vel.z * 0.986 + Math.cos(t * 1.30 + il.seedB * 0.02) * 0.010 * dt2 * 60.0;
+                il.vel = new Vec3d(vx, vy, vz);
+                double ps = dt2 * (19.5 + 10.5 * detach);
+                il.pos = new Vec3d(il.pos.x + vx * ps, il.pos.y + vy * ps, il.pos.z + vz * ps);
             }
 
-            Vec3d dir = il.pos.subtract(il.prevPos);
-            if (dir.lengthSquared() < 1.0e-8) {
-                dir = target.subtract(center);
+            double dx = il.pos.x - il.prevPos.x;
+            double dy = il.pos.y - il.prevPos.y;
+            double dz = il.pos.z - il.prevPos.z;
+            if (dx * dx + dy * dy + dz * dz < 1.0e-8) {
+                dx = tx - center.x;
+                dy = ty - center.y;
+                dz = tz - center.z;
             }
-            float yaw = yawFromDir(dir);
-            float pitch = pitchFromDir(dir);
+            float yaw = yawFromDir(dx, dz);
+            float pitch = pitchFromDir(dx, dy, dz);
 
             PetRig.animateParrotWings((ParrotEntity) il.entity, t + il.seedA * 0.004, 1.25f + 0.65f * attach);
             PetRig.applyPose(il.entity, il.pos, yaw, yaw, pitch, player.age, false, EntityPose.STANDING);
@@ -386,7 +408,7 @@ final class PetUltimate {
 
         if (fogAlpha > 0.010f && detach < 0.985f && attach > 0.18f && elapsed > (ULT_ASCEND_MS + 220L)) {
             renderBirdFog(consumers, matrices, camera, camPos, tf, attach, detach, fogAlpha,
-                glowCol, glowA, center, yMin, yMax, bodyR);
+                glowCol, glowA, yMin, yMax, bodyR);
         }
     }
 
@@ -484,7 +506,7 @@ final class PetUltimate {
 
     private void renderBirdFog(VertexConsumerProvider consumers, MatrixStack matrices, Camera camera,
                                Vec3d camPos, float t, float attach, float detach, float fogAlpha,
-                               int glowCol, float glowA, Vec3d center, float yMin, float yMax, float bodyR) {
+                               int glowCol, float glowA, float yMin, float yMax, float bodyR) {
         if (fogAlpha <= 0.0035f) {
             return;
         }
@@ -511,7 +533,9 @@ final class PetUltimate {
                 continue;
             }
 
-            Vec3d body = il.lastBodyPoint == null ? center : il.lastBodyPoint;
+            double bodyX = il.lastBodyX;
+            double bodyY = il.lastBodyY;
+            double bodyZ = il.lastBodyZ;
 
             float k0 = 0.72f + 0.28f * (float) Math.sin(t * 1.9f + il.seedA * 0.01f);
             float a0 = MathHelper.clamp(baseA * k0, 0.0f, 1.0f);
@@ -528,8 +552,10 @@ final class PetUltimate {
                 float ny = (float) Math.sin(t * (2.7f + s * 0.28f) + il.seedB + s * 2.3f) * (segNoise * 0.55f);
                 float nz = (float) Math.cos(t * (3.2f + s * 0.31f) + il.seedB + s * 1.1f) * segNoise;
 
-                Vec3d pp = lerpVec(p0, body, MathHelper.clamp(0.08f + 0.86f * w, 0.0f, 1.0f));
-                pp = new Vec3d(pp.x + nx, pp.y + ny, pp.z + nz);
+                double kk = MathHelper.clamp(0.08f + 0.86f * w, 0.0f, 1.0f);
+                double fx = p0.x + (bodyX - p0.x) * kk + nx;
+                double fy = p0.y + (bodyY - p0.y) * kk + ny;
+                double fz = p0.z + (bodyZ - p0.z) * kk + nz;
 
                 float sBase = (0.70f + 1.25f * attach) * (1.12f - 0.10f * w);
                 float sPulse = 0.90f + 0.20f * (float) Math.sin(t * 2.1f + il.seedB * 0.01f + s * 0.9f);
@@ -539,7 +565,7 @@ final class PetUltimate {
                 float aa = MathHelper.clamp(a0 * (0.72f * ww), 0.0f, 1.0f);
                 float roll = (t * (85.0f - 35.0f * w)) + (il.seedA + il.seedB) * 0.18f + s * 11.0f;
 
-                pushBillboard(feathers, matrix, right, up, camPos, pp.x, pp.y, pp.z, size, roll,
+                pushBillboard(feathers, matrix, right, up, camPos, fx, fy, fz, size, roll,
                     0.0f, 0.0f, 0.0f, aa);
             }
         }
@@ -705,24 +731,27 @@ final class PetUltimate {
             a.z + (b.z - a.z) * t);
     }
 
-    private static float yawFromDir(Vec3d dir) {
-        double x = dir.x;
-        double z = dir.z;
+    private static float yawFromDir(double x, double z) {
         if (Math.abs(x) < 1.0e-9 && Math.abs(z) < 1.0e-9) {
             return 0.0f;
         }
         return (float) (MathHelper.atan2(z, x) * (180.0 / Math.PI)) - 90.0f;
     }
 
-    private static float pitchFromDir(Vec3d dir) {
-        double x = dir.x;
-        double y = dir.y;
-        double z = dir.z;
+    private static float yawFromDir(Vec3d dir) {
+        return yawFromDir(dir.x, dir.z);
+    }
+
+    private static float pitchFromDir(double x, double y, double z) {
         double h = Math.sqrt(x * x + z * z);
         if (h < 1.0e-9) {
             return y > 0.0 ? -90.0f : 90.0f;
         }
         return (float) (-(MathHelper.atan2(y, h) * (180.0 / Math.PI)));
+    }
+
+    private static float pitchFromDir(Vec3d dir) {
+        return pitchFromDir(dir.x, dir.y, dir.z);
     }
 
     private static Vec3d randomDir(Random r) {
@@ -758,6 +787,9 @@ final class PetUltimate {
         long burstMs;
         float layer;
         float ang0;
-        Vec3d lastBodyPoint;
+        // Feather-fog anchor, kept as primitives: the update loop runs per frame per bird.
+        double lastBodyX;
+        double lastBodyY;
+        double lastBodyZ;
     }
 }
