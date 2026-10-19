@@ -98,6 +98,7 @@ public final class Cosmetics {
                     case "Orbit" -> Orbit.render(head);
                     case "Spires" -> Spires.render(head);
                     case "ChinaHat" -> ChinaHat.render(head);
+                    case "Nimb" -> Nimb.render(head);
                     default -> { }
                 }
                 matrices.pop();

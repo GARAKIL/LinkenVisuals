@@ -241,7 +241,7 @@ public final class ModuleRegistry {
         betterAnimations.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
         MODULES.add(betterAnimations);
 
-        cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat"), 1);
+        cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb"), 1);
         cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape"), 1);
         cosmeticAura = new ModeSetting("Aura", List.of("None", "Shards", "Embers", "Runes"), 0);
         cosmeticColor = new ColorSetting("Colour", Theme.DEFAULT_ACCENT);
