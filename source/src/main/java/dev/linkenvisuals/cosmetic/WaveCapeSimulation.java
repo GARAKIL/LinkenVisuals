@@ -34,6 +34,9 @@ public final class WaveCapeSimulation {
     private final float[] prevX = new float[SEGMENTS];
     private final float[] prevY = new float[SEGMENTS];
     private boolean built;
+    private double lastPlayerX;
+    private double lastPlayerZ;
+    private boolean hasLastPlayerPos;
 
     /** Whether the chain is ready (otherwise there is nothing to render). */
     public boolean isBuilt() {
@@ -72,8 +75,16 @@ public final class WaveCapeSimulation {
 
         // Cape lag behind the player, projected onto body facing: positive
         // value = player moved forward, cape should fly back.
-        double dx = player.capeX - player.getX();
-        double dz = player.capeZ - player.getZ();
+        // (Vanilla capeX/capeZ were removed in 1.21.11; track movement ourselves.)
+        double dx = 0.0;
+        double dz = 0.0;
+        if (hasLastPlayerPos) {
+            dx = lastPlayerX - player.getX();
+            dz = lastPlayerZ - player.getZ();
+        }
+        lastPlayerX = player.getX();
+        lastPlayerZ = player.getZ();
+        hasLastPlayerPos = true;
         float bodyYaw = player.getBodyYaw();
         double sin = MathHelper.sin(bodyYaw * 0.017453292f);
         double cos = -MathHelper.cos(bodyYaw * 0.017453292f);
