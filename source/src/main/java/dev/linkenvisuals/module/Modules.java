@@ -12,6 +12,8 @@ import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.TimeChangerModule;
+import dev.linkenvisuals.module.impl.TotemCounterModule;
+import dev.linkenvisuals.module.impl.TotemTrackerModule;
 import dev.linkenvisuals.module.impl.TrailsModule;
 import dev.linkenvisuals.module.impl.ZoomModule;
 
@@ -34,6 +36,8 @@ public final class Modules {
     private static FastExpModule fastExp;
     private static MineHelperModule mineHelper;
     private static ChatHelperModule chatHelper;
+    private static TotemCounterModule totemCounter;
+    private static TotemTrackerModule totemTracker;
 
     private Modules() {
     }
@@ -98,6 +102,14 @@ public final class Modules {
         return chatHelper;
     }
 
+    public static TotemCounterModule totemCounter() {
+        return totemCounter;
+    }
+
+    public static TotemTrackerModule totemTracker() {
+        return totemTracker;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -128,5 +140,9 @@ public final class Modules {
         register(mineHelper);
         chatHelper = new ChatHelperModule();
         register(chatHelper);
+        totemCounter = new TotemCounterModule();
+        register(totemCounter);
+        totemTracker = new TotemTrackerModule();
+        register(totemTracker);
     }
 }
