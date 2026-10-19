@@ -10,6 +10,7 @@ import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
+import dev.linkenvisuals.module.impl.ItemPhysicsModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
@@ -48,6 +49,7 @@ public final class Modules {
     private static SwingAnimationModule swingAnimation;
     private static HitColorModule hitColor;
     private static FreelookModule freelook;
+    private static ItemPhysicsModule itemPhysics;
 
     private Modules() {
     }
@@ -140,6 +142,10 @@ public final class Modules {
         return freelook;
     }
 
+    public static ItemPhysicsModule itemPhysics() {
+        return itemPhysics;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -184,5 +190,7 @@ public final class Modules {
         register(hitColor);
         freelook = new FreelookModule();
         register(freelook);
+        itemPhysics = new ItemPhysicsModule();
+        register(itemPhysics);
     }
 }
