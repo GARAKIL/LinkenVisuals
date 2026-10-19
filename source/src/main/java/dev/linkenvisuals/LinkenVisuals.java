@@ -4,6 +4,7 @@ import dev.linkenvisuals.account.AccountStorage;
 import dev.linkenvisuals.clickgui.ClickGuiScreen;
 import dev.linkenvisuals.clickgui.classic.ClassicGuiScreen;
 import dev.linkenvisuals.cosmetic.Cosmetics;
+import dev.linkenvisuals.pet.PetRig;
 import dev.linkenvisuals.hands.HandPose;
 import dev.linkenvisuals.render.AmbienceRenderer;
 import dev.linkenvisuals.render.ScreenFilterRenderer;
@@ -101,6 +102,7 @@ public final class LinkenVisuals implements ClientModInitializer {
             TargetMarks.clear();
             KillEffects.clear();
             FakePlayer.clear();
+            PetRig.clear();
             // Free fullscreen VRAM: every post pipeline holds its own scene-size
             // buffers (Ambience x4, Rain, Kill, Bubble, Filter, Hands x4, HUD glass).
             // Without this they survive world switches at 1440p/4K indefinitely.
@@ -125,6 +127,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(LinkenVisuals::onTick);
         WorldRenderEvents.AFTER_ENTITIES.register(MenuCloseEffect::render);
         WorldRenderEvents.AFTER_ENTITIES.register(Cosmetics::render);
+        WorldRenderEvents.AFTER_ENTITIES.register(PetRig::render);
         WorldRenderEvents.AFTER_ENTITIES.register(RainFall::render);
         WorldRenderEvents.AFTER_ENTITIES.register(TargetMarks::render);
         WorldRenderEvents.AFTER_ENTITIES.register(HitEffects::render);

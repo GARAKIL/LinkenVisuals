@@ -2,6 +2,29 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-19 (чат №9, продолжение) — v1.0.69
+
+### Сделано
+1. **Фаза 5.6 (остаток): питомцы — 11 скинов (D40, v1.0.69).** Новый пакет `dev.linkenvisuals.pet`: `PetSkins` (None + Bat, Parrot, Raven, Fairy, Bee, Vex, Fox, Pig, Frog, Pufferfish, Slime), `PetGroundSampler`, `PetWanderController` (фикс-тик 20 Гц, инжектируемый `GroundProbe` — тестируется без мира), `PetRig` (рантайм + рендер). Рендер — `AFTER_ENTITIES` → camera-relative `manager.render` (паттерн KillEffects), поза/свет/варианты — патчи render state после `getAndUpdateRenderState`; raven — `submitModel` с `pet/voron.png`; без UserSyncManager/сети, Naruto не портирован. Настройки в Cosmetics: `Pet` + Radius/Lift/Speed/Size/First Person (дефолты донора, скин None). Весь кадр под защитным `catch` (warn с троттлингом 30 с + пауза 5 с).
+2. **Тесты**: **142, 0 падений** (+7: `PetWanderControllerTest` — seed/догон/телепорт/лиши/reset; `PetSkinsTest` — round-trip меток). Build зелёный; автодеплой в MultiMC сработал (`linkenvisuals-1.0.69.jar`).
+3. **Dev-прогон**: 1 «Reloading ResourceManager», 0 «Failed to load»/«Couldn't find source», 0 ошибок миксинов; dev-клиент закрыт штатно.
+
+### Следующая задача
+**ULT-анимация воронов (v1.0.70)** — донорский `Raven.java` 458–1008 (beginReturn/renderReturn/renderUltimate/renderMainAscendRaven/billboards/playUltSound) + импорт ассетов `pero.png`, `oblok.png`, `sounds/itachi.ogg` (одобрено) + бинд. Затем игровая приёмка пользователем (питомцы v1.0.69 + Rudy/Trails из v1.0.68). Затем Фаза 6 по порядку: перф-аудит аллокаций → draw-calls → инвентарь ресурсов → README/доки → релизная сборка. Тег/релиз — только по слову пользователя.
+
+### Открытые решения (ждём пользователя)
+- Игровая приёмка v1.0.68 (Rudy, Trails) и v1.0.69 (11 скинов) — за пользователем.
+- LICENSE: копирайт-строка — держатель не менялся (правило «лицензию не менять» в силе).
+- `MASTER_PROMPT.md` — убирать ли из публичного репо.
+- UK-глифы MSDF (фолбэк і/ї→i, є→э, ґ→г) — нужна ли регенерация атласа.
+- `source/tools/*` — проверить актуальность при переносах Ф5.
+- WayPoints: дополнительный UX (кейбинд/GUI) — нужен ли.
+- StreamerMode: nametag-санитаризация — нужна ли отдельной задачей.
+
+### Проверенные факты (для следующего чата)
+- **Питомцы**: `Entity.getEntityWorld()` (НЕ `getWorld()`) — в 1.21.11; `EntityDimensions.height()` — доступор; `ParrotEntity.lastFlapProgress/lastMaxWingDeviation` публичны (крылья считаются аналитически); `setVariant`/`setSleeping` НЕ публичны — варианты только через render state (`ParrotEntityRenderState.variant/parrotPose`, `FoxEntityRenderState.type/sitting/sleeping/sleepingDirection/walking`); `LightmapTextureManager.MAX_LIGHT_COORDINATE`, `OverlayTexture.DEFAULT_UV`, `RenderLayers.entityCutoutNoCull(id)`; `queue.submitModel(model, state, matrices, layer, light, overlay, color, null)` — 8-арг default-оверлоад; `manager.getAndUpdateRenderState(ent, pt)` + `manager.render(state, cameraState, 0,0,0, matrices, queue)`.
+- **Dev-прогон обязателен** перед выдачей jar (см. секцию v1.0.68 ниже): reload ловит битые шейдеры/ресурсы; закрытие — kill `java.exe` с `devlaunchinjector` в CommandLine.
+
 ## Состояние на 2026-10-19 (чат №9) — v1.0.68
 
 ### Сделано

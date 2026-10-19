@@ -108,6 +108,12 @@ public final class ModuleRegistry {
     private static ColorSetting cosmeticColor;
     private static SliderSetting cosmeticSize;
     private static SliderSetting cosmeticSpeed;
+    private static ModeSetting cosmeticPet;
+    private static SliderSetting cosmeticPetRadius;
+    private static SliderSetting cosmeticPetHeight;
+    private static SliderSetting cosmeticPetSpeed;
+    private static SliderSetting cosmeticPetScale;
+    private static BooleanSetting cosmeticPetFirstPerson;
 
     private static ModuleInfo betterHands;
     private static ModeSetting handOutline;
@@ -250,9 +256,16 @@ public final class ModuleRegistry {
 
         cosmeticSize = new SliderSetting("Size", 0.6f, 1.5f, 0.05f, 1.0f, "x");
         cosmeticSpeed = new SliderSetting("Speed", 0.2f, 3.0f, 0.05f, 1.0f, "x");
+        cosmeticPet = new ModeSetting("Pet", dev.linkenvisuals.pet.PetSkins.labels(), 0);
+        cosmeticPetRadius = new SliderSetting("Pet Radius", 0.15f, 2.5f, 0.05f, 0.65f, "m");
+        cosmeticPetHeight = new SliderSetting("Pet Lift", -0.5f, 3.0f, 0.05f, 0.95f, "m");
+        cosmeticPetSpeed = new SliderSetting("Pet Speed", 0.05f, 5.0f, 0.05f, 1.15f, "x");
+        cosmeticPetScale = new SliderSetting("Pet Size", 0.15f, 2.0f, 0.05f, 0.55f, "x");
+        cosmeticPetFirstPerson = new BooleanSetting("Pet First Person", true);
         cosmetics = new ModuleInfo("Cosmetics", "worn light, yours only", Category.VISUAL,
-            List.of(cosmeticCrown, cosmeticBack, cosmeticAura, cosmeticCharacter),
-            List.of(cosmeticColor, cosmeticSize, cosmeticSpeed));
+            List.of(cosmeticCrown, cosmeticBack, cosmeticAura, cosmeticCharacter, cosmeticPet),
+            List.of(cosmeticColor, cosmeticSize, cosmeticSpeed, cosmeticPetRadius, cosmeticPetHeight,
+                cosmeticPetSpeed, cosmeticPetScale, cosmeticPetFirstPerson));
         cosmetics.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.PLAYER);
         MODULES.add(cosmetics);
 
@@ -454,6 +467,7 @@ public final class ModuleRegistry {
             case "back" -> cosmeticBack.current();
             case "aura" -> cosmeticAura.current();
             case "character" -> cosmeticCharacter.current();
+            case "pet" -> cosmeticPet.current();
             default -> "None";
         };
     }
@@ -468,6 +482,26 @@ public final class ModuleRegistry {
 
     public static SliderSetting cosmeticSpeed() {
         return cosmeticSpeed;
+    }
+
+    public static SliderSetting cosmeticPetRadius() {
+        return cosmeticPetRadius;
+    }
+
+    public static SliderSetting cosmeticPetHeight() {
+        return cosmeticPetHeight;
+    }
+
+    public static SliderSetting cosmeticPetSpeed() {
+        return cosmeticPetSpeed;
+    }
+
+    public static SliderSetting cosmeticPetScale() {
+        return cosmeticPetScale;
+    }
+
+    public static BooleanSetting cosmeticPetFirstPerson() {
+        return cosmeticPetFirstPerson;
     }
 
     public static ModuleInfo betterHands() {
