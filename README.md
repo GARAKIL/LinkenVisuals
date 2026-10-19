@@ -67,7 +67,7 @@
 | **Clear Module Key** | Right-click binding button | Yes |
 | **Trigger Pet ULT (Raven)** | Unbound — set **Pet ULT** in ClickGUI → Cosmetics | Yes |
 
-**Client commands:** `/way` (alias `/waypoint`) — `add` · `remove` · `list` · `clear` waypoints (client-side, never sent to the server).
+**Client commands:** `/way` (alias `/waypoint`) — `add` · `remove` · `list` · `clear` waypoints (client-side, never sent to the server). `/lvtest` (alias `/lvautotest`) — `start` · `stop` · `status`: in-game smoke test that opens both GUIs and the inventory, spawns no-AI mobs (with cheats), attacks them, toggles every module, sweeps every render setting, restores your configuration and writes `logs/linkenvisuals-autotest-<timestamp>.log`.
 
 ---
 
@@ -79,6 +79,7 @@ LinkenVisuals/
 │   ├── src/main/java/dev/linkenvisuals/
 │   │   ├── LinkenVisuals.java       # Mod initializer & lifecycle events
 │   │   ├── account/                  # Account switcher & session cache
+│   │   ├── autotest/                 # /lvtest in-game smoke-test driver
 │   │   ├── clickgui/                 # ClickGUI engine, widgets & ConfigManager
 │   │   │   └── setting/              # Boolean, Slider, Mode, and Color settings
 │   │   ├── cosmetic/                 # Procedural cosmetics + Rudy character (Embers, Halo, Kagune, Orbit, Runes, Seraph, Shards, Spires, Tendrils, …)
@@ -140,6 +141,12 @@ LinkenVisuals/
    ```bash
    .\gradlew runClient
    ```
+
+5. **Run the in-game auto-test (optional):**
+   ```bash
+   .\gradlew runAutotest
+   ```
+   Enter any world (or pass `-PautotestWorld=<save-name>` to quick-play one); the driver starts automatically after 2 seconds. Add `-PautotestQuit=true` to close the client when the report is ready. Cheats are required for mob spawning/`/tp`; without them the GUI and module/setting sweep still runs.
 
 ---
 

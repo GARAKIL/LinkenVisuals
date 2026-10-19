@@ -67,7 +67,7 @@
 | **Сбросить привязку модуля** | Нажать ПКМ по кнопке бинда | Да |
 | **Запустить ULT ворона** | Не назначена — бинд **Pet ULT** в ClickGUI → Cosmetics | Да |
 
-**Клиентские команды:** `/way` (алиас `/waypoint`) — `add` · `remove` · `list` · `clear` (вэйпоинты обрабатываются на клиенте и не отправляются на сервер).
+**Клиентские команды:** `/way` (алиас `/waypoint`) — `add` · `remove` · `list` · `clear` (вэйпоинты обрабатываются на клиенте и не отправляются на сервер). `/lvtest` (алиас `/lvautotest`) — `start` · `stop` · `status`: внутриигровой смоук-тест — открывает оба GUI и инвентарь, спавнит мобов без ИИ (при наличии читов), бьёт их, переключает все модули, прогоняет все настройки рендера, восстанавливает конфиг и пишет отчёт в `logs/linkenvisuals-autotest-<timestamp>.log`.
 
 ---
 
@@ -79,6 +79,7 @@ LinkenVisuals/
 │   ├── src/main/java/dev/linkenvisuals/
 │   │   ├── LinkenVisuals.java       # Точка входа мода и регистрация событий
 │   │   ├── account/                  # Менеджер аккаунтов и кэш сессий
+│   │   ├── autotest/                 # Драйвер внутриигрового смоук-теста /lvtest
 │   │   ├── clickgui/                 # Движок ClickGUI, виджеты и ConfigManager
 │   │   │   └── setting/              # Настройки Boolean, Slider, Mode, Color
 │   │   ├── cosmetic/                 # Процедурная косметика + персонаж Rudy (Embers, Halo, Kagune, Orbit, Runes, Seraph, Shards, Spires, Tendrils, …)
@@ -140,6 +141,12 @@ LinkenVisuals/
    ```bash
    .\gradlew runClient
    ```
+
+5. **Внутриигровой автотест (опционально):**
+   ```bash
+   .\gradlew runAutotest
+   ```
+   Зайдите в любой мир (или передайте `-PautotestWorld=<имя-сохранения>` для quick-play) — драйвер стартует сам через 2 секунды. Флаг `-PautotestQuit=true` закроет клиент после отчёта. Для мобов и `/tp` нужны читы; без них всё равно выполняются GUI- и модульный прогон.
 
 ---
 

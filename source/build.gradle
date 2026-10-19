@@ -67,6 +67,30 @@ java {
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+// In-game smoke test run. The driver waits for a world, then exercises every
+// module/setting, spawns no-AI mobs and attacks them. Start it manually in any
+// other client run with /lvtest start. Add -Dlinkenvisuals.autotest.quit=true
+// to close the client when the report is ready. -PautotestWorld=<save> jumps
+// straight into an existing world (vanilla --quickPlaySingleplayer).
+def autotestWorld = project.findProperty('autotestWorld')
+def autotestQuit = project.hasProperty('autotestQuit')
+loom {
+    runs {
+        autotest {
+            client()
+            configName = "AutoTest Client"
+            vmArg "-Dlinkenvisuals.autotest=true"
+            if (autotestQuit) {
+                vmArg "-Dlinkenvisuals.autotest.quit=true"
+            }
+            if (autotestWorld != null) {
+                programArg "--quickPlaySingleplayer"
+                programArg autotestWorld.toString()
+            }
+        }
+    }
+}
+
 // Optional local deploy: copies the remapped jar into a Minecraft mods folder
 // when -PmultiMcModsDir=<path> is passed (set it in ~/.gradle/gradle.properties,
 // never hardcode machine-specific paths in the repository).

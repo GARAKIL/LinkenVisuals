@@ -2,6 +2,22 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-19 (чат №11 — лог-фикс + in-game автотест) — v1.0.73
+
+### Сделано
+1. **D44 — двойной blur ClickGUI**: по логу пользователя (1.0.72) единственное наше предупреждение — `Can only blur once per frame`; причина — `ClickGuiScreen.render` вызывал `context.applyBlur()` после ванильного `Screen#renderBackground`. Повторный вызов и поле `blurUnsupportedLogged` удалены. В прогоне 1.0.73 — 0 таких строк.
+2. **D45 — автотест в игре**: `dev.linkenvisuals.autotest` (`AutoTestDriver`, `AutoTestCommand`, `AutoTestReport` + 4 теста). `/lvtest start|stop|status` (алиас `/lvautotest`), автостарт `-Dlinkenvisuals.autotest=true`, авто-выход `.quit=true`; Gradle `runAutotest`, `-PautotestWorld=<save>`, `-PautotestQuit=true`. Свип всех модулей/настроек (boolean/slider/mode/color; keybind/text не трогаются), modern+classic ClickGUI, инвентарь, 4 моба (2 cow/2 zombie, NoAI, 1 HP) и атаки, jump/sneak/sprint, use item, place/break в креативе, restore конфига/позиции/слота, скан новых ERROR в `latest.log`, отчёт `logs/linkenvisuals-autotest-*.log` + 3 скриншота.
+3. **Evidence**: `clean build` — 153 теста, 0 падений. Hands-free прогон на копии мира (читы вкл.): **564 шага, 564 ok, 0 fail, 0 skip**, новых ERROR/Exception — 0, blur-warning — 0, клиент сам закрылся. Первый прогон (557/7 skip) выявил, что `Tags` не синхронизируются на клиент; детекция мобов — по снимку entity id (тег остался для `/kill`). Скриншоты: `run/screenshots/lv-autotest-{1-world,2-clickgui,3-final}.png`.
+4. **Jar**: `source/build/libs/linkenvisuals-1.0.73.jar` (автодеплой в MultiMC).
+
+### Следующая задача
+- Визуальная приёмка пользователем: в мире с читами выполнить `/lvtest start`, дождаться чат-отчёта; проверить размытие ClickGUI и эффекты. Для dev-рана: `.\gradlew runAutotest` (автостарт после входа в мир) или `-PautotestWorld=<save> -PautotestQuit=true`.
+- Открытые решения без изменений: LICENSE copyright, MASTER_PROMPT в публичном репо, UK MSDF (і/ї/є/ґ), waypoints UX, StreamerMode nametag-санитизация.
+- Тег/релиз GitHub — только по явному слову пользователя.
+
+### Риски
+- Автотест не заменяет визуальную проверку: он ловит исключения/варнинги и проверяет жизненный цикл модулей. В мультиплеере без op мобы/`tp`/`setblock` пропускаются (skip), свип модулей выполняется.
+
 ## Состояние на 2026-10-19 (чат №10 — Фаза 6 закрыта) — v1.0.72
 
 ### Сделано

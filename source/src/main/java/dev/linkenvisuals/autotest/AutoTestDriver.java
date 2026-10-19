@@ -1,0 +1,715 @@
+package dev.linkenvisuals.autotest;
+
+import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.clickgui.ClickGuiScreen;
+import dev.linkenvisuals.clickgui.ModuleInfo;
+import dev.linkenvisuals.clickgui.ModuleRegistry;
+import dev.linkenvisuals.clickgui.classic.ClassicGuiScreen;
+import dev.linkenvisuals.clickgui.setting.BooleanSetting;
+import dev.linkenvisuals.clickgui.setting.ColorSetting;
+import dev.linkenvisuals.clickgui.setting.ModeSetting;
+import dev.linkenvisuals.clickgui.setting.Setting;
+import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.util.ScreenshotRecorder;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+/**
+ * In-game smoke test driven through the game's own API.
+ *
+ * <p>Start it from a world with {@code /lvtest start} (or with
+ * {@code -Dlinkenvisuals.autotest=true}, which auto-starts shortly after a world
+ * loads). The driver opens both ClickGUIs and the inventory, spawns tagged
+ * no-AI mobs when the player has command permission, attacks them, presses the
+ * movement keys, then enables every module and sweeps every render setting.
+ * Afterwards it restores the exact module/setting state, scans
+ * {@code logs/latest.log} for new errors and writes a report next to the log.
+ *
+ * <p>Everything runs on the client thread from {@link ClientTickEvents}; there
+ * is no extra dependency and the driver also works in a normal release jar.
+ */
+public final class AutoTestDriver {
+    public static final String AUTOSTART_PROPERTY = "linkenvisuals.autotest";
+    public static final String QUIT_PROPERTY = "linkenvisuals.autotest.quit";
+
+    private static final String CHAT_PREFIX = "[LVTest] ";
+    private static final String MOB_TAG = "lvt";
+    private static final int AUTOSTART_DELAY_TICKS = 40;
+    private static final int QUIT_DELAY_TICKS = 60;
+
+    private static final Deque<Step> STEPS = new ArrayDeque<>();
+    private static final List<ModuleInfo> MODULES = new ArrayList<>();
+    private static final List<Runnable> RESTORES = new ArrayList<>();
+    /** Entity ids that existed before the summon; command tags are server-side only. */
+    private static final Set<Integer> KNOWN_ENTITY_IDS = new HashSet<>();
+
+    private static AutoTestReport report = new AutoTestReport();
+    private static AutoTestReport lastReport;
+    private static boolean running;
+    private static boolean stopRequested;
+    private static String stopReason = "";
+    private static int stepDelay;
+    private static int currentStep;
+    private static int totalSteps;
+    private static String lastStep = "";
+    private static int autoStartTicks;
+    private static boolean autoStartDone;
+    private static int quitTicks = -1;
+
+    private static Path logFile;
+    private static int logLineOffset = -1;
+    private static int screenshotId;
+    private static Vec3d returnPos;
+    private static float returnYaw;
+    private static float returnPitch;
+    private static int returnSlot;
+    private static boolean commandsWorked;
+    private static boolean mobsSpawned;
+    private static boolean blockPlaced;
+    private static String blockCoords;
+
+    private AutoTestDriver() {
+    }
+
+    public static void register() {
+        ClientTickEvents.END_CLIENT_TICK.register(AutoTestDriver::tick);
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            if (running) {
+                stop("дисконнект");
+            }
+        });
+    }
+
+    /** Starts the test in the current world. Returns a short status message. */
+    public static String start(MinecraftClient client) {
+        if (running) {
+            return "уже идёт: " + statusLine();
+        }
+        if (client.player == null || client.world == null || client.interactionManager == null) {
+            return "сначала зайди в мир";
+        }
+        autoStartDone = true;
+        autoStartTicks = 0;
+        quitTicks = -1;
+        stopRequested = false;
+        stopReason = "";
+        stepDelay = 0;
+        currentStep = 0;
+        lastStep = "подготовка";
+        report = new AutoTestReport();
+        lastReport = null;
+        screenshotId = 0;
+        commandsWorked = false;
+        mobsSpawned = false;
+        blockPlaced = false;
+        blockCoords = null;
+        KNOWN_ENTITY_IDS.clear();
+
+        ClientPlayerEntity player = client.player;
+        returnPos = player.getEntityPos();
+        returnYaw = player.getYaw();
+        returnPitch = player.getPitch();
+        returnSlot = player.getInventory().getSelectedSlot();
+
+        logFile = client.runDirectory.toPath().resolve("logs").resolve("latest.log");
+        logLineOffset = countLogLines(logFile);
+
+        if (client.currentScreen != null) {
+            client.setScreen(null);
+        }
+
+        try {
+            snapshotConfiguration();
+            buildPlan(client);
+        } catch (Throwable t) {
+            LinkenVisuals.LOGGER.error("[AutoTest] failed to build the test plan", t);
+            restoreConfiguration();
+            STEPS.clear();
+            return "не удалось запустить: " + AutoTestReport.describe(t);
+        }
+
+        totalSteps = STEPS.size();
+        lastStep = "старт";
+        running = true;
+        LinkenVisuals.LOGGER.info("[AutoTest] started with {} steps", totalSteps);
+        return "старт: " + totalSteps + " шагов (мобы, GUI, все модули и настройки). "
+            + "Отчёт — в чате и logs/linkenvisuals-autotest-*.log";
+    }
+
+    /** Requests a graceful stop; the current step is allowed to finish. */
+    public static String stop(String reason) {
+        if (!running) {
+            return "не запущен";
+        }
+        stopRequested = true;
+        stopReason = reason;
+        return "останов: " + reason;
+    }
+
+    public static String statusLine() {
+        if (running) {
+            return "идёт " + currentStep + "/" + totalSteps + " — " + lastStep;
+        }
+        if (lastReport != null) {
+            return "последний запуск: " + lastReport.summary();
+        }
+        return "не запускался; /lvtest start (нужен мир, для мобов — читы)";
+    }
+
+    private static void tick(MinecraftClient client) {
+        if (!running) {
+            if (quitTicks > 0 && --quitTicks == 0) {
+                client.scheduleStop();
+                return;
+            }
+            maybeAutoStart(client);
+            return;
+        }
+        if (client.player == null || client.world == null) {
+            finish(client, "мир закрыт");
+            return;
+        }
+        if (stopRequested) {
+            finish(client, stopReason);
+            return;
+        }
+        if (stepDelay > 0) {
+            stepDelay--;
+            return;
+        }
+        Step step = STEPS.poll();
+        if (step == null) {
+            finish(client, "все шаги выполнены");
+            return;
+        }
+        lastStep = step.label();
+        currentStep++;
+        try {
+            step.action().run();
+            report.pass();
+        } catch (SkipStep skipped) {
+            report.skip(step.label(), skipped.getMessage());
+        } catch (Throwable t) {
+            report.fail(step.label(), t);
+            LinkenVisuals.LOGGER.error("[AutoTest] step '{}' failed", step.label(), t);
+        }
+        stepDelay = Math.max(0, step.delayTicks());
+    }
+
+    private static void maybeAutoStart(MinecraftClient client) {
+        if (autoStartDone || !Boolean.getBoolean(AUTOSTART_PROPERTY)) {
+            return;
+        }
+        if (client.player == null || client.world == null || client.currentScreen != null) {
+            autoStartTicks = 0;
+            return;
+        }
+        if (++autoStartTicks < AUTOSTART_DELAY_TICKS) {
+            return;
+        }
+        autoStartDone = true;
+        chat(client, "auto: " + start(client));
+    }
+
+    private static void finish(MinecraftClient client, String reason) {
+        if (!running) {
+            return;
+        }
+        running = false;
+        stopRequested = false;
+        releaseKeys(client);
+        if (client.currentScreen != null) {
+            client.setScreen(null);
+        }
+        restoreConfiguration();
+        cleanupWorld(client);
+
+        LogScan scan = scanLog();
+        String reportPath = writeReportFile(client, reason, scan);
+        lastReport = report;
+        announce(client, reason, scan, reportPath);
+
+        STEPS.clear();
+        stepDelay = 0;
+        if (Boolean.getBoolean(QUIT_PROPERTY)) {
+            quitTicks = QUIT_DELAY_TICKS;
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Plan
+    // ------------------------------------------------------------------
+
+    private static void buildPlan(MinecraftClient client) {
+        STEPS.clear();
+
+        add("screenshot world", 2, () -> screenshot(client, "world"));
+        add("summon test mobs", 10, () -> summonMobs(client));
+        add("check summoned mobs", 1, () -> {
+            mobsSpawned = !taggedMobs(client).isEmpty();
+            commandsWorked = mobsSpawned;
+            if (!mobsSpawned) {
+                throw new SkipStep("мобы не появились: нужны читы/op");
+            }
+        });
+
+        add("open ClickGUI", 13, () -> client.setScreen(new ClickGuiScreen()));
+        add("screenshot ClickGUI", 1, () -> screenshot(client, "clickgui"));
+        add("close ClickGUI", 4, () -> client.setScreen(null));
+
+        add("open classic ClickGUI", 13, () -> client.setScreen(new ClassicGuiScreen()));
+        add("close classic ClickGUI", 4, () -> client.setScreen(null));
+
+        add("open inventory", 5, () -> client.setScreen(new InventoryScreen(client.player)));
+        add("close inventory", 3, () -> client.setScreen(null));
+
+        for (int i = 0; i < 4; i++) {
+            add("attack mob " + (i + 1), 3, () -> attackNearest(client));
+        }
+
+        add("jump pressed", 1, () -> client.options.jumpKey.setPressed(true));
+        add("jump released", 4, () -> client.options.jumpKey.setPressed(false));
+        add("sneak pressed", 1, () -> client.options.sneakKey.setPressed(true));
+        add("sneak released", 6, () -> client.options.sneakKey.setPressed(false));
+        add("sprint pressed", 1, () -> client.options.sprintKey.setPressed(true));
+        add("sprint released", 8, () -> client.options.sprintKey.setPressed(false));
+        add("use item and swing", 2, () -> useItem(client));
+
+        buildBlockTest(client);
+
+        for (ModuleInfo module : MODULES) {
+            appendModuleSteps(module);
+        }
+
+        add("screenshot final", 2, () -> screenshot(client, "final"));
+    }
+
+    private static void buildBlockTest(MinecraftClient client) {
+        BlockPos pos = findAirBlock(client);
+        if (pos == null || client.player == null || !client.player.isCreative()) {
+            add("block break test", 0, () -> {
+                throw new SkipStep("нужен креатив и свободное место рядом");
+            });
+            return;
+        }
+        blockCoords = pos.getX() + " " + pos.getY() + " " + pos.getZ();
+        add("place test block", 4, () -> {
+            if (!commandsWorked) {
+                throw new SkipStep("нет прав на /setblock");
+            }
+            command(client, "setblock " + blockCoords + " minecraft:stone");
+            blockPlaced = true;
+        });
+        add("break test block", 3, () -> {
+            if (!blockPlaced) {
+                throw new SkipStep("блок не поставлен");
+            }
+            if (client.interactionManager == null) {
+                throw new IllegalStateException("нет interactionManager");
+            }
+            client.interactionManager.breakBlock(pos);
+            client.player.swingHand(Hand.MAIN_HAND);
+        });
+        add("cleanup test block", 2, () -> {
+            if (blockPlaced) {
+                command(client, "setblock " + blockCoords + " minecraft:air");
+                blockPlaced = false;
+            }
+        });
+    }
+
+    private static void appendModuleSteps(ModuleInfo module) {
+        boolean wasEnabled = module.enabled();
+        if (!wasEnabled) {
+            add("enable " + module.name(), 4, module::toggle);
+        }
+        add("render " + module.name(), 1, () -> {
+        });
+        for (Setting setting : settingsOf(module)) {
+            appendSettingSteps(module, setting);
+        }
+        if (!wasEnabled) {
+            add("disable " + module.name(), 3, module::toggle);
+        }
+    }
+
+    private static void appendSettingSteps(ModuleInfo module, Setting setting) {
+        String label = module.name() + "/" + setting.name();
+        if (setting instanceof BooleanSetting s) {
+            boolean original = s.value();
+            add("bool " + label, 1, () -> s.setValue(!original));
+            add("bool " + label, 1, () -> s.setValue(original));
+        } else if (setting instanceof SliderSetting s) {
+            float original = s.value();
+            add("slider min " + label, 1, () -> s.setFraction(0.0f));
+            add("slider max " + label, 1, () -> s.setFraction(1.0f));
+            add("slider mid " + label, 1, () -> s.setFraction(0.5f));
+            add("slider restore " + label, 1, () -> s.setValue(original));
+        } else if (setting instanceof ModeSetting s) {
+            int original = s.index();
+            int size = s.options().size();
+            for (int i = 0; i < size; i++) {
+                if (i == original) {
+                    continue;
+                }
+                int option = i;
+                add("mode " + label + " #" + i, 1, () -> s.select(option));
+            }
+            if (size > 0) {
+                add("mode restore " + label, 1, () -> s.select(original));
+            }
+        } else if (setting instanceof ColorSetting s) {
+            int original = s.rgb();
+            add("color " + label + " preset1", 1, () -> s.set(ColorSetting.PRESETS[1]));
+            add("color " + label + " preset3", 1, () -> s.set(ColorSetting.PRESETS[3]));
+            add("color restore " + label, 1, () -> s.set(original));
+        }
+        // KeySetting/KeybindSetting/StringSetting stay untouched: they hold user
+        // bindings and free-form text rather than render parameters.
+    }
+
+    private static void add(String label, int delayTicks, Runnable action) {
+        STEPS.add(new Step(label, delayTicks, action));
+    }
+
+    // ------------------------------------------------------------------
+    // Game actions
+    // ------------------------------------------------------------------
+
+    private static void summonMobs(MinecraftClient client) {
+        // Command tags never reach the client, so remember the entities that already
+        // exist and treat the new cows/zombies as the test targets.
+        KNOWN_ENTITY_IDS.clear();
+        if (client.player != null && client.world != null) {
+            client.world.getEntitiesByClass(LivingEntity.class,
+                client.player.getBoundingBox().expand(32.0), entity -> true)
+                .forEach(entity -> KNOWN_ENTITY_IDS.add(entity.getId()));
+        }
+        String[] offsets = {"~2 ~ ~", "~-2 ~ ~", "~ ~ ~2", "~ ~ ~-2"};
+        String[] types = {"minecraft:cow", "minecraft:cow", "minecraft:zombie", "minecraft:zombie"};
+        for (int i = 0; i < types.length; i++) {
+            command(client, "summon " + types[i] + " " + offsets[i]
+                + " {NoAI:1b,Silent:1b,Health:1.0f,PersistenceRequired:1b,Tags:[\"" + MOB_TAG + "\"]}");
+        }
+    }
+
+    private static void attackNearest(MinecraftClient client) {
+        if (client.player == null || client.interactionManager == null) {
+            throw new IllegalStateException("нет игрока или interactionManager");
+        }
+        LivingEntity target = taggedMobs(client).stream()
+            .min(Comparator.comparingDouble(entity -> entity.squaredDistanceTo(client.player)))
+            .orElse(null);
+        if (target == null) {
+            throw new SkipStep("нет живых мобов с тегом " + MOB_TAG);
+        }
+        lookAt(client.player, target.getEntityPos().add(0.0, target.getHeight() * 0.5, 0.0));
+        client.interactionManager.attackEntity(client.player, target);
+        client.player.swingHand(Hand.MAIN_HAND);
+    }
+
+    private static void useItem(MinecraftClient client) {
+        if (client.player == null || client.interactionManager == null) {
+            throw new IllegalStateException("нет игрока или interactionManager");
+        }
+        client.interactionManager.interactItem(client.player, Hand.MAIN_HAND);
+        client.player.swingHand(Hand.MAIN_HAND);
+    }
+
+    private static void lookAt(ClientPlayerEntity player, Vec3d target) {
+        Vec3d delta = target.subtract(player.getEyePos());
+        double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+        player.setYaw((float) Math.toDegrees(Math.atan2(-delta.x, delta.z)));
+        player.setPitch((float) -Math.toDegrees(Math.atan2(delta.y, horizontal)));
+    }
+
+    private static List<LivingEntity> taggedMobs(MinecraftClient client) {
+        if (client.player == null || client.world == null) {
+            return List.of();
+        }
+        return client.world.getEntitiesByClass(LivingEntity.class,
+            client.player.getBoundingBox().expand(24.0),
+            entity -> entity.isAlive()
+                && !KNOWN_ENTITY_IDS.contains(entity.getId())
+                && (entity.getType() == EntityType.COW || entity.getType() == EntityType.ZOMBIE));
+    }
+
+    private static BlockPos findAirBlock(MinecraftClient client) {
+        if (client.player == null || client.world == null) {
+            return null;
+        }
+        BlockPos origin = client.player.getBlockPos();
+        for (Direction direction : Direction.Type.HORIZONTAL) {
+            BlockPos candidate = origin.offset(direction, 2);
+            if (client.world.getBlockState(candidate).isAir()
+                && client.world.getBlockState(candidate.up()).isAir()
+                && client.player.getEyePos().squaredDistanceTo(Vec3d.ofCenter(candidate)) <= 16.0) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static void command(MinecraftClient client, String command) {
+        ClientPlayNetworkHandler handler = client.getNetworkHandler();
+        if (handler == null) {
+            throw new IllegalStateException("нет соединения с сервером");
+        }
+        handler.sendChatCommand(command);
+    }
+
+    private static void screenshot(MinecraftClient client, String label) {
+        String name = "lv-autotest-" + (++screenshotId) + "-" + label + ".png";
+        ScreenshotRecorder.saveScreenshot(client.runDirectory, name, client.getFramebuffer(), 1,
+            message -> {
+            });
+    }
+
+    private static void releaseKeys(MinecraftClient client) {
+        if (client.options == null) {
+            return;
+        }
+        client.options.jumpKey.setPressed(false);
+        client.options.sneakKey.setPressed(false);
+        client.options.sprintKey.setPressed(false);
+        client.options.forwardKey.setPressed(false);
+    }
+
+    // ------------------------------------------------------------------
+    // Configuration snapshot / restore
+    // ------------------------------------------------------------------
+
+    private static void snapshotConfiguration() {
+        RESTORES.clear();
+        MODULES.clear();
+        MODULES.addAll(ModuleRegistry.all());
+
+        for (ModuleInfo module : MODULES) {
+            boolean enabled = module.enabled();
+            RESTORES.add(() -> {
+                if (module.enabled() != enabled) {
+                    module.toggle();
+                }
+            });
+            for (Setting setting : settingsOf(module)) {
+                if (setting instanceof BooleanSetting s) {
+                    boolean value = s.value();
+                    RESTORES.add(() -> s.setValue(value));
+                } else if (setting instanceof SliderSetting s) {
+                    float value = s.value();
+                    RESTORES.add(() -> s.setValue(value));
+                } else if (setting instanceof ModeSetting s) {
+                    int index = s.index();
+                    RESTORES.add(() -> s.select(index));
+                } else if (setting instanceof ColorSetting s) {
+                    int rgb = s.rgb();
+                    RESTORES.add(() -> s.set(rgb));
+                }
+            }
+        }
+    }
+
+    private static void restoreConfiguration() {
+        for (int i = RESTORES.size() - 1; i >= 0; i--) {
+            try {
+                RESTORES.get(i).run();
+            } catch (Throwable t) {
+                report.fail("restore config", t);
+                LinkenVisuals.LOGGER.error("[AutoTest] failed to restore configuration", t);
+            }
+        }
+        RESTORES.clear();
+    }
+
+    private static List<Setting> settingsOf(ModuleInfo module) {
+        Set<Setting> unique = new LinkedHashSet<>(module.leftSettings());
+        unique.addAll(module.rightSettings());
+        return new ArrayList<>(unique);
+    }
+
+    private static void cleanupWorld(MinecraftClient client) {
+        if (client.player == null) {
+            return;
+        }
+        try {
+            client.player.getInventory().setSelectedSlot(returnSlot);
+            client.player.setYaw(returnYaw);
+            client.player.setPitch(returnPitch);
+        } catch (Throwable t) {
+            LinkenVisuals.LOGGER.debug("[AutoTest] player state restore failed: {}", t.toString());
+        }
+        if (blockPlaced && blockCoords != null) {
+            try {
+                command(client, "setblock " + blockCoords + " minecraft:air");
+            } catch (Throwable t) {
+                LinkenVisuals.LOGGER.debug("[AutoTest] block cleanup failed: {}", t.toString());
+            }
+            blockPlaced = false;
+        }
+        if (!commandsWorked) {
+            return;
+        }
+        try {
+            command(client, "kill @e[tag=" + MOB_TAG + "]");
+        } catch (Throwable t) {
+            LinkenVisuals.LOGGER.debug("[AutoTest] mob cleanup failed: {}", t.toString());
+        }
+        if (returnPos != null) {
+            try {
+                command(client, String.format(Locale.ROOT, "tp @s %.2f %.2f %.2f",
+                    returnPos.x, returnPos.y, returnPos.z));
+            } catch (Throwable t) {
+                LinkenVisuals.LOGGER.debug("[AutoTest] position restore failed: {}", t.toString());
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Report
+    // ------------------------------------------------------------------
+
+    private static int countLogLines(Path path) {
+        if (path == null || !Files.exists(path)) {
+            return -1;
+        }
+        try (var lines = Files.lines(path, StandardCharsets.UTF_8)) {
+            long count = lines.count();
+            return (int) Math.min(count, Integer.MAX_VALUE);
+        } catch (IOException | UncheckedIOException e) {
+            LinkenVisuals.LOGGER.warn("[AutoTest] cannot read {}: {}", path, e.toString());
+            return -1;
+        }
+    }
+
+    private static LogScan scanLog() {
+        if (logFile == null || logLineOffset < 0 || !Files.exists(logFile)) {
+            return new LogScan(0, List.of());
+        }
+        try {
+            List<String> lines = Files.readAllLines(logFile, StandardCharsets.UTF_8);
+            int total = 0;
+            List<String> samples = new ArrayList<>();
+            for (int i = logLineOffset; i < lines.size(); i++) {
+                String line = lines.get(i);
+                if (line.contains("ERROR") || line.contains("Exception") || line.contains("Caused by:")) {
+                    if (line.contains("[AutoTest]")) {
+                        continue;
+                    }
+                    total++;
+                    if (samples.size() < 25) {
+                        samples.add(line);
+                    }
+                }
+            }
+            return new LogScan(total, samples);
+        } catch (IOException | UncheckedIOException e) {
+            LinkenVisuals.LOGGER.warn("[AutoTest] failed to scan {}: {}", logFile, e.toString());
+            return new LogScan(-1, List.of());
+        }
+    }
+
+    private static String writeReportFile(MinecraftClient client, String reason, LogScan scan) {
+        try {
+            Path dir = client.runDirectory.toPath().resolve("logs");
+            Files.createDirectories(dir);
+            String stamp = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
+            Path file = dir.resolve("linkenvisuals-autotest-" + stamp + ".log");
+            StringBuilder out = new StringBuilder(2048);
+            out.append("LinkenVisuals in-game auto-test\n");
+            out.append("when: ").append(LocalDateTime.now()).append('\n');
+            out.append("finish: ").append(reason).append('\n');
+            out.append("dimension: ").append(client.world != null
+                ? client.world.getRegistryKey().getValue().toString() : "?").append('\n');
+            out.append(report.summary()).append('\n');
+            if (!report.failures().isEmpty()) {
+                out.append("\nFailures:\n");
+                for (String failure : report.failures()) {
+                    out.append("  ").append(failure).append('\n');
+                }
+            }
+            if (!report.skips().isEmpty()) {
+                out.append("\nSkipped:\n");
+                for (String skip : report.skips()) {
+                    out.append("  ").append(skip).append('\n');
+                }
+            }
+            out.append("\nNew ERROR/exception lines in latest.log: ").append(scan.total()).append('\n');
+            for (String sample : scan.samples()) {
+                out.append("  ").append(sample).append('\n');
+            }
+            Files.writeString(file, out, StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            return client.runDirectory.toPath().relativize(file).toString();
+        } catch (IOException e) {
+            LinkenVisuals.LOGGER.warn("[AutoTest] failed to write report: {}", e.toString());
+            report.fail("report file", e);
+            return null;
+        }
+    }
+
+    private static void announce(MinecraftClient client, String reason, LogScan scan, String reportPath) {
+        chat(client, "готово (" + reason + "): " + report.summary());
+        if (!report.failures().isEmpty()) {
+            chat(client, "первая ошибка: " + report.failures().get(0));
+        }
+        if (scan.total() > 0) {
+            chat(client, "новых ERROR/исключений в latest.log: " + scan.total());
+        }
+        if (reportPath != null) {
+            chat(client, "отчёт: " + reportPath);
+        }
+        if (Boolean.getBoolean(QUIT_PROPERTY)) {
+            chat(client, "клиент закроется через " + (QUIT_DELAY_TICKS / 20) + " с");
+        }
+    }
+
+    private static void chat(MinecraftClient client, String message) {
+        String line = CHAT_PREFIX + message;
+        LinkenVisuals.LOGGER.info(line);
+        if (client.inGameHud != null) {
+            client.inGameHud.getChatHud().addMessage(Text.literal(line).formatted(Formatting.AQUA));
+        }
+    }
+
+    private record Step(String label, int delayTicks, Runnable action) {
+    }
+
+    private record LogScan(int total, List<String> samples) {
+    }
+
+    private static final class SkipStep extends RuntimeException {
+        private SkipStep(String message) {
+            super(message);
+        }
+    }
+}

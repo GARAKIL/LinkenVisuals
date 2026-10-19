@@ -146,6 +146,8 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         Modules.init();
         dev.linkenvisuals.command.WaypointCommand.register();
+        dev.linkenvisuals.autotest.AutoTestDriver.register();
+        dev.linkenvisuals.autotest.AutoTestCommand.register();
     }
 
     /** Releases all world-scoped GPU pipelines. Must run on the render thread. */
