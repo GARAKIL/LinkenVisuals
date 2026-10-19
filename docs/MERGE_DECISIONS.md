@@ -273,6 +273,11 @@
 - Риск: `player.capeX`/`capeZ` — ванильные поля; если в 1.21.11 переименованы, CI покажет.
 - Остаток 5.6: CosmeticEffects/Naruto, Spheres.
 
+## 2026-10-19 · D31 · Фаза 5.6 (часть 5): Spheres — v1.0.60
+- Донорский `Spheres.java` (670 строк: трейлы + SphereCache) → наш `cosmetic/Spheres.java` (упрощённые 3 сферы 12×16, без трейлов).
+- Слот "aura".
+- Остаток 5.6: CosmeticEffects/Naruto (контейнеры, не визуал — вероятно пропуск).
+
 ## 2026-10-19 · D30 · Фаза 5.6 (часть 4): Nimb — v1.0.59
 - Донорский `Nimb.java` (436 строк: TorusCache + per-node освещение + `UserSyncManager`) → наш `cosmetic/Nimb.java` (упрощённый тор 48×12, освещение через `Material`).
 - UserSyncManager-часть пропущена (запрет).
