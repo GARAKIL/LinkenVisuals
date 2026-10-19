@@ -3,6 +3,7 @@ package dev.linkenvisuals.mixin;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
+import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -25,7 +26,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ClientPlayerInteractionManagerMixin {
     @Inject(method = "attackEntity", at = @At("HEAD"), cancellable = true)
     private void linkenvisuals$hitDummy(PlayerEntity player, Entity target, CallbackInfo ci) {
-        if (FakePlayer.hit(MinecraftClient.getInstance(), target)) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        boolean fake = FakePlayer.hit(client, target);
+        HitSoundModule.tryPlay(client, HitSoundModule.isCrit(player, target));
+        if (fake) {
             ci.cancel();
             return;
         }
@@ -36,7 +40,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
 
         KillEffects.watch(target);
 
-        Vec3d impact = MinecraftClient.getInstance().crosshairTarget instanceof EntityHitResult hit
+        Vec3d impact = client.crosshairTarget instanceof EntityHitResult hit
             && hit.getEntity() == target ? hit.getPos() : null;
         HitEffects.add(target, player.getAttackCooldownProgress(0.5f), impact);
     }

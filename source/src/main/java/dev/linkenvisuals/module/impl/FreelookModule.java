@@ -1,7 +1,7 @@
 package dev.linkenvisuals.module.impl;
 
 import dev.linkenvisuals.clickgui.Category;
-import dev.linkenvisuals.clickgui.setting.KeySetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.module.Module;
@@ -25,7 +25,7 @@ import java.util.List;
  * key conflicts.
  */
 public final class FreelookModule extends Module {
-    public final KeySetting key;
+    public final KeybindSetting key;
     public final ModeSetting activationMode;
 
     private boolean active;
@@ -43,11 +43,11 @@ public final class FreelookModule extends Module {
     private float capturedHeadYaw;
 
     public FreelookModule() {
-        this(new KeySetting("Key", GLFW.GLFW_KEY_LEFT_ALT),
+        this(new KeybindSetting("Key", "LALT"),
              new ModeSetting("Mode", List.of("Hold", "Toggle"), 0));
     }
 
-    private FreelookModule(KeySetting key, ModeSetting activationMode) {
+    private FreelookModule(KeybindSetting key, ModeSetting activationMode) {
         super("freelook", "Freelook", "free camera look",
             Category.VISUAL,
             List.of(),
@@ -68,7 +68,7 @@ public final class FreelookModule extends Module {
             keyWasDown = false;
             return;
         }
-        int keyCode = key.value();
+        int keyCode = key.code();
         if (keyCode == GLFW.GLFW_KEY_UNKNOWN) {
             return;
         }

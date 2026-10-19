@@ -3,7 +3,7 @@ package dev.linkenvisuals.clickgui;
 import com.google.gson.JsonObject;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
-import dev.linkenvisuals.clickgui.setting.KeySetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.clickgui.setting.StringSetting;
@@ -60,20 +60,39 @@ class ConfigJsonTest {
     }
 
     @Test
-    void roundTripsKeyAndStringSettings() {
-        KeySetting key = new KeySetting("Key", 65);
+    void roundTripsKeybindAndStringSettings() {
+        KeybindSetting key = new KeybindSetting("Key", "A");
         StringSetting text = new StringSetting("Nick", "default");
         ModuleInfo module = new ModuleInfo("TextModule", "", Category.MISC,
             List.of(), List.of(key, text));
 
         JsonObject json = ConfigJson.build(List.of(module));
 
-        key.setValue(66);
+        key.resolve("B");
         text.setValue("changed");
         ConfigJson.apply(List.of(module), json);
 
-        assertEquals(65, key.value(), "key codes must survive the round-trip");
+        assertEquals("A", key.raw(), "bind labels must survive the round-trip");
+        assertEquals(65, key.code(), "bind codes must resolve from the stored label");
         assertEquals("default", text.value(), "string settings must survive the round-trip");
+    }
+
+    @Test
+    void keybindIgnoresLegacyNumericValues() {
+        KeybindSetting key = new KeybindSetting("Key", "A");
+        ModuleInfo module = new ModuleInfo("TextModule", "", Category.MISC,
+            List.of(), List.of(key));
+
+        JsonObject json = new JsonObject();
+        JsonObject modJson = new JsonObject();
+        JsonObject settings = new JsonObject();
+        settings.addProperty("Key", 66); // legacy int written by the removed KeySetting
+        modJson.add("settings", settings);
+        json.add("TextModule", modJson);
+
+        ConfigJson.apply(List.of(module), json);
+
+        assertEquals("A", key.raw(), "numeric legacy values must be ignored, not shown as a label");
     }
 
     @Test

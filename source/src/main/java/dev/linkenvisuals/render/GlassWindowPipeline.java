@@ -5,6 +5,7 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.ui.Theme;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.VertexFormats;
@@ -38,7 +39,12 @@ public final class GlassWindowPipeline {
         matrices.pushMatrix();
         matrices.translate(x, y);
         matrices.scale(width, height);
-        float u = (float) Theme.radiusLevel();
+        // Radius is carried in the integer part of U, in device pixels so that it
+        // matches RoundedRectPipeline (radiusLevel * guiScale) exactly; a mismatch
+        // used to leave square glass corners sticking out around rounded bodies.
+        MinecraftClient mc = MinecraftClient.getInstance();
+        float guiScale = mc != null && mc.getWindow() != null ? (float) mc.getWindow().getScaleFactor() : 1.0f;
+        float u = (float) Theme.radiusLevel() * guiScale;
         context.drawTexture(PIPELINE, HudGlassCapture.textureId(), 0, 0, u, 0.0f, 1, 1, 1, 1, 1, 1, argb);
         matrices.popMatrix();
     }

@@ -68,7 +68,7 @@ public final class ClickGuiScreen extends Screen {
 
     private static final float LIST_X = 6.0f;
     private static final float LIST_W = 182.0f;
-    private static final float LIST_TOP = 39.0f;
+    static final float LIST_TOP = 39.0f;
     private static final float CARD_H = 22.0f;
     private static final float CARD_GAP = 4.0f;
     private static final float SEARCH_BAR_H = 22.0f;

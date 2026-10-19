@@ -20,8 +20,9 @@ void main() {
     vec2 pixels = 1.0 / max(fwidth(normUV), vec2(0.0001));
     vec2 point = (normUV - 0.5) * pixels;
     vec2 half_size = pixels * 0.5;
-    float radiusScale = clamp(uBase, 0.0, 10.0) * 0.2;
-    float radius = min(6.0 * radiusScale, min(half_size.x, half_size.y));
+    // uBase is the corner radius in device pixels (radiusLevel * guiScale),
+    // encoded by GlassWindowPipeline in the integer part of U.
+    float radius = min(uBase, min(half_size.x, half_size.y));
 
     vec2 delta = abs(point) - half_size + radius;
     float dist = length(max(delta, 0.0)) + min(max(delta.x, delta.y), 0.0) - radius;

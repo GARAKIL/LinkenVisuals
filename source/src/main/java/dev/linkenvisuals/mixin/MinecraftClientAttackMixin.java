@@ -1,12 +1,8 @@
 package dev.linkenvisuals.mixin;
 
-import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.player.FakePlayer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,28 +14,10 @@ public abstract class MinecraftClientAttackMixin {
     private void linkenvisuals$hitDummy(CallbackInfoReturnable<Boolean> info) {
         MinecraftClient client = (MinecraftClient) (Object) this;
         if (FakePlayer.tryHit(client)) {
+            // Real entity hits play the sound via ClientPlayerInteractionManagerMixin;
+            // this cancelled path never reaches it, so trigger it here too.
+            HitSoundModule.tryPlay(client, false);
             info.setReturnValue(true);
         }
-    }
-
-    @Inject(method = "doAttack", at = @At("RETURN"))
-    private void linkenvisuals$hitSound(CallbackInfoReturnable<Boolean> cir) {
-        if (!cir.getReturnValue()) {
-            return;
-        }
-        HitSoundModule module = Modules.hitSound();
-        if (module == null || !module.enabled()) {
-            return;
-        }
-        MinecraftClient client = (MinecraftClient) (Object) this;
-        if (client.getSoundManager() == null) {
-            return;
-        }
-        SoundEvent sound = switch (module.sound.value()) {
-            case "Click" -> SoundEvents.UI_BUTTON_CLICK.value();
-            case "Pop" -> SoundEvents.ENTITY_CHICKEN_EGG;
-            default -> SoundEvents.BLOCK_NOTE_BLOCK_BELL.value();
-        };
-        client.getSoundManager().play(PositionedSoundInstance.ui(sound, 1.0f, 1.0f));
     }
 }

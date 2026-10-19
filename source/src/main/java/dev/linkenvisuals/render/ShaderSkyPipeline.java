@@ -1,6 +1,7 @@
 package dev.linkenvisuals.render;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
@@ -70,13 +71,14 @@ public final class ShaderSkyPipeline {
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
         encoder.writeToBuffer(uniformBuffer.slice(), UNIFORM_DATA);
 
+        GpuBufferSlice transforms = Pipelines.writeWorldTransforms();
         try (RenderPass pass = encoder.createRenderPass(
             () -> "linkenvisuals:shader_sky",
             main.getColorAttachmentView(), OptionalInt.empty(),
             main.getDepthAttachmentView(), OptionalDouble.empty())) {
             pass.setPipeline(PIPELINE);
 
-            RenderSystem.bindDefaultUniforms(pass);
+            Pipelines.bindWorldUniforms(pass, transforms);
             pass.setUniform("Uniforms", uniformBuffer);
             pass.setVertexBuffer(0, cubeBuffer);
             pass.draw(0, 36);

@@ -2,12 +2,11 @@ package dev.linkenvisuals.module.impl;
 
 import dev.linkenvisuals.clickgui.Category;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
-import dev.linkenvisuals.clickgui.setting.KeySetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.module.Module;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Arm;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -16,15 +15,15 @@ import java.util.List;
  * Donor's {@code HandSwap} (55 lines) ported.
  */
 public final class HandSwapModule extends Module {
-    public final KeySetting key;
+    public final KeybindSetting key;
     public final BooleanSetting notify;
 
     public HandSwapModule() {
-        this(new KeySetting("Key", GLFW.GLFW_KEY_UNKNOWN),
+        this(new KeybindSetting("Key", "NONE"),
              new BooleanSetting("Notify", true));
     }
 
-    private HandSwapModule(KeySetting key, BooleanSetting notify) {
+    private HandSwapModule(KeybindSetting key, BooleanSetting notify) {
         super("handswap", "Hand Swap", "toggle main hand",
             Category.PLAYER,
             List.of(),

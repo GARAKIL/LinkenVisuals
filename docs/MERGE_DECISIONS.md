@@ -442,3 +442,39 @@
 - **Находка первого прогона (исправлена)**: `Tags:[...]` — серверные данные и **не синхронизируются на клиент**; первый прогон спавнил мобов, но клиентский поиск по тегу их не видел → 0 атак. Исправление: перед `/summon` снимается множество id существующих сущностей, целями считаются новые `cow`/`zombie` в радиусе 24; тег остаётся для серверного `/kill`. Это поведение 1.21.11, а не баг мода — зафиксировано, чтобы не повторять.
 - **Evidence**: `gradlew runAutotest -PautotestWorld=AutoTestWorld -PautotestQuit=true` (копия мира, читы включены): **564 шага, 564 ok, 0 падений, 0 skip**; новых `ERROR`/`Exception` в `latest.log` — **0**; warning двойного blur отсутствует; клиент сам закрылся. Скриншоты: world/ClickGUI/final. Первый прогон (до фикса детекции мобов) дал 557 ok / 7 skip — именно он выявил серверную природу `Tags`; после фикса — 564/564. Полный визуальный контроль — за пользователем.
 - **Тесты**: `AutoTestReportTest` (4) — счётчики, `ok()`, null-сообщение исключения, лимит деталей; итого **153**, 0 падений.
+
+## 2026-10-19 · D46 · Фейковые скругления: glass-радиус без GUI-масштаба — v1.0.74
+- **Симптом** (скриншоты пользователя, «и так на всём»): из-под скруглённых тел HUD-панелей, окна ClickGUI и попапов торчали полупрозрачные квадратные углы.
+- **Причина**: радиус стекла кодируется в UV (`uBase = floor(texCoord0.x)`), и `glass_panel.fsh`/`glass_window.fsh` декодировали его как `radius = 6.0 * clamp(level,0,10)*0.2` — т.е. `1.2 × уровень` **в пикселях устройства**, кап 12 px, без GUI-масштаба. Тела и обводки (`RoundedRectPipeline`, `CardPipeline`) считают `level × guiScale` (и `level × 4 × guiScale`). На масштабе GUI 3 уровень 5 даёт телу 15 px, стеклу — 6 px → стекло остаётся видимым в углах.
+- **Фикс**: `GlassPanelPipeline.draw`/`GlassWindowPipeline.draw` кладут в UV уже пиксели устройства (`Theme.radiusLevel() × getScaleFactor()`); шейдеры трактуют `uBase` напрямую: `radius = min(uBase, min(half_size.x, half_size.y))` — формула 1:1 с `rounded_rect.fsh`. Grep `uBase|radiusScale` — других носителей старой схемы нет.
+- **Файлы**: `GlassPanelPipeline.java`, `GlassWindowPipeline.java`, `glass_panel.fsh`, `glass_window.fsh` (по 2 строки).
+- **Evidence**: clean build — 154 теста, 0 падений; dev-прогон `/lvtest` — шейдеры перекомпилировались на reload, 0 ошибок; визуальная приёмка (масштабы GUI 2/3/4) — за пользователем.
+
+## 2026-10-19 · D47 · Невидимые world-эффекты: не биндился DynamicTransforms — v1.0.74
+- **Симптом**: Trails, JumpCircles, BlockOverlay и Waypoints «не работают»; Shader Sky — тот же дефект без жалобы (не проверялся).
+- **Причина**: все это — собственные encoder-пассы; вызывали только `RenderSystem.bindDefaultUniforms(pass)`, который в 1.21.11 биндит Projection/Fog/Globals/Lighting и **не биндит `DynamicTransforms`** (проверено `javap -c` по yarn build.4). Без `ModelViewMat` геометрия вырождается (невидима), ошибок в лог не пишется — отсюда «молчаливо не работает».
+- **Фикс**: два хелпера в `Pipelines`. `writeWorldTransforms()` — пишет слайс `DynamicUniforms.write(getModelViewMatrix(), new Vector4f(1,1,1,1), new Vector3f(), IDENTITY)` **до** открытия пасса; `bindWorldUniforms(pass, slice)` — `bindDefaultUniforms` + `pass.setUniform("DynamicTransforms", slice)` внутри пасса. Первый вариант (write прямо внутри пасса) ронял клиент: `write` мапит UBO, а это запрещено при открытом пассе — `IllegalStateException: Close the existing render pass before performing additional commands` (нашёл hands-free прогон, в логах видно `ShaderSky → Pipelines.bindWorldUniforms`); ваниль в `RenderLayer.draw` тоже пишет слайс до создания пасса. Сигнатура `write(Matrix4fc, Vector4fc, Vector3fc, Matrix4fc)` сверена javap по yarn build.4. Заменено 6 вызовов: `TrailsRenderer`, `JumpCirclesRenderer`, `WaypointsRenderer`, `BlockOverlayRenderer` ×2 (шейдерные филлы и плоский/линии), `ShaderSkyPipeline`. `LiquidGlassPipeline` проверен — кодом не рисуется (только warmup) — не тронут.
+- **Evidence**: clean build — 154/0; hands-free `/lvtest` — 562 шага, 562 ok, 0 fail, 0 skip, новых ERROR/исключений — 0 (отчёт `run/logs/linkenvisuals-autotest-20261019-224211.log`); визуал — за пользователем. Краш первого варианта фикса (write внутри пасса) поймал сам прогон — до коммита; повторный прогон на исправленном двухфазном коде чист.
+
+## 2026-10-19 · D48 · HitSound: звук на блоках, тишина на мобах — v1.0.74
+- **Причина**: `MinecraftClientAttackMixin` инжектил `doAttack` на RETURN и гейтил `if (!cir.getReturnValue()) return;`. `doAttack` возвращает `false` для ударов по сущностям (и `true` для блоков/маха) — гейт вывернут наизнанку.
+- **Фикс**: RETURN-инъекция удалена; звук вызывается из существующего HEAD-хука `ClientPlayerInteractionManagerMixin.attackEntity` (срабатывает только после реального удара, учёт кулдауна — в `doAttack`). Крит — ванильные условия (`fallDistance>0`, не на земле, не лезет/плывёт/слепой/не в транспорте, цель — `LivingEntity`) → настройка `Only Crit` наконец действует. Фейковый игрок: его приём идёт через cancel-ветку `doAttack`, поэтому звук вызывается и там (`crit=false`).
+- **Файлы**: `HitSoundModule` (статические `tryPlay(client, crit)` + `isCrit(player, target)`), `MinecraftClientAttackMixin`, `ClientPlayerInteractionManagerMixin`.
+- **Evidence**: clean build — 154/0; звук в живом клиенте — приёмка за пользователем (моб/крит/«только крит»/фейк-игрок).
+
+## 2026-10-19 · D49 · Бинды клавиш Zoom/Freelook/HandSwap/ElytraSwap — v1.0.74
+- **Причина**: `KeySetting` было голой int-обёрткой без UI-состояния; оба GUI рисуют и обрабатывают бинды только для `KeybindSetting` (label/code/arm/resolve/listening + `KeyNames`) → у 4 модулей клавишу нельзя было забиндить («в зум нельзя кнопку забиндить»).
+- **Фикс**: `KeySetting` удалён; модули переведены на `KeybindSetting` (`code()` вместо `value()`; дефолты `C`, `LALT`, `NONE`, `NONE`): `ZoomModule`, `FreelookModule`, `ElytraSwapModule`, `HandSwapModule`; чтения — `LinkenVisuals.tickHandSwap/tickZoom`, `FreelookModule.tick`, `ElytraSwapModule.tick`. `ConfigJson`: int-ветки `KeySetting` удалены, `KeybindSetting` читается только из строки — legacy-числа старых сборок игнорируются (без мусорного ярлыка «66»).
+- **Тесты**: `ConfigJsonTest.roundTripsKeybindAndStringSettings` (label/code round-trip) + `keybindIgnoresLegacyNumericValues` (числовое значение не подставляется); AutoTestDriver-комментарий обновлён. Итого **154**, 0 падений.
+- **Приёмка**: бинд в modern и classic GUI, дефолт C у Zoom, «NONE» у HandSwap/ElytraSwap.
+
+## 2026-10-19 · D50 · Вкладка Configs: редизайн под уровень остальных вкладок — v1.0.74
+- **Было**: панель без шапки; карточки статичные (ни hover, ни stagger); кнопка удаления — текстовый глиф «✕» (U+2715), которого нет в MSDF-атласах (160 глифов: ASCII без апострофа U+0027 + кириллица) → пустая кнопка; статус-строки вида «Конфиг '%s' загружен» теряли апострофы.
+- **Стало** (`ConfigPanel.render`):
+  - шапка категории как у панели модулей: иконка `Category.CONFIG` (12 px), разделитель, заголовок 8.0f, описание 6.0f, подчёркивание (привязка к `ClickGuiScreen.LIST_TOP` — константа стала package-private);
+  - карточки: stagger при входе (34 мс/шаг, S-кривая 0.26 c — копия кривой списка модулей) + hover-пружины `Spring(900, 55)`: активная — зелёная полоса/бейдж, у остальных — акцентная полоса, подсветка фона, сдвиг имени и `.json`-подпись;
+  - пустое состояние (заголовок + подсказка);
+  - кнопка удаления — векторный «×»: два повёрнутых на ±45° штриха `PanelPipeline` (без зависимости от глифов);
+  - статус-строки переведены на двойные кавычки (`\"%s\"` — есть в атласе); 4 новых i18n-ключа en/ru/uk: `gui.config.title`, `gui.config.description`, `gui.config.empty`, `gui.config.empty_hint`.
+- **Поведение** не менялось: клики/ввод/скролл/статусы 1:1 (вынесено Ф3.2, D8).
+- **Evidence**: clean build — 154/0; визуальная приёмка — за пользователем.

@@ -273,7 +273,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         if (module == null || !module.enabled() || client.currentScreen != null) {
             return;
         }
-        int keyCode = module.key.value();
+        int keyCode = module.key.code();
         if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_UNKNOWN) {
             return;
         }
@@ -297,7 +297,11 @@ public final class LinkenVisuals implements ClientModInitializer {
             return;
         }
         // Check if zoom key is down via GLFW.
-        int keyCode = zoom.key.value();
+        int keyCode = zoom.key.code();
+        if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_UNKNOWN) {
+            zoom.tick(false);
+            return;
+        }
         long handle = client.getWindow().getHandle();
         boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(handle, keyCode) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
         zoom.tick(down);

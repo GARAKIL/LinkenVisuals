@@ -5,9 +5,11 @@ import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.MsdfText;
 import dev.linkenvisuals.render.NeonEdge;
+import dev.linkenvisuals.render.PanelPipeline;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Spring;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
@@ -15,19 +17,23 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import dev.linkenvisuals.i18n.I18n;
+import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Config profile manager of the modern ClickGUI (CONFIG category), extracted
  * from {@link ClickGuiScreen} (Phase 3.2) without behavior changes: geometry,
  * colors and click handling are identical to the pre-extraction code.
  *
- * <p>Fields that were static in {@code ClickGuiScreen} (input text, scroll
- * target, status line) intentionally stay static: the typed profile name must
- * survive screen re-open exactly like before the extraction.
+ * <p>v1.0.74 visual pass: a category header (icon, title, description,
+ * underline) matching the module panel, staggered card deal-in and hover
+ * springs mirroring the module list, an empty state, and a vector-drawn delete
+ * cross (the MSDF atlases have no U+2715 glyph). Click behaviour is unchanged.
  */
 final class ConfigPanel {
     /** Draws the shared vertical scrollbar; bound to {@code ClickGuiScreen.scrollbar}. */
@@ -50,8 +56,10 @@ final class ConfigPanel {
     private static int statusColor = 0x4ADE80;
 
     private final Spring scrollSpring = new Spring(0.0, 1100.0, 60.0);
+    private final Map<String, Spring> cardHover = new HashMap<>();
     private float contentHeight;
     private float viewHeight = 1.0f;
+    private double listAge;
 
     private final List<ActionBounds> actionBounds = new ArrayList<>();
     private float inputX, inputY, inputW, inputH;
@@ -69,11 +77,29 @@ final class ConfigPanel {
     void render(DrawContext context, float wx, float wy, int mouseX, int mouseY, double deltaSeconds, float openT) {
         float areaLeft = wx + 12.0f;
         float areaRight = wx + ClickGuiScreen.RAIL_DIVIDER_X - 10.0f;
-        float areaTop = wy + 38.0f;
         float areaBottom = wy + ClickGuiScreen.CONTENT_BOTTOM - 4.0f;
+        listAge += deltaSeconds;
 
-        // 1. Top Control Bar (Y = areaTop + 3.0f, Height = 22.0f)
-        float topY = areaTop + 3.0f;
+        // 0. Category header, mirroring the module panel header.
+        float headerY = wy + ClickGuiScreen.LIST_TOP;
+        float iconSize = 12.0f;
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, Category.CONFIG.icon(),
+            Math.round(areaLeft), Math.round(headerY), 0.0f, 0.0f,
+            Math.round(iconSize), Math.round(iconSize), 128, 128, 128, 128,
+            ColorMath.withAlpha(0xFFFFFF, Math.round(190 * openT)));
+        float dividerX = areaLeft + iconSize + 7.0f;
+        context.fill(Math.round(dividerX), Math.round(headerY + 1.0f), Math.round(dividerX) + 1,
+            Math.round(headerY + iconSize - 1.0f), ColorMath.withAlpha(0xFFFFFF, Math.round(38 * openT)));
+        MsdfText.draw(context, bold, I18n.get("gui.config.title"), dividerX + 8.0f, headerY - 1.0f, 8.0f,
+            ColorMath.withAlpha(0xFFFFFF, Math.round(225 * openT)));
+        MsdfText.draw(context, text, I18n.get("gui.config.description"), dividerX + 8.0f, headerY + 9.0f, 6.0f,
+            ColorMath.withAlpha(0xFFFFFF, Math.round(95 * openT)));
+        float underline = headerY + iconSize + 8.0f;
+        context.fill(Math.round(areaLeft), Math.round(underline), Math.round(areaRight), Math.round(underline) + 1,
+            ColorMath.withAlpha(0xFFFFFF, Math.round(20 * openT)));
+
+        // 1. Top Control Bar
+        float topY = underline + 7.0f;
         inputX = areaLeft;
         inputY = topY;
         inputW = 158.0f;
@@ -158,7 +184,7 @@ final class ConfigPanel {
             autoX + autoW * 0.5f, MsdfText.topFor(autoY + autoH * 0.5f, 5.8f), 5.8f,
             autoOn ? ColorMath.withAlpha(0x4ADE80, Math.round(230 * openT)) : ColorMath.withAlpha(0x999999, Math.round(180 * openT)));
 
-        // 2. Sub-Bar (Y = topY + 27.0f)
+        // 2. Sub-Bar
         float subY = topY + 27.0f;
         String activePrefix = I18n.get("gui.config.active_prefix");
         MsdfText.draw(context, text, activePrefix, areaLeft + 2.0f, subY, 6.2f,
@@ -195,6 +221,15 @@ final class ConfigPanel {
 
         context.enableScissor(Math.round(areaLeft), Math.round(listTop), Math.round(areaRight), Math.round(listBottom));
 
+        if (profiles.isEmpty()) {
+            MsdfText.drawCentered(context, bold, I18n.get("gui.config.empty"),
+                (areaLeft + areaRight) * 0.5f, listTop + listH * 0.5f - 11.0f, 7.0f,
+                ColorMath.withAlpha(0xFFFFFF, Math.round(120 * openT)));
+            MsdfText.drawCentered(context, text, I18n.get("gui.config.empty_hint"),
+                (areaLeft + areaRight) * 0.5f, listTop + listH * 0.5f + 1.0f, 6.0f,
+                ColorMath.withAlpha(0xFFFFFF, Math.round(70 * openT)));
+        }
+
         actionBounds.clear();
         for (int i = 0; i < profiles.size(); i++) {
             String profile = profiles.get(i);
@@ -225,75 +260,109 @@ final class ConfigPanel {
 
             boolean isActive = profile.equalsIgnoreCase(ConfigManager.getActiveProfile());
             boolean cardHov = mouseX >= areaLeft && mouseX <= areaRight && mouseY >= cardY && mouseY <= cardY + cardH;
+            Spring hoverSpring = cardHover.computeIfAbsent(profile, key -> new Spring(0.0, 900.0, 55.0));
+            hoverSpring.step(cardHov ? 1.0 : 0.0, deltaSeconds);
+            float hov = (float) hoverSpring.get();
+
+            float deal = stagger(listAge, i);
+            float cardX = areaLeft - (1.0f - deal) * 14.0f;
+            float cardT = openT * deal;
 
             // Card background
             if (isActive) {
-                RoundedRectPipeline.draw(context, areaLeft, cardY, cardW, cardH,
-                    ColorMath.withAlpha(0x101D16, Math.round(235 * openT)));
-                RoundedRectPipeline.drawOutline(context, areaLeft, cardY, cardW, cardH,
-                    ColorMath.withAlpha(0x4ADE80, Math.round(90 * openT)));
-                // Active green strip
-                RoundedRectPipeline.draw(context, areaLeft, cardY, 3.0f, cardH,
-                    ColorMath.withAlpha(0x4ADE80, Math.round(230 * openT)));
+                RoundedRectPipeline.draw(context, cardX, cardY, cardW, cardH,
+                    ColorMath.withAlpha(0x101D16, Math.round(235 * cardT)));
+                RoundedRectPipeline.drawOutline(context, cardX, cardY, cardW, cardH,
+                    ColorMath.withAlpha(0x4ADE80, Math.round((90 + hov * 70) * cardT)));
+                RoundedRectPipeline.draw(context, cardX, cardY, 3.0f, cardH,
+                    ColorMath.withAlpha(0x4ADE80, Math.round(230 * cardT)));
             } else {
-                RoundedRectPipeline.draw(context, areaLeft, cardY, cardW, cardH,
-                    ColorMath.withAlpha(0x0C0E14, Math.round(220 * openT)));
-                RoundedRectPipeline.drawOutline(context, areaLeft, cardY, cardW, cardH,
-                    ColorMath.withAlpha(0xFFFFFF, Math.round((cardHov ? 35 : 18) * openT)));
+                RoundedRectPipeline.draw(context, cardX, cardY, cardW, cardH,
+                    ColorMath.withAlpha(0x101216, Math.round((200 + hov * 30) * cardT)));
+                if (hov > 0.02f) {
+                    RoundedRectPipeline.draw(context, cardX, cardY, cardW, cardH,
+                        ColorMath.withAlpha(0xFFFFFF, Math.round(10 * hov * cardT)));
+                    PanelPipeline.draw(context, cardX + 3.0f, cardY + 5.5f, 1.6f, cardH - 11.0f,
+                        ColorMath.withAlpha(NeonEdge.cool(), Math.round(200 * hov * cardT)));
+                }
+                RoundedRectPipeline.drawOutline(context, cardX, cardY, cardW, cardH,
+                    ColorMath.withAlpha(0xFFFFFF, Math.round((18 + hov * 30) * cardT)));
             }
 
             // Name & Info
-            float nameX = areaLeft + 12.0f;
+            float nameX = cardX + 12.0f + hov * 2.5f;
             float nameY = MsdfText.topFor(cardY + cardH * 0.5f, 7.0f);
             MsdfText.draw(context, bold, profile, nameX, nameY, 7.0f,
-                isActive ? ColorMath.withAlpha(0x4ADE80, Math.round(240 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(220 * openT)));
+                isActive ? ColorMath.withAlpha(0x4ADE80, Math.round(240 * cardT))
+                         : ColorMath.withAlpha(0xFFFFFF, Math.round((190 + hov * 60) * cardT)));
 
             float nameW = MsdfText.width(bold, profile, 7.0f);
             if (isActive) {
                 MsdfText.draw(context, bold, I18n.get("gui.config.active_badge"), nameX + nameW + 8.0f, nameY + 0.6f, 5.6f,
-                    ColorMath.withAlpha(0x4ADE80, Math.round(200 * openT)));
+                    ColorMath.withAlpha(0x4ADE80, Math.round(200 * cardT)));
             } else {
                 MsdfText.draw(context, text, profile + ".json", nameX + nameW + 8.0f, nameY + 0.6f, 5.6f,
-                    ColorMath.withAlpha(0x666D80, Math.round(150 * openT)));
+                    ColorMath.withAlpha(0x666D80, Math.round(150 * cardT)));
             }
 
             // Load Button
             boolean loadHov = mouseX >= loadX && mouseX <= loadX + loadW && mouseY >= loadY && mouseY <= loadY + loadH;
             RoundedRectPipeline.draw(context, loadX, loadY, loadW, loadH,
-                loadHov ? ColorMath.withAlpha(NeonEdge.cool(), Math.round(60 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * openT)));
+                loadHov ? ColorMath.withAlpha(NeonEdge.cool(), Math.round(60 * cardT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * cardT)));
             RoundedRectPipeline.drawOutline(context, loadX, loadY, loadW, loadH,
-                ColorMath.withAlpha(NeonEdge.cool(), Math.round((loadHov ? 180 : 50) * openT)));
+                ColorMath.withAlpha(NeonEdge.cool(), Math.round((loadHov ? 180 : 50) * cardT)));
             MsdfText.drawCentered(context, bold, I18n.get("gui.config.load"), loadX + loadW * 0.5f,
                 MsdfText.topFor(loadY + loadH * 0.5f, 5.6f), 5.6f,
-                ColorMath.withAlpha(0xFFFFFF, Math.round((loadHov ? 255 : 200) * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round((loadHov ? 255 : 200) * cardT)));
 
             // Save Button
             boolean saveHov = mouseX >= saveX && mouseX <= saveX + saveW && mouseY >= saveY && mouseY <= saveY + saveH;
             RoundedRectPipeline.draw(context, saveX, saveY, saveW, saveH,
-                saveHov ? ColorMath.withAlpha(0x4ADE80, Math.round(50 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * openT)));
+                saveHov ? ColorMath.withAlpha(0x4ADE80, Math.round(50 * cardT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(14 * cardT)));
             RoundedRectPipeline.drawOutline(context, saveX, saveY, saveW, saveH,
-                ColorMath.withAlpha(0x4ADE80, Math.round((saveHov ? 160 : 50) * openT)));
+                ColorMath.withAlpha(0x4ADE80, Math.round((saveHov ? 160 : 50) * cardT)));
             MsdfText.drawCentered(context, bold, I18n.get("gui.config.save"), saveX + saveW * 0.5f,
                 MsdfText.topFor(saveY + saveH * 0.5f, 5.6f), 5.6f,
-                ColorMath.withAlpha(0xFFFFFF, Math.round((saveHov ? 255 : 200) * openT)));
+                ColorMath.withAlpha(0xFFFFFF, Math.round((saveHov ? 255 : 200) * cardT)));
 
             // Delete Button
             boolean canDel = profiles.size() > 1;
             boolean delHov = canDel && mouseX >= delX && mouseX <= delX + delW && mouseY >= delY && mouseY <= delY + delH;
             RoundedRectPipeline.draw(context, delX, delY, delW, delH,
-                delHov ? ColorMath.withAlpha(0xFF4444, Math.round(65 * openT)) : ColorMath.withAlpha(0xFFFFFF, Math.round(canDel ? 12 : 5 * openT)));
+                delHov ? ColorMath.withAlpha(0xFF4444, Math.round(65 * cardT)) : ColorMath.withAlpha(0xFFFFFF, Math.round((canDel ? 12 : 5) * cardT)));
             RoundedRectPipeline.drawOutline(context, delX, delY, delW, delH,
-                canDel ? (delHov ? ColorMath.withAlpha(0xFF4444, Math.round(180 * openT)) : ColorMath.withAlpha(0xFF4444, Math.round(55 * openT)))
-                       : ColorMath.withAlpha(0xFFFFFF, Math.round(15 * openT)));
-            MsdfText.drawCentered(context, bold, "✕", delX + delW * 0.5f,
-                MsdfText.topFor(delY + delH * 0.5f, 6.2f), 6.2f,
-                canDel ? (delHov ? ColorMath.withAlpha(0xFF6B6B, Math.round(255 * openT)) : ColorMath.withAlpha(0xDD6B6B, Math.round(180 * openT)))
-                       : ColorMath.withAlpha(0x555555, Math.round(100 * openT)));
+                canDel ? (delHov ? ColorMath.withAlpha(0xFF4444, Math.round(180 * cardT)) : ColorMath.withAlpha(0xFF4444, Math.round(55 * cardT)))
+                       : ColorMath.withAlpha(0xFFFFFF, Math.round(15 * cardT)));
+            int crossColor = canDel
+                ? (delHov ? ColorMath.withAlpha(0xFF6B6B, Math.round(255 * cardT))
+                          : ColorMath.withAlpha(0xDD6B6B, Math.round(180 * cardT)))
+                : ColorMath.withAlpha(0x555555, Math.round(100 * cardT));
+            drawCross(context, delX + delW * 0.5f, delY + delH * 0.5f, 7.0f, 1.4f, crossColor);
         }
+        cardHover.keySet().retainAll(profiles);
 
         context.disableScissor();
 
         scrollbar.draw(context, areaRight - 1.0f, listTop, listH, contentHeight, scroll, openT);
+    }
+
+    /** Cards deal in with the same curve and cadence as the module list. */
+    private static float stagger(double age, int index) {
+        float start = index * 0.038f;
+        float t = Math.max(0.0f, Math.min(1.0f, ((float) age - start) / 0.26f));
+        return t * t * (3.0f - 2.0f * t);
+    }
+
+    /** Vector delete cross: the MSDF atlases carry no U+2715 glyph. */
+    private static void drawCross(DrawContext context, float cx, float cy, float size, float thickness, int argb) {
+        Matrix3x2fStack matrices = context.getMatrices();
+        matrices.pushMatrix();
+        matrices.translate(cx, cy);
+        matrices.rotate((float) Math.toRadians(45.0));
+        PanelPipeline.draw(context, -size * 0.5f, -thickness * 0.5f, size, thickness, argb);
+        matrices.rotate((float) Math.toRadians(90.0));
+        PanelPipeline.draw(context, -size * 0.5f, -thickness * 0.5f, size, thickness, argb);
+        matrices.popMatrix();
     }
 
     boolean mouseClicked(float mx, float my) {
@@ -416,6 +485,8 @@ final class ConfigPanel {
     void resetInput() {
         inputFocused = false;
         nameInput.setLength(0);
+        listAge = 0.0;
+        cardHover.clear();
     }
 
     private void createFromInput() {

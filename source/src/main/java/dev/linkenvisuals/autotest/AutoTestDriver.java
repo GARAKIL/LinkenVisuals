@@ -394,7 +394,7 @@ public final class AutoTestDriver {
             add("color " + label + " preset3", 1, () -> s.set(ColorSetting.PRESETS[3]));
             add("color restore " + label, 1, () -> s.set(original));
         }
-        // KeySetting/KeybindSetting/StringSetting stay untouched: they hold user
+        // KeybindSetting/StringSetting stay untouched: they hold user
         // bindings and free-form text rather than render parameters.
     }
 

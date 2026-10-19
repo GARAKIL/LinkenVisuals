@@ -1,7 +1,7 @@
 package dev.linkenvisuals.module.impl;
 
 import dev.linkenvisuals.clickgui.Category;
-import dev.linkenvisuals.clickgui.setting.KeySetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.module.Module;
 import dev.linkenvisuals.util.InventoryMath;
@@ -40,7 +40,7 @@ public final class ElytraSwapModule extends Module {
     private static final int INVENTORY_CLOSE_DELAY_TICKS = 2;
     private static final int INVENTORY_SIZE = 36;
 
-    public final KeySetting key;
+    public final KeybindSetting key;
 
     private boolean keyWasDown;
     private SwapPhase phase = SwapPhase.NONE;
@@ -51,10 +51,10 @@ public final class ElytraSwapModule extends Module {
     private boolean openedInventory;
 
     public ElytraSwapModule() {
-        this(new KeySetting("Key", GLFW.GLFW_KEY_UNKNOWN));
+        this(new KeybindSetting("Key", "NONE"));
     }
 
-    private ElytraSwapModule(KeySetting key) {
+    private ElytraSwapModule(KeybindSetting key) {
         super("elytraswap", "Elytra Swap", "swap chestplate/elytra",
             Category.PLAYER,
             List.of(),
@@ -79,7 +79,7 @@ public final class ElytraSwapModule extends Module {
             keyWasDown = false;
             return;
         }
-        int keyCode = key.value();
+        int keyCode = key.code();
         boolean down = keyCode != GLFW.GLFW_KEY_UNKNOWN
             && GLFW.glfwGetKey(client.getWindow().getHandle(), keyCode) == GLFW.GLFW_PRESS;
         boolean pressed = down && !keyWasDown;

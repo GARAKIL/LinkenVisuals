@@ -53,3 +53,11 @@
 - [x] `/lvtest start|stop|status` (+`/lvautotest`) + Gradle `runAutotest` + `-Dlinkenvisuals.autotest[.quit]` + `-PautotestWorld/-PautotestQuit`: полный свип всех модулей и настроек, оба GUI + инвентарь, спавн/атака мобов (читы), jump/sneak/sprint, place/break в креативе, restore конфига/позиции, скан `latest.log`, отчёт и 3 скриншота (D45).
 - [x] Evidence: hands-free прогон на копии мира — 564 шага, 564 ok, 0 fail, 0 skip; новых ERROR/Exception — 0; blur-warning — 0; клиент закрылся сам. Первый прогон (557/7 skip) выявил, что command tags не синхронизируются на клиент — детекция мобов переведена на снимок entity id.
 - Визуальная приёмка (размытие ClickGUI, эффекты на экране) — за пользователем. Тег/релиз — по слову пользователя.
+
+## Пачка визуальных фиксов по отчёту пользователя — [x] закрыта, D46–D50, v1.0.74
+- [x] D46 — «фейковые скругления»: glass-радиус в пикселях устройства, 1:1 с телами (`RoundedRectPipeline`).
+- [x] D47 — Trails/JumpCircles/BlockOverlay/Waypoints/Shader Sky: `Pipelines.bindWorldUniforms` (не хватало `DynamicTransforms`).
+- [x] D48 — HitSound: хук `attackEntity` + ванильное крит-условие (`Only Crit` заработал).
+- [x] D49 — бинды клавиш: `KeySetting` → `KeybindSetting` в Zoom/Freelook/HandSwap/ElytraSwap; ConfigJson-миграция; +1 тест.
+- [x] D50 — вкладка Configs: шапка/stagger/hover/пустое состояние/векторный «×»/i18n; 4 новых ключа.
+- Остаток заказа (отдельные работы): прицелы + пиксельный редактор; 3-й стиль GUI «LINK» (донорский «ClickGUI 3a») — нужен скоуп/решение по шрифтам и лицензиям.

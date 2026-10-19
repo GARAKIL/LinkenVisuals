@@ -1,6 +1,7 @@
 package dev.linkenvisuals.render;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -68,11 +69,12 @@ public final class WaypointsRenderer {
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             GpuBuffer verts = RenderSystem.getDevice().createBuffer(
                 () -> "linkenvisuals:waypoints", GpuBuffer.USAGE_VERTEX, data);
+            GpuBufferSlice transforms = Pipelines.writeWorldTransforms();
             try (RenderPass pass = encoder.createRenderPass(() -> "linkenvisuals:waypoints",
                 main.getColorAttachmentView(), OptionalInt.empty(),
                 main.getDepthAttachmentView(), OptionalDouble.empty())) {
                 pass.setPipeline(BlockOverlayPipelines.LINES);
-                RenderSystem.bindDefaultUniforms(pass);
+                Pipelines.bindWorldUniforms(pass, transforms);
                 pass.setVertexBuffer(0, verts);
                 pass.draw(0, data.remaining() / 28);
             } finally {

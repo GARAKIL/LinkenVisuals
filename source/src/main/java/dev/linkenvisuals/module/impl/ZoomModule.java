@@ -1,11 +1,10 @@
 package dev.linkenvisuals.module.impl;
 
 import dev.linkenvisuals.clickgui.Category;
-import dev.linkenvisuals.clickgui.setting.KeySetting;
+import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.module.Module;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import java.util.List;
  * Donor's {@code Zoom} (91 lines) ported.
  */
 public final class ZoomModule extends Module {
-    public final KeySetting key;
+    public final KeybindSetting key;
     public final SliderSetting multiplier;
     public final SliderSetting smoothSpeed;
 
@@ -22,12 +21,12 @@ public final class ZoomModule extends Module {
     private float progress;
 
     public ZoomModule() {
-        this(new KeySetting("Key", GLFW.GLFW_KEY_C),
+        this(new KeybindSetting("Key", "C"),
              new SliderSetting("Multiplier", 0.05f, 1.0f, 0.01f, 0.80f, ""),
              new SliderSetting("Smoothness", 0.01f, 1.0f, 0.01f, 0.89f, ""));
     }
 
-    private ZoomModule(KeySetting key, SliderSetting multiplier, SliderSetting smoothSpeed) {
+    private ZoomModule(KeybindSetting key, SliderSetting multiplier, SliderSetting smoothSpeed) {
         super("zoom", "Zoom", "smooth FOV zoom",
             Category.VISUAL,
             List.of(),
