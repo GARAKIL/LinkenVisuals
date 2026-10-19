@@ -654,7 +654,10 @@ final class PetUltimate {
             PositionedSoundInstance instance = PositionedSoundInstance.ui(event, 1.0f);
             client.getSoundManager().play(instance);
             sound = instance;
-        } catch (Throwable ignored) {
+        } catch (Exception e) {
+            // Cosmetic cue only: a torn-down sound system (disconnect / shutdown)
+            // must not break the scene — log so the failure is not silent.
+            LinkenVisuals.LOGGER.debug("Pet ULT sound play failed: {}", e.toString());
             sound = null;
         }
     }
@@ -668,8 +671,9 @@ final class PetUltimate {
             if (client != null) {
                 client.getSoundManager().stop(sound);
             }
-        } catch (Throwable ignored) {
+        } catch (Exception e) {
             // Sound system already gone (disconnect / shutdown) — nothing to stop.
+            LinkenVisuals.LOGGER.debug("Pet ULT sound stop failed: {}", e.toString());
         }
         sound = null;
     }

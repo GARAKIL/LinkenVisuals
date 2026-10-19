@@ -20,6 +20,9 @@ import net.minecraft.util.Identifier;
 public final class LoadingOverlay {
     public static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
 
+    /** The backdrop renders every frame; a broken panorama would otherwise log forever. */
+    private static boolean panoramaFailureLogged;
+
     private LoadingOverlay() {
     }
 
@@ -41,6 +44,10 @@ public final class LoadingOverlay {
             panorama.draw(context, delta);
             context.fillGradient(0, 0, width, height, 0x1A000000, 0x30000000);
         } catch (Throwable t) {
+            if (!panoramaFailureLogged) {
+                panoramaFailureLogged = true;
+                LinkenVisuals.LOGGER.warn("Loading-screen panorama failed, using dirt fallback: {}", t.toString());
+            }
             VanillaStylePipeline.renderDirtBackground(context, width, height);
         }
     }
