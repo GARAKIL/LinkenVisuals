@@ -35,6 +35,10 @@ public abstract class MinecraftClientAttackMixin {
         if (client.getSoundManager() == null) {
             return;
         }
+        // Mark hit for HitColor.
+        if (client.crosshairTarget instanceof net.minecraft.util.hit.EntityHitResult hit) {
+            dev.linkenvisuals.module.impl.HitColorModule.markHit(hit.getEntity().getId());
+        }
         SoundEvent sound = switch (module.sound.value()) {
             case "Click" -> SoundEvents.UI_BUTTON_CLICK.value();
             case "Pop" -> SoundEvents.ENTITY_CHICKEN_EGG.value();

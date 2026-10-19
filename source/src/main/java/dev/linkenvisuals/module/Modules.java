@@ -7,6 +7,7 @@ import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.HandSwapModule;
+import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
@@ -44,6 +45,7 @@ public final class Modules {
     private static WaypointsModule waypoints;
     private static UseTrackerModule useTracker;
     private static SwingAnimationModule swingAnimation;
+    private static HitColorModule hitColor;
 
     private Modules() {
     }
@@ -128,6 +130,10 @@ public final class Modules {
         return swingAnimation;
     }
 
+    public static HitColorModule hitColor() {
+        return hitColor;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -168,5 +174,7 @@ public final class Modules {
         register(useTracker);
         swingAnimation = new SwingAnimationModule();
         register(swingAnimation);
+        hitColor = new HitColorModule();
+        register(hitColor);
     }
 }
