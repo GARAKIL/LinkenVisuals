@@ -6,17 +6,17 @@
 
 | # | Объект донора | Статус | Комментарий |
 |---|---|---|---|
-| 5.1 | MSDF: `api/render/msdf/MsdfFont,GlyphAtlas,FontData` | ⛔ | сверить с нашими `MsdfText`/`GlyphAtlas`; атласы — по нужде |
-| 5.2 | BlockOverlay + `shaders/block_overlay_*` (10 эффектов) | ⛔ | GLSL как текст → `RenderPipeline.builder()` |
-| 5.3 | Liquid glass: `LiquidGlassNewBuilder`, `BuiltLiquidGlassNew`, capture/reflection | ⛔ | сначала сверка с `GlassPanelPipeline`/`HudGlassCapture`/`ScreenCapture` |
-| 5.4 | MotionBlur: `MotionBlurRenderer`, `shaders/motionblur.*` | ⛔ | без `glUseProgram(0)` |
-| 5.5 | Оптимизации-идеи: `Render2D.drawDotGrid/drawHatch`, `Render3D` LRU VoxelShape | ⛔ | применять точечно, где у нас аналогичные циклы |
-| 5.6a | Косметика-инфраструктура (bedrock/gecko, FeatureRenderer, tools-скрипты) | ⛔ | spike, затем решение по списку |
-| 5.6b | Wave-плащ (`CapeSimulation`) | ⛔ | без сетевого синка |
-| 5.6c | Питомцы (`RemotePets`/`PetWanderController`/Rudy) | ⛔ | проверить зависимость от их сети — вероятно адаптировать |
-| 5.6d | ChinaHat, Nimb, Naruto, CosmeticEffects, Spheres | ⛔ | каждая отдельным подтверждённым пунктом |
-| 5.7 | Модули: WayPoints/GPS, ItemPhysics, ItemScroller, ChatHelper, MineHelper, FastExp, ElytraSwap, HitSound, HandSwap, SwingAnimation, Trails, JumpCircles, Crosshair, HitColor, TargetEsp, Zoom, Freelook, Fullbright, TimeChanger, TotemCounter/Tracker, UseTracker, StreamerMode | 🔄 | D34/v1.0.63 + D35/v1.0.64 + D36/v1.0.65: SwingAnimation, HitColor, Freelook, ItemPhysics, ItemScroller, ElytraSwap, TotemTracker (событие + HUD TotemCounter/UseTracker), StreamerMode (таблица в ресурсе, чистое ядро + 7 хуков) — полные порты с хуками и тестами. Отклонение StreamerMode: nametag-санитизация отложена. Остаток: WayPoints/GPS (нет команды добавления) |
-| 5.8 | ViewModel-паритет (`Hands`, `ViewModel`) | ⛔ | референс параметров → `HandEditor`/`HandPose` |
+| 5.1 | MSDF: `api/render/msdf/MsdfFont,GlyphAtlas,FontData` | ✅ | D22/v1.0.50: примитивные `IntObjectMap`/`IntFloatMap` (без fastutil), LRU-кэш ширин (1024), thread-asserts; 45 тестов |
+| 5.2 | BlockOverlay + `shaders/block_overlay_*` (10 эффектов) | ✅ | D23/v1.0.51: 9 эффектов (10-й `.fsh` мёртвый — не покрыт FillMode), `RenderPipeline.builder()`, UBO 48 Б, `BEFORE_BLOCK_OUTLINE`+`END_MAIN` |
+| 5.3 | Liquid glass: `LiquidGlassNewBuilder`, `BuiltLiquidGlassNew`, capture/reflection | ✅ | D24/v1.0.54: `liquidglassnew.fsh` (UBO 96 Б) поверх `HudGlassCapture`; билдеры/capture/reflection НЕ портированы (дубли — D24) |
+| 5.4 | MotionBlur: `MotionBlurRenderer`, `shaders/motionblur.*` | ✅ | D25/v1.0.55: UBO 16 Б, `BlitPipeline` (без сырого GL), `END_MAIN` (HUD не смазывается), default OFF |
+| 5.5 | Оптимизации-идеи: `Render2D.drawDotGrid/drawHatch`, `Render3D` LRU VoxelShape | ✅ | D26/v1.0.56: кэш `BlockPos→Box` в `BlockOverlayRenderer`; int-линии/scratch/dot-grid — уже оптимально или отсутствуют |
+| 5.6a | Косметика-инфраструктура (bedrock/gecko, FeatureRenderer, tools-скрипты) | ✅ | D27/v1.0.57: спайк — наша косметика процедурная, модельная инфраструктура не потребовалась |
+| 5.6b | Wave-плащ (`CapeSimulation`) | ✅ | D28/v1.0.58 (+фикс 18b2f3b: `capeX/capeZ` удалены в 1.21.11 — позиция трекается сами); физика verlet 1:1, рендер — наш quad strip (слот back) |
+| 5.6c | Питомцы (`RemotePets`/`PetWanderController`/Rudy) | 🚫 | D29: существует только режим чужих петов через `UserSyncManager` (запрещён п.3) — пропущены |
+| 5.6d | ChinaHat, Nimb, Spheres, Naruto, CosmeticEffects | 🔄 | ChinaHat/Nimb/Spheres ✅ — D27/D30/D31 (v1.0.57/59/60). Naruto/CosmeticEffects не портированы: Naruto — 28-строчный энейблер настроек; CosmeticEffects — зонтичный модуль с визуальными ветками (ghost bloom). Ждём решения пользователя: пропуск или отдельный порт |
+| 5.7 | Модули: WayPoints/GPS, ItemPhysics, ItemScroller, ChatHelper, MineHelper, FastExp, ElytraSwap, HitSound, HandSwap, SwingAnimation, Trails, JumpCircles, Crosshair, HitColor, TargetEsp, Zoom, Freelook, Fullbright, TimeChanger, TotemCounter/Tracker, UseTracker, StreamerMode | 🔄 | D32/D33: 13 модулей полными портами + WayPoints (упрощён, без GPS) + 7 заглушек. Пачки 1–3 (D34–D36, реальные v1.0.63–1.0.65): все 7 заглушек → полные порты (SwingAnimation, HitColor, Freelook, ItemPhysics, ItemScroller, ElytraSwap, StreamerMode) с хуками и тестами; 119 тестов. Отклонения: TargetEsp пропущен (чит-признак, п.3); StreamerMode nametag-санитизация отложена. Остаток: WayPoints неактивен — `WaypointsRenderer.addWaypoint` никем не вызывается (нет `/wp add`/UX) |
+| 5.8 | ViewModel-паритет (`Hands`, `ViewModel`) | ✅ | D32 (commit fa0fefa): `HandPose` — per-axis scale (`scaleX/Y/Z`) как у донора + миграция старого uniform scale; `HeldItemRendererMixin` использует per-axis |
 | — | Идеи compat: soft-dep рефлексия, Iris-детект, Pojav/gl4es | ⛔ | паттерны, не код |
 | — | Антипаттерны донора | 🚫 | 184 проглоченных catch, сырые GL-вызовы, god-классы, жёсткие IP — не переносим |
 
