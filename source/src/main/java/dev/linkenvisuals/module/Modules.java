@@ -15,6 +15,7 @@ import dev.linkenvisuals.module.impl.TimeChangerModule;
 import dev.linkenvisuals.module.impl.TotemCounterModule;
 import dev.linkenvisuals.module.impl.TotemTrackerModule;
 import dev.linkenvisuals.module.impl.TrailsModule;
+import dev.linkenvisuals.module.impl.UseTrackerModule;
 import dev.linkenvisuals.module.impl.WaypointsModule;
 import dev.linkenvisuals.module.impl.ZoomModule;
 
@@ -40,6 +41,7 @@ public final class Modules {
     private static TotemCounterModule totemCounter;
     private static TotemTrackerModule totemTracker;
     private static WaypointsModule waypoints;
+    private static UseTrackerModule useTracker;
 
     private Modules() {
     }
@@ -116,6 +118,10 @@ public final class Modules {
         return waypoints;
     }
 
+    public static UseTrackerModule useTracker() {
+        return useTracker;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -152,5 +158,7 @@ public final class Modules {
         register(totemTracker);
         waypoints = new WaypointsModule();
         register(waypoints);
+        useTracker = new UseTrackerModule();
+        register(useTracker);
     }
 }

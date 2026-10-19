@@ -238,6 +238,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         tickHandSwap(client);
         dev.linkenvisuals.module.impl.FastExpModule.tick();
         dev.linkenvisuals.module.impl.TotemCounterModule.tick();
+        dev.linkenvisuals.module.impl.UseTrackerModule.tick();
     }
 
     private static void tickHandSwap(MinecraftClient client) {
