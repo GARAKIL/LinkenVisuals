@@ -1,10 +1,11 @@
 package dev.linkenvisuals.module.impl;
 
 import dev.linkenvisuals.clickgui.Category;
-import dev.linkenvisuals.clickgui.setting.BooleanSetting;
+import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.module.Module;
+import dev.linkenvisuals.util.HitColorMath;
 
 import java.util.List;
 import java.util.Map;
@@ -12,28 +13,37 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * HitColor (Phase 5.7): tints entities on hit.
- * Donor's {@code HitColor} (85 lines) simplified: hit tracking only.
- * Renderer tint hook is a follow-up (requires LivingEntityRenderer mixin).
+ *
+ * <p>Ported from the donor's {@code HitColor} (85 lines) and
+ * {@code HitColorRenderHelper}. The hit marker is registered by
+ * {@code ClientPlayerInteractionManagerMixin.attackEntity}; the tint itself is
+ * applied in {@code LivingEntityRendererMixin} through vanilla's
+ * {@code getMixColor} hook. Armor tinting is intentionally out of scope: the
+ * 1.21.11 equipment path submits through {@code RenderCommandQueue.submitModel},
+ * so it would need a separate mixin for a cosmetic detail.
  */
 public final class HitColorModule extends Module {
+    /** How long a hit keeps the tint at full strength. */
+    private static final long HIT_WINDOW_MS = 500L;
+
     private static final Map<Integer, Long> RECENT_HITS = new ConcurrentHashMap<>();
     private static final Map<Integer, Float> STRENGTH = new ConcurrentHashMap<>();
 
+    public final ColorSetting color;
     public final SliderSetting opacity;
-    public final BooleanSetting colorArmor;
 
     public HitColorModule() {
-        this(new SliderSetting("Opacity", 0.0f, 1000.0f, 1.0f, 140.0f, ""),
-             new BooleanSetting("Color Armor", false));
+        this(new ColorSetting("Color", 0xFF6B6B),
+             new SliderSetting("Opacity", 0.0f, 1000.0f, 1.0f, 140.0f, ""));
     }
 
-    private HitColorModule(SliderSetting opacity, BooleanSetting colorArmor) {
+    private HitColorModule(ColorSetting color, SliderSetting opacity) {
         super("hitcolor", "Hit Color", "tint entities on hit",
             Category.VISUAL,
             List.of(),
-            List.<Setting>of(opacity, colorArmor));
+            List.<Setting>of(color, opacity));
+        this.color = color;
         this.opacity = opacity;
-        this.colorArmor = colorArmor;
     }
 
     @Override
@@ -46,6 +56,7 @@ public final class HitColorModule extends Module {
         RECENT_HITS.put(entityId, System.currentTimeMillis());
     }
 
+    /** Advances the fade curve; called once per render-state update. */
     public static float advanceStrength(int entityId, boolean hitByMe) {
         Float cur = STRENGTH.get(entityId);
         if (!hitByMe && cur == null) {
@@ -70,11 +81,15 @@ public final class HitColorModule extends Module {
         if (time == null) {
             return false;
         }
-        // Expire after 500ms.
-        if (System.currentTimeMillis() - time > 500L) {
+        if (System.currentTimeMillis() - time > HIT_WINDOW_MS) {
             RECENT_HITS.remove(entityId);
             return false;
         }
         return true;
+    }
+
+    /** Tint entry point used by the renderer mixin; delegates to pure math. */
+    public static int tint(int originalColor, int chosenRgb, float strength, float maxTint) {
+        return HitColorMath.tint(originalColor, chosenRgb, strength, maxTint);
     }
 }

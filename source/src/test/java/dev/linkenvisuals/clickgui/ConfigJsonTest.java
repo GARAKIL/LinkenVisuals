@@ -3,8 +3,10 @@ package dev.linkenvisuals.clickgui;
 import com.google.gson.JsonObject;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
+import dev.linkenvisuals.clickgui.setting.KeySetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.clickgui.setting.StringSetting;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -55,6 +57,23 @@ class ConfigJsonTest {
         ConfigJson.apply(List.of(filters), legacy);
 
         assertTrue(filters.enabled(), "legacy 'Фильтры' section must still map to Filters");
+    }
+
+    @Test
+    void roundTripsKeyAndStringSettings() {
+        KeySetting key = new KeySetting("Key", 65);
+        StringSetting text = new StringSetting("Nick", "default");
+        ModuleInfo module = new ModuleInfo("TextModule", "", Category.MISC,
+            List.of(), List.of(key, text));
+
+        JsonObject json = ConfigJson.build(List.of(module));
+
+        key.setValue(66);
+        text.setValue("changed");
+        ConfigJson.apply(List.of(module), json);
+
+        assertEquals(65, key.value(), "key codes must survive the round-trip");
+        assertEquals("default", text.value(), "string settings must survive the round-trip");
     }
 
     @Test

@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-19 (чат №6) — v1.0.63
+
+### Сделано
+1. **Пачка 1 Ф5.7 закрыта (D34, v1.0.63)**: `SwingAnimation`, `HitColor`, `Freelook`, `ItemPhysics` — полные порты вместо заглушек D33. Хуки: `HeldItemRendererMixin.swingArm` (RETURN, guard main arm), `LivingEntityRenderStateMixin` + `LivingEntityRendererMixin` (`updateRenderState` TAIL, `getMixColor` RETURN), `MouseMixin.updateMouse` (HEAD/RETURN), `CameraMixin` (`@ModifyExpressionValue` на `Entity.getYaw/getPitch`), `ItemEntityRenderStateMixin` + `ItemEntityRendererMixin` (`updateRenderState` TAIL, `render` HEAD cancellable).
+2. **Чистая логика вынесена и покрыта тестами**: `util/HitColorMath` (7), `util/ItemPhysicsMath` (6), `util/DragPath` (6), `SwingAnimationModule.curve/xAngle` (7). Тесты: 83, 0 падений (было 50).
+3. **Конфиг-гэп закрыт**: `ConfigJson` теперь сохраняет/читает `KeySetting` и `StringSetting` (бинды Freelook/ElytraSwap/HandSwap/Zoom и ники StreamerMode раньше терялись); round-trip-тест в `ConfigJsonTest`.
+4. **Убрана инертная настройка** `HitColorModule.colorArmor`: armor-тинт через `EquipmentRenderer` → `submitModel` (color — index 6) не реализован, настройка ничего не делала. Причина и путь возврата — D34.
+5. **Ремап-скан**: 47 миксинов собранного jar, 0 yarn-имён в member-ref'ах (узкий и широкий проходы); `HandledScreenAccessor` зарегистрирован в `linkenvisuals.mixins.json`.
+6. Мелочи: выравнивание отступа `@Inject` в `HeldItemRendererMixin`; `mod_version` 1.0.62 → 1.0.63.
+
+### Следующая задача
+**Пачка 2 Ф5.7** (D34-остаток): `ItemScroller` (drag-перемещение через `HandledScreenAccessor` + `DragPath`, `clickSlot`), `ElytraSwap` (клик по слоту 6), `StreamerMode` (паттерны в ресурс + фильтры ChatHud/PlayerListHud/scoreboard), `TotemTracker` (`ClientPlayNetworkHandler.onEntityStatus` + `EntityStatuses.USE_TOTEM_OF_UNDYING`), HUD-элементы `TotemCounter`/`UseTracker` в `HudManager.ELEMENTS`. Затем — 6 оставшихся `catch (... ignored)` → лог, `WayPoints/GPS`.
+
+### Открытые решения (ждём пользователя)
+- LICENSE: копирайт-строка «StrangeVisuals Team & Contributors» — обновлять ли держателя (правило «лицензию не менять» пока в силе).
+- `MASTER_PROMPT.md` — убирать ли из публичного репо.
+- UK-глифы: в MSDF-атласах нет нативных і/ї/є/ґ (фолбэк і/ї→i, є→э, ґ→г) — нужна ли регенерация атласа.
+- `source/tools/*` — проверить актуальность скриптов при переносах Фазы 5.
+- `WaypointsRenderer.clear()` намеренно ничего не делает (комментарий «Keep waypoints on disable») — решить: чистить при disable или нет.
+- `WaypointsModule` — нет команды добавления точек (`addWaypoint` нигде не вызывается): модуль визуально инертен без команды. Нужен ли `/wp add`?
+
 ## Состояние на 2026-10-18 (чат №5, Muse)
 
 ### Сделано

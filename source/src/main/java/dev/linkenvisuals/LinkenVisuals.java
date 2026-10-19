@@ -234,6 +234,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.render.TrailsRenderer.tick();
         dev.linkenvisuals.render.JumpCirclesRenderer.tick();
         tickZoom(client);
+        tickFreelook(client);
         dev.linkenvisuals.module.impl.TimeChangerModule.tick();
         tickHandSwap(client);
         dev.linkenvisuals.module.impl.FastExpModule.tick();
@@ -274,6 +275,14 @@ public final class LinkenVisuals implements ClientModInitializer {
         long handle = client.getWindow().getHandle();
         boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(handle, keyCode) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
         zoom.tick(down);
+    }
+
+    private static void tickFreelook(MinecraftClient client) {
+        dev.linkenvisuals.module.impl.FreelookModule module =
+            dev.linkenvisuals.module.Modules.freelook();
+        if (module != null) {
+            module.tick(client);
+        }
     }
 
     private static void updateFog() {

@@ -4,9 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
+import dev.linkenvisuals.clickgui.setting.KeySetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.clickgui.setting.StringSetting;
 
 import java.util.List;
 
@@ -98,6 +100,10 @@ public final class ConfigJson {
                     }
                 } else if (setting instanceof ColorSetting color) {
                     color.set(val.getAsInt());
+                } else if (setting instanceof KeySetting key) {
+                    key.setValue(val.getAsInt());
+                } else if (setting instanceof StringSetting text) {
+                    text.setValue(val.getAsString());
                 }
             } catch (Exception e) {
                 dev.linkenvisuals.LinkenVisuals.LOGGER.warn("Failed to apply setting '{}': {}", setting.name(), e.getMessage());
@@ -115,6 +121,10 @@ public final class ConfigJson {
                 settingsObj.addProperty(setting.name(), mode.current());
             } else if (setting instanceof ColorSetting color) {
                 settingsObj.addProperty(setting.name(), color.rgb());
+            } else if (setting instanceof KeySetting key) {
+                settingsObj.addProperty(setting.name(), key.value());
+            } else if (setting instanceof StringSetting text) {
+                settingsObj.addProperty(setting.name(), text.value());
             }
         }
     }

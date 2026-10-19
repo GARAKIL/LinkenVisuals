@@ -3,7 +3,10 @@ package dev.linkenvisuals.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.linkenvisuals.hands.HandEditor;
 import dev.linkenvisuals.hands.HandPose;
+import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.SwingAnimationModule;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -94,7 +97,21 @@ public abstract class HeldItemRendererMixin {
         }
     }
 
-        @Inject(method = "renderFirstPersonItem", at = @At("RETURN"))
+    @Inject(method = "swingArm", at = @At("RETURN"))
+    private void linkenvisuals$applySwingAnimation(float swingProgress, MatrixStack matrices, int armX,
+                                                   Arm arm, CallbackInfo ci) {
+        SwingAnimationModule module = Modules.swingAnimation();
+        if (module == null || !module.enabled()) {
+            return;
+        }
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.player == null || arm != client.player.getMainArm()) {
+            return;
+        }
+        module.applyDelta(matrices, swingProgress, arm);
+    }
+
+    @Inject(method = "renderFirstPersonItem", at = @At("RETURN"))
     private void linkenvisuals$releaseHand(AbstractClientPlayerEntity player, float tickProgress,
                                             float pitch, Hand hand, float swingProgress,
                                             ItemStack stack, float equipProgress, MatrixStack matrices,

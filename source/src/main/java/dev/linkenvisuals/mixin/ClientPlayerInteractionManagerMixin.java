@@ -1,6 +1,7 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
@@ -30,6 +31,8 @@ public abstract class ClientPlayerInteractionManagerMixin {
         }
 
         TargetMarks.noteHit(target);
+
+        HitColorModule.markHit(target.getId());
 
         KillEffects.watch(target);
 

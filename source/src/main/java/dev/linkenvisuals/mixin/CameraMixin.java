@@ -1,8 +1,13 @@
 package dev.linkenvisuals.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.linkenvisuals.anim.Animations;
+import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.FreelookModule;
 import net.minecraft.client.render.Camera;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
@@ -12,6 +17,27 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
+    // Freelook: both yaw/pitch reads in update() (minecart and regular branches,
+    // verified with javap: getYaw@139/174, getPitch@145/180) go through Entity.getYaw(F)
+    // and Entity.getPitch(F), so a ModifyExpressionValue pair covers both branches
+    // without ordinals.
+    @ModifyExpressionValue(method = "update",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getYaw(F)F"))
+    private float linkenvisuals$freelookYaw(float original,
+                                            @com.llamalad7.mixinextras.sugar.Local(argsOnly = true) Entity entity) {
+        FreelookModule module = Modules.freelook();
+        return module != null && module.shouldOverrideCamera(entity) ? module.getCameraYaw() : original;
+    }
+
+    @ModifyExpressionValue(method = "update",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;getPitch(F)F"))
+    private float linkenvisuals$freelookPitch(float original,
+                                              @com.llamalad7.mixinextras.sugar.Local(argsOnly = true) Entity entity) {
+        FreelookModule module = Modules.freelook();
+        return module != null && module.shouldOverrideCamera(entity)
+            ? module.getCameraPitch() : original;
+    }
+
     // Vanilla method arguments cannot be matched by name in production (Mojang jars ship without
     // local variable tables), so the argument ordinal is the only stable anchor here. Ordinals 0/1
     // are the two boolean parameters of update(BlockView, Entity, boolean thirdPerson,
