@@ -2,6 +2,7 @@ package dev.linkenvisuals.module;
 
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
+import dev.linkenvisuals.module.impl.ChatHelperModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
@@ -32,6 +33,7 @@ public final class Modules {
     private static HandSwapModule handSwap;
     private static FastExpModule fastExp;
     private static MineHelperModule mineHelper;
+    private static ChatHelperModule chatHelper;
 
     private Modules() {
     }
@@ -92,6 +94,10 @@ public final class Modules {
         return mineHelper;
     }
 
+    public static ChatHelperModule chatHelper() {
+        return chatHelper;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -120,5 +126,7 @@ public final class Modules {
         register(fastExp);
         mineHelper = new MineHelperModule();
         register(mineHelper);
+        chatHelper = new ChatHelperModule();
+        register(chatHelper);
     }
 }
