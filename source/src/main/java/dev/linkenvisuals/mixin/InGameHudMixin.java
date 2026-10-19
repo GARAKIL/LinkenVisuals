@@ -1,6 +1,9 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.hud.HudManager;
+import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.CrosshairModule;
+import dev.linkenvisuals.render.CrosshairRenderer;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -29,5 +32,15 @@ public abstract class InGameHudMixin {
         if (MainMenuConfig.get().customStatusEffects) {
             ci.cancel();
         }
+    }
+
+    @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$renderCustomCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        CrosshairModule module = Modules.crosshair();
+        if (module == null || !module.enabled()) {
+            return;
+        }
+        ci.cancel();
+        CrosshairRenderer.render(context, module);
     }
 }

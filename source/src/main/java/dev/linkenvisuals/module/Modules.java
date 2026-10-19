@@ -2,6 +2,7 @@ package dev.linkenvisuals.module;
 
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
+import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
@@ -18,6 +19,7 @@ public final class Modules {
     private static FullbrightModule fullbright;
     private static TrailsModule trails;
     private static JumpCirclesModule jumpCircles;
+    private static CrosshairModule crosshair;
 
     private Modules() {
     }
@@ -50,6 +52,10 @@ public final class Modules {
         return jumpCircles;
     }
 
+    public static CrosshairModule crosshair() {
+        return crosshair;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -64,5 +70,7 @@ public final class Modules {
         register(trails);
         jumpCircles = new JumpCirclesModule();
         register(jumpCircles);
+        crosshair = new CrosshairModule();
+        register(crosshair);
     }
 }
