@@ -18,4 +18,9 @@ public final class StringSetting extends Setting {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public float height() {
+        return 13.0f;
+    }
 }

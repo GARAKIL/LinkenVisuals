@@ -41,7 +41,7 @@ public abstract class MinecraftClientAttackMixin {
         }
         SoundEvent sound = switch (module.sound.value()) {
             case "Click" -> SoundEvents.UI_BUTTON_CLICK.value();
-            case "Pop" -> SoundEvents.ENTITY_CHICKEN_EGG.value();
+            case "Pop" -> SoundEvents.ENTITY_CHICKEN_EGG;
             default -> SoundEvents.BLOCK_NOTE_BLOCK_BELL.value();
         };
         client.getSoundManager().play(PositionedSoundInstance.ui(sound, 1.0f, 1.0f));

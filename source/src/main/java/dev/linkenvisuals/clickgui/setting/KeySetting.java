@@ -18,4 +18,9 @@ public final class KeySetting extends Setting {
     public void setValue(int keyCode) {
         this.keyCode = keyCode;
     }
+
+    @Override
+    public float height() {
+        return 13.0f;
+    }
 }
