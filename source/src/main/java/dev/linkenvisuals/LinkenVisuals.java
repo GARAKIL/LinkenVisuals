@@ -231,6 +231,22 @@ public final class LinkenVisuals implements ClientModInitializer {
         FakePlayer.tick(client);
         dev.linkenvisuals.render.TrailsRenderer.tick();
         dev.linkenvisuals.render.JumpCirclesRenderer.tick();
+        tickZoom(client);
+    }
+
+    private static void tickZoom(MinecraftClient client) {
+        dev.linkenvisuals.module.impl.ZoomModule zoom = dev.linkenvisuals.module.Modules.zoom();
+        if (zoom == null || !zoom.enabled() || client.currentScreen != null) {
+            if (zoom != null) {
+                zoom.tick(false);
+            }
+            return;
+        }
+        // Check if zoom key is down via GLFW.
+        int keyCode = zoom.key.value();
+        long handle = client.getWindow().getHandle();
+        boolean down = org.lwjgl.glfw.GLFW.glfwGetKey(handle, keyCode) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        zoom.tick(down);
     }
 
     private static void updateFog() {

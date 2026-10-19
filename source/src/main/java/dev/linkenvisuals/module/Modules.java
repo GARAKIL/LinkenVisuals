@@ -7,6 +7,7 @@ import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.TrailsModule;
+import dev.linkenvisuals.module.impl.ZoomModule;
 
 /**
  * Typed facade over object-based modules. Per-module accessors are added here
@@ -20,6 +21,7 @@ public final class Modules {
     private static TrailsModule trails;
     private static JumpCirclesModule jumpCircles;
     private static CrosshairModule crosshair;
+    private static ZoomModule zoom;
 
     private Modules() {
     }
@@ -56,6 +58,10 @@ public final class Modules {
         return crosshair;
     }
 
+    public static ZoomModule zoom() {
+        return zoom;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -72,5 +78,7 @@ public final class Modules {
         register(jumpCircles);
         crosshair = new CrosshairModule();
         register(crosshair);
+        zoom = new ZoomModule();
+        register(zoom);
     }
 }
