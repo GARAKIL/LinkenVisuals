@@ -5,6 +5,7 @@ import dev.linkenvisuals.module.impl.BlockOverlayModule;
 import dev.linkenvisuals.module.impl.ChatHelperModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
+import dev.linkenvisuals.module.impl.FreelookModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitColorModule;
@@ -46,6 +47,7 @@ public final class Modules {
     private static UseTrackerModule useTracker;
     private static SwingAnimationModule swingAnimation;
     private static HitColorModule hitColor;
+    private static FreelookModule freelook;
 
     private Modules() {
     }
@@ -134,6 +136,10 @@ public final class Modules {
         return hitColor;
     }
 
+    public static FreelookModule freelook() {
+        return freelook;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -176,5 +182,7 @@ public final class Modules {
         register(swingAnimation);
         hitColor = new HitColorModule();
         register(hitColor);
+        freelook = new FreelookModule();
+        register(freelook);
     }
 }
