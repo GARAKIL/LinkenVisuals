@@ -34,5 +34,6 @@
 - **M4 — Link GUI themes/config/polish — ✅ v1.0.79, D55, `f639d69`.** Compact `Auto` (190), создание/удаление профилей, persistence `linkenvisuals_linkgui.json`.
 - **M5 — pause/settings hub — ✅ v1.0.80, D56, `ec52c1e`.** Hub/pause/settings, blur-fix, `returnScreen`; Save and Quit hang исправлен; `LinkenVisuals` убран из Settings по приказу пользователя.
 - **M6 — multiplayer + parity/polish — ✅ v1.0.81, D57, `c3a328c`.** 3×3, paging, ping/status, Add/Edit/Delete/Direct modal, toolbar; `INCOMPATIBLE` проверен. Direct Connect/actual connect — на приёмку.
-- **M7 — оставшиеся вкладки — ⛔ не начат.** Singleplayer/Select World, Alt Manager, дочерние Settings (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs), остальной vanilla chrome. Стилизация 1:1, Beta/Vanilla не перерисовывать.
+- **M7a — account manager — ✅ v1.0.82, D59, `c04ae31`.** `LinkenAltManagerScreen` (поиск, ACTIVE, Add/Use/Delete, confirm), `AltAccountFilter` + тест; существующий `AccountStorage` сохранён. Singleplayer/Select World в доноре ванильный — не портируем.
+- **M7b — дочерние Settings — ⛔ не начат.** Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs: 1:1 LINKEN, Beta/Vanilla не перерисовывать.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.

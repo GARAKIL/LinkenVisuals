@@ -549,3 +549,10 @@
 - **Приказ пользователя**: кнопку `Linken Visuals GUI` из Settings убрать (сделано в D56); продолжить стилизацию главного меню и всех его вкладок 1:1 с оригиналом.
 - **Скоуп M7**: Singleplayer/Select World, Alt Manager, дочерние страницы Settings (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs) и остальные vanilla-chrome экраны, которые открываются из LINKEN. Hub и Multiplayer уже закрыты M5/M6.
 - **Ограничения**: Beta/Vanilla не перерисовывать; не тащить донорские Kotlin/Lombok/network/cosmetics/legacy shaders; версия — `+1 patch`, docs-only без бампа. M7 ещё не начат.
+
+## 2026-10-20 · D59 · LINKEN M7a: account manager — v1.0.82
+- **Код**: `LinkenAltManagerScreen` (1920×1080 chrome, окно 1160×636, поиск, список строк с активным бейджем, Add/Use/Delete, confirm-delete, ESC/BACK), чистая фильтрация `AltAccountFilter` + тест. Используется существующий `AccountStorage` и `MinecraftClientAccessor` session switch; IAS/донорский account backend не портируется.
+- **Роутинг**: главное меню и account-chip открывают LINKEN-экран; `MinecraftClientMixin` перенаправляет `AltManagerScreen` в LINKEN-ветке. Beta/Vanilla оставляют прежний экран.
+- **Evidence**: пустое состояние, Add modal, добавление `LinkenTest`, `USE SELECTED` → `ACTIVE`, поиск `lin` → `1 MATCHING`, Delete confirm и удаление (account-файл снова `[]`). PrintWindow 1920×1080: `alt-state.png`, `alt-add.png`, `alt-added.png`, `alt-used.png`, `alt-search.png`, `alt-del.png`, `alt-deleted.png` (temp). `gradlew test` — **196 тестов, 0 падений**.
+- **Commit**: `c04ae31` `feat(ui): add LINKEN account manager (v1.0.82, D59)`.
+- **Остаток M7**: дочерние Settings-страницы (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs); Singleplayer/Select World в доноре остаётся ванильным, отдельный LINKEN-экран не требуется для 1:1.
