@@ -752,7 +752,7 @@ public final class LinkGuiScreen extends Screen {
         drawPillButton(context, metrics, refresh, I18n.get("gui.config.refresh"), mx, my, false, openT);
         configRefreshHit = refresh;
         boolean auto = ModuleRegistry.configAutoSave() != null && ModuleRegistry.configAutoSave().value();
-        float autoWidth = 300.0f;
+        float autoWidth = 190.0f;
         Rect autoRect = new Rect(right - autoWidth, controlY, autoWidth, 42.0f);
         drawPillButton(context, metrics, autoRect,
             I18n.get(auto ? "gui.config.autosave_on" : "gui.config.autosave_off"), mx, my, auto, openT);
