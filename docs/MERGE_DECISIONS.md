@@ -513,3 +513,39 @@
   - **Персистентность/регрессия**: после рестарта с `menuStyle=LINKEN` сразу открылся LINKEN-титул (`18.09.18.png`, `Active Style: Linken`); после рестарта с `VANILLA` — ванильный титул (`18.02.23.png`) без перекраски.
   - **Логи** (`runclient_accept.log`, `runclient_accept2.log`, `runclient_accept3.log`): `ERROR`/`Exception` — 0 (только известное `Realms ... SignedJWT: FabricMC` в INFO); все три сессии завершились штатным `Stopping!`, `BUILD SUCCESSFUL`. В сессиях 1–2 было 186× `Skipping bad option:` (WARN) из старого локального `source/run/options.txt`; после перезаписи файла игрой (186 валидных строк) сессия 3 дала **0** таких строк — локальный артефакт, не дефект мода (`options.txt` модом не пишется).
 - **Итог M1**: визуальная приёмка завершена; M2 не начинается до финального «принято» пользователя.
+
+## 2026-10-20 · D53 · LINKEN M2: splash/loading/connect — v1.0.77
+- **Код**: `SplashOverlayMixin` + `LinkenLoadingScreen` (splash на 1920×1080, прогресс, fade/exit), `SplashProgress` с чистыми правилами и `SplashProgressTest`; LINKEN-ветки `LevelLoadingScreenMixin`, `ConnectScreenMixin`, `ProgressScreenMixin`, `MessageScreenMixin`; `LinkenFonts.retryIfUnavailable()` для шрифтов до первого reload.
+- **Поведение**: кастомный splash плавно передаёт управление title screen; загрузка мира/подключение/сохранение используют общий LINKEN loading chrome; при отсутствии шрифта — fallback на vanilla.
+- **Evidence**: `gradlew test` — **193 теста, 0 падений/ошибок**. Кастомный экран `SAVING WORLD` пойман (`C:\Users\gameg\AppData\Local\Temp\opencode\state-quit.png`); чёрного застревания после splash нет, title появляется стабильно. Сам splash через F2 не снимается (ввод во время overlay не обрабатывается), его тайминги покрыты `SplashProgressTest`.
+- **Commit**: `bef9569` `feat(ui): add LINKEN splash, loading and connect screens (v1.0.77, D53)`.
+
+## 2026-10-20 · D54 · LINKEN M3: Link GUI shell — v1.0.78
+- **Код**: пакет `clickgui/link/` (`LinkGuiScreen`, `LinkGuiLayout`, `LinkGuiTheme`, `LinkGuiConfig`), `ModuleRegistry.guiStyle` Classic/Beta/Linken, Ctrl+Left/Right по трём стилям, LINKEN-ветка глобального бинда, переключение из Classic/Beta, тесты `LinkGuiLayoutTest`/`LinkGuiThemeTest`.
+- **Зависимость**: темы/пины/конфиг-персистентность вошли в этот же коммит, потому что `LinkGuiScreen` без них не компилируется. Полировка compact-контрола вынесена в D55.
+- **Evidence**: 1280×720 — сетка модулей, scissor-скролл, поиск `shader`, темы `MIDNIGHT → GRAPHITE`, pin `Shaders`, Config-панель (`run/screenshots/2026-10-20_20.45.28.png`); Beta/Classic не перекрашены.
+- **Commit**: `21cd4d1` `feat(ui): add LINKEN ClickGUI shell, themes and configs (v1.0.78, D54)`.
+
+## 2026-10-20 · D55 · LINKEN M4: config/themes polish — v1.0.79
+- **Код**: `Auto: ON/OFF` сжат до 190 design units и прижат к правому краю Config-панели, больше не наезжает на `Refresh`; темы и пины сохраняются в `run/config/linkenvisuals_linkgui.json`; Beta `ConfigManager` не менялся.
+- **Evidence**: Config (`20.46.22.png`), создание `M3Accept` (`20.46.49.png`), удаление и возврат к `default`; `Auto: ON` читается, кнопки не пересекаются.
+- **Commit**: `f639d69` `fix(ui): compact LINKEN config autosave control (v1.0.79, D55)`.
+
+## 2026-10-20 · D56 · LINKEN M5: pause/settings hub — v1.0.80
+- **Код**: `LinkenHubScreen` (общий chrome, карточки, hover, routing), `LinkenPauseScreen`, `LinkenSettingsScreen`; `LinkGuiScreen(Screen returnScreen)` возвращает pause/settings; исправлен двойной blur (в мире рисуется только затемнение `0x66050807`).
+- **Save and Quit**: вместо прямого `disconnectWithSavingScreen()` вызывается `client.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT)`, поэтому клиентский мир закрывает соединение, интегрированный сервер штатно останавливается, а не висит на `SAVING WORLD`.
+- **Settings**: по требованию пользователя из hub убрана кнопка `LinkenVisuals`; Settings содержит только игровые опции (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs), ClickGUI остаётся на бинде. Подзаголовок обновлён на «VIDEO, CONTROLS, LANGUAGE AND ACCESSIBILITY».
+- **Evidence**: pause (`20.44.54.png`), settings hub (`20.45.11.png`), pause → Settings → LinkenVisuals → назад → pause (`20.46.07.png`); Save and Quit: лог `Stopping singleplayer server as player logged out`, `Stopping server`, `All chunks are saved`, возврат в LINKEN title (`20.59.04.png`); Settings без LinkenVisuals — 1280 PrintWindow и 4K F2 `2026-10-20_21.57.22.png`.
+- **Commit**: `ec52c1e` `feat(ui): add LINKEN pause and settings hub (v1.0.80, D56)`.
+
+## 2026-10-20 · D57 · LINKEN M6: multiplayer browser — v1.0.81
+- **Код**: `LinkenMultiplayerScreen` на `ServerList`/`MultiplayerServerListPinger`/`ConnectScreen`, сетка 3×3, пагинация, статусы `SUCCESSFUL`/`INCOMPATIBLE`/`UNREACHABLE`, кастомные Add/Edit/Delete/Direct modal, toolbar Join/Edit/Delete/Refresh, двойной клик и Enter.
+- **Роутинг**: `MinecraftClientMixin` направляет `MultiplayerScreen`/`CustomMultiplayerScreen` в LINKEN при активном стиле; Beta/Vanilla ветки не тронуты.
+- **Evidence**: `LocalServer` (`localhost:25565`, legacy 1.16.5) показан как `INCOMPATIBLE` (`20.59.22.png`); Add modal (`20.59.43.png`), добавление `M6Test` (`21.00.08.png`), Edit с предзаполнением (`21.24.16.png`), Delete (`21.30.11.png`) и удаление (`21.31.27.png`); пагинация `1 / 1`; 4K главное меню `21.53.13.png`, 4K Settings `21.57.22.png`.
+- **Остаток**: Direct Connect modal и actual connect не были повторно сняты из-за фокуса/минимизации 4K-окна на двух мониторах; код использует тот же modal-layout и `ConnectScreen`, проверены ранее на 1280×720. Финальная визуальная приёмка — за пользователем.
+- **Commit**: `c3a328c` `feat(ui): add LINKEN multiplayer browser (v1.0.81, D57)`.
+
+## 2026-10-20 · D58 · LINKEN M7: оставшиеся вкладки главного меню — скоуп
+- **Приказ пользователя**: кнопку `Linken Visuals GUI` из Settings убрать (сделано в D56); продолжить стилизацию главного меню и всех его вкладок 1:1 с оригиналом.
+- **Скоуп M7**: Singleplayer/Select World, Alt Manager, дочерние страницы Settings (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs) и остальные vanilla-chrome экраны, которые открываются из LINKEN. Hub и Multiplayer уже закрыты M5/M6.
+- **Ограничения**: Beta/Vanilla не перерисовывать; не тащить донорские Kotlin/Lombok/network/cosmetics/legacy shaders; версия — `+1 patch`, docs-only без бампа. M7 ещё не начат.

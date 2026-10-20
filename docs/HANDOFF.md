@@ -2,6 +2,29 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-20 (чат №15 — LINKEN M2–M6) — v1.0.81
+
+### Сделано
+1. **M2 — splash/loading/connect, v1.0.77, D53, `bef9569`.** `SplashOverlayMixin`, `LinkenLoadingScreen`, `SplashProgress` + `SplashProgressTest`; LINKEN-ветки `LevelLoadingScreenMixin`, `ConnectScreenMixin`, `ProgressScreenMixin`, `MessageScreenMixin`; `LinkenFonts.retryIfUnavailable()`. Кастомный `SAVING WORLD` пойман, hand-off на title стабилен, чёрного застревания нет. Сам splash через F2 не снимается (ввод во время overlay не обрабатывается) — тайминги покрыты тестом.
+2. **M3/M4 — Link GUI, v1.0.78/1.0.79, D54/D55, `21cd4d1`/`f639d69`.** `clickgui/link/` (shell, layout, theme, config), Classic/Beta/Linken и Ctrl+Left/Right, поиск/скролл, темы `MIDNIGHT/GRAPHITE`, пины, создание/удаление профилей, compact `Auto` 190. Темы/пины/конфиг вошли в M3 из-за compile-зависимости; M4 — полировка. Beta/Vanilla не затронуты.
+3. **M5 — pause/settings hub, v1.0.80, D56, `ec52c1e`.** `LinkenHubScreen`, `LinkenPauseScreen`, `LinkenSettingsScreen`, `returnScreen`, blur-fix. **Критический hang `Save and Quit` исправлен:** вместо `disconnectWithSavingScreen()` вызывается `client.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT)`, поэтому соединение закрывается, сервер пишет `Stopping server`/`All chunks are saved` и возвращает title. По приказу пользователя из Settings убрана кнопка `LinkenVisuals` — hub содержит только игровые опции (8 карточек).
+4. **M6 — multiplayer, v1.0.81, D57, `c3a328c`.** `LinkenMultiplayerScreen` на `ServerList`/pinger/`ConnectScreen`: сетка 3×3, paging, статусы, Add/Edit/Delete/Direct modal, toolbar, double-click/Enter. Проверены Add/Edit/Delete, `LocalServer` → `INCOMPATIBLE`, пагинация `1 / 1`; 4K главное меню и Settings сняты. Direct Connect modal/actual connect — на финальную приёмку.
+5. **Сборка/тесты:** `.\gradlew.bat test --console=plain` — **193 теста, 0 падений/ошибок** на v1.0.81. Коммиты M2–M6 созданы отдельно, версии `+1 patch`; рабочее дерево после docs-коммита должно быть чистым.
+6. **Визуальные evidence (1280×720, GUI 2):** pause `20.44.54.png`; settings `20.45.11.png`; Link GUI `20.45.28.png`; config `20.46.22.png`; создание профиля `20.46.49.png`; Save/Quit title `20.59.04.png`; M6 main `20.59.22.png`; Add modal `20.59.43.png`; M6 add `21.00.08.png`; Edit `21.24.16.png`; Delete `21.30.11.png`; M6 after delete `21.31.27.png`; 4K menu `21.53.13.png`; 4K Settings `21.57.22.png`. Все — в `source/run/screenshots/`, не коммитить.
+7. **Docs:** D53–D58 в `MERGE_DECISIONS.md`; ROADMAP/PORT_STATUS обновлены. Тестовое состояние (`linkenvisuals_linkgui.json` с `GRAPHITE`+`Shaders`, `servers.dat` с `LocalServer`/`M6Test`) удалено.
+
+### Следующая задача
+- **Финальное «принято» M2–M6 пользователем.** Повторить Direct Connect modal и actual connect (например, на localhost), проверить splash глазами при желании.
+- **M7:** стилизовать оставшиеся вкладки 1:1 — Singleplayer/Select World, Alt Manager, дочерние Settings (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs). Сначала решить, делать общий LINKEN-контейнер для vanilla options или отдельные экраны; Beta/Vanilla не перерисовывать.
+- Открытые решения: LICENSE copyright, `MASTER_PROMPT.md` в публичном репо, UK-глифы MSDF, waypoints UX, StreamerMode nametag.
+
+### Риски
+- Физического 4K-дисплея нет: 4K проверен framebuffer 3840×2160; на реальном 4K/другом DPI возможны отличия.
+- 4K-окно растягивалось на два 1920×1080-монитора и периодически минимизировалось/теряло фокус — automation F2 нестабильна; 4K Settings снят, 4K Multiplayer/Link GUI — нет.
+- Splash визуально не пойман (F2 не работает во время overlay); логика покрыта тестом.
+- Direct Connect и actual connect не перепроверены после modal-фиксов; код использует общий layout и `ConnectScreen`.
+- Дочерние Settings-страницы пока vanilla chrome — это M7, не регрессия M5.
+
 ## Состояние на 2026-10-20 (чат №14 — LINKEN M1) — v1.0.76
 
 ### Сделано
