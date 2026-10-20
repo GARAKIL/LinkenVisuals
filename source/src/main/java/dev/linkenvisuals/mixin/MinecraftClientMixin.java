@@ -1,7 +1,9 @@
 package dev.linkenvisuals.mixin;
 
+import dev.linkenvisuals.ui.AltManagerScreen;
 import dev.linkenvisuals.ui.CustomMultiplayerScreen;
 import dev.linkenvisuals.ui.MainMenuScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenAltManagerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
@@ -69,6 +71,9 @@ public abstract class MinecraftClientMixin {
             // screen the user opened options from.
             Screen parent = MinecraftClient.getInstance().currentScreen;
             return new LinkenSettingsScreen(parent);
+        }
+        if (screen instanceof AltManagerScreen) {
+            return new LinkenAltManagerScreen(MinecraftClient.getInstance().currentScreen);
         }
         if (screen instanceof CustomMultiplayerScreen custom) {
             Screen parent = custom.getParentScreen();

@@ -4,7 +4,6 @@ import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.media.MediaWatcher;
 import dev.linkenvisuals.render.Pipelines;
-import dev.linkenvisuals.ui.AltManagerScreen;
 import dev.linkenvisuals.ui.Spring;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
@@ -355,7 +354,7 @@ public final class LinkenMainMenuScreen extends Screen {
             playClick();
             navigate(() -> {
                 if (client != null) {
-                    client.setScreen(new AltManagerScreen(this));
+                    client.setScreen(new LinkenAltManagerScreen(this));
                 }
             });
             return true;
