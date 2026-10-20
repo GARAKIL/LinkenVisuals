@@ -2,7 +2,6 @@ package dev.linkenvisuals.ui.linkmenu;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.LanguageOptionsScreen;
 import net.minecraft.client.gui.screen.option.SkinOptionsScreen;
 import net.minecraft.client.gui.screen.pack.PackScreen;
 import net.minecraft.text.Text;
@@ -33,8 +32,7 @@ public final class LinkenSettingsScreen extends LinkenHubScreen {
             false, false, () -> mc.setScreen(
                 new LinkenSubSettingsScreen(this, "Controls", LinkenSettingsCatalog.controls()))));
         out.add(new Entry("Language", "INTERFACE LANGUAGE", LinkenMenuChrome.ICON_PEOPLE,
-            false, false, () -> mc.setScreen(
-                new LanguageOptionsScreen(this, mc.options, mc.getLanguageManager()))));
+            false, false, () -> mc.setScreen(new LinkenLanguageScreen(this))));
         out.add(new Entry("Skin", "PLAYER APPEARANCE", LinkenMenuChrome.ICON_PERSON,
             false, false, () -> mc.setScreen(new SkinOptionsScreen(this, mc.options))));
         out.add(new Entry("Sound", "MASTER, MUSIC AND AMBIENCE", LinkenMenuChrome.ICON_PEOPLE,
