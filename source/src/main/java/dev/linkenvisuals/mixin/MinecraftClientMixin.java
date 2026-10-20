@@ -3,6 +3,7 @@ package dev.linkenvisuals.mixin;
 import dev.linkenvisuals.ui.CustomMultiplayerScreen;
 import dev.linkenvisuals.ui.MainMenuScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenSettingsScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
@@ -68,6 +69,14 @@ public abstract class MinecraftClientMixin {
             // screen the user opened options from.
             Screen parent = MinecraftClient.getInstance().currentScreen;
             return new LinkenSettingsScreen(parent);
+        }
+        if (screen instanceof CustomMultiplayerScreen custom) {
+            Screen parent = custom.getParentScreen();
+            return new LinkenMultiplayerScreen(parent != null
+                ? parent : MinecraftClient.getInstance().currentScreen);
+        }
+        if (screen instanceof MultiplayerScreen) {
+            return new LinkenMultiplayerScreen(MinecraftClient.getInstance().currentScreen);
         }
         return screen;
     }
