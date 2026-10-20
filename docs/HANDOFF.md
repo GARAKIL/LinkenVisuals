@@ -2,23 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
-## Состояние на 2026-10-21 (чат №16 — LINKEN M7a/M7b-1/M7b-2) — v1.0.84
+## Состояние на 2026-10-21 (чат №16 — LINKEN M7a/M7b-1/M7b-2/M7b-3a) — v1.0.85
 
 ### Сделано
 1. **M2 — splash/loading/connect, v1.0.77, D53, `bef9569`.** `SplashOverlayMixin`, `LinkenLoadingScreen`, `SplashProgress` + `SplashProgressTest`; LINKEN-ветки `LevelLoadingScreenMixin`, `ConnectScreenMixin`, `ProgressScreenMixin`, `MessageScreenMixin`; `LinkenFonts.retryIfUnavailable()`. Кастомный `SAVING WORLD` пойман, hand-off на title стабилен, чёрного застревания нет. Сам splash через F2 не снимается (ввод во время overlay не обрабатывается) — тайминги покрыты тестом.
 2. **M3/M4 — Link GUI, v1.0.78/1.0.79, D54/D55, `21cd4d1`/`f639d69`.** `clickgui/link/` (shell, layout, theme, config), Classic/Beta/Linken и Ctrl+Left/Right, поиск/скролл, темы `MIDNIGHT/GRAPHITE`, пины, создание/удаление профилей, compact `Auto` 190. Темы/пины/конфиг вошли в M3 из-за compile-зависимости; M4 — полировка. Beta/Vanilla не затронуты.
 3. **M5 — pause/settings hub, v1.0.80, D56, `ec52c1e`.** `LinkenHubScreen`, `LinkenPauseScreen`, `LinkenSettingsScreen`, `returnScreen`, blur-fix. **Критический hang `Save and Quit` исправлен:** вместо `disconnectWithSavingScreen()` вызывается `client.disconnect(ClientWorld.QUITTING_MULTIPLAYER_TEXT)`, поэтому соединение закрывается, сервер пишет `Stopping server`/`All chunks are saved` и возвращает title. По приказу пользователя из Settings убрана кнопка `LinkenVisuals` — hub содержит только игровые опции (8 карточек).
 4. **M6 — multiplayer, v1.0.81, D57, `c3a328c`.** `LinkenMultiplayerScreen` на `ServerList`/pinger/`ConnectScreen`: сетка 3×3, paging, статусы, Add/Edit/Delete/Direct modal, toolbar, double-click/Enter. Проверены Add/Edit/Delete, `LocalServer` → `INCOMPATIBLE`, пагинация `1 / 1`; 4K главное меню и Settings сняты. Direct Connect modal/actual connect — на финальную приёмку.
-5. **Сборка/тесты:** `.\gradlew.bat test --console=plain` — **199 тестов, 0 падений/ошибок** на v1.0.84. Коммиты M2–M7b-2 созданы отдельно, версии `+1 patch`; рабочее дерево после docs-коммита должно быть чистым.
+5. **Сборка/тесты:** `.\gradlew.bat test --console=plain` — **199 тестов, 0 падений/ошибок** на v1.0.85. Коммиты M2–M7b-3a созданы отдельно, версии `+1 patch`; рабочее дерево после docs-коммита должно быть чистым.
 6. **Визуальные evidence (1280×720, GUI 2):** pause `20.44.54.png`; settings `20.45.11.png`; Link GUI `20.45.28.png`; config `20.46.22.png`; создание профиля `20.46.49.png`; Save/Quit title `20.59.04.png`; M6 main `20.59.22.png`; Add modal `20.59.43.png`; M6 add `21.00.08.png`; Edit `21.24.16.png`; Delete `21.30.11.png`; M6 after delete `21.31.27.png`; 4K menu `21.53.13.png`; 4K Settings `21.57.22.png`. Все — в `source/run/screenshots/`, не коммитить.
 7. **Docs:** D53–D60 в `MERGE_DECISIONS.md`; ROADMAP/PORT_STATUS обновлены. Тестовое состояние (`linkenvisuals_linkgui.json` с `GRAPHITE`+`Shaders`, `servers.dat` с `LocalServer`/`M6Test`, `linkenvisuals_accounts.json`) очищено; `run/options.txt` вернуть в исходное (`ao:true`, если тестовый toggle его выключил).
 8. **M7a — LINKEN account manager, v1.0.82, D59, `c04ae31`.** `LinkenAltManagerScreen`: 1920×1080 chrome, список аккаунтов с ACTIVE-бейджем, поиск, Add/Use/Delete и confirm-delete; backend — существующий `AccountStorage` + `MinecraftClientAccessor`, без IAS. Роутинг из main menu/account-chip и `MinecraftClientMixin`. Проверены пустое состояние, добавление `LinkenTest`, применение, поиск, удаление; `AltAccountFilterTest` (+3). PrintWindow evidence: `alt-state.png`, `alt-add.png`, `alt-added.png`, `alt-used.png`, `alt-search.png`, `alt-del.png`, `alt-deleted.png` (temp).
 9. **M7b-1 — LINKEN settings sub-pages, v1.0.83, D60, `a129b8f`.** `LinkenSubSettingsScreen` (search, двухколоночные строки, toggle/slider/cycle, DONE/ESC), `LinkenSettingsOption`/`LinkenSettingsCatalog`/`LinkenSettingsFilter`; Video/Controls/Sound/Chat/Accessibility используют vanilla `SimpleOption` через LINKEN chrome. Проверены Video, toggle Smooth Lighting, Sound, Chat, поиск `opacity`, Controls; PrintWindow `video-settings.png`, `video-toggle.png`, `settings-hub-after-video.png`, `sound-settings2.png`, `chat-settings.png`, `chat-search.png`, `controls-settings.png`. Language/Skin/Packs и keybinds list — следующий срез.
 10. **M7b-2 — LINKEN keybinds, v1.0.84, D61, `2d569c8`.** `LinkenKeybindsScreen`: категории, поиск, capture через `InputUtil.fromKeyCode`, conflict-маркеры, right-click reset, RESET ALL, `options.write()`. Controls → `Keybinds → Open` теперь LINKEN. Evidence `keybinds2.png`, capture-состояние `rebind-state.png`; автоматический ввод клавиши не сработал из-за фокуса окна на втором мониторе — сам rebind проверить руками.
+11. **M7b-3a — LINKEN language list, v1.0.85, D62, `f9dbed3`.** `LinkenLanguageScreen`: 143 языка, поиск, ACTIVE, клавиатурная навигация, Apply через `LanguageManager`/`reloadResources`, автопрокрутка к текущему. Settings → Language больше не открывает vanilla. Evidence `language.png`; после добавления автопрокрутки визуально не перепроверено.
 
 ### Следующая задача
 - **Финальное «принято» M2–M6 пользователем.** Повторить Direct Connect modal и actual connect (например, на localhost), проверить splash глазами при желании.
-- **M7b-3:** Language/Skin/Resource Packs list screens; затем визуальная приёмка M7 1280×720/4K. Singleplayer/Select World в доноре ванильный, отдельный экран не нужен; Alt Manager закрыт M7a, keybinds — M7b-2. Beta/Vanilla не перерисовывать.
+- **M7b-4:** Skin/Resource Packs list screens; затем визуальная приёмка M7 1280×720/4K. Singleplayer/Select World в доноре ванильный, отдельный экран не нужен; Alt Manager закрыт M7a, keybinds — M7b-2, Language — M7b-3a. Beta/Vanilla не перерисовывать.
 - Открытые решения: LICENSE copyright, `MASTER_PROMPT.md` в публичном репо, UK-глифы MSDF, waypoints UX, StreamerMode nametag.
 
 ### Риски
@@ -26,7 +27,7 @@
 - 4K-окно растягивалось на два 1920×1080-монитора и периодически минимизировалось/теряло фокус — automation F2 нестабильна; 4K Settings снят, 4K Multiplayer/Link GUI — нет.
 - Splash визуально не пойман (F2 не работает во время overlay); логика покрыта тестом.
 - Direct Connect и actual connect не перепроверены после modal-фиксов; код использует общий layout и `ConnectScreen`.
-- Language/Skin/Resource Packs пока используют vanilla chrome — это M7b-3, не регрессия M5/M7b-1.
+- Skin/Resource Packs пока используют vanilla chrome — это M7b-4, не регрессия M5/M7b-1.
 - Keybind rebind-клик/ESC проверены визуально, но автоматическая отправка клавиши не сработала из-за фокуса 4K-окна на втором мониторе; ручной rebind и conflict-поведение — на приёмку.
 - Account manager работает только с offline-именами (`AccountStorage`), без IAS/лицензионного login и без скинов; это осознанный backend проекта.
 

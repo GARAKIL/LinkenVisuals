@@ -570,3 +570,10 @@
 - **Evidence**: PrintWindow 1920×1080 `keybinds2.png` (Gameplay/Movement, 60 binds, conflict marks); capture-состояние `rebind-state.png` («PRESS A KEY...», Esc cancels). Автоматическая отправка клавиши не сработала из-за фокуса окна на втором мониторе — сам rebind нужно принять руками; код компилируется, тесты зелёные.
 - **Commit**: `2d569c8` `feat(ui): add LINKEN keybinds list (v1.0.84, D61)`.
 - **Остаток M7b-3**: Language/Skin/Resource Packs list screens + визуальная приёмка 1280×720/4K.
+
+## 2026-10-21 · D62 · LINKEN M7b-3a: language list — v1.0.85
+- **Код**: `LinkenLanguageScreen` — 143 языка из `LanguageManager.getAllLanguages()`, поиск по названию/коду, активный бейдж, клавиатурная навигация, Apply через `setLanguage` + `options.language` + `reloadResources()`, автопрокрутка к текущему языку.
+- **Роутинг**: Settings → Language открывает LINKEN-список вместо vanilla `LanguageOptionsScreen`.
+- **Evidence**: PrintWindow 1920×1080 `language.png` (143 языка, поиск, APPLY/DONE); активная строка `en_us` после добавления автопрокрутки визуально не перепроверена. 199 тестов, 0 падений.
+- **Commit**: `f9dbed3` `feat(ui): add LINKEN language list (v1.0.85, D62)`.
+- **Остаток M7b-4**: Skin и Resource Packs list screens; затем визуальная приёмка M7 1280×720/4K.

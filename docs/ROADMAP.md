@@ -74,6 +74,7 @@
 - [x] **M7a — LINKEN account manager**, v1.0.82, D59, commit `c04ae31`: `LinkenAltManagerScreen` (поиск, активный бейдж, Add/Use/Delete, confirm), `AltAccountFilter` + тест, роутинг из main menu/account-chip и `MinecraftClientMixin`. Singleplayer/Select World в доноре ванильный — отдельный экран не нужен для 1:1.
 - [x] **M7b-1 — дочерние Settings: option-страницы**, v1.0.83, D60, commit `a129b8f`: общий `LinkenSubSettingsScreen` + `LinkenSettingsOption`/`LinkenSettingsCatalog`/`LinkenSettingsFilter`; Video/Controls/Sound/Chat/Accessibility на vanilla `SimpleOption`, поиск, toggle/slider/cycle, DONE/ESC. 199 тестов.
 - [x] **M7b-2 — LINKEN keybinds list**, v1.0.84, D61, commit `2d569c8`: категории, поиск, capture, conflict-маркеры, right-click/RESET ALL, `options.write()`; Controls → Keybinds больше не открывает vanilla.
-- [ ] **M7b-3 — Language/Skin/Resource Packs list screens**, версия по факту; затем визуальная приёмка M7 1280×720/4K.
+- [x] **M7b-3a — LINKEN language list**, v1.0.85, D62, commit `f9dbed3`: 143 языка, поиск, ACTIVE, клавиатурная навигация, Apply через `LanguageManager`, автопрокрутка к текущему.
+- [ ] **M7b-4 — Skin/Resource Packs list screens**, версия по факту; затем визуальная приёмка M7 1280×720/4K.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.
