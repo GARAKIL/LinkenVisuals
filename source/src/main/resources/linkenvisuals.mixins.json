@@ -5,6 +5,7 @@
   "client": [
     "MinecraftClientMixin",
     "TitleScreenMixin",
+    "SplashOverlayMixin",
     "MinecraftClientAccessor",
     "InGameHudMixin",
     "ClientWorldPropertiesMixin",

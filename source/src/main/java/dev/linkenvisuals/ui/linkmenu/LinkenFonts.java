@@ -66,6 +66,17 @@ public final class LinkenFonts {
         return brands;
     }
 
+    /**
+     * The splash overlay may ask for fonts before the initial resource reload
+     * has finished. If that load failed, retry once the reload completes
+     * instead of falling back to the SF atlas for the rest of the session.
+     */
+    public static void retryIfUnavailable() {
+        if (attempted && body == null && heading == null) {
+            attempted = false;
+        }
+    }
+
     private static void ensure() {
         if (attempted) {
             return;

@@ -4,6 +4,8 @@ import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.LoadingOverlay;
 import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
+import dev.linkenvisuals.ui.linkmenu.LinkenLoadingScreen;
+import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.gui.DrawContext;
@@ -40,6 +42,12 @@ public abstract class ProgressScreenMixin extends Screen {
         float barProgress = progress >= 0 ? pct : -1.0f;
         float cy = height * 0.44f;
 
+        if (StyleManager.getStyle() == MenuStyle.LINKEN) {
+            LinkenLoadingScreen.render(context, width, height, barProgress, 1.0f, 0.0f,
+                mainTitle, subTask.isBlank() ? null : subTask);
+            ci.cancel();
+            return;
+        }
         if (StyleRouting.usesVanillaChrome(StyleManager.getStyle())) {
             LoadingOverlay.vanillaBackdrop(context, delta, width, height, this::linkenvisuals$panorama);
             LoadingOverlay.vanillaScene(context, textRenderer, width, height,

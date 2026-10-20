@@ -4,6 +4,8 @@ import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.LoadingOverlay;
 import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
+import dev.linkenvisuals.ui.linkmenu.LinkenLoadingScreen;
+import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.gui.DrawContext;
@@ -48,6 +50,11 @@ public abstract class MessageScreenMixin extends Screen {
         String subText = I18n.get("saving.subtitle");
         float cy = height * 0.44f;
 
+        if (StyleManager.getStyle() == MenuStyle.LINKEN) {
+            LinkenLoadingScreen.render(context, width, height, -1.0f, 1.0f, 0.0f, titleText, subText);
+            ci.cancel();
+            return;
+        }
         if (StyleRouting.usesVanillaChrome(StyleManager.getStyle())) {
             LoadingOverlay.vanillaBackdrop(context, delta, width, height, this::linkenvisuals$panorama);
             LoadingOverlay.vanillaScene(context, textRenderer, width, height,

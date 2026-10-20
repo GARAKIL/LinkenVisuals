@@ -9,6 +9,7 @@ import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
+import dev.linkenvisuals.ui.linkmenu.LinkenLoadingScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.ui.style.StyleRouting;
@@ -49,6 +50,14 @@ public abstract class ConnectScreenMixin extends Screen {
         String titleStr = I18n.get("loading.connecting");
         float cy = height * 0.42f;
 
+        if (style == MenuStyle.LINKEN) {
+            LinkenLoadingScreen.render(context, width, height, -1.0f, 1.0f, 0.0f, titleStr, statusStr);
+            boolean cancelHovered = LinkenLoadingScreen.cancelHovered(width, height, mouseX, mouseY);
+            LinkenLoadingScreen.renderCancelButton(context, width, height, cancelHovered,
+                I18n.get("loading.cancel"), 1.0f);
+            ci.cancel();
+            return;
+        }
         if (StyleRouting.usesVanillaChrome(style)) {
             LoadingOverlay.vanillaBackdrop(context, delta, width, height, this::linkenvisuals$panorama);
             LoadingOverlay.vanillaScene(context, textRenderer, width, height,
@@ -94,6 +103,19 @@ public abstract class ConnectScreenMixin extends Screen {
     @Override
     public boolean mouseClicked(Click click, boolean doubleClick) {
         if (!MainMenuConfig.get().customLoadingScreen) {
+            return super.mouseClicked(click, doubleClick);
+        }
+        if (StyleManager.getStyle() == MenuStyle.LINKEN) {
+            if (LinkenLoadingScreen.cancelHovered(width, height, click.x(), click.y())) {
+                this.connectingCancelled = true;
+                if (this.connection != null) {
+                    this.connection.disconnect(Text.translatable("connect.aborted"));
+                }
+                if (client != null) {
+                    client.setScreen(this.parent);
+                }
+                return true;
+            }
             return super.mouseClicked(click, doubleClick);
         }
         float btnW = 120.0f;

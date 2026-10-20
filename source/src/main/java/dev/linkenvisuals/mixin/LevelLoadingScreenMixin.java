@@ -4,6 +4,8 @@ import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.LoadingOverlay;
 import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
+import dev.linkenvisuals.ui.linkmenu.LinkenLoadingScreen;
+import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.gui.DrawContext;
@@ -37,6 +39,11 @@ public abstract class LevelLoadingScreenMixin extends Screen {
         float barProgress = loadProgress > 0.0f ? loadProgress : -1.0f;
         float cy = height * 0.44f;
 
+        if (StyleManager.getStyle() == MenuStyle.LINKEN) {
+            LinkenLoadingScreen.render(context, width, height, barProgress, 1.0f, 0.0f, titleStr, subStr);
+            ci.cancel();
+            return;
+        }
         if (StyleRouting.usesVanillaChrome(StyleManager.getStyle())) {
             LoadingOverlay.vanillaBackdrop(context, delta, width, height, this::linkenvisuals$panorama);
             LoadingOverlay.vanillaScene(context, textRenderer, width, height,
