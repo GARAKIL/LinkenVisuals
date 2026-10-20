@@ -563,3 +563,10 @@
 - **Evidence**: 1920×1080 PrintWindow — Video (`video-settings.png`), toggle Smooth Lighting (`video-toggle.png`), возврат DONE в hub (`settings-hub-after-video.png`), Sound (`sound-settings2.png`), Chat (`chat-settings.png`), поиск `opacity` → 1 OPTION (`chat-search.png`), Controls (`controls-settings.png`). `gradlew test` — **199 тестов, 0 падений**.
 - **Commit**: `a129b8f` `feat(ui): add LINKEN settings sub-pages (v1.0.83, D60)`.
 - **Остаток M7b**: LINKEN keybinds list (сейчас fallback в vanilla), Language/Skin/Resource Packs list screens; затем визуальная приёмка 1280×720/4K.
+
+## 2026-10-21 · D61 · LINKEN M7b-2: keybinds list — v1.0.84
+- **Код**: `LinkenKeybindsScreen` — категории из `KeyBinding.Category`, поиск по названию/клавише/категории, 60 биндов, «PRESS A KEY...» capture через `InputUtil.fromKeyCode(KeyInput)` + `setBoundKey`, conflict-маркеры по `getBoundKeyTranslationKey`, right-click reset одного бина, RESET ALL, `options.write()` при изменении/закрытии.
+- **Роутинг**: Controls → `Keybinds` открывает LINKEN-список вместо vanilla `ControlsOptionsScreen`; Language/Skin/Resource Packs остаются ванильными.
+- **Evidence**: PrintWindow 1920×1080 `keybinds2.png` (Gameplay/Movement, 60 binds, conflict marks); capture-состояние `rebind-state.png` («PRESS A KEY...», Esc cancels). Автоматическая отправка клавиши не сработала из-за фокуса окна на втором мониторе — сам rebind нужно принять руками; код компилируется, тесты зелёные.
+- **Commit**: `2d569c8` `feat(ui): add LINKEN keybinds list (v1.0.84, D61)`.
+- **Остаток M7b-3**: Language/Skin/Resource Packs list screens + визуальная приёмка 1280×720/4K.

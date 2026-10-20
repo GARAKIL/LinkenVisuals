@@ -36,5 +36,6 @@
 - **M6 — multiplayer + parity/polish — ✅ v1.0.81, D57, `c3a328c`.** 3×3, paging, ping/status, Add/Edit/Delete/Direct modal, toolbar; `INCOMPATIBLE` проверен. Direct Connect/actual connect — на приёмку.
 - **M7a — account manager — ✅ v1.0.82, D59, `c04ae31`.** `LinkenAltManagerScreen` (поиск, ACTIVE, Add/Use/Delete, confirm), `AltAccountFilter` + тест; существующий `AccountStorage` сохранён. Singleplayer/Select World в доноре ванильный — не портируем.
 - **M7b-1 — дочерние Settings: option-страницы — ✅ v1.0.83, D60, `a129b8f`.** `LinkenSubSettingsScreen` + catalog/filter; Video/Controls/Sound/Chat/Accessibility на LINKEN, значения через vanilla `SimpleOption`; поиск, toggle/slider/cycle. 199 тестов.
-- **M7b-2 — оставшиеся списки — ⛔ не начат.** LINKEN keybinds list, Language/Skin/Resource Packs; затем визуальная приёмка 1280×720/4K.
+- **M7b-2 — LINKEN keybinds — ✅ v1.0.84, D61, `2d569c8`.** Категории/поиск/capture/conflict/reset; `options.write()`. Ручной rebind — на приёмку.
+- **M7b-3 — Language/Skin/Resource Packs — ⛔ не начат.** Затем визуальная приёмка M7 1280×720/4K.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.
