@@ -29,6 +29,7 @@
 - **Raven ULT — the "Pet ULT" keybind**: a 19-second illusion scene — the raven ascends, 42 illusion ravens spiral in through a feather fog, the formation holds, breaks and disperses to an original sound cue, and the pet glides back to your shoulder.
 - **Rudy Character**: optional full player-model replacement (Sketchfab model by amogusstrikesback2, CC BY 4.0) via the Cosmetics **Character** setting.
 - **Waypoints**: client-side `/way` command (`add <name> me`, `add <name> <x> <y> <z>`, `remove`, `list`, `clear`) with in-world markers, persisted to `config/linkenvisuals_waypoints.json`.
+- **Target ESP**: a depth-tested marker around the entity under the crosshair — Original, Ghosts, Circles or Crystals; fades in and out, is never drawn through walls, and skips invisible players without visible equipment.
 
 ### 🎵 In-Game Media Player & Live Lyrics
 - **Windows Media Integration**: Seamlessly communicates with the Windows Media Control system (WinRT) to detect active playback from Spotify, Apple Music, YouTube Music, Deezer, Tidal, Foobar2000, and browsers.

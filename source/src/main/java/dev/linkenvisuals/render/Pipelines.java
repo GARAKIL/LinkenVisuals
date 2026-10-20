@@ -76,6 +76,7 @@ public final class Pipelines {
         PanelPipeline.init();
         RoundedRectPipeline.init();
         SdfPipeline.init();
+        TargetEspPipelines.init();
 
         for (RenderPipeline pipeline : OWNED) {
             try {

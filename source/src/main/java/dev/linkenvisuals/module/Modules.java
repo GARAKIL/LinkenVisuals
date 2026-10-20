@@ -18,6 +18,7 @@ import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
+import dev.linkenvisuals.module.impl.TargetEspModule;
 import dev.linkenvisuals.module.impl.TimeChangerModule;
 import dev.linkenvisuals.module.impl.TotemCounterModule;
 import dev.linkenvisuals.module.impl.TotemTrackerModule;
@@ -37,6 +38,7 @@ public final class Modules {
     private static FullbrightModule fullbright;
     private static TrailsModule trails;
     private static JumpCirclesModule jumpCircles;
+    private static TargetEspModule targetEsp;
     private static CrosshairModule crosshair;
     private static ZoomModule zoom;
     private static TimeChangerModule timeChanger;
@@ -86,6 +88,10 @@ public final class Modules {
 
     public static JumpCirclesModule jumpCircles() {
         return jumpCircles;
+    }
+
+    public static TargetEspModule targetEsp() {
+        return targetEsp;
     }
 
     public static CrosshairModule crosshair() {
@@ -178,6 +184,8 @@ public final class Modules {
         register(trails);
         jumpCircles = new JumpCirclesModule();
         register(jumpCircles);
+        targetEsp = new TargetEspModule();
+        register(targetEsp);
         crosshair = new CrosshairModule();
         register(crosshair);
         zoom = new ZoomModule();

@@ -12,6 +12,7 @@ import dev.linkenvisuals.render.HitBubbleRenderer;
 import dev.linkenvisuals.render.KillShaderRenderer;
 import dev.linkenvisuals.render.RainFall;
 import dev.linkenvisuals.render.RainRenderer;
+import dev.linkenvisuals.render.TargetEspRenderer;
 import dev.linkenvisuals.clickgui.MenuCloseEffect;
 import dev.linkenvisuals.clickgui.ModuleInfo;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
@@ -132,6 +133,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.AFTER_ENTITIES.register(TargetMarks::render);
         WorldRenderEvents.AFTER_ENTITIES.register(HitEffects::render);
         WorldRenderEvents.AFTER_ENTITIES.register(KillEffects::render);
+        WorldRenderEvents.AFTER_ENTITIES.register(TargetEspRenderer::render);
         WorldRenderEvents.AFTER_ENTITIES.register(NameTags::capture);
         WorldRenderEvents.END_MAIN.register(RainRenderer::render);
         WorldRenderEvents.END_MAIN.register(HitBubbleRenderer::render);
