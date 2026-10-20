@@ -193,6 +193,11 @@ public final class LinkenSubSettingsScreen extends Screen {
             }
         }
 
+        float footerY = WINDOW_Y + height - FOOTER_H;
+        context.fill(Math.round(WINDOW_X + 1.0f), Math.round(footerY),
+            Math.round(WINDOW_X + WINDOW_W - 1.0f), Math.round(WINDOW_Y + height - 1.0f),
+            LinkenMenuChrome.rgba(0x0E1411, 250, fade));
+
         doneRect = new LinkenMenuLayout.Rect(WINDOW_X + WINDOW_W - PAD - 130.0f,
             WINDOW_Y + height - 54.0f, 130.0f, 40.0f);
         drawDoneButton(context, metrics, doneRect, mx, my, fade, seconds);

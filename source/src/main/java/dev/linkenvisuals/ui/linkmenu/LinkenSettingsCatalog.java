@@ -7,7 +7,6 @@ import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.GraphicsMode;
 import net.minecraft.client.option.NarratorMode;
 import net.minecraft.client.option.SimpleOption;
-import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
 import net.minecraft.client.render.ChunkBuilderMode;
 import net.minecraft.network.message.ChatVisibility;
 import net.minecraft.particle.ParticlesMode;
@@ -102,7 +101,7 @@ public final class LinkenSettingsCatalog {
         out.add(LinkenSettingsOption.action("Keybinds", () -> "Open", () -> {
             MinecraftClient mc = MinecraftClient.getInstance();
             if (mc.currentScreen != null) {
-                mc.setScreen(new ControlsOptionsScreen(mc.currentScreen, mc.options));
+                mc.setScreen(new LinkenKeybindsScreen(mc.currentScreen));
             }
         }));
         out.add(doubleSlider("Mouse Sensitivity", o.getMouseSensitivity(), 0.0, 1.0,
