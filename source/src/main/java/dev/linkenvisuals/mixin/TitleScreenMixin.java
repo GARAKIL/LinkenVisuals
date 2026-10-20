@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.linkenvisuals.ui.AltManagerScreen;
 import dev.linkenvisuals.ui.MainMenuScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.util.TextKeys;
@@ -43,14 +44,18 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("HEAD"), cancellable = true)
     private void linkenvisuals$replace(CallbackInfo ci) {
-        if (StyleManager.getStyle() != MenuStyle.BETA) {
+        MenuStyle style = StyleManager.getStyle();
+        if (style == MenuStyle.VANILLA) {
             return;
         }
         MinecraftClient client = MinecraftClient.getInstance();
-        if (!(client.currentScreen instanceof MainMenuScreen)) {
+        if (style == MenuStyle.BETA && !(client.currentScreen instanceof MainMenuScreen)) {
             client.send(() -> client.setScreen(new MainMenuScreen()));
+            ci.cancel();
+        } else if (style == MenuStyle.LINKEN && !(client.currentScreen instanceof LinkenMainMenuScreen)) {
+            client.send(() -> client.setScreen(new LinkenMainMenuScreen()));
+            ci.cancel();
         }
-        ci.cancel();
     }
 
     @Inject(method = "init", at = @At("TAIL"))
@@ -130,7 +135,7 @@ public abstract class TitleScreenMixin extends Screen {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/LogoDrawer;draw(Lnet/minecraft/client/gui/DrawContext;IF)V")
     )
     private void linkenvisuals$drawScaledLogo(LogoDrawer logoDrawer, DrawContext context, int screenWidth, float alpha, Operation<Void> original) {
-        if (StyleManager.getStyle() != MenuStyle.VANILLA) {
+        if (StyleManager.getStyle() != MenuStyle.BETA) {
             original.call(logoDrawer, context, screenWidth, alpha);
             return;
         }
@@ -184,7 +189,7 @@ public abstract class TitleScreenMixin extends Screen {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/SplashTextRenderer;render(Lnet/minecraft/client/gui/DrawContext;ILnet/minecraft/client/font/TextRenderer;F)V")
     )
     private void linkenvisuals$suppressSplashText(SplashTextRenderer splash, DrawContext context, int screenWidth, TextRenderer textRenderer, float alpha, Operation<Void> original) {
-        if (StyleManager.getStyle() == MenuStyle.VANILLA) {
+        if (StyleManager.getStyle() != MenuStyle.BETA) {
             // Suppress splash text to keep the 2x logo clean and uncluttered
             return;
         }
@@ -213,7 +218,7 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "isRealmsNotificationsGuiDisplayed", at = @At("HEAD"), cancellable = true)
     private void linkenvisuals$hideRealmsNotifications(CallbackInfoReturnable<Boolean> cir) {
-        if (StyleManager.getStyle() == MenuStyle.VANILLA) {
+        if (StyleManager.getStyle() != MenuStyle.BETA) {
             cir.setReturnValue(false);
         }
     }

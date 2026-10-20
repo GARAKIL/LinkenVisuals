@@ -6,7 +6,8 @@ package dev.linkenvisuals.ui.style;
  */
 public enum MenuStyle {
     BETA("Beta", "Flagship aesthetic: asymmetric side navigation, breathing brand mark, and cyber glow."),
-    VANILLA("Vanilla", "Authentic enhanced Minecraft aesthetic with iconic pixel-art icons and classic textures.");
+    VANILLA("Vanilla", "Authentic enhanced Minecraft aesthetic with iconic pixel-art icons and classic textures."),
+    LINKEN("Linken", "Fixed editorial layout with tower artwork, Golos/Unbounded typography and a live media card.");
 
     private final String displayName;
     private final String description;
@@ -27,6 +28,9 @@ public enum MenuStyle {
     public static MenuStyle fromName(String name) {
         if (name == null || name.isBlank()) {
             return BETA;
+        }
+        if ("linken".equalsIgnoreCase(name.trim()) || "link".equalsIgnoreCase(name.trim())) {
+            return LINKEN;
         }
         for (MenuStyle style : values()) {
             if (style.name().equalsIgnoreCase(name) || style.displayName.equalsIgnoreCase(name)) {

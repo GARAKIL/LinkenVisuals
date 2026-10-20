@@ -8,6 +8,7 @@ import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.ui.editor.CustomTextureLoader;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
+import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -56,7 +57,7 @@ public abstract class ScreenMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         Screen screen = (Screen) (Object) this;
 
-        if (dev.linkenvisuals.ui.style.StyleManager.getStyle() == dev.linkenvisuals.ui.style.MenuStyle.VANILLA) {
+        if (StyleRouting.usesVanillaChrome(dev.linkenvisuals.ui.style.StyleManager.getStyle())) {
             if (screen instanceof GameMenuScreen) {
                 context.fillGradient(0, 0, width, height, 0x88000000, 0xAA000000);
                 ci.cancel();

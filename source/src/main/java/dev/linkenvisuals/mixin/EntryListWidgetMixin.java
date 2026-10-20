@@ -1,7 +1,7 @@
 package dev.linkenvisuals.mixin;
 
-import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
+import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.EntryListWidget;
@@ -15,7 +15,7 @@ public abstract class EntryListWidgetMixin {
     @Inject(method = "drawMenuListBackground", at = @At("HEAD"), cancellable = true)
     private void linkenvisuals$customListBackground(DrawContext context, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client != null && StyleManager.getStyle() == MenuStyle.VANILLA) {
+        if (client != null && StyleRouting.usesVanillaChrome(StyleManager.getStyle())) {
             EntryListWidget<?> self = (EntryListWidget<?>) (Object) this;
             context.fill(self.getX(), self.getY(), self.getRight(), self.getBottom(), client.world == null ? 0x33000000 : 0x44000000);
             ci.cancel();

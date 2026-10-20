@@ -4,6 +4,7 @@ import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.render.WidgetStylePipeline;
+import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
@@ -43,8 +44,8 @@ public abstract class SliderWidgetMixin extends ClickableWidget {
             return;
         }
 
-        // Authentic Vanilla Theme: custom slider track & thumb across all screens
-        if (dev.linkenvisuals.ui.style.StyleManager.getStyle() == dev.linkenvisuals.ui.style.MenuStyle.VANILLA) {
+        // Authentic Vanilla Theme: also used by unported LINKEN fallback screens
+        if (StyleRouting.usesVanillaChrome(dev.linkenvisuals.ui.style.StyleManager.getStyle())) {
             boolean isHovered = isSelected() || isHovered();
             dev.linkenvisuals.render.VanillaStylePipeline.renderSlider(context, getX(), getY(), getWidth(), getHeight(), value, getMessage(), this.active, isHovered);
             ci.cancel();

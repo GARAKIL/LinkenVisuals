@@ -31,7 +31,9 @@ public final class MainMenuConfig {
             })
             .setPrettyPrinting()
             .create();
-    private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("linkenvisuals_menu.json");
+    private static Path file() {
+        return FabricLoader.getInstance().getConfigDir().resolve("linkenvisuals_menu.json");
+    }
 
     public static final float ROW_H = 28.0f;
     public static final float ROW_GAP = 6.0f;
@@ -258,8 +260,9 @@ public final class MainMenuConfig {
     }
 
     public static synchronized void load() {
-        if (Files.isRegularFile(FILE)) {
-            try (Reader reader = Files.newBufferedReader(FILE, StandardCharsets.UTF_8)) {
+        Path file = file();
+        if (Files.isRegularFile(file)) {
+            try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
                 instance = GSON.fromJson(reader, MainMenuConfig.class);
             } catch (Exception e) {
                 dev.linkenvisuals.LinkenVisuals.LOGGER.warn("[LinkenVisuals] Failed to load main menu config: {}", e.getMessage());
@@ -277,15 +280,18 @@ public final class MainMenuConfig {
             if (instance.shaderOpacity <= 0.05f) instance.shaderOpacity = 0.85f;
             if (instance.imageOpacity <= 0.05f) instance.imageOpacity = 1.0f;
             MenuStyle activeStyle = dev.linkenvisuals.ui.style.StyleManager.getStyle();
-            instance.customSettingsScreen = true;
-            instance.customPauseScreen = true;
-            instance.customLoadingScreen = true;
-            if (activeStyle == MenuStyle.BETA) {
-                instance.useVanillaTitleScreen = false;
-                instance.customMultiplayerScreen = true;
-            } else if (activeStyle == MenuStyle.VANILLA) {
-                instance.useVanillaTitleScreen = true;
-                instance.customMultiplayerScreen = false;
+            // LINKEN has a fixed layout and must not rewrite the editable Beta/Vanilla flags.
+            if (dev.linkenvisuals.ui.style.StyleRouting.shouldApplyPreset(activeStyle)) {
+                instance.customSettingsScreen = true;
+                instance.customPauseScreen = true;
+                instance.customLoadingScreen = true;
+                if (activeStyle == MenuStyle.BETA) {
+                    instance.useVanillaTitleScreen = false;
+                    instance.customMultiplayerScreen = true;
+                } else if (activeStyle == MenuStyle.VANILLA) {
+                    instance.useVanillaTitleScreen = true;
+                    instance.customMultiplayerScreen = false;
+                }
             }
             save();
         }
@@ -294,7 +300,7 @@ public final class MainMenuConfig {
 
     public static synchronized void save() {
         if (instance == null) return;
-        try (Writer writer = AtomicFiles.openWriter(FILE)) {
+        try (Writer writer = AtomicFiles.openWriter(file())) {
             GSON.toJson(instance, writer);
         } catch (Exception e) {
             dev.linkenvisuals.LinkenVisuals.LOGGER.warn("[LinkenVisuals] Failed to save main menu config: {}", e.getMessage());
@@ -316,6 +322,11 @@ public final class MainMenuConfig {
     }
 
     public void applyPreset(MenuStyle style) {
+        if (!dev.linkenvisuals.ui.style.StyleRouting.shouldApplyPreset(style)) {
+            // LINKEN is a fixed composition; editing controls stay read-only and
+            // the Beta/Vanilla element layout must survive a round-trip.
+            return;
+        }
         if (style == MenuStyle.VANILLA) {
             backgroundMode = BackgroundMode.SHADER;
             shaderPreset = ShaderPreset.COSMOS;

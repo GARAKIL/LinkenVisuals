@@ -2,6 +2,30 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-20 (чат №14 — LINKEN M1) — v1.0.76
+
+### Сделано
+1. **D52 — третий визуальный стиль LINKEN, M1: главное меню и роутинг.** Прочитан `MASTER_PROMPT_STYLE3.md`; M1 сделан одним фич-коммитом `feat(ui): add LINKEN main menu style (v1.0.76, D52)`.
+2. **Меню** — `ui/linkmenu/`: `LinkenMainMenuScreen` (виртуальный холст 1920×1080, `scale = screenHeight/1080`), `LinkenMenuChrome` (фон `bg-tower` cover + parallax + scrim/виньетка, wordmark `linken.`/`VISUALS`, часы/дата, приветствие, аккаунт-чип, соцсети, живая медиа-карточка, футер, fit/ellipsis длинных строк), `LinkenMenuLayout` (чистая геометрия), `LinkenFonts` (MSDF-атласы Golos/Golos Semi/Unbounded/Unbounded Light/PlexMono + shared `wtmico`/`brands`). Акцент `#7EDFB4`; Esc не закрывает, Quit — повторный клик 3 с; кнопки Singleplayer/Multiplayer/Settings/Alt Manager/Quit и соцсети рабочие.
+3. **Роутинг** — `MenuStyle.LINKEN` (алиасы `linken`/`link`), чистые правила `StyleRouting` (`nextStyle`, `shouldApplyPreset`, `usesVanillaChrome`), цикл Video Settings **Beta → Vanilla → Linken → Beta**; `TitleScreenMixin`/`MinecraftClientMixin` — явные `switch`; все прежние бинарные проверки переведены на `usesVanillaChrome`. LINKEN **не вызывает** `MainMenuConfig.applyPreset` — элементы Beta/Vanilla сохраняются, `menuStyle` переживает рестарт (схема/`configVersion` не менялись).
+4. **Редактор** — третий пункт `Linken`, в LINKEN только переключатель стиля + `Save & Exit` + пояснение фиксированной раскладки; тулбар расширен до 840, Reset/Save не пересекаются.
+5. **Fallback'и M1 (без мёртвых кликов)** — Multiplayer → ванильный `MultiplayerScreen` (M4/M6), Settings → существующий `OptionsScreen` (M5), Alt Manager → наш `AltManagerScreen`; unported-экраны — vanilla chrome; Link GUI остаётся Classic/Beta до M3.
+6. **Ассеты/provenance** — copy: `textures/linkmenu/bg-tower.png` + MSDF-атласы `fonts/link/*` (upstream SIL OFL 1.1, только атласы, без TTF); reuse: `wtmico`/`brands`; skip: донорский `icons2`, Lottie `welcome.json`, донорские play/pause/next/previous и аудио; новых шейдеров нет (фон/скрим — существующие `GlowPipeline`/`RoundedRectPipeline`). Авторство донорских ассетов — D6.
+7. **i18n** — en/ru/uk: приветствия, welcome/subtitle, account/licensed/offline, quit, media, disclaimers, `video.style_linken`, `editor.linken_fixed/help`; `LangParityTest` зелёный.
+8. **Тесты/сборка** — `MenuStyleTest` (4), `StyleRoutingTest` (3), `LinkenMenuLayoutTest` (5: 1280×720/1920×1080/2560×1440/3840×2160, вложенность, отсутствие пересечений), `ConfigRoundTripTest` (4: LINKEN round-trip, сохранение Beta-элементов, Beta/Vanilla пресеты). `clean build --no-daemon` — **181 тест, 0 падений/ошибок/скипов, Java-ворнингов 0**; jar `source/build/libs/linkenvisuals-1.0.76.jar` (7 192 592 байта), SHA-256 — в отчёте чата.
+9. **Docs** — D52 в `MERGE_DECISIONS.md`; ROADMAP/PORT_STATUS/README/README_RU обновлены (LINKEN M1 + M2–M6).
+
+### Следующая задача
+- **Визуальная приёмка M1 пользователем** (нужно явное разрешение на `runClient`): 1280×720 и 4K — ничего не обрезано/не перекрыто, все кнопки кликабельны, Esc не закрывает, Quit требует подтверждения, Singleplayer/Multiplayer/Settings/Alt Manager открываются, соцсети работают, медиа-карточка показывает реальный трек, стиль переключается Beta → Vanilla → Linken и переживает рестарт, Beta/Vanilla не изменились.
+- **M2 не начинать до визуальной приёмки M1.** После приёмки — M2 (splash/loading/connect, ориентир v1.0.77/D53), затем M3 (Link GUI shell), M4 (themes/config), M5 (pause/settings), M6 (multiplayer/parity).
+- Открытые решения без изменений: LICENSE copyright, `MASTER_PROMPT.md` в публичном репо, UK-глифы MSDF, waypoints UX, StreamerMode nametag-санитизация.
+
+### Риски
+- Редактор: тулбар фиксированной ширины 840 логических единиц — при высоком GUI-масштабе на маленьком окне возможен теснотный layout; проверять глазами на 1280×720.
+- MSDF-атласы донора: UK-глифы `і/ї/є/ґ` по-прежнему без нативных глифов (общий известный риск, фолбэк).
+- Медиа-карточка read-only (нет донорского playback-бэкенда) — это осознанное отклонение, не баг.
+- `runClient` ещё не запускался: любые визуальные дефекты M1 фиксируются после приёмки отдельным фиксом, M2 не стартует.
+
 ## Состояние на 2026-10-20 (чат №13 — TargetEsp) — v1.0.75
 
 ### Сделано

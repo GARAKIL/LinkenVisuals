@@ -1,0 +1,103 @@
+package dev.linkenvisuals.ui.linkmenu;
+
+import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.render.Fonts;
+import dev.linkenvisuals.render.GlyphAtlas;
+import dev.linkenvisuals.render.Pipelines;
+import net.minecraft.util.Identifier;
+
+/**
+ * MSDF atlases used only by the LINKEN visual layer.
+ *
+ * <p>The atlases are copied from the donor (Golos, Unbounded, IBM Plex Mono)
+ * and are loaded lazily once per process. A broken or missing atlas must never
+ * break the menu: every accessor degrades to the existing SF atlases, and the
+ * caller then falls back to vanilla text.
+ */
+public final class LinkenFonts {
+    private static final String ROOT = "fonts/link/";
+
+    private static boolean attempted;
+    private static GlyphAtlas body;
+    private static GlyphAtlas bodyMedium;
+    private static GlyphAtlas heading;
+    private static GlyphAtlas headingLight;
+    private static GlyphAtlas mono;
+    private static GlyphAtlas icons;
+    private static GlyphAtlas brands;
+
+    private LinkenFonts() {
+    }
+
+    public static GlyphAtlas body() {
+        ensure();
+        return body != null ? body : Fonts.textFont();
+    }
+
+    public static GlyphAtlas bodyMedium() {
+        ensure();
+        return bodyMedium != null ? bodyMedium : heading();
+    }
+
+    public static GlyphAtlas heading() {
+        ensure();
+        return heading != null ? heading : Fonts.titleFont();
+    }
+
+    public static GlyphAtlas headingLight() {
+        ensure();
+        return headingLight != null ? headingLight : heading();
+    }
+
+    public static GlyphAtlas mono() {
+        ensure();
+        return mono != null ? mono : Fonts.textFont();
+    }
+
+    /** Shared {@code wtmico} icon atlas (person, people, gear, power). */
+    public static GlyphAtlas icons() {
+        ensure();
+        return icons;
+    }
+
+    /** Shared {@code brands} atlas (Telegram, Discord). */
+    public static GlyphAtlas brands() {
+        ensure();
+        return brands;
+    }
+
+    private static void ensure() {
+        if (attempted) {
+            return;
+        }
+        attempted = true;
+        try {
+            Pipelines.warmUp();
+        } catch (RuntimeException failure) {
+            LinkenVisuals.LOGGER.warn("LINKEN menu pipeline warm-up failed: {}", failure.getMessage());
+        }
+        body = load("golos");
+        bodyMedium = load("golos_semi");
+        heading = load("unbounded");
+        headingLight = load("unbounded_light");
+        mono = load("plexmono");
+        icons = loadShared("fonts/msdf/wtmico.json", "fonts/msdf/wtmico.png", "wtmico");
+        brands = loadShared("fonts/msdf/brands.json", "fonts/msdf/brands.png", "brands");
+    }
+
+    private static GlyphAtlas load(String name) {
+        return loadShared(ROOT + name + ".json", ROOT + name + ".png", name);
+    }
+
+    private static GlyphAtlas loadShared(String dataPath, String atlasPath, String label) {
+        try {
+            return GlyphAtlas.load(
+                Identifier.of(LinkenVisuals.MOD_ID, dataPath),
+                Identifier.of(LinkenVisuals.MOD_ID, atlasPath)
+            );
+        } catch (RuntimeException failure) {
+            LinkenVisuals.LOGGER.warn("Failed to load LINKEN font '{}': {}", label, failure.getMessage());
+            return null;
+        }
+    }
+}

@@ -1,8 +1,10 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.i18n.I18n;
-import dev.linkenvisuals.ui.editor.MainMenuConfig;
 import dev.linkenvisuals.ui.editor.MainMenuEditorScreen;
+import dev.linkenvisuals.ui.style.MenuStyle;
+import dev.linkenvisuals.ui.style.StyleManager;
+import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
@@ -45,17 +47,11 @@ public abstract class GameOptionsScreenMixin extends Screen {
         DirectionalLayoutWidget row1 = DirectionalLayoutWidget.horizontal();
         row1.spacing(8);
 
-        // 1. Cycle UI Style (Beta <-> Vanilla)
+        // 1. Cycle UI style: Beta -> Vanilla -> Linken -> Beta.
+        // StyleManager owns the preset decision (LINKEN is fixed and keeps the editable config intact).
         ButtonWidget toggleBtn = ButtonWidget.builder(linkenvisuals$getToggleMessage(), btn -> {
-            MainMenuConfig cfg = MainMenuConfig.get();
-            dev.linkenvisuals.ui.style.MenuStyle current = dev.linkenvisuals.ui.style.StyleManager.getStyle();
-            dev.linkenvisuals.ui.style.MenuStyle next = current == dev.linkenvisuals.ui.style.MenuStyle.BETA
-                ? dev.linkenvisuals.ui.style.MenuStyle.VANILLA
-                : dev.linkenvisuals.ui.style.MenuStyle.BETA;
-            dev.linkenvisuals.ui.style.StyleManager.setStyle(next);
-            cfg.applyPreset(next);
-            cfg.save();
-            dev.linkenvisuals.clickgui.ModuleRegistry.syncFromMenuConfig();
+            MenuStyle next = StyleRouting.nextStyle(StyleManager.getStyle());
+            StyleManager.setStyle(next);
             btn.setMessage(linkenvisuals$getToggleMessage());
         }).width(150).build();
         toggleBtn.setTooltip(Tooltip.of(Text.literal(I18n.get("linkenvisuals.video.style_toggle_tooltip"))));
@@ -85,7 +81,12 @@ public abstract class GameOptionsScreenMixin extends Screen {
 
     @Unique
     private static Text linkenvisuals$getToggleMessage() {
-        dev.linkenvisuals.ui.style.MenuStyle style = dev.linkenvisuals.ui.style.StyleManager.getStyle();
-        return Text.literal("★ Style: " + style.displayName()).formatted(Formatting.GREEN);
+        MenuStyle style = StyleManager.getStyle();
+        String key = switch (style) {
+            case BETA -> "linkenvisuals.video.style_custom";
+            case VANILLA -> "linkenvisuals.video.style_vanilla";
+            case LINKEN -> "linkenvisuals.video.style_linken";
+        };
+        return Text.literal("★ " + I18n.get(key)).formatted(Formatting.GREEN);
     }
 }

@@ -1,6 +1,7 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.render.WidgetStylePipeline;
+import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
@@ -38,8 +39,8 @@ public abstract class PressableWidgetMixin extends ClickableWidget {
 
         dev.linkenvisuals.ui.style.MenuStyle style = dev.linkenvisuals.ui.style.StyleManager.getStyle();
 
-        // Authentic Vanilla Theme: apply to all buttons across all menu screens
-        if (style == dev.linkenvisuals.ui.style.MenuStyle.VANILLA) {
+        // Authentic Vanilla Theme: also used by unported LINKEN fallback screens
+        if (StyleRouting.usesVanillaChrome(style)) {
             Object self = this;
             if (self instanceof net.minecraft.client.gui.widget.ButtonWidget
                     || self instanceof net.minecraft.client.gui.widget.CyclingButtonWidget) {

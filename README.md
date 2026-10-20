@@ -38,12 +38,12 @@
 
 ### 🖥️ 100% Custom UI Suite, Menu Editor & Presets
 - **Interactive Main Menu Editor**: Full in-game visual editor (accessible via Settings -> Style tab). Drag and drop buttons, scale elements with mouse wheel or resize handles, customize background photos (PNG/JPG), and toggle custom GLSL shader overlays.
-- **3 Visual Presets**: Easily apply presets **`Beta`** (flagship dark-slate frosted glass), **`Modern`** (centered translucent glass dashboard), and **`Classic`** (sleek top navigation bar with compact vertical rows).
+- **3 Visual Styles**: Switch in Settings -> Video between **`Beta`** (flagship dark-slate frosted glass), **`Vanilla`** (authentic enhanced Minecraft chrome), and **`Linken`** (fixed editorial main menu with tower artwork, Golos/Unbounded typography, and a live media card). Linken currently covers the main menu; splash/loading/connect, Link GUI, pause/settings, and the Linken multiplayer browser follow in later phases.
 - **Custom Background Photos & Shader Overlays**: Drop your wallpaper into `.minecraft/linkenvisuals/background.png` or pick a custom image path, with live dimming and shaders (Bloom Pulse, Starfield particles, Radial waves, Film grain).
 - **Custom Main Menu**: Fully styled interactive dashboard with user skin rendering, spring-physics hover animations, and direct Mod Menu integration.
 - **Custom Multiplayer Browser**: Asynchronous server list with live pinging, latency indicators, MOTD rendering, smooth scrolling, and inline modals for Direct Connect and Add/Edit Server.
 - **Unified Settings Hub**: Clean tabbed interface covering **Style** (presets & menu editor launcher), **Video** (Render distance, FPS, FOV, VSync), **Audio** (Master & channels), **Modules** (quick visual toggles & ClickGUI launcher), and **System** (resource packs, keybinds, vanilla settings bridge, language switcher).
-- **Custom Loading Screens**: Replaced vanilla dirt background with live GLSL `BackgroundPipeline`, pulsing brand mark, and style-adaptive progress indicators for server connection, task progress, and world loading.
+- **Custom Loading Screens**: Replaced vanilla dirt background with live GLSL `BackgroundPipeline`, pulsing brand mark, and style-adaptive progress indicators for server connection, task progress, and world loading (Beta/Vanilla; Linken splash and loading screens arrive in phase M2).
 
 ### 🌐 100% Multi-Language Localization
 - **Automatic Game Language Detection**: Adapts dynamically to Minecraft's language.

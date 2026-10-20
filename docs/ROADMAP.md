@@ -61,3 +61,15 @@
 - [x] D49 — бинды клавиш: `KeySetting` → `KeybindSetting` в Zoom/Freelook/HandSwap/ElytraSwap; ConfigJson-миграция; +1 тест.
 - [x] D50 — вкладка Configs: шапка/stagger/hover/пустое состояние/векторный «×»/i18n; 4 новых ключа.
 - Остаток заказа (отдельные работы): прицелы + пиксельный редактор; 3-й стиль GUI «LINK» (донорский «ClickGUI 3a») — нужен скоуп/решение по шрифтам и лицензиям.
+
+## Третий визуальный стиль LINKEN (MASTER_PROMPT_STYLE3) — в работе
+Отдельный визуальный слой поверх Beta/Vanilla; Beta и Vanilla не перерисовываются и не ломаются. Версии — `+1 patch` от фактической на момент коммита, решения — D52+.
+
+- [x] **M1 — главное меню и роутинг**, v1.0.76, D52: `MenuStyle.LINKEN` (+алиасы `linken`/`link`), `LinkenMainMenuScreen` на виртуальном холсте 1920×1080 (фон `bg-tower` + parallax + scrim/виньетка, wordmark, часы, аккаунт-чип, Singleplayer/Multiplayer/Settings, Alt Manager/Quit, соцсети, живая медиа-карточка, футер), трёхпозиционный цикл стиля Beta → Vanilla → Linken в Video Settings, `StyleRouting` для всех бывших бинарных проверок, LINKEN без `applyPreset` (элементы Beta/Vanilla сохраняются), третий стиль в редакторе (read-only fixed layout). Fallback M1: Multiplayer → ванильный `MultiplayerScreen`, Settings → существующий `OptionsScreen`, Alt Manager → наш `AltManagerScreen`; Link GUI, splash/loading/connect, pause/settings — на M2–M6. 181 тест, 0 падений.
+- [ ] **M2 — splash/loading/connect**, ориентир v1.0.77, D53: LINKEN-ветки `SplashOverlayMixin`, `LevelLoadingScreenMixin`, `ConnectScreenMixin`, `ProgressScreenMixin`, `MessageScreenMixin`, `LinkenLoadingOverlay`/`LinkenLoadingScreen`, чистая логика `SplashProgress` + тесты; fallback на vanilla при ошибке/отсутствии шрифта.
+- [ ] **M3 — Link GUI shell**, ориентир v1.0.78, D54: `ModuleRegistry.guiStyle` Classic/Beta/Linken, бинд и Ctrl+Left/Right на три стиля, пакет `clickgui/link/` (shell, chrome, layout, theme, settings panel) на наших `ModuleInfo`/`Setting`/`ConfigManager`.
+- [ ] **M4 — Link GUI themes/config/polish**, ориентир v1.0.79, D55: темы, pinned-модули, config-панель через наш `ConfigPanel`, полировка и приёмка GUI.
+- [ ] **M5 — Linken pause/settings hub**, ориентир v1.0.80, D56: `LinkenPauseScreen`, `SettingsHubScreen`/`LinkenSettingsScreen`/`SubSettingsScreen`, редирект только реально портированных экранов.
+- [ ] **M6 — Linken multiplayer + parity/polish**, ориентир v1.0.81, D57: `LinkenMultiplayerScreen` на базе донорского браузера с нашим connection/config, финальный аудит всех `MenuStyle`-развилок, parity и документация.
+
+**Правило:** M2 не начинается, пока M1 не принят пользователем визуально (1280×720 и 4K).

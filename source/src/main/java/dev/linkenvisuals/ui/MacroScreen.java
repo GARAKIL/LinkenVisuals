@@ -7,6 +7,7 @@ import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
+import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -187,7 +188,7 @@ public final class MacroScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         MenuStyle style = StyleManager.getStyle();
-        if (style == MenuStyle.VANILLA) {
+        if (StyleRouting.usesVanillaChrome(style)) {
             dev.linkenvisuals.render.VanillaStylePipeline.renderOptionsBackground(context, width, height);
             context.fillGradient(0, 0, width, height, 0x44000000, 0x77000000);
         } else {

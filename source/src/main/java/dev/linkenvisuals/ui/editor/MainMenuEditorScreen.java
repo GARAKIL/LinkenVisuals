@@ -151,8 +151,11 @@ public final class MainMenuEditorScreen extends Screen {
         // 2. Render Dotted Grid Overlay
         renderGrid(context, (float) gridReveal.get());
 
-        // 3. Render Elements with Bounding Boxes & Resize Handles
-        renderElements(context, mouseX, mouseY);
+        // 3. Render Elements with Bounding Boxes & Resize Handles.
+        // LINKEN is a fixed composition, so there is nothing to drag here.
+        if (!isLinkenFixed()) {
+            renderElements(context, mouseX, mouseY);
+        }
 
         // 4. Render Top Toolbar
         renderToolbar(context, mouseX, mouseY);
@@ -400,7 +403,7 @@ public final class MainMenuEditorScreen extends Screen {
     }
 
     private void renderToolbar(DrawContext context, int mouseX, int mouseY) {
-        float barW = Math.min(width - 20.0f, 740.0f);
+        float barW = Math.min(width - 20.0f, 840.0f);
         float barH = 40.0f;
         float barX = (width - barW) * 0.5f;
         float barY = 8.0f;
@@ -414,7 +417,7 @@ public final class MainMenuEditorScreen extends Screen {
         float btnH = 24.0f;
         float curX = barX + 8.0f;
 
-        // 1. Presets Selector: Beta & Vanilla
+        // 1. Presets Selector: Beta, Vanilla & Linken
         float betaW = 38.0f;
         drawToolBtn(context, "Beta", curX, btnY, betaW, btnH, mouseX, mouseY, StyleManager.getStyle() == MenuStyle.BETA ? NeonEdge.cool() : 0xFF2C3242);
         curX += betaW + 4.0f;
@@ -422,6 +425,17 @@ public final class MainMenuEditorScreen extends Screen {
         float vanW = 46.0f;
         drawToolBtn(context, "Vanilla", curX, btnY, vanW, btnH, mouseX, mouseY, StyleManager.getStyle() == MenuStyle.VANILLA ? 0xFF55FF55 : 0xFF2C3242);
         curX += vanW + 4.0f;
+
+        float linkW = 46.0f;
+        drawToolBtn(context, "Linken", curX, btnY, linkW, btnH, mouseX, mouseY, StyleManager.getStyle() == MenuStyle.LINKEN ? 0xFF7EDFB4 : 0xFF2C3242);
+        curX += linkW + 4.0f;
+
+        if (isLinkenFixed()) {
+            renderLinkenFixedNotice(context, barX, barW, barY + barH);
+            float saveW = 58.0f;
+            drawToolBtn(context, I18n.get("editor.save"), barX + barW - saveW - 8.0f, btnY, saveW, btnH, mouseX, mouseY, 0xFF34D399);
+            return;
+        }
 
         // 2. Background Mode Toggle: [Shader] / [Photo] / [Combo]
         String modeStr = switch (config.backgroundMode) {
@@ -488,6 +502,16 @@ public final class MainMenuEditorScreen extends Screen {
         // 11. Save & Exit Button (right aligned)
         float saveW = 58.0f;
         drawToolBtn(context, I18n.get("editor.save"), barX + barW - saveW - 8.0f, btnY, saveW, btnH, mouseX, mouseY, 0xFF34D399);
+    }
+
+    private void renderLinkenFixedNotice(DrawContext context, float barX, float barW, float top) {
+        String notice = textRenderer.trimToWidth(I18n.get("editor.linken_fixed"), Math.max(40, Math.round(barW - 16.0f)));
+        int x = Math.round(barX + (barW - textRenderer.getWidth(notice)) * 0.5f);
+        context.drawTextWithShadow(textRenderer, notice, x, Math.round(top + 10.0f), 0xFFA8B1AC);
+    }
+
+    private boolean isLinkenFixed() {
+        return StyleManager.getStyle() == MenuStyle.LINKEN;
     }
 
     private void renderShaderDropdown(DrawContext context, int mouseX, int mouseY) {
@@ -655,7 +679,7 @@ public final class MainMenuEditorScreen extends Screen {
 
         RoundedRectPipeline.draw(context, hbarX, hbarY, hbarW, hbarH, 0xD00A0C10);
         RoundedRectPipeline.drawOutline(context, hbarX, hbarY, hbarW, hbarH, 0xFF1D212B);
-        String hint = I18n.get("editor.drag_hint");
+        String hint = I18n.get(isLinkenFixed() ? "editor.linken_help" : "editor.drag_hint");
         if (Fonts.titleFont() != null && Fonts.titleFont().canRender(hint)) {
             MsdfText.drawCenteredOn(context, Fonts.titleFont(), hint, hbarX + hbarW * 0.5f, hbarY + hbarH * 0.5f, 7.0f, 0xFF8892A4);
         } else {
@@ -689,6 +713,12 @@ public final class MainMenuEditorScreen extends Screen {
 
     @Override
     public boolean mouseClicked(Click click, boolean doubleClick) {
+        if (isLinkenFixed()) {
+            shaderDropdownOpen = false;
+            photoDropdownOpen = false;
+            screensModalOpen = false;
+            return mouseClickedLinkenToolbar(click, doubleClick);
+        }
         // Handle open dropdown clicks first
         if (shaderDropdownOpen) {
             MainMenuConfig.ShaderPreset[] presets = MainMenuConfig.ShaderPreset.values();
@@ -805,7 +835,7 @@ public final class MainMenuEditorScreen extends Screen {
             return true;
         }
 
-        float barW = Math.min(width - 20.0f, 740.0f);
+        float barW = Math.min(width - 20.0f, 840.0f);
         float barH = 40.0f;
         float barX = (width - barW) * 0.5f;
         float barY = 8.0f;
@@ -836,8 +866,18 @@ public final class MainMenuEditorScreen extends Screen {
         }
         curX += vanW + 4.0f;
 
+        float linkW = 46.0f;
+        if (inRect(click.x(), click.y(), curX, btnY, linkW, btnH)) {
+            playClick();
+            StyleManager.setStyle(MenuStyle.LINKEN);
+            MainMenuConfig.save();
+            showToast(I18n.get("editor.linken_fixed"));
+            return true;
+        }
+        curX += linkW + 4.0f;
+
         // 2. Mode Toggle
-        float modeW = 82.0f;
+        float modeW = 96.0f;
         if (inRect(click.x(), click.y(), curX, btnY, modeW, btnH)) {
             playClick();
             config.backgroundMode = switch (config.backgroundMode) {
@@ -983,6 +1023,59 @@ public final class MainMenuEditorScreen extends Screen {
         return super.mouseClicked(click, doubleClick);
     }
 
+    /**
+     * LINKEN is a fixed composition: only the style switch and Save & Exit
+     * respond while it is selected. Everything else is intentionally hidden in
+     * the toolbar instead of being drawn as a dead control.
+     */
+    private boolean mouseClickedLinkenToolbar(Click click, boolean doubleClick) {
+        float barW = Math.min(width - 20.0f, 840.0f);
+        float barX = (width - barW) * 0.5f;
+        float btnY = 16.0f;
+        float btnH = 24.0f;
+        float curX = barX + 8.0f;
+
+        float betaW = 38.0f;
+        if (inRect(click.x(), click.y(), curX, btnY, betaW, btnH)) {
+            playClick();
+            config.applyPreset(MenuStyle.BETA);
+            StyleManager.setStyle(MenuStyle.BETA);
+            MainMenuConfig.save();
+            showToast("✓ Preset: Beta");
+            return true;
+        }
+        curX += betaW + 4.0f;
+
+        float vanW = 46.0f;
+        if (inRect(click.x(), click.y(), curX, btnY, vanW, btnH)) {
+            playClick();
+            config.applyPreset(MenuStyle.VANILLA);
+            StyleManager.setStyle(MenuStyle.VANILLA);
+            MainMenuConfig.save();
+            showToast("✓ Preset: Vanilla");
+            return true;
+        }
+        curX += vanW + 4.0f;
+
+        float linkW = 46.0f;
+        if (inRect(click.x(), click.y(), curX, btnY, linkW, btnH)) {
+            playClick();
+            showToast(I18n.get("editor.linken_fixed"));
+            return true;
+        }
+
+        float saveW = 58.0f;
+        if (inRect(click.x(), click.y(), barX + barW - saveW - 8.0f, btnY, saveW, btnH)) {
+            playSaveSound();
+            MainMenuConfig.save();
+            showToast("✓ Saved successfully!");
+            close();
+            return true;
+        }
+
+        return super.mouseClicked(click, doubleClick);
+    }
+
     @Override
     public boolean mouseReleased(Click click) {
         draggingElementId = null;
@@ -994,6 +1087,9 @@ public final class MainMenuEditorScreen extends Screen {
 
     @Override
     public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+        if (isLinkenFixed()) {
+            return super.mouseDragged(click, deltaX, deltaY);
+        }
         if (resizingElement && selectedElementId != null) {
             MainMenuConfig.ElementConfig el = config.getElement(selectedElementId);
             float diff = (float) ((click.y() - startMouseY) * 0.01);
@@ -1085,6 +1181,9 @@ public final class MainMenuEditorScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (isLinkenFixed()) {
+            return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        }
         if (selectedElementId != null) {
             MainMenuConfig.ElementConfig el = config.getElement(selectedElementId);
             float factor = (float) (verticalAmount * 0.05);
@@ -1109,6 +1208,9 @@ public final class MainMenuEditorScreen extends Screen {
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             close();
             return true;
+        }
+        if (isLinkenFixed()) {
+            return super.keyPressed(input);
         }
         if (selectedElementId != null) {
             MainMenuConfig.ElementConfig el = config.getElement(selectedElementId);
