@@ -556,3 +556,10 @@
 - **Evidence**: пустое состояние, Add modal, добавление `LinkenTest`, `USE SELECTED` → `ACTIVE`, поиск `lin` → `1 MATCHING`, Delete confirm и удаление (account-файл снова `[]`). PrintWindow 1920×1080: `alt-state.png`, `alt-add.png`, `alt-added.png`, `alt-used.png`, `alt-search.png`, `alt-del.png`, `alt-deleted.png` (temp). `gradlew test` — **196 тестов, 0 падений**.
 - **Commit**: `c04ae31` `feat(ui): add LINKEN account manager (v1.0.82, D59)`.
 - **Остаток M7**: дочерние Settings-страницы (Video/Controls/Language/Skin/Sound/Chat/Accessibility/Resource Packs); Singleplayer/Select World в доноре остаётся ванильным, отдельный LINKEN-экран не требуется для 1:1.
+
+## 2026-10-21 · D60 · LINKEN M7b-1: дочерние Settings — v1.0.83
+- **Код**: `LinkenSubSettingsScreen` — общий shell 1920×1080 (окно 1060, topbar + search + две колонки строк 52 px, footer DONE), `LinkenSettingsOption` (toggle/slider/cycle/action/display), `LinkenSettingsCatalog` (биндинги к vanilla `SimpleOption`), `LinkenSettingsFilter` + тест.
+- **Страницы**: Video (18 опций), Controls (12, включая `Keybinds → Open` — пока ванильный keybinds fallback), Sound (14), Chat (15), Accessibility (13). `LinkenSettingsScreen` ведёт на них вместо vanilla `VideoOptionsScreen`/`ControlsOptionsScreen`/`SoundOptionsScreen`/`ChatOptionsScreen`/`AccessibilityOptionsScreen`; Language/Skin/Resource Packs остаются ванильными.
+- **Evidence**: 1920×1080 PrintWindow — Video (`video-settings.png`), toggle Smooth Lighting (`video-toggle.png`), возврат DONE в hub (`settings-hub-after-video.png`), Sound (`sound-settings2.png`), Chat (`chat-settings.png`), поиск `opacity` → 1 OPTION (`chat-search.png`), Controls (`controls-settings.png`). `gradlew test` — **199 тестов, 0 падений**.
+- **Commit**: `a129b8f` `feat(ui): add LINKEN settings sub-pages (v1.0.83, D60)`.
+- **Остаток M7b**: LINKEN keybinds list (сейчас fallback в vanilla), Language/Skin/Resource Packs list screens; затем визуальная приёмка 1280×720/4K.
