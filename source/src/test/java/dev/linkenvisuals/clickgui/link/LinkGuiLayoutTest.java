@@ -1,0 +1,91 @@
+package dev.linkenvisuals.clickgui.link;
+
+import dev.linkenvisuals.clickgui.link.LinkGuiLayout.Metrics;
+import dev.linkenvisuals.clickgui.link.LinkGuiLayout.Rect;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class LinkGuiLayoutTest {
+    private static final int[][] RESOLUTIONS = {
+        {1280, 720},
+        {1440, 900},
+        {1920, 1080},
+        {2560, 1440},
+        {3440, 1440},
+        {3840, 2160}
+    };
+
+    @Test
+    void panelsStayInsideTheCanvasAndDoNotOverlap() {
+        for (int[] resolution : RESOLUTIONS) {
+            int width = resolution[0];
+            int height = resolution[1];
+            Metrics metrics = LinkGuiLayout.compute(width, height);
+            String label = width + "x" + height;
+
+            assertTrue(metrics.scale() > 0.0f, label);
+            assertTrue(metrics.nav().x() >= LinkGuiLayout.MARGIN - 0.01f, label);
+            assertTrue(metrics.settings().right() <= metrics.width() - LinkGuiLayout.MARGIN + 0.01f, label);
+            assertTrue(metrics.center().right() <= metrics.settings().x() + 0.01f, label);
+            assertFalse(metrics.nav().intersects(metrics.center()), label);
+            assertFalse(metrics.center().intersects(metrics.settings()), label);
+            assertTrue(metrics.center().width() >= 300.0f, label);
+            assertTrue(metrics.cards().width() > 0.0f, label);
+            assertTrue(metrics.settingsContent().width() > 0.0f, label);
+        }
+    }
+
+    @Test
+    void configPanelSpansListAndInspector() {
+        for (int[] resolution : RESOLUTIONS) {
+            Metrics metrics = LinkGuiLayout.compute(resolution[0], resolution[1]);
+            assertEquals(metrics.center().x(), metrics.config().x(), 0.01f);
+            assertEquals(metrics.settings().right(), metrics.config().right(), 0.01f);
+            assertEquals(metrics.center().y(), metrics.config().y(), 0.01f);
+            assertEquals(metrics.center().height(), metrics.config().height(), 0.01f);
+        }
+    }
+
+    @Test
+    void navigationItemsFitTheRail() {
+        for (int[] resolution : RESOLUTIONS) {
+            Metrics metrics = LinkGuiLayout.compute(resolution[0], resolution[1]);
+            for (int i = 0; i < LinkGuiLayout.NAV_ITEMS; i++) {
+                Rect item = LinkGuiLayout.navItem(metrics, i);
+                assertTrue(item.x() >= metrics.nav().x(), resolution[0] + "x" + resolution[1]);
+                assertTrue(item.right() <= metrics.nav().right(), resolution[0] + "x" + resolution[1]);
+                assertTrue(item.y() >= metrics.nav().y(), resolution[0] + "x" + resolution[1]);
+                assertTrue(item.bottom() <= metrics.nav().bottom(), resolution[0] + "x" + resolution[1]);
+            }
+        }
+    }
+
+    @Test
+    void cardGridUsesTwoColumnsAndStaysInsideTheList() {
+        Metrics metrics = LinkGuiLayout.compute(1920, 1080);
+        Rect first = LinkGuiLayout.card(metrics, 0);
+        Rect second = LinkGuiLayout.card(metrics, 1);
+        Rect third = LinkGuiLayout.card(metrics, 2);
+
+        assertEquals(first.y(), second.y(), 0.01f);
+        assertTrue(second.x() > first.right());
+        assertEquals(first.x(), third.x(), 0.01f);
+        assertTrue(third.y() > first.bottom());
+        assertTrue(first.x() >= metrics.cards().x());
+        assertTrue(second.right() <= metrics.cards().right());
+    }
+
+    @Test
+    void narrowWindowKeepsUsableColumns() {
+        Metrics metrics = LinkGuiLayout.compute(1024, 768);
+        assertNotNull(metrics);
+        assertTrue(metrics.width() >= 1280.0f);
+        assertTrue(metrics.center().width() >= 300.0f);
+        assertTrue(metrics.settings().width() >= 520.0f);
+        assertTrue(metrics.settings().right() <= metrics.width() - LinkGuiLayout.MARGIN + 0.01f);
+    }
+}

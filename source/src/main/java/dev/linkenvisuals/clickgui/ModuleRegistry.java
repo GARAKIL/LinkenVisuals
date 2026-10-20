@@ -147,14 +147,23 @@ public final class ModuleRegistry {
     private static BooleanSetting configAutoSave;
 
     static {
-        guiStyle = new ModeSetting("GUI Style", List.of("Classic", "Beta"), 0, style -> {
+        guiStyle = new ModeSetting("GUI Style", List.of("Classic", "Beta", "Linken"), 0, style -> {
             net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-            if (mc != null && mc.currentScreen != null) {
-                if ("Classic".equalsIgnoreCase(style) && mc.currentScreen instanceof ClickGuiScreen) {
-                    mc.setScreen(new dev.linkenvisuals.clickgui.classic.ClassicGuiScreen());
-                } else if ("Beta".equalsIgnoreCase(style) && mc.currentScreen instanceof dev.linkenvisuals.clickgui.classic.ClassicGuiScreen) {
-                    mc.setScreen(new ClickGuiScreen());
-                }
+            if (mc == null || mc.currentScreen == null) {
+                return;
+            }
+            boolean onGui = mc.currentScreen instanceof ClickGuiScreen
+                || mc.currentScreen instanceof dev.linkenvisuals.clickgui.classic.ClassicGuiScreen
+                || mc.currentScreen instanceof dev.linkenvisuals.clickgui.link.LinkGuiScreen;
+            if (!onGui) {
+                return;
+            }
+            if ("Classic".equalsIgnoreCase(style)) {
+                mc.setScreen(new dev.linkenvisuals.clickgui.classic.ClassicGuiScreen());
+            } else if ("Beta".equalsIgnoreCase(style)) {
+                mc.setScreen(new ClickGuiScreen());
+            } else if ("Linken".equalsIgnoreCase(style)) {
+                mc.setScreen(new dev.linkenvisuals.clickgui.link.LinkGuiScreen());
             }
         });
         closeAnimation = new ModeSetting("Close Animation", List.of("Shatter", "Zoom Out"), 0);
@@ -825,6 +834,25 @@ public final class ModuleRegistry {
 
     public static boolean isClassicGui() {
         return guiStyle == null || "Classic".equalsIgnoreCase(guiStyle.value());
+    }
+
+    public static boolean isLinkenGui() {
+        return guiStyle != null && "Linken".equalsIgnoreCase(guiStyle.value());
+    }
+
+    /** Ctrl+Left/Right cycle: Classic -> Beta -> Linken -> Classic. */
+    public static void cycleGuiStyle(int direction) {
+        List<String> styles = List.of("Classic", "Beta", "Linken");
+        String current = guiStyle == null ? "Classic" : guiStyle.value();
+        int index = 0;
+        for (int i = 0; i < styles.size(); i++) {
+            if (styles.get(i).equalsIgnoreCase(current)) {
+                index = i;
+                break;
+            }
+        }
+        int next = Math.floorMod(index + (direction < 0 ? -1 : 1), styles.size());
+        setGuiStyle(styles.get(next));
     }
 
     public static void setGuiStyle(String style) {

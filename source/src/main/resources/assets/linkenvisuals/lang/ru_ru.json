@@ -252,6 +252,7 @@
   "gui.config.status.saved": "Конфиг \"%s\" сохранен",
   "gui.config.status.deleted": "Конфиг \"%s\" удален",
   "gui.config.status.created": "Конфиг \"%s\" создан",
+  "gui.config.status.exists": "Конфиг \"%s\" уже существует",
   "common.press": "Нажмите...",
   "linkenvisuals.command.way.added": "Точка '%s' добавлена: X: %s, Y: %s, Z: %s",
   "linkenvisuals.command.way.already": "Точка '%s' уже существует",

@@ -262,11 +262,7 @@ public class ClassicGuiScreen extends Screen {
 
         boolean hasCtrl = (input.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
         if (hasCtrl && (keyCode == GLFW.GLFW_KEY_LEFT || keyCode == GLFW.GLFW_KEY_RIGHT)) {
-            ModuleRegistry.setGuiStyle("Beta");
-            MinecraftClient mc = MinecraftClient.getInstance();
-            if (mc != null) {
-                mc.setScreen(new dev.linkenvisuals.clickgui.ClickGuiScreen());
-            }
+            ModuleRegistry.cycleGuiStyle(keyCode == GLFW.GLFW_KEY_LEFT ? -1 : 1);
             return true;
         }
 

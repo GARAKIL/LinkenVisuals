@@ -252,6 +252,7 @@
   "gui.config.status.saved": "Config \"%s\" saved",
   "gui.config.status.deleted": "Config \"%s\" deleted",
   "gui.config.status.created": "Config \"%s\" created",
+  "gui.config.status.exists": "Config \"%s\" already exists",
   "common.press": "Press...",
   "linkenvisuals.command.way.added": "Waypoint '%s' added at X: %s, Y: %s, Z: %s",
   "linkenvisuals.command.way.already": "Waypoint '%s' already exists",

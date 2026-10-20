@@ -1331,10 +1331,7 @@ public final class ClickGuiScreen extends Screen {
         }
         boolean hasCtrl = (input.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
         if (hasCtrl && (input.key() == GLFW.GLFW_KEY_LEFT || input.key() == GLFW.GLFW_KEY_RIGHT)) {
-            ModuleRegistry.setGuiStyle("Classic");
-            if (client != null) {
-                client.setScreen(new dev.linkenvisuals.clickgui.classic.ClassicGuiScreen());
-            }
+            ModuleRegistry.cycleGuiStyle(input.key() == GLFW.GLFW_KEY_LEFT ? -1 : 1);
             return true;
         }
         if (input.key() == GLFW.GLFW_KEY_RIGHT_SHIFT) {
