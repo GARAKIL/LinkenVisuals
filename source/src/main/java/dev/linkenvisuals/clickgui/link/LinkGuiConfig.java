@@ -28,6 +28,7 @@ public final class LinkGuiConfig {
     private static final class Data {
         String theme = "MIDNIGHT";
         List<String> pins = new ArrayList<>();
+        List<String> friends = new ArrayList<>();
     }
 
     private static synchronized Data data() {
@@ -43,6 +44,9 @@ public final class LinkGuiConfig {
                     data = loaded;
                     if (data.pins == null) {
                         data.pins = new ArrayList<>();
+                    }
+                    if (data.friends == null) {
+                        data.friends = new ArrayList<>();
                     }
                     if (data.theme == null || data.theme.isBlank()) {
                         data.theme = "MIDNIGHT";
@@ -96,5 +100,35 @@ public final class LinkGuiConfig {
 
     public static List<String> pins() {
         return new ArrayList<>(data().pins);
+    }
+
+    public static List<String> friends() {
+        return new ArrayList<>(data().friends);
+    }
+
+    public static boolean addFriend(String name) {
+        if (name == null || name.isBlank()) {
+            return false;
+        }
+        String trimmed = name.trim();
+        for (String friend : data().friends) {
+            if (friend.equalsIgnoreCase(trimmed)) {
+                return false;
+            }
+        }
+        data().friends.add(trimmed);
+        save();
+        return true;
+    }
+
+    public static boolean removeFriend(String name) {
+        if (name == null) {
+            return false;
+        }
+        boolean removed = data().friends.removeIf(friend -> friend.equalsIgnoreCase(name.trim()));
+        if (removed) {
+            save();
+        }
+        return removed;
     }
 }

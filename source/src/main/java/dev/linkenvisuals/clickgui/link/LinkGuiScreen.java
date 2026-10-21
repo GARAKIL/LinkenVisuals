@@ -15,6 +15,7 @@ import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.clickgui.setting.StringSetting;
+import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.media.MediaWatcher;
 import dev.linkenvisuals.render.CirclePipeline;
@@ -33,6 +34,7 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.PlayerSkinDrawer;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
@@ -42,11 +44,12 @@ import net.minecraft.entity.player.SkinTextures;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import dev.linkenvisuals.waypoint.Waypoint;
+import dev.linkenvisuals.waypoint.WaypointStorage;
 import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -79,7 +82,6 @@ public final class LinkGuiScreen extends Screen {
     private final Spring scrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Spring panelScrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Spring configScrollSpring = new Spring(0.0, 1100.0, 60.0);
-    private final Map<Category, Spring> navHover = new EnumMap<>(Category.class);
     private final Map<ModuleInfo, Spring> cardHover = new HashMap<>();
     private final Spring closeHover = new Spring(0.0, 900.0, 50.0);
     private final LinkGuiCursorTrail cursorTrail = new LinkGuiCursorTrail();
@@ -115,8 +117,16 @@ public final class LinkGuiScreen extends Screen {
     private Rect moduleBindHit;
     private boolean settingsOpen;
     private boolean settingsDragging;
-    private boolean profileOpen;
-    private boolean themeOpen;
+    private boolean profileOpen = true;
+    private boolean themeOpen = true;
+    private SidePanel sidePanel = SidePanel.NONE;
+    private final StringBuilder sideInput = new StringBuilder();
+    private boolean sideInputFocused;
+    private Rect sideCloseHit;
+    private Rect sideAddHit;
+    private Rect sideInputHit;
+    private final List<SideRemoveHit> sideRemoveHits = new ArrayList<>();
+    private final List<UtilityHit> utilityHits = new ArrayList<>();
     private Rect profileCloseHit;
     private Rect headerSkinHit;
     private Rect themeToggleHit;
@@ -170,12 +180,11 @@ public final class LinkGuiScreen extends Screen {
     protected void init() {
         ModuleRegistry.syncFromMenuConfig();
         LinkGuiTheme.apply(LinkGuiConfig.theme());
-        for (Category category : Category.values()) {
-            navHover.computeIfAbsent(category, key -> new Spring(0.0, 900.0, 48.0));
-        }
         ensureState();
         skin = loadSkin();
         cursorTrail.clear();
+        profileOpen = true;
+        themeOpen = true;
         closing = false;
         lastFrame = System.nanoTime();
         if (client != null) {
@@ -240,15 +249,15 @@ public final class LinkGuiScreen extends Screen {
             return;
         }
 
-        float mx = (float) mouseX / metrics.scale();
-        float my = (float) mouseY / metrics.scale();
+        float mx = (float) (mouseX - metrics.offsetX()) / metrics.scale();
+        float my = (float) (mouseY - metrics.offsetY()) / metrics.scale();
 
         float uiFade = openT * ModuleRegistry.interfaceTransparency();
+        drawBackdrop(context, metrics, uiFade);
         context.getMatrices().pushMatrix();
+        context.getMatrices().translate(metrics.offsetX(), metrics.offsetY());
         context.getMatrices().scale(metrics.scale(), metrics.scale());
         context.getMatrices().translate(0.0f, (1.0f - openT) * 90.0f);
-
-        drawBackdrop(context, metrics, uiFade);
         if (selected == Category.CONFIG) {
             drawConfigPanel(context, metrics, mx, my, uiFade, deltaSeconds);
             drawHeader(context, metrics, mx, my, uiFade, deltaSeconds);
@@ -259,7 +268,9 @@ public final class LinkGuiScreen extends Screen {
         if (profileOpen) {
             drawProfilePanel(context, metrics, mx, my, uiFade, deltaSeconds);
         }
-        if (themeOpen) {
+        if (sidePanel != SidePanel.NONE) {
+            drawSidePanel(context, metrics, mx, my, uiFade);
+        } else if (themeOpen) {
             drawThemePanel(context, metrics, mx, my, uiFade);
         } else {
             themeHits.clear();
@@ -287,38 +298,31 @@ public final class LinkGuiScreen extends Screen {
             } catch (RuntimeException unavailable) {
                 LinkenVisuals.LOGGER.debug("LINKEN ClickGUI blur unavailable: {}", unavailable.getMessage());
             }
-            context.fill(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
+            context.fill(0, 0, width, height,
                 LinkenMenuChrome.rgba(LinkGuiTheme.isLight() ? 0xE9EDF2 : 0x050706,
                     LinkGuiTheme.isLight() ? 170 : 150, openT));
-            GlowPipeline.radial(context, metrics.width() * 0.50f, metrics.height() * 0.42f,
-                560.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 8, openT));
+            GlowPipeline.radial(context, width * 0.5f, height * 0.42f,
+                560.0f * metrics.scale(), LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 8, openT));
             return;
         }
         if (LinkGuiTheme.isLight()) {
-            context.fillGradient(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
+            context.fillGradient(0, 0, width, height,
                 LinkenMenuChrome.rgba(LinkGuiTheme.BACKDROP_TOP, openT),
                 LinkenMenuChrome.rgba(LinkGuiTheme.BACKDROP_BOTTOM, openT));
-            GlowPipeline.radial(context, metrics.width() * 0.50f, metrics.height() * 0.42f,
-                560.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 8, openT));
             return;
         }
-        float cover = Math.max(metrics.width() / BACKGROUND_WIDTH, metrics.height() / BACKGROUND_HEIGHT) * 1.05f;
+        float cover = Math.max(width / BACKGROUND_WIDTH, height / BACKGROUND_HEIGHT) * 1.05f;
         float drawWidth = BACKGROUND_WIDTH * cover;
         float drawHeight = BACKGROUND_HEIGHT * cover;
-        float x = (metrics.width() - drawWidth) * 0.5f;
-        float y = (metrics.height() - drawHeight) * 0.5f;
+        float x = (width - drawWidth) * 0.5f;
+        float y = (height - drawHeight) * 0.5f;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND,
             Math.round(x), Math.round(y), 0.0f, 0.0f,
             Math.round(drawWidth), Math.round(drawHeight),
             Math.round(BACKGROUND_WIDTH), Math.round(BACKGROUND_HEIGHT),
             Math.round(BACKGROUND_WIDTH), Math.round(BACKGROUND_HEIGHT),
             LinkenMenuChrome.rgba(0xFFFFFF, 58, openT));
-        context.fillGradient(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
-            LinkenMenuChrome.rgba(0x030504, 232, openT), LinkenMenuChrome.rgba(0x020403, 247, openT));
-        GlowPipeline.radial(context, metrics.width() * 0.50f, metrics.height() * 0.42f,
-            560.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 9, openT));
-        GlowPipeline.radial(context, metrics.width() * 0.16f, metrics.height() * 0.75f,
-            340.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 5, openT));
+        context.fill(0, 0, width, height, LinkenMenuChrome.rgba(0x030504, 232, openT));
     }
 
     // ------------------------------------------------------------------ header
@@ -358,7 +362,8 @@ public final class LinkGuiScreen extends Screen {
         }
         cursorX += 34.0f + 12.0f;
 
-        float allW = 52.0f;
+        String allLabel = I18n.get("gui.header.all");
+        float allW = LinkenMenuChrome.textWidth(LinkenFonts.heading(), allLabel, 10.5f) + 28.0f;
         Rect all = new Rect(cursorX, centerY - 17.0f, allW, 34.0f);
         allHit = all;
         boolean allHover = all.contains(mx, my);
@@ -369,8 +374,8 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, all.x(), all.y(), all.width(), all.height(), 7.0f, 1.0f,
             LinkenMenuChrome.rgba(searchAll ? LinkGuiTheme.ACCENT : 0xFFFFFF,
                 searchAll ? 180 : (allHover ? 52 : 26), openT), metrics.scale());
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "ALL",
-            all.x() + all.width() * 0.5f, all.y() + 16.0f, 8.5f,
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), allLabel,
+            all.x() + all.width() * 0.5f, all.y() + 16.0f, 10.5f,
             LinkenMenuChrome.rgba(searchAll ? LinkGuiTheme.INK : LinkGuiTheme.TEXT3, openT));
         cursorX += allW + 12.0f;
 
@@ -452,16 +457,33 @@ public final class LinkGuiScreen extends Screen {
 
     private void drawNav(DrawContext context, Metrics metrics, float mx, float my,
                          float openT, float deltaSeconds) {
-        Category[] categories = Category.values();
+        Category[] categories = {Category.COMBAT, Category.MOVEMENT, Category.VISUAL,
+            Category.PLAYER, Category.MISC};
         float tile = LinkGuiLayout.DOCK_TILE;
         float gap = LinkGuiLayout.DOCK_GAP;
+        String[] utilityLabels = {
+            I18n.get("gui.dock.configs"), I18n.get("gui.dock.friends"),
+            I18n.get("gui.dock.waypoints"), I18n.get("gui.dock.elements")
+        };
+        boolean[] utilityActive = {
+            selected == Category.CONFIG && sidePanel == SidePanel.NONE,
+            sidePanel == SidePanel.FRIENDS,
+            sidePanel == SidePanel.WAYPOINTS,
+            false
+        };
         float labelSize = 10.5f;
         float total = 0.0f;
         for (Category category : categories) {
-            boolean active = category == selected && !searchAll;
+            boolean active = category == selected && sidePanel == SidePanel.NONE && !searchAll;
             if (active) {
                 total += 12.0f + LinkenMenuChrome.textWidth(LinkenFonts.heading(),
                     I18n.get("gui.category." + category.name().toLowerCase(Locale.ROOT)), labelSize) + 18.0f;
+            }
+            total += tile + gap;
+        }
+        for (int i = 0; i < utilityLabels.length; i++) {
+            if (utilityActive[i]) {
+                total += 12.0f + LinkenMenuChrome.textWidth(LinkenFonts.heading(), utilityLabels[i], labelSize) + 18.0f;
             }
             total += tile + gap;
         }
@@ -470,49 +492,99 @@ public final class LinkGuiScreen extends Screen {
         float x = metrics.center().x() + (metrics.center().width() - total) * 0.5f;
         float y = metrics.height() - LinkGuiLayout.DOCK_BOTTOM - LinkGuiLayout.DOCK_HEIGHT;
         navHits.clear();
+        utilityHits.clear();
+
         for (Category category : categories) {
-            boolean active = category == selected && !searchAll;
+            boolean active = category == selected && sidePanel == SidePanel.NONE && !searchAll;
             String label = I18n.get("gui.category." + category.name().toLowerCase(Locale.ROOT));
-            float labelWidth = LinkenMenuChrome.textWidth(LinkenFonts.heading(), label, labelSize);
-            float width = tile + (active ? 12.0f + labelWidth + 18.0f : 0.0f);
+            float width = tile + (active
+                ? 12.0f + LinkenMenuChrome.textWidth(LinkenFonts.heading(), label, labelSize) + 18.0f : 0.0f);
             Rect item = new Rect(x, y, width, tile);
             boolean hovered = item.contains(mx, my);
-            Spring spring = navHover.computeIfAbsent(category, key -> new Spring(0.0, 900.0, 48.0));
-            spring.step(hovered && !active ? 1.0 : 0.0, deltaSeconds);
-            float hover = (float) spring.get();
-            float lift = hover * 2.0f;
+            drawDockTile(context, metrics, item, label, active, hovered, openT, deltaSeconds,
+                category.icon(), -1);
+            navHits.add(new NavHit(category, item));
+            x += width + gap;
+        }
 
-            if (active) {
-                GlowPipeline.radial(context, x + width * 0.5f, y + tile * 0.5f - 3.0f,
-                    Math.max(width, tile) * 0.7f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 54, openT));
-                LinkenMenuChrome.roundedFill(context, x, y - lift, width, tile, 8.0f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 255, openT), metrics.scale());
-            } else {
-                LinkenMenuChrome.roundedFill(context, x, y - lift, width, tile, 8.0f,
-                    LinkenMenuChrome.rgba(hover > 0.02f ? LinkGuiTheme.HOVER : LinkGuiTheme.PANEL,
-                        Math.round((210 + 18 * hover) * openT)), metrics.scale());
-                LinkenMenuChrome.roundedOutline(context, x, y - lift, width, tile, 8.0f, 1.0f,
-                    LinkenMenuChrome.rgba(0xFFFFFF, Math.round((18 + 34 * hover) * openT)), metrics.scale());
+        int[] utilityGlyphs = {LinkenMenuChrome.ICON_GEAR, LinkenMenuChrome.ICON_PEOPLE, '[', 87};
+        Runnable[] utilityActions = {
+            () -> {
+                sidePanel = SidePanel.NONE;
+                themeOpen = false;
+                selectCategory(Category.CONFIG);
+            },
+            () -> {
+                sidePanel = sidePanel == SidePanel.FRIENDS ? SidePanel.NONE : SidePanel.FRIENDS;
+                themeOpen = false;
+                sideInput.setLength(0);
+                sideInputFocused = false;
+                playClick();
+            },
+            () -> {
+                sidePanel = sidePanel == SidePanel.WAYPOINTS ? SidePanel.NONE : SidePanel.WAYPOINTS;
+                themeOpen = false;
+                sideInput.setLength(0);
+                sideInputFocused = false;
+                playClick();
+            },
+            () -> {
+                if (client != null) {
+                    HudManager.setEditing(true);
+                    client.setScreen(new ChatScreen("", false));
+                }
             }
+        };
+        for (int i = 0; i < utilityLabels.length; i++) {
+            String label = utilityLabels[i];
+            boolean active = utilityActive[i];
+            float width = tile + (active
+                ? 12.0f + LinkenMenuChrome.textWidth(LinkenFonts.heading(), label, labelSize) + 18.0f : 0.0f);
+            Rect item = new Rect(x, y, width, tile);
+            boolean hovered = item.contains(mx, my);
+            drawDockTile(context, metrics, item, label, active, hovered, openT, deltaSeconds,
+                null, utilityGlyphs[i]);
+            utilityHits.add(new UtilityHit(utilityActions[i], item));
+            x += width + gap;
+        }
+    }
 
-            float iconSize = 17.0f;
-            float iconX = x + 18.0f;
-            float iconY = y + tile * 0.5f - lift;
-            int iconColor = active ? LinkGuiTheme.INK
-                : LinkenMenuChrome.mix(LinkGuiTheme.MUTED, LinkGuiTheme.TEXT2, hover);
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, category.icon(),
+    private void drawDockTile(DrawContext context, Metrics metrics, Rect item, String label,
+                              boolean active, boolean hovered, float openT, float deltaSeconds,
+                              Identifier texture, int glyph) {
+        float hover = hovered && !active ? 0.55f : 0.0f;
+        float lift = hovered && !active ? 2.0f : 0.0f;
+        if (active) {
+            GlowPipeline.radial(context, item.x() + item.width() * 0.5f, item.y() + item.height() * 0.5f - 3.0f,
+                Math.max(item.width(), item.height()) * 0.7f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 54, openT));
+            LinkenMenuChrome.roundedFill(context, item.x(), item.y() - lift, item.width(), item.height(), 8.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 255, openT), metrics.scale());
+        } else {
+            LinkenMenuChrome.roundedFill(context, item.x(), item.y() - lift, item.width(), item.height(), 8.0f,
+                LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.HOVER : LinkGuiTheme.PANEL,
+                    Math.round((210 + 18 * hover) * openT)), metrics.scale());
+            LinkenMenuChrome.roundedOutline(context, item.x(), item.y() - lift, item.width(), item.height(), 8.0f,
+                1.0f, LinkenMenuChrome.rgba(0xFFFFFF, Math.round((18 + 34 * hover) * openT)), metrics.scale());
+        }
+        float iconSize = 17.0f;
+        float iconX = item.x() + 18.0f;
+        float iconY = item.y() + item.height() * 0.5f - lift;
+        int iconColor = active ? LinkGuiTheme.INK
+            : LinkenMenuChrome.mix(LinkGuiTheme.MUTED, LinkGuiTheme.TEXT2, hover);
+        if (texture != null) {
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, texture,
                 Math.round(iconX), Math.round(iconY - iconSize * 0.5f), 0.0f, 0.0f,
                 Math.round(iconSize), Math.round(iconSize), 128, 128, 128, 128,
                 LinkenMenuChrome.rgba(iconColor, openT));
-
-            if (active) {
-                LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), label,
-                    x + 18.0f + iconSize + 12.0f, iconY, labelSize,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.INK, openT));
-            }
-            navHits.add(new NavHit(category, item));
-            x += width + gap;
+        } else if (LinkenFonts.icons() != null) {
+            IconPipeline.draw(context, LinkenFonts.icons(), glyph, iconX + iconSize * 0.5f, iconY,
+                iconSize, LinkenMenuChrome.rgba(iconColor, openT));
+        }
+        if (active) {
+            LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), label,
+                iconX + iconSize + 12.0f, iconY, 10.5f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.INK, openT));
         }
     }
 
@@ -828,13 +900,19 @@ public final class LinkGuiScreen extends Screen {
             LinkenMenuChrome.rgba(0xFFFFFF, 16, openT), metrics.scale());
         LinkenMenuChrome.roundedFill(context, cx, viewerY + viewerH - 72.0f, cw, 72.0f, 8.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 32, openT), metrics.scale());
-        if (skin != null) {
-            float preview = 140.0f;
+        if (client != null && client.player != null) {
+            float s = metrics.scale();
+            int ex = Math.round(metrics.offsetX() + (cx + 16.0f) * s);
+            int ey = Math.round(metrics.offsetY() + (viewerY + 12.0f) * s);
+            int ew = Math.round((cw - 32.0f) * s);
+            int eh = Math.round((viewerH - 22.0f) * s);
+            int size = Math.max(2, Math.round(eh / 3.2f));
+            net.minecraft.client.gui.screen.ingame.InventoryScreen.drawEntity(context, ex, ey,
+                ex + ew, ey + eh, size, 0.0625f, ex + ew * 0.5f, ey + eh * 0.80f, client.player);
+        } else if (skin != null) {
+            float preview = 96.0f;
             float previewX = cx + (cw - preview) * 0.5f;
             float previewY = viewerY + (viewerH - preview) * 0.5f + 8.0f;
-            LinkenMenuChrome.roundedFill(context, previewX - 6.0f, previewY - 6.0f,
-                preview + 12.0f, preview + 12.0f, 10.0f,
-                LinkenMenuChrome.rgba(LinkGuiTheme.ROW, 210, openT), metrics.scale());
             PlayerSkinDrawer.draw(context, skin, Math.round(previewX), Math.round(previewY),
                 Math.round(preview));
         } else {
@@ -1431,6 +1509,106 @@ public final class LinkGuiScreen extends Screen {
 
     // ------------------------------------------------------------------ theme window
 
+    private void drawSidePanel(DrawContext context, Metrics metrics, float mx, float my, float openT) {
+        Rect panel = new Rect(metrics.theme().x(), metrics.theme().y(), 340.0f, 600.0f);
+        LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 245, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f,
+            1.0f, LinkenMenuChrome.rgba(0xFFFFFF, 23, openT), metrics.scale());
+
+        boolean friends = sidePanel == SidePanel.FRIENDS;
+        List<String> names = friends ? LinkGuiConfig.friends() : null;
+        List<Waypoint> waypoints = friends ? null : WaypointStorage.store().sorted();
+        int count = friends ? names.size() : waypoints.size();
+        String title = I18n.get(friends ? "gui.friends.title" : "gui.waypoints.title");
+        String subtitle = I18n.get(friends ? "gui.friends.count" : "gui.waypoints.count", count);
+
+        float px = panel.x() + 16.0f;
+        float cw = panel.width() - 32.0f;
+        float headerY = panel.y() + 16.0f;
+        if (LinkenFonts.icons() != null) {
+            IconPipeline.draw(context, LinkenFonts.icons(), friends ? LinkenMenuChrome.ICON_PEOPLE : '[',
+                px + 7.0f, headerY + 7.0f, 14.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
+        }
+        LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), title,
+            px + 22.0f, headerY + 7.0f, 13.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));
+        LinkenMenuChrome.drawRightText(context, LinkenFonts.body(), subtitle,
+            panel.right() - 42.0f, headerY + 1.0f, 9.5f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
+        sideCloseHit = new Rect(panel.right() - 30.0f, panel.y() + 8.0f, 22.0f, 22.0f);
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "X",
+            sideCloseHit.x() + 11.0f, sideCloseHit.y() + 6.0f, 9.0f,
+            LinkenMenuChrome.rgba(sideCloseHit.contains(mx, my) ? LinkGuiTheme.DANGER : LinkGuiTheme.MUTED2, openT));
+
+        float inputY = panel.y() + 46.0f;
+        Rect input = new Rect(px, inputY, cw - 86.0f, 32.0f);
+        sideInputHit = input;
+        LinkenMenuChrome.roundedFill(context, input.x(), input.y(), input.width(), input.height(), 7.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.FIELD, 220, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, input.x(), input.y(), input.width(), input.height(), 7.0f, 1.0f,
+            LinkenMenuChrome.rgba(sideInputFocused ? LinkGuiTheme.ACCENT : 0xFFFFFF,
+                sideInputFocused ? 120 : 24, openT), metrics.scale());
+        String text = sideInput.toString();
+        String placeholder = I18n.get(friends ? "gui.friends.placeholder" : "gui.waypoints.placeholder");
+        LinkenMenuChrome.drawOn(context, LinkenFonts.body(), text.isEmpty() ? placeholder : text,
+            input.x() + 10.0f, input.y() + 16.0f, 10.5f,
+            LinkenMenuChrome.rgba(text.isEmpty() ? LinkGuiTheme.MUTED3 : LinkGuiTheme.TEXT, openT));
+        if (sideInputFocused) {
+            float caret = input.x() + 10.0f + LinkenMenuChrome.textWidth(LinkenFonts.body(), text, 10.5f);
+            context.fill(Math.round(caret), Math.round(input.y() + 9.0f),
+                Math.round(caret + 1.0f), Math.round(input.bottom() - 9.0f),
+                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
+        }
+        Rect add = new Rect(input.right() + 8.0f, inputY, 78.0f, 32.0f);
+        sideAddHit = add;
+        boolean canAdd = !text.trim().isEmpty();
+        LinkenMenuChrome.roundedFill(context, add.x(), add.y(), add.width(), add.height(), 7.0f,
+            LinkenMenuChrome.rgba(canAdd ? LinkGuiTheme.ACCENT : LinkGuiTheme.TRACK, canAdd ? 235 : 180, openT),
+            metrics.scale());
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(),
+            I18n.get(friends ? "gui.friends.add" : "gui.waypoints.add"), add.x() + add.width() * 0.5f,
+            add.y() + 16.0f, 8.5f,
+            LinkenMenuChrome.rgba(canAdd ? LinkGuiTheme.INK : LinkGuiTheme.MUTED3, openT));
+
+        float listTop = inputY + 44.0f;
+        float listBottom = panel.bottom() - 16.0f;
+        context.enableScissor(Math.round(px), Math.round(listTop), Math.round(px + cw), Math.round(listBottom));
+        sideRemoveHits.clear();
+        if (count == 0) {
+            LinkenMenuChrome.drawCentered(context, LinkenFonts.body(),
+                I18n.get(friends ? "gui.friends.empty" : "gui.waypoints.empty"),
+                px + cw * 0.5f, listTop + 22.0f, 11.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
+        } else {
+            for (int i = 0; i < count; i++) {
+                String name = friends ? names.get(i) : waypoints.get(i).name();
+                String detail = friends ? null
+                    : (int) waypoints.get(i).x() + ", " + (int) waypoints.get(i).y()
+                        + ", " + (int) waypoints.get(i).z();
+                float rowY = listTop + i * 44.0f;
+                if (rowY > listBottom) {
+                    break;
+                }
+                Rect row = new Rect(px, rowY, cw, 38.0f);
+                LinkenMenuChrome.roundedFill(context, row.x(), row.y(), row.width(), row.height(), 7.0f,
+                    LinkenMenuChrome.rgba(row.contains(mx, my) ? LinkGuiTheme.HOVER : LinkGuiTheme.ROW,
+                        210, openT), metrics.scale());
+                LinkenMenuChrome.drawOn(context, LinkenFonts.body(), name, px + 10.0f,
+                    row.y() + (detail == null ? row.height() * 0.5f : 12.0f), 10.5f,
+                    LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));
+                if (detail != null) {
+                    LinkenMenuChrome.drawText(context, LinkenFonts.mono(), detail, px + 10.0f,
+                        row.y() + 21.0f, 8.0f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
+                }
+                Rect remove = new Rect(row.right() - 30.0f, row.y() + 8.0f, 22.0f, 22.0f);
+                LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), "x", remove.x() + 11.0f,
+                    remove.y() + 7.0f, 9.0f,
+                    LinkenMenuChrome.rgba(remove.contains(mx, my) ? LinkGuiTheme.DANGER : LinkGuiTheme.MUTED2, openT));
+                sideRemoveHits.add(new SideRemoveHit(name, remove));
+            }
+        }
+        context.disableScissor();
+    }
+
     private void drawThemePanel(DrawContext context, Metrics metrics, float mx, float my, float openT) {
         Rect panel = metrics.theme();
         GlowPipeline.radial(context, panel.x() + panel.width() * 0.5f, panel.y() + 22.0f,
@@ -1535,8 +1713,8 @@ public final class LinkGuiScreen extends Screen {
             return super.mouseClicked(click, doubleClick);
         }
         Metrics metrics = LinkGuiLayout.compute(width, height);
-        float mx = (float) click.x() / metrics.scale();
-        float my = (float) click.y() / metrics.scale();
+        float mx = (float) (click.x() - metrics.offsetX()) / metrics.scale();
+        float my = (float) (click.y() - metrics.offsetY()) / metrics.scale();
         boolean rightClick = click.button() == 1;
 
         if (headerSkinHit != null && headerSkinHit.contains(mx, my)) {
@@ -1546,6 +1724,7 @@ public final class LinkGuiScreen extends Screen {
         }
         if (themeToggleHit != null && themeToggleHit.contains(mx, my)) {
             themeOpen = !themeOpen;
+            sidePanel = SidePanel.NONE;
             playClick();
             return true;
         }
@@ -1558,6 +1737,63 @@ public final class LinkGuiScreen extends Screen {
                 return true;
             }
             profileOpen = false;
+        }
+
+        if (sidePanel != SidePanel.NONE) {
+            if (sideCloseHit != null && sideCloseHit.contains(mx, my)) {
+                sidePanel = SidePanel.NONE;
+                sideInputFocused = false;
+                playClick();
+                return true;
+            }
+            if (sideInputHit != null && sideInputHit.contains(mx, my)) {
+                sideInputFocused = true;
+                lastTyped = System.currentTimeMillis();
+                return true;
+            }
+            if (sideAddHit != null && sideAddHit.contains(mx, my) && !sideInput.toString().trim().isEmpty()) {
+                String name = sideInput.toString().trim();
+                boolean added;
+                if (sidePanel == SidePanel.FRIENDS) {
+                    added = LinkGuiConfig.addFriend(name);
+                } else if (client != null && client.player != null) {
+                    added = WaypointStorage.store().add(name, client.player.getX(),
+                        client.player.getY(), client.player.getZ());
+                    if (added) {
+                        WaypointStorage.save();
+                    }
+                } else {
+                    added = false;
+                }
+                if (added) {
+                    sideInput.setLength(0);
+                }
+                playClick();
+                return true;
+            }
+            for (SideRemoveHit hit : sideRemoveHits) {
+                if (hit.bounds().contains(mx, my)) {
+                    if (sidePanel == SidePanel.FRIENDS) {
+                        LinkGuiConfig.removeFriend(hit.name());
+                    } else {
+                        WaypointStorage.store().remove(hit.name());
+                        WaypointStorage.save();
+                    }
+                    playClick();
+                    return true;
+                }
+            }
+            if (metrics.theme().contains(mx, my)) {
+                return true;
+            }
+            sideInputFocused = false;
+        }
+
+        for (UtilityHit hit : utilityHits) {
+            if (hit.bounds().contains(mx, my)) {
+                hit.action().run();
+                return true;
+            }
         }
 
         if (themeOpen) {
@@ -1843,8 +2079,8 @@ public final class LinkGuiScreen extends Screen {
     @Override
     public boolean mouseDragged(Click click, double offsetX, double offsetY) {
         Metrics metrics = LinkGuiLayout.compute(width, height);
-        float mx = (float) click.x() / metrics.scale();
-        float my = (float) click.y() / metrics.scale();
+        float mx = (float) (click.x() - metrics.offsetX()) / metrics.scale();
+        float my = (float) (click.y() - metrics.offsetY()) / metrics.scale();
         if (settingsDragging) {
             settingsX = mx - settingsDragX;
             settingsY = my - settingsDragY;
@@ -1879,8 +2115,8 @@ public final class LinkGuiScreen extends Screen {
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
         Metrics metrics = LinkGuiLayout.compute(width, height);
-        float mx = (float) mouseX / metrics.scale();
-        float my = (float) mouseY / metrics.scale();
+        float mx = (float) (mouseX - metrics.offsetX()) / metrics.scale();
+        float my = (float) (mouseY - metrics.offsetY()) / metrics.scale();
         if (selected == Category.CONFIG) {
             configScrollTarget -= (float) verticalAmount * 34.0f;
             configScrollTarget = Math.max(0.0f, Math.min(configScrollTarget,
@@ -1911,6 +2147,11 @@ public final class LinkGuiScreen extends Screen {
                 return true;
             }
             return false;
+        }
+        if (sideInputFocused && input.isValidChar()) {
+            sideInput.append(input.asString());
+            lastTyped = System.currentTimeMillis();
+            return true;
         }
         if (searchFocused && input.isValidChar()) {
             search.append(input.asString());
@@ -1943,6 +2184,10 @@ public final class LinkGuiScreen extends Screen {
             return true;
         }
         if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+            if (sideInputFocused) {
+                sideInputFocused = false;
+                return true;
+            }
             if (settingsOpen) {
                 settingsOpen = false;
                 return true;
@@ -1980,6 +2225,10 @@ public final class LinkGuiScreen extends Screen {
             return true;
         }
 
+        if (sideInputFocused && input.key() == GLFW.GLFW_KEY_BACKSPACE && sideInput.length() > 0) {
+            sideInput.deleteCharAt(sideInput.length() - 1);
+            return true;
+        }
         if (configInputFocused && input.key() == GLFW.GLFW_KEY_BACKSPACE && configName.length() > 0) {
             configName.deleteCharAt(configName.length() - 1);
             return true;
@@ -2019,6 +2268,7 @@ public final class LinkGuiScreen extends Screen {
 
     private void selectCategory(Category category) {
         selected = category;
+        sidePanel = SidePanel.NONE;
         focused = null;
         if (category != Category.CONFIG) {
             List<ModuleInfo> modules = ModuleRegistry.byCategory(category);
@@ -2068,5 +2318,13 @@ public final class LinkGuiScreen extends Screen {
     private record OptionHit(ModeSetting mode, int index, Rect bounds) {
     }
     private record ThemeHit(LinkGuiTheme.Preset preset, Rect bounds) {
+    }
+
+    private enum SidePanel { NONE, FRIENDS, WAYPOINTS }
+
+    private record UtilityHit(Runnable action, Rect bounds) {
+    }
+
+    private record SideRemoveHit(String name, Rect bounds) {
     }
 }

@@ -72,6 +72,8 @@ public final class LinkGuiLayout {
 
     public record Metrics(
         float scale,
+        float offsetX,
+        float offsetY,
         float width,
         float height,
         Rect header,
@@ -113,7 +115,12 @@ public final class LinkGuiLayout {
     }
 
     public static Metrics compute(int screenWidth, int screenHeight, float uiScale) {
-        float scale = scaleFor(screenWidth, screenHeight, uiScale);
+        float fitRaw = Math.min(screenWidth / CANVAS_WIDTH, screenHeight / CANVAS_HEIGHT);
+        float fitPad = Math.min((screenWidth - FIT_PAD * 2.0f) / CANVAS_WIDTH,
+            (screenHeight - FIT_PAD * 2.0f) / CANVAS_HEIGHT);
+        float scale = Math.max(0.01f, Math.min(fitPad * Math.max(0.5f, uiScale), fitRaw));
+        float offsetX = (screenWidth - CANVAS_WIDTH * scale) * 0.5f;
+        float offsetY = (screenHeight - CANVAS_HEIGHT * scale) * 0.5f;
         float width = CANVAS_WIDTH;
         float height = CANVAS_HEIGHT;
 
@@ -132,7 +139,7 @@ public final class LinkGuiLayout {
         Rect profileContent = new Rect(profile.x() + 16.0f, profile.y() + 16.0f,
             profile.width() - 32.0f, profile.height() - 32.0f);
 
-        return new Metrics(scale, width, height, header, close, nav, center, profile, profile,
+        return new Metrics(scale, offsetX, offsetY, width, height, header, close, nav, center, profile, profile,
             center, all, search, cards, profileContent, profileContent, theme);
     }
 

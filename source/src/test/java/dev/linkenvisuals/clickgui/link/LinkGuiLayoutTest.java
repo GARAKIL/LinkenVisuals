@@ -60,6 +60,17 @@ class LinkGuiLayoutTest {
     }
 
     @Test
+    void canvasIsCentredLikeTheDonorTransform() {
+        Metrics hd = LinkGuiLayout.compute(640, 360);
+        float expectedScale = (360.0f - 24.0f) / 1080.0f;
+        assertEquals(expectedScale, hd.scale(), 0.0001f);
+        assertEquals((640.0f - 1920.0f * expectedScale) * 0.5f, hd.offsetX(), 0.01f);
+        assertEquals((360.0f - 1080.0f * expectedScale) * 0.5f, hd.offsetY(), 0.01f);
+        assertEquals(hd.offsetX() + 410.0f * hd.scale(), 148.9f, 1.0f);
+        assertEquals(hd.offsetY() + 90.0f * hd.scale(), 40.0f, 1.0f);
+    }
+
+    @Test
     void configUsesTheMainModuleWindow() {
         for (int[] resolution : RESOLUTIONS) {
             Metrics metrics = LinkGuiLayout.compute(resolution[0], resolution[1]);
