@@ -640,3 +640,9 @@
 - **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft по просьбе пользователя не запускался. Jar `linkenvisuals-1.0.93.jar` (7 366 303 байта, SHA-256 `B7B6F14481432FDF571D96CDFD3C7DE9E1A5ACAEF28C5111D0495B70569296C7`).
 - **Commit**: `1d66355` `feat(ui): add draggable LINKEN module settings window (v1.0.93, D70)`.
 - **Остаток 1:1**: cursor trail (донорский `LinkGuiCursorTrail`), close overlay (в доноре — no-op стаб), управление музыкой/громкостью (у нас read-only), точная визуальная сверка с донором.
+
+## 2026-10-21 · D71 · LINKEN ClickGUI cursor trail — v1.0.94
+- **Код**: `LinkGuiCursorTrail` — 64 точки, lifetime 780 мс, min-step 2.4 px, защита от NaN/огромных координат; рендер мягких glow-орбов + белого ядра головы через `GlowPipeline.radial`/`CirclePipeline`, цвет `LinkGuiTheme.ACCENT`. Trail очищается в `init`, обновляется/рисуется поверх всего GUI (после theme-панели).
+- **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft по просьбе пользователя не запускался. Jar `linkenvisuals-1.0.94.jar` (7 370 108 байт, SHA-256 `FC4974DB090D25907B91B2FE055F8056EECA80F172975ACBA0B9AF6C64E48991`).
+- **Commit**: `166869a` `feat(ui): add LINKEN ClickGUI cursor trail (v1.0.94, D71)`.
+- **Остаток 1:1**: close overlay (в доноре пустой стаб — можно не портировать), управление музыкой/громкостью (нет донорского playback-бэкенда), точная пиксельная сверка отступов/шрифтов.

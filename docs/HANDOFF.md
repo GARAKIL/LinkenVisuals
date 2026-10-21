@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №25 — cursor trail, M8.7) — v1.0.94
+
+### Сделано
+1. **D71/v1.0.94** (`166869a`): `LinkGuiCursorTrail` — 64 точки/780 мс/min-step 2.4, мягкие glow-орбы + белое ядро через `GlowPipeline`/`CirclePipeline`; очистка в `init`, рендер поверх GUI. Minecraft не запускался (только код/тесты).
+2. **Сборка/тесты**: 207 тестов, 0 падений; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.94.jar` (7 370 108 байт, SHA-256 `FC4974DB090D25907B91B2FE055F8056EECA80F172975ACBA0B9AF6C64E48991`).
+3. **M8 итог**: донорская компоновка, 8 тем (LIGHT/FROST), Interface/Profile, draggable settings window, player head, card badges, media strip, style lock, cursor trail.
+
+### Следующая задача
+- Строгий 1:1 остаток: управление музыкой/громкостью (донорский playback-бэкенд не портирован, strip read-only), close overlay (в доноре no-op), точная пиксельная сверка шрифтов/отступов с донором.
+- Визуальная приёмка 1280×720/4K — только с разрешения пользователя; сейчас код-компиляция.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Cursor trail/light/drag-окно не проверены глазами.
+- Read-only media strip и отсутствие volume/prev/play/next — осознанное отклонение без donor audio backend.
+- Строгий пиксель-в-пиксель не подтверждён без визуального сравнения.
+
 ## Состояние на 2026-10-21 (чат №24 — draggable module settings, M8.6) — v1.0.93
 
 ### Сделано
