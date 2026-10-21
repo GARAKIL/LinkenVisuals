@@ -600,3 +600,11 @@
 - **Fix**: после rebind, right-click reset и RESET ALL вызываются `KeyBinding.updateKeysByCode()` и `refresh()`; строка сразу показывает новую клавишу, конфликт-маркеры пересчитываются.
 - **Evidence**: listening-состояние «PRESS A KEY / ESC CANCELS» визуально подтверждено; автоматизированный ввод B записал `key_key.forward:key.keyboard.b` в `options.txt`. Сам UI после фикса требует ручного end-to-end подтверждения (автоматизация навигации по fullscreen-окну нестабильна). `clean build --no-daemon` — **204 теста, 0 падений/ошибок/скипов**; jar `linkenvisuals-1.0.88.jar` (7 358 704 байта, SHA-256 `3B7583E3CE18616DBE34E650BAD7B0C7172AFB0FBBDA512864495021DB779860`).
 - **Commit**: `23ce1d0` `fix(ui): refresh LINKEN keybinds after rebind and reset (v1.0.88, D65)`.
+
+## 2026-10-21 · D66 · LINKEN ClickGUI: donor ThemeWindow (M8.1) — v1.0.89
+- **Скоуп M8**: полноценный перенос донорского `screen/linkgui` (ThemeWindow, MainModuleWindow, CategoryDockWindow, InterfaceWindow, ModuleCard, MusicPlayerStrip, light themes) поверх уже существующего LINKEN ClickGUI shell (M3/M4). M8.1 — первый срез, ThemeWindow.
+- **Код**: `LinkGuiThemeWindowLayout` — чистая геометрия (3 карточки в ряд, 160×110, gap 16, панель 568, динамическая высота под число пресетов); `LinkGuiScreen` — модальное окно THEME поверх ClickGUI, карточки 6 текущих палитр (Midnight/Graphite/Amethyst/Ocean/Rose/Emerald), selected/hover, клик применяет `LinkGuiTheme.apply` + `LinkGuiConfig.setTheme`, закрытие по X/клику вне/Esc. Theme-chip больше не циклит тему, а открывает окно.
+- **Тесты**: `LinkGuiThemeWindowLayoutTest` (+3: центрирование/вписывание, отсутствие пересечений, рост панели при 9 карточках). Итого **207**, 0 падений.
+- **Evidence**: `clean build --no-daemon` — 207/0; jar `linkenvisuals-1.0.89.jar` (7 363 796 байт, SHA-256 `BD03E44F5DB2E06F1F7906BA2271FA4525A52F1378FD67F523B70336E0C77C5F`). Визуальный прогон ThemeWindow не выполнен: автоматическая отправка Right Shift в dev-окно не открыла ClickGUI (фокус/raw input); разметка покрыта unit-тестами, глазами — за пользователем.
+- **Commit**: `43031da` `feat(ui): add LINKEN ClickGUI theme window (v1.0.89, D66)`.
+- **Дальше M8**: M8.2 — донорская компоновка плавающих окон (MainModule/CategoryDock/Interface/Theme), M8.3 — ModuleCard/MusicPlayerStrip/player preview, M8.4 — light-темы LIGHT/FROST и переход палитр.

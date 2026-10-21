@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №20 — LINKEN ClickGUI ThemeWindow, M8.1) — v1.0.89
+
+### Сделано
+1. **D66/v1.0.89 — первый срез переноса донорского LinkGUI** (`43031da`): `LinkGuiThemeWindowLayout` (чистая геометрия 568-панели, 3 карточки в ряд 160×110) + модальное THEME-окно в `LinkGuiScreen`. 6 текущих палитр, selected/hover, клик применяет и сохраняет тему; закрытие X/клик вне/Esc. Theme-chip теперь открывает окно вместо циклинга.
+2. **Тесты**: `LinkGuiThemeWindowLayoutTest` (+3) — итого **207**, 0 падений. `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.89.jar` (7 363 796 байт, SHA-256 `BD03E44F5DB2E06F1F7906BA2271FA4525A52F1378FD67F523B70336E0C77C5F`).
+3. **Визуальный прогон ThemeWindow не выполнен**: автоматическая отправка Right Shift в dev-окно не открыла ClickGUI (фокус/raw input). Разметка покрыта unit-тестами; глазами проверить при следующем runClient.
+
+### Следующая задача
+- **M8.2** — донорская компоновка плавающих окон: `MainModuleWindow` (720×480), `CategoryDockWindow` (нижний док), `InterfaceWindow` (левая панель), `ThemeWindow` справа; перенести геометрию 1280×720 + fit-scale, сохранить текущий ModuleRegistry/Setting.
+- **M8.3** — `ModuleCard` с раскрытием настроек, `MusicPlayerStrip` (read-only через `MediaWatcher`), `ClickGuiPlayer` preview.
+- **M8.4** — light-темы LIGHT/FROST из донора + плавный переход палитр.
+- Style/Editor в LINKEN Settings не добавлять (приказ пользователя). Shader-source ERROR caveat и ручной keybind rebind — по-прежнему открыты.
+
+### Риски
+- ThemeWindow не проверен глазами; возможны визуальные нюансы карточек при 4K.
+- Полный M8 — крупная переработка `LinkGuiScreen` (сейчас 74 КБ); дробить по окнам, не ломать Beta/Classic.
+
 ## Состояние на 2026-10-21 (чат №19 — LINKEN keybind refresh) — v1.0.88
 
 ### Сделано
