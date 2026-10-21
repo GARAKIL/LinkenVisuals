@@ -671,3 +671,11 @@
 - **Evidence**: `clean build --no-daemon` — 209/0; jar `linkenvisuals-1.0.97.jar` (7 373 888 байт, SHA-256 `BECF12FB2DDB48D41B9C0BDF997AFB123F65E5D1E23CEA3A2B4E90103B6161DB`). Minecraft запускался с разрешения пользователя, но dev-клиент упал в шейдерный resource race (`Couldn't find source` для `linkenvisuals:core/*` и `minecraft:core/position_color`), world start не завершился; визуально header/карточки **не приняты**. Это dev-артефакт, release-jar ещё не проверялся.
 - **Commit**: `1d1e876` `feat(ui): align LINKEN header and grid with donor geometry (v1.0.97, D74)`.
 - **Остаток M8.9b**: theme button, dock indicator slide, Interface/Profile/Theme spacing, media strip typography/volume, release-jar visual acceptance 1280×720/4K.
+
+## 2026-10-21 · D75 · LINKEN strict 1:1: dock + theme swatches (M8.9b-2a) — v1.0.98
+- **Dock ×1.5**: pad 9, tab width `(540−18)/7`, tab height 54, indicator inset 3, indicator pill radius 13.5; иконки 22.5, active/hover lift 6.75, label 10.2 с alpha-градацией. Слайд индикатора через `Spring navSlide`; `navItem` теперь contiguous tabs без gap.
+- **Theme**: вместо вертикальных 86px-карточек — донорская сетка 2×4, swatch 45, gap 7.5, row pad 15, radius 12, имя 10.8, активный outline 1.8; в `LinkGuiTheme.Preset` добавлен донорский `background` (Midnight 0x0F1217 … Frost 0xF4F6FA). Ниже — информационный блок ACTIVE PALETTE (Interface-секция донора ещё не портирована).
+- **Тесты**: `dockTabsUseDonorScaledGeometry` — 54px tabs, pad 9, contiguous; всего **210 тестов, 0 падений**.
+- **Evidence**: `clean build --no-daemon` — 210/0; jar `linkenvisuals-1.0.98.jar` (7 374 430 байт, SHA-256 `E64C6D748DC3CE2698CF5762960EEFA3ADB0D33A8EDC5D7AB8B867B7A8755CE0`). Визуально не принято: dev-run ранее упал в shader-source race; запуск release-jar через MultiMC `--launch 1.21.111` не создал окно и был остановлен. Minecraft-визуал остаётся открытым.
+- **Commit**: `1c529bc` `feat(ui): align LINKEN dock and theme swatches (v1.0.98, D75)`.
+- **Остаток M8.9b-2b**: InterfaceWindow (interface scale/cursor tracker/transparency/Apply-Default), donor theme Interface section, media strip typography/volume, theme button; release-jar visual acceptance 1280×720/4K.

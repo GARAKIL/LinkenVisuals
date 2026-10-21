@@ -86,6 +86,7 @@
 - [x] **M8.8 — donor card scale + media controls**, v1.0.95, D72, commit `f76016d`: карточки 129/gap 15/header 78/media 126; prev/play/next через системные media-клавиши; 207 тестов.
 - [x] **M8.9a — strict card 1:1**, v1.0.96, D73, commit `a081296`: donor ModuleCard ×1.5 — badge 51, title 14.1/+81/+34.5, desc 11.85/+61.5, bind +90/21, toggle 54×27/right 15, radius 15, hover lift 4.5; `CardMetrics` + тест. 208 тестов.
 - [x] **M8.9b-1 — strict header/grid 1:1**, v1.0.97, D74, commit `1d1e876`: donor header ×1.5 — logo chip 60, head 42/+87, ALL 51×42, search +192, close 36/right−60, grid pad 63/126, media 120; `searchAll`. 209 тестов. Визуальный dev-прогон упал в shader-source resource race — не принят.
-- [ ] **M8.9b-2 — dock/panels/media 1:1** — theme button, dock indicator, Interface/Profile/Theme spacing, media strip typography/volume; volume/system volume или зафиксировать отклонение; close overlay (no-op) — docs. Затем release-jar визуальная приёмка 1280×720/4K.
+- [x] **M8.9b-2a — dock + theme swatches**, v1.0.98, D75, commit `1c529bc`: dock pad 9/54px tabs/sliding indicator/22.5px icons/lift 6.75; theme 2×4 swatches 45px с donor backgrounds; 210 тестов.
+- [ ] **M8.9b-2b — Interface/Theme/media 1:1** — Interface scale/cursor tracker/transparency/Apply-Default, donor theme Interface section, media strip typography/volume, theme button; volume/system volume или зафиксировать отклонение; close overlay (no-op) — docs. Затем release-jar визуальная приёмка 1280×720/4K.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

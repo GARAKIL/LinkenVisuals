@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №29 — strict dock/theme, M8.9b-2a) — v1.0.98
+
+### Сделано
+1. **D75/v1.0.98** (`1c529bc`): dock donor ×1.5 — pad 9, contiguous tabs 54px, sliding indicator inset 3/radius 13.5, icons 22.5, active/hover lift 6.75, label 10.2 alpha; theme — donor 2×4 swatches 45px/gap 7.5/radius 12, preset backgrounds (Midnight…Frost), active outline 1.8, lower ACTIVE PALETTE info.
+2. **Сборка/тесты**: **210 тестов, 0 падений**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.98.jar` (7 374 430 байт, SHA-256 `E64C6D748DC3CE2698CF5762960EEFA3ADB0D33A8EDC5D7AB8B867B7A8755CE0`).
+3. **Визуал**: dev-run ранее упал в shader-source race; release-jar через `MultiMC.exe --launch 1.21.111` не создал окно (процесс без MainWindowHandle, остановлен). Визуально dock/theme **не приняты**.
+
+### Следующая задача
+- **M8.9b-2b**: InterfaceWindow (interface scale/cursor tracker/transparency/Apply-Default), donor Theme Interface section, media strip typography/volume, theme button; volume/system volume — реальный контрол или зафиксировать отклонение; close overlay — docs-only (no-op).
+- **Release-jar visual acceptance** 1280×720/4K в чистом профиле; dev shader-source race обходить.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Визуал не подтверждён: dev shader-source race и неудачный MultiMC launch.
+- Interface/Theme donor section и media volume ещё не портированы.
+- Донор `donor2` отсутствует; используется локальный донор с теми же 1280×720-константами.
+
 ## Состояние на 2026-10-21 (чат №28 — strict header/grid, M8.9b-1) — v1.0.97
 
 ### Сделано
