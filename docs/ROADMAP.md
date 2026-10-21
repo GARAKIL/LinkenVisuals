@@ -80,6 +80,7 @@
 - [x] **M8.2 — донорская компоновка окон**, v1.0.90, D67, commit `ea26c9c`: 1280×720×1.5 — главное окно 1080×720, горизонтальный док 540×72, левый inspector 330×600, правое Theme-окно 360×855, media strip; модальный ThemeWindow удалён; 204 теста.
 - [x] **M8.3 — ModuleCard / MusicPlayerStrip / player preview**, v1.0.91, D68, commit `fa107f1`: card badges/иконки категорий, 2D player head в шапке, read-only media strip; 206 тестов.
 - [x] **M8.4 — light-темы LIGHT/FROST**, v1.0.91, D68: 8 палитр, полный token-pass (backdrop/panels/rows/fields/text), theme-панель 8 карточек.
-- [ ] **M8.5 (опционально)** — глобальный InterfaceWindow, перетаскиваемые окна настроек модуля, cursor trail/close overlay, 3D preview, управление музыкой.
+- [x] **M8.5 — style lock + Interface/Profile split**, v1.0.92, D69, commit `5638ef7`: Linken GUI нельзя переключить на Classic/Beta (Ctrl+Left/Right/setGuiStyle/GUI Style row заблокированы); левая колонка разделена на INTERFACE 330×282 + PROFILE 330×360. 207 тестов.
+- [ ] **M8.6 (остаток строгого 1:1)** — перетаскиваемые окна настроек модуля, cursor trail/close overlay, 3D player preview, управление музыкой/громкостью.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.
