@@ -4,7 +4,6 @@ import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.media.MediaWatcher;
 import dev.linkenvisuals.render.Fonts;
-import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.IconPipeline;
 import dev.linkenvisuals.render.MsdfText;
@@ -44,20 +43,23 @@ public final class LinkenMenuChrome {
 
     public static final int ICON_PERSON = 'P';
     public static final int ICON_PEOPLE = 'N';
+    public static final int ICON_GLOBE = 'E';
     public static final int ICON_GEAR = 'O';
     public static final int ICON_POWER = 'Q';
     public static final int ICON_DISCORD = 0xF144;
     public static final int ICON_TELEGRAM = 0xF1B6;
 
     private static final Identifier BACKGROUND = LinkenVisuals.id("textures/linkmenu/bg-tower.png");
+    private static final Identifier MUSIC_PLAY = LinkenVisuals.id("textures/linkmenu/music/play.png");
+    private static final Identifier MUSIC_PAUSE = LinkenVisuals.id("textures/linkmenu/music/pause.png");
     private static final float BACKGROUND_WIDTH = 1270.0f;
     private static final float BACKGROUND_HEIGHT = 999.0f;
 
-    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, d MMMM");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, d MMMM");
 
     private static long clockSecond = -1L;
-    private static String clockTime = "";
+    private static String clockHour = "";
+    private static String clockMinute = "";
     private static String clockDate = "";
     private static String modVersion;
 
@@ -90,9 +92,10 @@ public final class LinkenMenuChrome {
             Math.round(BACKGROUND_WIDTH), Math.round(BACKGROUND_HEIGHT),
             Math.round(BACKGROUND_WIDTH), Math.round(BACKGROUND_HEIGHT), 0xFFFFFFFF);
 
-        // Horizontal scrim built from narrow slices: DrawContext only exposes a
-        // vertical gradient, and 32 steps are visually indistinguishable at 8-bit alpha.
-        int strips = 32;
+        // Donor scrim is one horizontal gradient: rgba(6,9,8,0.5) on the left
+        // fading to fully transparent on the right. Narrow slices keep it smooth
+        // with the DrawContext API.
+        int strips = 48;
         int baseAlpha = Math.round(128.0f * fade);
         for (int i = 0; i < strips; i++) {
             float t = (i + 0.5f) / strips;
@@ -104,17 +107,23 @@ public final class LinkenMenuChrome {
             int x1 = Math.round(layout.width() * (i + 1) / strips);
             context.fill(x0, 0, x1, Math.round(layout.height()), alpha << 24 | 0x060908);
         }
-
-        context.fillGradient(0, 0, Math.round(layout.width()), Math.round(layout.height()),
-            rgba(0x040706, 34, fade), rgba(0x040706, 150, fade));
-
-        GlowPipeline.radial(context, 260.0f, 560.0f, 540.0f, rgba(ACCENT, 10, fade));
-        GlowPipeline.radial(context, layout.width() * 0.72f, layout.height() * 0.30f, 460.0f,
-            rgba(ACCENT, 8, fade));
     }
 
     // ------------------------------------------------------------------ header
 
+    public static void drawWordmark(DrawContext context, LinkenMenuLayout.Metrics layout, float fade) {
+        GlyphAtlas font = LinkenFonts.bodyMedium();
+        float size = 23.0f;
+        String word = "linken";
+        float wordWidth = textWidth(font, word, size);
+        float dotWidth = textWidth(font, ".", size);
+        float x = (layout.width() - wordWidth - dotWidth) * 0.5f;
+        float y = 44.0f;
+        drawText(context, font, word, x, y, size, rgba(TEXT, fade));
+        drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
+    }
+
+    /** Legacy corner wordmark used by the LINKEN sub-screens. */
     public static void drawWordmark(DrawContext context, float fade) {
         GlyphAtlas font = LinkenFonts.bodyMedium();
         float size = 27.0f;
@@ -131,8 +140,22 @@ public final class LinkenMenuChrome {
     public static void drawClock(DrawContext context, LinkenMenuLayout.Metrics layout, float fade) {
         updateClock();
         float right = layout.clock().right();
-        drawRightText(context, LinkenFonts.mono(), clockTime, right, 36.0f, 44.0f, rgba(TEXT, fade));
-        drawRightText(context, LinkenFonts.body(), clockDate, right, 84.0f, 12.5f, rgba(MUTED2, fade));
+        float size = 44.0f;
+        float gap = size * 0.15f;
+        float dot = size * 0.10f;
+        float hhWidth = textWidth(LinkenFonts.mono(), clockHour, size);
+        float mmWidth = textWidth(LinkenFonts.mono(), clockMinute, size);
+        float total = hhWidth + gap + dot + gap + mmWidth;
+        float x = right - total;
+        float y = 38.0f;
+        drawText(context, LinkenFonts.mono(), clockHour, x, y, size, rgba(TEXT, fade));
+        float cx = x + hhWidth + gap;
+        roundedFill(context, cx, y + size * 0.52f, dot, dot, dot * 0.5f, rgba(TEXT, fade), 1.0f);
+        roundedFill(context, cx, y + size * 0.74f, dot, dot, dot * 0.5f, rgba(TEXT, fade), 1.0f);
+        drawText(context, LinkenFonts.mono(), clockMinute, cx + dot + gap, y, size, rgba(TEXT, fade));
+
+        float dateY = y + size + 6.0f;
+        drawRightText(context, LinkenFonts.body(), clockDate, right, dateY, 12.5f, rgba(MUTED2, fade));
     }
 
     private static void updateClock() {
@@ -142,7 +165,9 @@ public final class LinkenMenuChrome {
         }
         clockSecond = second;
         Locale locale = currentLocale();
-        clockTime = LocalTime.now().format(TIME_FORMAT);
+        LocalTime time = LocalTime.now();
+        clockHour = String.format(locale, "%02d", time.getHour());
+        clockMinute = String.format(locale, "%02d", time.getMinute());
         String date = LocalDate.now().format(DATE_FORMAT.withLocale(locale));
         clockDate = date.isEmpty() ? date : date.substring(0, 1).toUpperCase(locale) + date.substring(1);
     }
@@ -196,13 +221,14 @@ public final class LinkenMenuChrome {
             labelX = iconX + iconSize + 12.0f;
         }
 
-        int contentColor = primary ? INK : (danger ? DANGER : mix(MUTED, ACCENT, hover));
+        int iconColor = primary ? INK : MUTED;
+        int labelColor = primary ? INK : (danger ? DANGER : TEXT2);
         GlyphAtlas iconAtlas = LinkenFonts.icons();
         if (iconAtlas != null) {
             IconPipeline.draw(context, iconAtlas, icon, iconX + iconSize * 0.5f, centerY,
-                iconSize, rgba(contentColor, fade));
+                iconSize, rgba(iconColor, fade));
         }
-        drawOn(context, labelFont, label, labelX, centerY, labelSize, rgba(contentColor, fade));
+        drawOn(context, labelFont, label, labelX, centerY, labelSize, rgba(labelColor, fade));
     }
 
     public static void drawSecondary(DrawContext context, float x, float y, float width, float height,
@@ -219,83 +245,94 @@ public final class LinkenMenuChrome {
     // ------------------------------------------------------------------ socials
 
     public static void drawSocialTile(DrawContext context, LinkenMenuLayout.Rect rect, int icon,
-                                      float hover, float fade, float uiScale) {
+                                      String label, float hover, float fade, float uiScale) {
         float y = rect.y() - hover * 2.0f;
         drawSecondary(context, rect.x(), y, rect.width(), rect.height(), 8.0f, hover, false, fade, uiScale);
-        GlyphAtlas brandAtlas = LinkenFonts.brands();
-        if (brandAtlas != null) {
-            IconPipeline.draw(context, brandAtlas, icon,
-                rect.x() + rect.width() * 0.5f, y + rect.height() * 0.5f, 17.0f,
-                rgba(mix(MUTED, ACCENT, hover), fade));
+        int color = rgba(mix(MUTED, ACCENT, hover), fade);
+        if (icon > 0) {
+            GlyphAtlas brandAtlas = LinkenFonts.brands();
+            if (brandAtlas != null) {
+                IconPipeline.draw(context, brandAtlas, icon,
+                    rect.x() + rect.width() * 0.5f, y + rect.height() * 0.5f, 17.0f, color);
+            }
+            return;
         }
+        if ("LV".equals(label)) {
+            GlyphAtlas font = LinkenFonts.heading();
+            float size = 12.0f;
+            float width = textWidth(font, label, size);
+            float x = rect.x() + (rect.width() - width) * 0.5f;
+            float centerY = y + rect.height() * 0.5f;
+            drawOn(context, font, "L", x, centerY, size, rgba(TEXT2, fade));
+            drawOn(context, font, "V", x + textWidth(font, "L", size), centerY, size, rgba(ACCENT, fade));
+            return;
+        }
+        GlyphAtlas font = LinkenFonts.mono();
+        float size = 13.0f;
+        drawCentered(context, font, label, rect.x() + rect.width() * 0.5f,
+            y + rect.height() * 0.5f, size, color);
     }
 
     // ------------------------------------------------------------------ media
 
     public static void drawMusic(DrawContext context, LinkenMenuLayout.Rect card, MediaWatcher.Track track,
                                  float fade, float uiScale) {
-        drawSecondary(context, card.x(), card.y(), card.width(), card.height(), 8.0f, 0.0f, false, fade, uiScale);
         boolean present = track != null && track.present();
+        float bottom = card.bottom();
+        float coverSize = 34.0f;
+        float progressY = bottom - 10.5f;
+        float rowY = progressY - 12.0f - coverSize;
+        float labelY = rowY - 9.0f - 10.5f;
 
-        drawSpaced(context, LinkenFonts.body(), I18n.get(present
-                ? "linkenvisuals.linkmenu.media.now_playing"
-                : "linkenvisuals.linkmenu.media.none"),
-            card.x() + 14.0f, card.y() + 9.0f, 9.0f, 1.5f, rgba(MUTED2, fade));
+        String now = I18n.get(present
+            ? "linkenvisuals.linkmenu.media.now_playing"
+            : "linkenvisuals.linkmenu.media.none");
+        float nowWidth = textWidth(LinkenFonts.body(), now, 10.5f);
+        drawSpaced(context, LinkenFonts.body(), now,
+            card.x() + (card.width() - nowWidth) * 0.5f, labelY, 10.5f, 0.84f, rgba(MUTED2, fade));
 
-        float coverX = card.x() + 14.0f;
-        float coverY = card.y() + 26.0f;
-        float coverSize = 40.0f;
-        roundedFill(context, coverX, coverY, coverSize, coverSize, 8.0f, rgba(0x201A17, 255, fade), uiScale);
-        roundedOutline(context, coverX, coverY, coverSize, coverSize, 8.0f, 1.0f,
-            rgba(0xFFFFFF, 18, fade), uiScale);
+        roundedFill(context, card.x(), rowY, coverSize, coverSize, coverSize * 0.5f,
+            rgba(0x201A17, 255, fade), uiScale);
+        boolean playing = present && track.playing();
+        Identifier icon = playing ? MUSIC_PAUSE : MUSIC_PLAY;
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, icon,
+            Math.round(card.x() + (coverSize - 9.0f) * 0.5f), Math.round(rowY + (coverSize - 9.0f) * 0.5f),
+            0.0f, 0.0f, 9, 9, 9, 9, rgba(playing ? TEXT : MUTED, fade));
 
-        long now = System.currentTimeMillis();
-        float barWidth = 3.0f;
-        for (int i = 0; i < 3; i++) {
-            float pulse = present && track.playing()
-                ? 0.5f + 0.5f * (float) Math.sin(now / 180.0 + i * 1.7)
-                : 0.25f;
-            float barHeight = 8.0f + pulse * 14.0f;
-            float barX = coverX + coverSize * 0.5f + (i - 1) * (barWidth + 4.0f) - barWidth * 0.5f;
-            roundedFill(context, barX, coverY + coverSize * 0.5f - barHeight * 0.5f, barWidth, barHeight,
-                1.5f, rgba(mix(MUTED, ACCENT, pulse), fade), uiScale);
-        }
-
-        float textX = coverX + coverSize + 12.0f;
-        float textWidth = card.width() - (textX - card.x()) - 14.0f;
+        float textX = card.x() + coverSize + 12.0f;
+        float textWidth = card.width() - (textX - card.x());
         if (present) {
-            String title = ellipsize(LinkenFonts.heading(), track.title(), textWidth, 12.5f);
-            drawText(context, LinkenFonts.heading(), title, textX, card.y() + 26.0f, 12.5f, rgba(TEXT, fade));
-
-            String artist = track.artist().isBlank() ? track.app() : track.artist();
-            artist = ellipsize(LinkenFonts.body(), artist, textWidth, 10.5f);
-            drawText(context, LinkenFonts.body(), artist, textX, card.y() + 44.0f, 10.5f, rgba(MUTED2, fade));
-
-            if (track.length() > 0L) {
-                float elapsed = Math.max(0.0f, Math.min(track.position(), track.length()));
-                float progress = Math.max(0.0f, Math.min(1.0f, elapsed / track.length()));
-                String left = fmtTime((long) elapsed);
-                String right = "-" + fmtTime(track.length() - (long) elapsed);
-                float rowY = card.y() + 70.0f;
-                float leftWidth = textWidth(LinkenFonts.mono(), left, 9.0f);
-                float rightWidth = textWidth(LinkenFonts.mono(), right, 9.0f);
-                drawText(context, LinkenFonts.mono(), left, card.x() + 14.0f, rowY, 9.0f, rgba(MUTED, fade));
-                drawRightText(context, LinkenFonts.mono(), right, card.right() - 14.0f, rowY, 9.0f, rgba(MUTED, fade));
-
-                float barX = card.x() + 14.0f + leftWidth + 8.0f;
-                float barW = card.width() - 28.0f - leftWidth - rightWidth - 16.0f;
-                if (barW > 4.0f) {
-                    roundedFill(context, barX, rowY + 4.0f, barW, 2.0f, 1.0f, rgba(0xFFFFFF, 41, fade), uiScale);
-                    if (progress > 0.001f) {
-                        roundedFill(context, barX, rowY + 4.0f, barW * progress, 2.0f, 1.0f,
-                            rgba(ACCENT, fade), uiScale);
-                    }
-                }
-            }
+            String title = ellipsize(LinkenFonts.heading(), track.title(), textWidth, 13.0f);
+            drawOn(context, LinkenFonts.heading(), title, textX, rowY + coverSize * 0.5f, 13.0f,
+                rgba(TEXT, fade));
         } else {
             String hint = ellipsize(LinkenFonts.body(), I18n.get("linkenvisuals.linkmenu.media.hint"),
                 textWidth, 10.5f);
-            drawText(context, LinkenFonts.body(), hint, textX, card.y() + 32.0f, 10.5f, rgba(MUTED2, fade));
+            drawOn(context, LinkenFonts.body(), hint, textX, rowY + coverSize * 0.5f, 10.5f,
+                rgba(MUTED2, fade));
+        }
+
+        String elapsed = "0:00";
+        String remain = present ? "-" + fmtTime(Math.max(0L, track.length() - (long) track.position())) : "--:--";
+        float progress = 0.0f;
+        if (present && track.length() > 0L) {
+            float position = Math.max(0.0f, Math.min(track.position(), track.length()));
+            elapsed = fmtTime((long) position);
+            progress = position / track.length();
+        }
+        float leftWidth = textWidth(LinkenFonts.mono(), elapsed, 10.5f);
+        float rightWidth = textWidth(LinkenFonts.mono(), remain, 10.5f);
+        drawText(context, LinkenFonts.mono(), elapsed, card.x(), progressY, 10.5f, rgba(MUTED, fade));
+        drawRightText(context, LinkenFonts.mono(), remain, card.right(), progressY, 10.5f, rgba(MUTED, fade));
+        float barX = card.x() + leftWidth + 10.0f;
+        float barW = card.width() - leftWidth - rightWidth - 20.0f;
+        if (barW > 4.0f) {
+            roundedFill(context, barX, progressY + 5.0f, barW, 2.0f, 1.0f,
+                rgba(0xFFFFFF, 41, fade), uiScale);
+            if (progress > 0.001f) {
+                roundedFill(context, barX, progressY + 5.0f, barW * progress, 2.0f, 1.0f,
+                    rgba(TEXT, fade), uiScale);
+            }
         }
     }
 
@@ -306,13 +343,13 @@ public final class LinkenMenuChrome {
         float y = layout.footer().y();
         float width = layout.footer().width();
         String first = ellipsize(LinkenFonts.body(),
-            I18n.get("linkenvisuals.linkmenu.disclaimer1"), width, 10.0f);
+            I18n.get("linkenvisuals.linkmenu.disclaimer1"), width, 11.0f);
         String second = ellipsize(LinkenFonts.body(),
             I18n.get("linkenvisuals.linkmenu.disclaimer2", SharedConstants.getGameVersion().name(), version()),
-            width, 10.0f);
-        drawText(context, LinkenFonts.body(), first, x, y, 10.0f, rgba(MUTED4, fade));
-        drawText(context, LinkenFonts.body(), second, x, y + LinkenMenuLayout.FOOTER_LINE_HEIGHT,
-            10.0f, rgba(MUTED4, fade));
+            width, 11.0f);
+        drawText(context, LinkenFonts.body(), first, x, y, 11.0f, rgba(MUTED4, fade));
+        drawText(context, LinkenFonts.body(), second, x, y + LinkenMenuLayout.DISCLAIMER_LINE_HEIGHT,
+            11.0f, rgba(MUTED4, fade));
     }
 
     // ------------------------------------------------------------------ text helpers
@@ -472,19 +509,6 @@ public final class LinkenMenuChrome {
     }
 
     // ------------------------------------------------------------------ misc
-
-    public static String greetingKey(int hour) {
-        if (hour >= 5 && hour < 12) {
-            return "linkenvisuals.linkmenu.greeting.morning";
-        }
-        if (hour >= 12 && hour < 18) {
-            return "linkenvisuals.linkmenu.greeting.day";
-        }
-        if (hour >= 18 && hour < 23) {
-            return "linkenvisuals.linkmenu.greeting.evening";
-        }
-        return "linkenvisuals.linkmenu.greeting.night";
-    }
 
     public static String licenseWord() {
         MinecraftClient client = MinecraftClient.getInstance();

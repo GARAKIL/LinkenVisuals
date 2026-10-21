@@ -3,10 +3,11 @@ package dev.linkenvisuals.ui.linkmenu;
 /**
  * Pure geometry for the LINKEN main menu.
  *
- * <p>All values are design units on a virtual 1920x1080 canvas. The screen
- * multiplies them with {@link #scaleFor(int)} so the composition keeps its
- * proportions at 720p, 1440p and 4K. The class deliberately has no Minecraft
- * imports so the layout rules can be unit-tested.
+ * <p>The values mirror the donor {@code CustomMainMenuScreen} on its
+ * 1920x1080 design canvas: the welcome column starts at 56/300, is 340 wide,
+ * the primary rows are 50 high with a 9 px gap, and the media block is a
+ * 320 wide strip centred above the 44 px bottom margin. The class deliberately
+ * has no Minecraft imports so the layout rules can be unit-tested.
  */
 public final class LinkenMenuLayout {
     public static final float DESIGN_HEIGHT = 1080.0f;
@@ -16,9 +17,14 @@ public final class LinkenMenuLayout {
     public static final float COLUMN_TOP = 300.0f;
     public static final float COLUMN_WIDTH = 340.0f;
 
-    public static final float HEADLINE_GAP = 22.0f;
+    public static final float EYEBROW_HEIGHT = 10.0f;
+    public static final float HEADLINE_GAP = 14.0f;
     public static final float HEADLINE_SIZE = 38.0f;
-    public static final float HEADLINE_LINE = 46.0f;
+    public static final float HEADLINE_LINE = 43.7f;
+    public static final float SUBTITLE_SIZE = 14.0f;
+    public static final float SUBTITLE_GAP = 28.0f;
+    public static final float ACCOUNT_SIZE = 38.0f;
+    public static final float ACCOUNT_GAP = 18.0f;
 
     public static final float BUTTON_HEIGHT = 50.0f;
     public static final float BUTTON_GAP = 9.0f;
@@ -26,12 +32,15 @@ public final class LinkenMenuLayout {
 
     public static final float SOCIAL_SIZE = 38.0f;
     public static final float SOCIAL_GAP = 9.0f;
+    public static final int SOCIAL_COUNT = 4;
 
     public static final float MUSIC_WIDTH = 320.0f;
     public static final float MUSIC_HEIGHT = 86.0f;
 
-    public static final float FOOTER_LINE_HEIGHT = 15.0f;
+    public static final float DISCLAIMER_SIZE = 11.0f;
+    public static final float DISCLAIMER_LINE_HEIGHT = 16.5f;
     public static final float BOTTOM_MARGIN = 44.0f;
+    public static final float SOCIAL_GAP_ABOVE_DISCLAIMER = 16.0f;
 
     private LinkenMenuLayout() {
     }
@@ -65,19 +74,19 @@ public final class LinkenMenuLayout {
         float width,
         float height,
         Rect column,
+        Rect wordmark,
+        Rect clock,
         Rect eyebrow,
         Rect headline,
         Rect subtitle,
         Rect account,
-        Rect singleplayer,
         Rect multiplayer,
+        Rect singleplayer,
         Rect settings,
-        Rect altManager,
         Rect quit,
         Rect socials,
         Rect music,
-        Rect footer,
-        Rect clock
+        Rect footer
     ) {
     }
 
@@ -100,39 +109,38 @@ public final class LinkenMenuLayout {
         float x = MARGIN;
         float top = COLUMN_TOP;
 
-        Rect eyebrow = new Rect(x, top, COLUMN_WIDTH, 14.0f);
-        Rect headline = new Rect(x, top + HEADLINE_GAP, COLUMN_WIDTH, HEADLINE_LINE * 2.0f);
-        Rect subtitle = new Rect(x, headline.bottom() + 4.0f, COLUMN_WIDTH, 18.0f);
-        Rect account = new Rect(x, subtitle.bottom() + 16.0f, COLUMN_WIDTH, 56.0f);
+        Rect eyebrow = new Rect(x, top, COLUMN_WIDTH, EYEBROW_HEIGHT);
+        float headlineY = top + EYEBROW_HEIGHT + HEADLINE_GAP;
+        Rect headline = new Rect(x, headlineY, COLUMN_WIDTH, HEADLINE_LINE * 2.0f);
+        float subtitleY = headline.bottom() + 8.0f;
+        Rect subtitle = new Rect(x, subtitleY, COLUMN_WIDTH, SUBTITLE_SIZE);
+        float accountY = subtitle.bottom() + SUBTITLE_GAP;
+        Rect account = new Rect(x, accountY, COLUMN_WIDTH, ACCOUNT_SIZE);
 
-        float buttonsTop = account.bottom() + 18.0f;
-        Rect singleplayer = new Rect(x, buttonsTop, COLUMN_WIDTH, BUTTON_HEIGHT);
-        Rect multiplayer = new Rect(x, singleplayer.bottom() + BUTTON_GAP, COLUMN_WIDTH, BUTTON_HEIGHT);
-        Rect settings = new Rect(x, multiplayer.bottom() + BUTTON_GAP, COLUMN_WIDTH, BUTTON_HEIGHT);
+        float buttonsTop = account.bottom() + ACCOUNT_GAP;
+        Rect multiplayer = new Rect(x, buttonsTop, COLUMN_WIDTH, BUTTON_HEIGHT);
+        Rect singleplayer = new Rect(x, multiplayer.bottom() + BUTTON_GAP, COLUMN_WIDTH, BUTTON_HEIGHT);
+        float thirdTop = singleplayer.bottom() + BUTTON_GAP;
+        float settingsWidth = COLUMN_WIDTH - QUIT_WIDTH - BUTTON_GAP;
+        Rect settings = new Rect(x, thirdTop, settingsWidth, BUTTON_HEIGHT);
+        Rect quit = new Rect(settings.right() + BUTTON_GAP, thirdTop, QUIT_WIDTH, BUTTON_HEIGHT);
 
-        float secondaryTop = settings.bottom() + BUTTON_GAP;
-        float altWidth = COLUMN_WIDTH - QUIT_WIDTH - BUTTON_GAP;
-        Rect altManager = new Rect(x, secondaryTop, altWidth, BUTTON_HEIGHT);
-        Rect quit = new Rect(altManager.right() + BUTTON_GAP, secondaryTop, QUIT_WIDTH, BUTTON_HEIGHT);
+        float disclaimerTop = height - BOTTOM_MARGIN - DISCLAIMER_LINE_HEIGHT * 2.0f;
+        Rect music = new Rect((width - MUSIC_WIDTH) * 0.5f,
+            height - BOTTOM_MARGIN - MUSIC_HEIGHT, MUSIC_WIDTH, MUSIC_HEIGHT);
+        float footerWidth = Math.max(120.0f,
+            Math.min(560.0f, music.x() - MARGIN - 16.0f));
+        Rect footer = new Rect(x, disclaimerTop, footerWidth, DISCLAIMER_LINE_HEIGHT * 2.0f);
+        float socialsTop = disclaimerTop - SOCIAL_GAP_ABOVE_DISCLAIMER - SOCIAL_SIZE;
+        float socialsWidth = SOCIAL_COUNT * SOCIAL_SIZE + (SOCIAL_COUNT - 1) * SOCIAL_GAP;
+        Rect socials = new Rect(x, socialsTop, socialsWidth, SOCIAL_SIZE);
 
-        float footerTop = height - BOTTOM_MARGIN - FOOTER_LINE_HEIGHT * 2.0f;
-        Rect music = new Rect(
-            Math.max(MARGIN, width - MARGIN - MUSIC_WIDTH),
-            height - BOTTOM_MARGIN - MUSIC_HEIGHT,
-            MUSIC_WIDTH,
-            MUSIC_HEIGHT
-        );
+        Rect wordmark = new Rect(0.0f, 44.0f, width, 30.0f);
+        Rect clock = new Rect(Math.max(MARGIN, width - MARGIN - 300.0f), 38.0f, 300.0f, 74.0f);
 
-        float footerWidth = Math.max(120.0f, Math.min(560.0f, music.x() - MARGIN - 16.0f));
-        Rect footer = new Rect(x, footerTop, footerWidth, FOOTER_LINE_HEIGHT * 2.0f);
-
-        float socialsTop = footerTop - 16.0f - SOCIAL_SIZE;
-        Rect socials = new Rect(x, socialsTop, SOCIAL_SIZE * 2.0f + SOCIAL_GAP, SOCIAL_SIZE);
-
-        Rect clock = new Rect(Math.max(MARGIN, width - MARGIN - 300.0f), 38.0f, 300.0f, 70.0f);
         Rect column = new Rect(x, top, COLUMN_WIDTH, quit.bottom() - top);
 
-        return new Metrics(scale, width, height, column, eyebrow, headline, subtitle, account,
-            singleplayer, multiplayer, settings, altManager, quit, socials, music, footer, clock);
+        return new Metrics(scale, width, height, column, wordmark, clock, eyebrow, headline,
+            subtitle, account, multiplayer, singleplayer, settings, quit, socials, music, footer);
     }
 }

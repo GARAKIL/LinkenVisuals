@@ -1,52 +1,47 @@
 package dev.linkenvisuals.clickgui.link;
 
 /**
- * Geometry for the donor-inspired LINKEN ClickGUI: a central 1080x720 module
- * window, a horizontal category dock, a narrow left inspector and a persistent
- * theme window on the right. Values are design units on the 1920x1080 canvas
- * (the donor's 1280x720 composition scaled by 1.5).
+ * Geometry for the LINKEN ClickGUI, matching the donor {@code LinkGuiScreen}
+ * on its fixed 1920x1080 canvas: a 1090x830 main window at 410/90, a 340x920
+ * theme/interface panel at 1540/90, a 330x358 profile card at 40/90 and a
+ * bottom dock of 52 px tiles.
  */
 public final class LinkGuiLayout {
-    public static final float MARGIN = 48.0f;
-    public static final float MAIN_WIDTH = 1080.0f;
-    public static final float MAIN_HEIGHT = 720.0f;
-    public static final float MAIN_TOP = 150.0f;
-    public static final float MAIN_GAP = 18.0f;
-    public static final float DOCK_WIDTH = 540.0f;
-    public static final float DOCK_HEIGHT = 72.0f;
-    public static final float SIDE_WIDTH = 330.0f;
-    public static final float INTERFACE_HEIGHT = 282.0f;
-    public static final float PROFILE_HEIGHT = 360.0f;
-    public static final float THEME_WIDTH = 360.0f;
-    public static final float THEME_HEIGHT = 855.0f;
-    public static final int NAV_ITEMS = 7;
-    public static final float NAV_PAD = 9.0f;
-    public static final float NAV_TAB_HEIGHT = 54.0f;
-    public static final float NAV_INDICATOR_INSET = 3.0f;
-    public static final float NAV_ITEM_HEIGHT = NAV_TAB_HEIGHT;
-    public static final float NAV_ITEM_GAP = 0.0f;
-    public static final float HEADER_HEIGHT = 78.0f;
-    public static final float CARD_HEIGHT = 129.0f;
-    public static final float CARD_GAP = 15.0f;
-    public static final int CARD_COLUMNS = 2;
+    public static final float CANVAS_WIDTH = 1920.0f;
+    public static final float CANVAS_HEIGHT = 1080.0f;
 
-    // Donor ModuleCard (1280x720) scaled by 1.5.
-    public static final float CARD_RADIUS = 15.0f;
-    public static final float CARD_BADGE_SIZE = 51.0f;
-    public static final float CARD_BADGE_PAD_X = 18.0f;
-    public static final float CARD_BADGE_CENTER_OFFSET = -7.5f;
-    public static final float CARD_STRIPE_X = 7.5f;
-    public static final float CARD_TITLE_X = 81.0f;
-    public static final float CARD_TITLE_Y = 34.5f;
-    public static final float CARD_TITLE_SIZE = 14.1f;
-    public static final float CARD_DESC_Y = 61.5f;
-    public static final float CARD_DESC_SIZE = 11.85f;
-    public static final float CARD_BIND_Y = 90.0f;
-    public static final float CARD_BIND_H = 21.0f;
-    public static final float CARD_TOGGLE_W = 54.0f;
-    public static final float CARD_TOGGLE_H = 27.0f;
-    public static final float CARD_TOGGLE_RIGHT = 69.0f;
-    public static final float CARD_TOGGLE_CENTER_OFFSET = -7.5f;
+    public static final float MAIN_WIDTH = 1090.0f;
+    public static final float MAIN_HEIGHT = 830.0f;
+    public static final float MAIN_X = 410.0f;
+    public static final float MAIN_Y = 90.0f;
+    public static final float HEADER_HEIGHT = 62.0f;
+
+    public static final float DOCK_HEIGHT = 52.0f;
+    public static final float DOCK_BOTTOM = 45.0f;
+    public static final float DOCK_TILE = 52.0f;
+    public static final float DOCK_GAP = 10.0f;
+    public static final int NAV_ITEMS = 6;
+
+    public static final float SIDE_WIDTH = 330.0f;
+    public static final float SIDE_X = 40.0f;
+    public static final float SIDE_Y = 90.0f;
+    public static final float PROFILE_HEIGHT = 358.0f;
+
+    public static final float THEME_WIDTH = 340.0f;
+    public static final float THEME_HEIGHT = 920.0f;
+    public static final float THEME_X = 1540.0f;
+    public static final float THEME_Y = 90.0f;
+
+    public static final float CARD_HEIGHT = 102.0f;
+    public static final float CARD_GAP = 12.0f;
+    public static final int CARD_COLUMNS = 3;
+    public static final float CARD_RADIUS = 10.0f;
+    public static final float CARD_PAD = 12.0f;
+    public static final float CARD_ICON_SIZE = 17.0f;
+    public static final float CARD_TOGGLE_W = 32.0f;
+    public static final float CARD_TOGGLE_H = 18.0f;
+
+    private static final float FIT_PAD = 12.0f;
 
     private LinkGuiLayout() {
     }
@@ -96,58 +91,59 @@ public final class LinkGuiLayout {
     }
 
     public static float scaleFor(int screenWidth, int screenHeight) {
+        return scaleFor(screenWidth, screenHeight, 1.0f);
+    }
+
+    public static float scaleFor(int screenWidth, int screenHeight, float uiScale) {
         if (screenWidth <= 0 || screenHeight <= 0) {
             return 0.01f;
         }
-        return Math.max(0.01f, Math.min(screenHeight / 1080.0f, screenWidth / 1280.0f));
+        float fitRaw = Math.min(screenWidth / CANVAS_WIDTH, screenHeight / CANVAS_HEIGHT);
+        float fitPad = Math.min((screenWidth - FIT_PAD * 2.0f) / CANVAS_WIDTH,
+            (screenHeight - FIT_PAD * 2.0f) / CANVAS_HEIGHT);
+        return Math.max(0.01f, Math.min(fitPad * Math.max(0.5f, uiScale), fitRaw));
     }
 
     public static float virtualWidth(int screenWidth, int screenHeight) {
-        return Math.max(1.0f, screenWidth / scaleFor(screenWidth, screenHeight));
+        return CANVAS_WIDTH;
     }
 
     public static Metrics compute(int screenWidth, int screenHeight) {
-        float scale = scaleFor(screenWidth, screenHeight);
-        float width = virtualWidth(screenWidth, screenHeight);
-        float height = Math.max(1080.0f, screenHeight / scale);
+        return compute(screenWidth, screenHeight, 1.0f);
+    }
 
-        float available = width - SIDE_WIDTH - THEME_WIDTH - MARGIN * 2.0f - MAIN_GAP * 2.0f;
-        float mainWidth = Math.min(MAIN_WIDTH, Math.max(600.0f, available));
-        float mainX = (width - mainWidth) * 0.5f;
-        float mainY = MAIN_TOP;
-        Rect center = new Rect(mainX, mainY, mainWidth, MAIN_HEIGHT);
-        Rect header = new Rect(center.x() + 24.0f, center.y() + 9.0f,
-            center.width() - 48.0f, 60.0f);
-        Rect close = new Rect(center.right() - 60.0f, center.y() + 21.0f, 36.0f, 36.0f);
-        Rect all = new Rect(center.x() + 132.0f, center.y() + 18.0f, 51.0f, 42.0f);
-        Rect search = new Rect(center.x() + 192.0f, center.y() + 18.0f,
-            Math.max(120.0f, center.width() - 294.0f), 42.0f);
+    public static Metrics compute(int screenWidth, int screenHeight, float uiScale) {
+        float scale = scaleFor(screenWidth, screenHeight, uiScale);
+        float width = CANVAS_WIDTH;
+        float height = CANVAS_HEIGHT;
 
-        Rect nav = new Rect((width - DOCK_WIDTH) * 0.5f, center.bottom() + MAIN_GAP,
-            DOCK_WIDTH, DOCK_HEIGHT);
-        Rect settings = new Rect(MARGIN, mainY, SIDE_WIDTH, INTERFACE_HEIGHT);
-        Rect profile = new Rect(MARGIN, settings.bottom() + MAIN_GAP, SIDE_WIDTH, PROFILE_HEIGHT);
-        Rect theme = new Rect(width - MARGIN - THEME_WIDTH,
-            mainY + (MAIN_HEIGHT - THEME_HEIGHT) * 0.5f, THEME_WIDTH, THEME_HEIGHT);
-        Rect cards = new Rect(center.x() + 63.0f, center.y() + HEADER_HEIGHT + 2.0f,
-            center.width() - 126.0f, center.height() - HEADER_HEIGHT - 131.0f);
-        Rect settingsContent = new Rect(settings.x() + 18.0f, settings.y() + 96.0f,
-            settings.width() - 36.0f, settings.height() - 116.0f);
-        Rect profileContent = new Rect(profile.x() + 18.0f, profile.y() + 96.0f,
-            profile.width() - 36.0f, profile.height() - 116.0f);
+        Rect center = new Rect(MAIN_X, MAIN_Y, MAIN_WIDTH, MAIN_HEIGHT);
+        Rect header = new Rect(MAIN_X, MAIN_Y, MAIN_WIDTH, HEADER_HEIGHT);
+        Rect close = new Rect(MAIN_X + MAIN_WIDTH - 54.0f, MAIN_Y + 14.0f, 34.0f, 34.0f);
+        Rect all = new Rect(MAIN_X + 178.0f, MAIN_Y + 14.0f, 52.0f, 34.0f);
+        Rect search = new Rect(MAIN_X + 242.0f, MAIN_Y + 14.0f,
+            close.x() - 8.0f - 34.0f - 8.0f - (MAIN_X + 242.0f), 34.0f);
 
-        return new Metrics(scale, width, height, header, close, nav, center, settings, profile,
-            center, all, search, cards, settingsContent, profileContent, theme);
+        Rect nav = new Rect(MAIN_X, height - DOCK_BOTTOM - DOCK_HEIGHT, MAIN_WIDTH, DOCK_HEIGHT);
+        Rect profile = new Rect(SIDE_X, SIDE_Y, SIDE_WIDTH, PROFILE_HEIGHT);
+        Rect theme = new Rect(THEME_X, THEME_Y, THEME_WIDTH, THEME_HEIGHT);
+        Rect cards = new Rect(MAIN_X + 20.0f, MAIN_Y + HEADER_HEIGHT + 20.0f,
+            MAIN_WIDTH - 40.0f, MAIN_HEIGHT - HEADER_HEIGHT - 20.0f - 92.0f - 8.0f);
+        Rect profileContent = new Rect(profile.x() + 16.0f, profile.y() + 16.0f,
+            profile.width() - 32.0f, profile.height() - 32.0f);
+
+        return new Metrics(scale, width, height, header, close, nav, center, profile, profile,
+            center, all, search, cards, profileContent, profileContent, theme);
     }
 
     public static Rect navItem(Metrics metrics, int index) {
-        float itemWidth = (metrics.nav().width() - NAV_PAD * 2.0f) / NAV_ITEMS;
-        return new Rect(metrics.nav().x() + NAV_PAD + index * itemWidth,
-            metrics.nav().y() + NAV_PAD, itemWidth, NAV_TAB_HEIGHT);
+        float itemWidth = (metrics.nav().width() - DOCK_GAP * (NAV_ITEMS - 1)) / NAV_ITEMS;
+        return new Rect(metrics.nav().x() + index * (itemWidth + DOCK_GAP),
+            metrics.nav().y(), itemWidth, metrics.nav().height());
     }
 
     public static Rect card(Metrics metrics, int index) {
-        float cardWidth = (metrics.cards().width() - CARD_GAP) / CARD_COLUMNS;
+        float cardWidth = (metrics.cards().width() - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
         int column = index % CARD_COLUMNS;
         int row = index / CARD_COLUMNS;
         return new Rect(metrics.cards().x() + column * (cardWidth + CARD_GAP),
@@ -159,34 +155,29 @@ public final class LinkGuiLayout {
     }
 
     public record CardMetrics(
-        Rect badge,
+        Rect icon,
         Rect title,
         Rect description,
         Rect bind,
         Rect toggle,
-        Rect stripe,
-        Rect pin
+        Rect more
     ) {
     }
 
-    /** Internal card geometry, matching donor ModuleCard ×1.5. */
+    /** Internal card geometry, matching the donor 3-column module tile. */
     public static CardMetrics cardMetrics(Rect card) {
-        float badgeY = card.y() + (card.height() - CARD_BADGE_SIZE) * 0.5f + CARD_BADGE_CENTER_OFFSET;
-        float stripeH = card.height() * 0.6f;
+        float pad = CARD_PAD;
+        float icon = CARD_ICON_SIZE;
         return new CardMetrics(
-            new Rect(card.x() + CARD_BADGE_PAD_X, badgeY, CARD_BADGE_SIZE, CARD_BADGE_SIZE),
-            new Rect(card.x() + CARD_TITLE_X, card.y() + CARD_TITLE_Y,
-                Math.max(10.0f, card.width() - 156.0f), 20.0f),
-            new Rect(card.x() + CARD_TITLE_X, card.y() + CARD_DESC_Y,
-                Math.max(10.0f, card.width() - 156.0f), 18.0f),
-            new Rect(card.x() + CARD_BADGE_PAD_X, card.y() + CARD_BIND_Y,
-                60.0f, CARD_BIND_H),
-            new Rect(card.right() - CARD_TOGGLE_RIGHT,
-                card.y() + (card.height() - CARD_TOGGLE_H) * 0.5f + CARD_TOGGLE_CENTER_OFFSET,
+            new Rect(card.x() + pad, card.y() + 11.0f, icon, icon),
+            new Rect(card.x() + pad + icon + 9.0f, card.y() + 11.0f,
+                Math.max(20.0f, card.width() - pad * 2.0f - icon - 9.0f - CARD_TOGGLE_W - 10.0f), 18.0f),
+            new Rect(card.x() + pad, card.y() + 36.0f,
+                Math.max(20.0f, card.width() - pad * 2.0f), 28.0f),
+            new Rect(card.x() + pad, card.bottom() - 27.0f, 110.0f, 18.0f),
+            new Rect(card.right() - pad - CARD_TOGGLE_W, card.y() + 11.0f,
                 CARD_TOGGLE_W, CARD_TOGGLE_H),
-            new Rect(card.x() + CARD_STRIPE_X, card.y() + (card.height() - stripeH) * 0.5f,
-                4.5f, stripeH),
-            new Rect(card.right() - 24.0f, card.bottom() - 19.0f, 10.0f, 10.0f)
+            new Rect(card.right() - pad - 24.0f, card.bottom() - 29.0f, 24.0f, 20.0f)
         );
     }
 }

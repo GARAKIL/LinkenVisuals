@@ -38,20 +38,20 @@ class LinkenMenuLayoutTest {
             assertInside(m.headline(), m, label);
             assertInside(m.subtitle(), m, label);
             assertInside(m.account(), m, label);
-            assertInside(m.singleplayer(), m, label);
             assertInside(m.multiplayer(), m, label);
+            assertInside(m.singleplayer(), m, label);
             assertInside(m.settings(), m, label);
-            assertInside(m.altManager(), m, label);
             assertInside(m.quit(), m, label);
             assertInside(m.socials(), m, label);
             assertInside(m.music(), m, label);
             assertInside(m.footer(), m, label);
             assertInside(m.clock(), m, label);
+            assertInside(m.wordmark(), m, label);
         }
     }
 
     @Test
-    void columnContainsEveryMenuRowAndNeverOverlapsTheMediaCard() {
+    void columnContainsEveryMenuRowAndNeverOverlapsTheMediaBlock() {
         for (int[] resolution : RESOLUTIONS) {
             LinkenMenuLayout.Metrics m = LinkenMenuLayout.compute(resolution[0], resolution[1]);
             String label = resolution[0] + "x" + resolution[1];
@@ -60,33 +60,48 @@ class LinkenMenuLayoutTest {
             assertContained(m.column(), m.headline(), label);
             assertContained(m.column(), m.subtitle(), label);
             assertContained(m.column(), m.account(), label);
-            assertContained(m.column(), m.singleplayer(), label);
             assertContained(m.column(), m.multiplayer(), label);
+            assertContained(m.column(), m.singleplayer(), label);
             assertContained(m.column(), m.settings(), label);
-            assertContained(m.column(), m.altManager(), label);
             assertContained(m.column(), m.quit(), label);
 
-            assertFalse(m.column().intersects(m.music()), "column and media card overlap at " + label);
+            assertFalse(m.column().intersects(m.music()), "column and media block overlap at " + label);
             assertFalse(m.column().intersects(m.footer()), "column and footer overlap at " + label);
-            assertFalse(m.music().intersects(m.footer()), "media card and footer overlap at " + label);
+            assertFalse(m.music().intersects(m.footer()), "media block and footer overlap at " + label);
             assertFalse(m.socials().intersects(m.footer()), "socials and footer overlap at " + label);
-            assertFalse(m.music().intersects(m.clock()), "media card and clock overlap at " + label);
+            assertFalse(m.music().intersects(m.clock()), "media block and clock overlap at " + label);
         }
     }
 
     @Test
-    void primaryButtonsAreSeparatedAndOrdered() {
+    void rowsFollowTheDonorOrderAndMeasurements() {
         for (int[] resolution : RESOLUTIONS) {
             LinkenMenuLayout.Metrics m = LinkenMenuLayout.compute(resolution[0], resolution[1]);
             String label = resolution[0] + "x" + resolution[1];
 
-            assertFalse(m.singleplayer().intersects(m.multiplayer()), "primary rows overlap at " + label);
-            assertFalse(m.multiplayer().intersects(m.settings()), "primary rows overlap at " + label);
-            assertFalse(m.altManager().intersects(m.quit()), "secondary buttons overlap at " + label);
-            assertTrue(m.singleplayer().bottom() < m.multiplayer().y(), "row order broken at " + label);
-            assertTrue(m.multiplayer().bottom() < m.settings().y(), "row order broken at " + label);
-            assertTrue(m.settings().bottom() < m.altManager().y(), "row order broken at " + label);
+            assertEquals(LinkenMenuLayout.COLUMN_X, m.column().x(), 1.0e-6f);
+            assertEquals(LinkenMenuLayout.COLUMN_TOP, m.column().y(), 1.0e-6f);
+            assertEquals(LinkenMenuLayout.COLUMN_WIDTH, m.column().width(), 1.0e-6f);
+            assertEquals(LinkenMenuLayout.BUTTON_HEIGHT, m.multiplayer().height(), 1.0e-6f);
+            assertEquals(LinkenMenuLayout.QUIT_WIDTH, m.quit().width(), 1.0e-6f);
+            assertEquals(m.multiplayer().width(), m.singleplayer().width(), 1.0e-6f);
+
+            assertTrue(m.multiplayer().bottom() < m.singleplayer().y(), "row order broken at " + label);
+            assertTrue(m.singleplayer().bottom() < m.settings().y(), "row order broken at " + label);
+            assertFalse(m.settings().intersects(m.quit()), "settings and quit overlap at " + label);
+            assertEquals(m.settings().y(), m.quit().y(), 1.0e-6f);
         }
+    }
+
+    @Test
+    void mediaBlockAndWordmarkKeepTheDonorAnchors() {
+        LinkenMenuLayout.Metrics m = LinkenMenuLayout.compute(1920, 1080);
+        assertEquals(320.0f, m.music().width(), 1.0e-6f);
+        assertEquals((1920.0f - 320.0f) * 0.5f, m.music().x(), 1.0e-6f);
+        assertEquals(1080.0f - 44.0f, m.music().bottom(), 1.0e-6f);
+        assertEquals(1920.0f * 0.5f, m.wordmark().x() + m.wordmark().width() * 0.5f, 1.0e-6f);
+        assertEquals(4, LinkenMenuLayout.SOCIAL_COUNT);
+        assertEquals(38.0f * 4.0f + 9.0f * 3.0f, m.socials().width(), 1.0e-6f);
     }
 
     @Test

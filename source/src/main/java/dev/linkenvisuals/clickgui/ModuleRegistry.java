@@ -145,6 +145,9 @@ public final class ModuleRegistry {
     private static ModuleInfo configModule;
     private static ModeSetting configProfile;
     private static BooleanSetting configAutoSave;
+    private static SliderSetting linkUiScale;
+    private static SliderSetting linkUiTransparency;
+    private static BooleanSetting linkCursorTracker;
 
     static {
         guiStyle = new ModeSetting("GUI Style", List.of("Classic", "Beta", "Linken"), 0, style -> {
@@ -168,13 +171,16 @@ public final class ModuleRegistry {
         });
         closeAnimation = new ModeSetting("Close Animation", List.of("Shatter", "Zoom Out"), 0);
         uiRadius = new SliderSetting("Corner Rounding", 0.0f, 10.0f, 1.0f, 5.0f, null);
+        linkUiScale = new SliderSetting("Interface Scale", 0.75f, 1.5f, 0.05f, 1.0f, "x");
+        linkUiTransparency = new SliderSetting("GUI Transparency", 30.0f, 100.0f, 1.0f, 100.0f, "%");
+        linkCursorTracker = new BooleanSetting("Cursor Tracker", true);
         uiAccent = new ColorSetting("Accent Colour", Theme.DEFAULT_ACCENT);
         tintWatermark = new BooleanSetting("Colour Watermark", true);
         tintHotbar = new BooleanSetting("Colour Hotbar", true);
         tintPotions = new BooleanSetting("Colour Potions", true);
         tintKeybinds = new BooleanSetting("Colour Keybinds", true);
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
-            List.of(guiStyle, closeAnimation),
+            List.of(guiStyle, linkUiScale, linkUiTransparency, linkCursorTracker, closeAnimation),
             List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
         clickGui.toggleSilently(true);
         clickGui.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
@@ -424,6 +430,18 @@ public final class ModuleRegistry {
 
     public static ColorSetting uiAccent() {
         return uiAccent;
+    }
+
+    public static float interfaceScale() {
+        return linkUiScale == null ? 1.0f : linkUiScale.value();
+    }
+
+    public static float interfaceTransparency() {
+        return linkUiTransparency == null ? 1.0f : linkUiTransparency.value() / 100.0f;
+    }
+
+    public static boolean cursorTracker() {
+        return linkCursorTracker == null || linkCursorTracker.value();
     }
 
     public static boolean tint(String element) {
