@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №30 — main menu + LinkGUI re-base, D76) — v1.0.99
+
+### Сделано
+1. **D76/v1.0.99**: сверка с фактически используемым донорским `LinkGuiScreen` (а не неиспользуемыми `windows/*`) показала настоящую раскладку 1920×1080: main 1090×830, 3 колонки card 102, theme 340×920, profile 330×358, dock 52. `LinkGuiLayout`/`LinkGuiScreen` переписаны под неё; header 62 (wordmark, avatar 34, ALL, search, sliders, close), bottom dock с раскрывающимся активным табом, вызываемые Profile и Theme/Interface, карточки с иконкой 17/двумя строками описания/keycap/32×18 toggle/«···», media strip 76.
+2. **Главное меню 1:1 donor**: центрированный `linken.` 23, часы PlexMono 44, welcome-колонка 56/300/340, кнопки **Multiplayer → Singleplayer → Settings + Quit**, inline-аккаунт с «сменить», 4 соц-плитки (TG/Discord/LV/Code), media 320 по центру внизу, footer 2×11. Убраны лишний Alt Manager, карточка аккаунта, левый wordmark и правая media-карточка.
+3. **Настройки GUI**: добавлены `Interface Scale`, `GUI Transparency`, `Cursor Tracker`; theme-панель 2×4 chips 28 + Interface-секция со всеми настройками ClickGUI. `GUI Style` скрыт/заблокирован (D69).
+4. **Сборка/тесты**: **211 тестов, 0 падений**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.99.jar` (7 376 475 байт, SHA-256 `8E9F08D5FDD5AB41C4507723D7BA9845289A2B0DF81496BC7E18DCFBB4E8E8EE`).
+5. **Визуал**: release-jar 1280×720 — title, LinkGUI, Theme, Profile проверены; при старте остаётся известный shader-source race, но UI/мир рисуются.
+
+### Следующая задача
+- Доводка strict 1:1 остатка: pinned settings cards (right-click pin сейчас без панели), 3D profile preview (2D-голова — зафиксированный fallback), donor media/volume, точная сверка шрифтов/отступов на 1920×1080.
+- Устранить shader-source race при старте (отдельный дефект: `Couldn't find source` для `linkenvisuals:core/*` и `minecraft:core/position_color`).
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Pinned-карточки и 3D-профиль не 1:1; это записано в D76.
+- Шрифтовые метрики MSDF могут давать субпиксельные отличия от donor `Render2D`.
+- Донорский `donor2`/`Главная` отсутствуют; использован `C:\Users\gameg\Desktop\визуалы` (read-only).
+
 ## Состояние на 2026-10-21 (чат №29 — strict dock/theme, M8.9b-2a) — v1.0.98
 
 ### Сделано
