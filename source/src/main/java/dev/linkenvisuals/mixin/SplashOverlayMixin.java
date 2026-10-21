@@ -40,6 +40,14 @@ public abstract class SplashOverlayMixin {
         }
         try {
             long now = Util.getMeasuringTimeMs();
+            // SplashOverlay sets reloadStartTime in its own render method. We
+            // cancel that method at HEAD, so manual resource reloads (resource
+            // packs, F3+T) would otherwise keep reloadStartTime at -1 forever:
+            // tick() would never set reloadCompleteTime and the overlay would
+            // never be removed. Mirror the vanilla initialisation here.
+            if (reloadStartTime <= 0L) {
+                reloadStartTime = now;
+            }
             long startedAt = reloadStartTime > 0L ? reloadStartTime : now;
             boolean complete = reloadCompleteTime > 0L;
             if (SplashProgress.finished(reloadCompleteTime, now)) {
