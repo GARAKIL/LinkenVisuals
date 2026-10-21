@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №28 — strict header/grid, M8.9b-1) — v1.0.97
+
+### Сделано
+1. **D74/v1.0.97** (`1d1e876`): donor header ×1.5 — logo chip 60, player head 42 на `+87`, `ALL` 51×42, search `+192`, close 36/right−60; grid side pad 63/126, media strip 120. Ник/счётчик категории убраны из шапки (в доноре их нет); добавлен `searchAll`/ALL.
+2. **Сборка/тесты**: **209 тестов, 0 падений**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.97.jar` (7 373 888 байт, SHA-256 `BECF12FB2DDB48D41B9C0BDF997AFB123F65E5D1E23CEA3A2B4E90103B6161DB`).
+3. **Визуальный прогон**: пользователь дал разрешение; dev-клиент запустился, title screen отрисовался, но при входе в мир/загрузке возник shader-source resource race — `Couldn't find source` для `linkenvisuals:core/*` и `minecraft:core/position_color`, world start не завершился. Header/карточки визуально **не приняты**; это dev-артефакт, release-jar не проверялся.
+
+### Следующая задача
+- **M8.9b-2**: theme button, dock indicator slide, Interface/Profile/Theme spacing, media strip typography/volume; volume/system volume — реальный контрол или зафиксировать отклонение; close overlay (no-op) — docs.
+- **Release-jar visual acceptance** 1280×720/4K: запускать не dev `runClient`, а собранный `linkenvisuals-1.0.97.jar` в чистом профиле, чтобы обойти shader-source race.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Dev-визуал заблокирован shader-source resource race; release-jar ещё не проверялся.
+- Header/карточки не проверены глазами; возможны нюансы chip/head/All/search.
+- Донор `donor2` на этом устройстве отсутствует; использован локальный старый донор с теми же 1280×720-константами.
+
 ## Состояние на 2026-10-21 (чат №27 — strict card 1:1, M8.9a) — v1.0.96
 
 ### Сделано

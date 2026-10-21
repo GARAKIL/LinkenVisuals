@@ -47,5 +47,6 @@
 - **M8.7 — cursor trail — ✅ v1.0.94, D71, `166869a`.** 64 точки/780 мс, glow-орбы + ядро; 207 тестов.
 - **M8.8 — donor card scale + media controls — ✅ v1.0.95, D72, `f76016d`.** Карточки 129/gap 15/header 78/media 126; prev/play/next через media-клавиши; 207 тестов.
 - **M8.9a — strict card 1:1 — ✅ v1.0.96, D73, `a081296`.** badge 51, title 14.1/+81/+34.5, desc 11.85/+61.5, bind +90/21, toggle 54×27/right 15, radius 15, hover lift 4.5; `CardMetrics` + тест; 208 тестов.
-- **M8.9b — strict header/dock/panels — ⛔** logo chip/head/All+search/close/theme, dock indicator, Interface/Profile/Theme spacing, media strip, volume; close overlay — docs-only (no-op в доноре). Затем визуальная приёмка 1280×720/4K.
+- **M8.9b-1 — strict header/grid — ✅ v1.0.97, D74, `1d1e876`.** logo chip 60/head 42+87, ALL 51×42, search +192, close 36/right−60, grid pad 63/126, media 120; 209 тестов. Dev-визуал не принят из-за shader-source resource race.
+- **M8.9b-2 — dock/panels/media — ⛔** theme button, dock indicator, Interface/Profile/Theme spacing, media typography/volume; close overlay — docs-only (no-op в доноре). Затем release-jar визуальная приёмка 1280×720/4K.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.

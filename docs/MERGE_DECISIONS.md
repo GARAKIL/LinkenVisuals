@@ -662,3 +662,12 @@
 - **Evidence**: `clean build --no-daemon` — 208/0; jar `linkenvisuals-1.0.96.jar` (7 373 730 байт, SHA-256 `139A07F5B48329270D64D774F3D6C1CC7F1C34A3CF7F1ACB518DD4F6A0DC0BFB`). Minecraft не запускался.
 - **Commit**: `a081296` `feat(ui): align LINKEN module cards with donor geometry (v1.0.96, D73)`.
 - **Остаток strict 1:1**: main header (logo chip 60, head 42 at +87, All+search 51+42, close 36, theme button), dock indicator slide, Interface/Profile/Theme spacing, media strip typography/volume, pixel reference/визуальная приёмка.
+
+## 2026-10-21 · D74 · LINKEN strict 1:1: donor header and grid (M8.9b) — v1.0.97
+- **Main header ×1.5**: logo chip 60 на `x+24/y+9` (radius 16.5), player head 42 на `x+87/y+18`, close 36 на `right−60/y+21`; внешний wordmark сохранён. Ник/счётчик категории из шапки убраны — в донорском `MainModuleWindow` их нет; профиль остаётся в левой панели.
+- **All + search**: кнопка `ALL` 51×42 на `x+132/y+18`, search `x+192/y+18` шириной `mainWidth−294`; `searchAll` показывает все категории при пустом запросе, поиск с непустым запросом уже ищет по всем; выбор категории сбрасывает `ALL`.
+- **Grid/media**: card area `x+63`, ширина `mainWidth−126` (донорский GRID_H_PAD 26×1.5), grid height `mainHeight−HEADER−131`; media strip `bottom−123`, height 120 (донорские MUSIC 84×1.5).
+- **Тесты**: `headerAndGridUseDonorScaledGeometry` — ALL 51×42, search +9 после ALL, close 36/right−60, cards ширина `main−126`, card width по донорской формуле; всего **209 тестов, 0 падений**.
+- **Evidence**: `clean build --no-daemon` — 209/0; jar `linkenvisuals-1.0.97.jar` (7 373 888 байт, SHA-256 `BECF12FB2DDB48D41B9C0BDF997AFB123F65E5D1E23CEA3A2B4E90103B6161DB`). Minecraft запускался с разрешения пользователя, но dev-клиент упал в шейдерный resource race (`Couldn't find source` для `linkenvisuals:core/*` и `minecraft:core/position_color`), world start не завершился; визуально header/карточки **не приняты**. Это dev-артефакт, release-jar ещё не проверялся.
+- **Commit**: `1d1e876` `feat(ui): align LINKEN header and grid with donor geometry (v1.0.97, D74)`.
+- **Остаток M8.9b**: theme button, dock indicator slide, Interface/Profile/Theme spacing, media strip typography/volume, release-jar visual acceptance 1280×720/4K.
