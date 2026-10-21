@@ -3,7 +3,7 @@
 ## Контекст
 - Репозиторий: https://github.com/KurumaOfficial/LinkenVisuals
 - Ветка: `main`
-- HEAD при передаче: `9610c10` (docs), последний код: `f76016d`
+- HEAD при передаче: см. `git log -1` (последний docs-коммит), последний код: `f76016d`
 - Версия мода: **1.0.95**
 - Тесты: **207 / 0 падений**
 - Исходники: `<repo>/source`
@@ -16,7 +16,7 @@
 ## Первым делом
 1. `git clone https://github.com/KurumaOfficial/LinkenVisuals.git`
 2. `git checkout main && git pull`
-3. Проверь: `git log -1 --oneline` = `9610c10`; `source/gradle.properties` → `mod_version=1.0.95`.
+3. Проверь: последний коммит — docs с этим файлом; последний код `f76016d` (`git log --oneline -5`); `source/gradle.properties` → `mod_version=1.0.95`.
 4. Прочитай:
    - `docs/HANDOFF.md` — верхняя секция «чат №26 — donor card scale + media controls» и все M8-секции;
    - `docs/MERGE_DECISIONS.md` — D52–D72, особенно D66–D72;
@@ -130,7 +130,7 @@ $env:JAVA_HOME='C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot'
 - Jar: `source/build/libs/linkenvisuals-1.0.95.jar`
 - SHA-256: `886EF652F5FDEE6298178C0B15916412816CBEE780A8BE66C66D5D8480B65081`
 - Размер: 7 371 851 байт
-- HEAD: `9610c10`; код: `f76016d`
+- HEAD: последний docs-коммит; код: `f76016d`
 - Предыдущие M8-коммиты: `166869a` (v1.0.94), `1d66355` (v1.0.93),
   `5638ef7` (v1.0.92), `fa107f1` (v1.0.91), `ea26c9c` (v1.0.90).
 
