@@ -20,7 +20,7 @@ class LinkGuiLayoutTest {
     };
 
     @Test
-    void panelsStayInsideTheCanvasAndDoNotOverlap() {
+    void donorPanelsStayInsideTheCanvasAndDoNotOverlap() {
         for (int[] resolution : RESOLUTIONS) {
             int width = resolution[0];
             int height = resolution[1];
@@ -28,30 +28,29 @@ class LinkGuiLayoutTest {
             String label = width + "x" + height;
 
             assertTrue(metrics.scale() > 0.0f, label);
-            assertTrue(metrics.nav().x() >= LinkGuiLayout.MARGIN - 0.01f, label);
-            assertTrue(metrics.settings().right() <= metrics.width() - LinkGuiLayout.MARGIN + 0.01f, label);
-            assertTrue(metrics.center().right() <= metrics.settings().x() + 0.01f, label);
-            assertFalse(metrics.nav().intersects(metrics.center()), label);
+            assertTrue(metrics.center().inside(metrics.width(), metrics.height()), label);
+            assertTrue(metrics.nav().inside(metrics.width(), metrics.height()), label);
+            assertTrue(metrics.settings().inside(metrics.width(), metrics.height()), label);
+            assertTrue(metrics.theme().inside(metrics.width(), metrics.height()), label);
             assertFalse(metrics.center().intersects(metrics.settings()), label);
-            assertTrue(metrics.center().width() >= 300.0f, label);
+            assertFalse(metrics.center().intersects(metrics.theme()), label);
+            assertFalse(metrics.center().intersects(metrics.nav()), label);
+            assertFalse(metrics.settings().intersects(metrics.theme()), label);
             assertTrue(metrics.cards().width() > 0.0f, label);
             assertTrue(metrics.settingsContent().width() > 0.0f, label);
         }
     }
 
     @Test
-    void configPanelSpansListAndInspector() {
+    void configUsesTheMainModuleWindow() {
         for (int[] resolution : RESOLUTIONS) {
             Metrics metrics = LinkGuiLayout.compute(resolution[0], resolution[1]);
-            assertEquals(metrics.center().x(), metrics.config().x(), 0.01f);
-            assertEquals(metrics.settings().right(), metrics.config().right(), 0.01f);
-            assertEquals(metrics.center().y(), metrics.config().y(), 0.01f);
-            assertEquals(metrics.center().height(), metrics.config().height(), 0.01f);
+            assertEquals(metrics.center(), metrics.config());
         }
     }
 
     @Test
-    void navigationItemsFitTheRail() {
+    void navigationItemsFitTheHorizontalDock() {
         for (int[] resolution : RESOLUTIONS) {
             Metrics metrics = LinkGuiLayout.compute(resolution[0], resolution[1]);
             for (int i = 0; i < LinkGuiLayout.NAV_ITEMS; i++) {
@@ -84,8 +83,8 @@ class LinkGuiLayoutTest {
         Metrics metrics = LinkGuiLayout.compute(1024, 768);
         assertNotNull(metrics);
         assertTrue(metrics.width() >= 1280.0f);
-        assertTrue(metrics.center().width() >= 300.0f);
-        assertTrue(metrics.settings().width() >= 520.0f);
+        assertTrue(metrics.center().width() >= 600.0f);
+        assertTrue(metrics.settings().width() >= 220.0f);
         assertTrue(metrics.settings().right() <= metrics.width() - LinkGuiLayout.MARGIN + 0.01f);
     }
 }

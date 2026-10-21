@@ -16,6 +16,7 @@ import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.clickgui.setting.StringSetting;
 import dev.linkenvisuals.i18n.I18n;
+import dev.linkenvisuals.media.MediaWatcher;
 import dev.linkenvisuals.render.CirclePipeline;
 import dev.linkenvisuals.render.ColorFieldPipeline;
 import dev.linkenvisuals.render.GlowPipeline;
@@ -97,10 +98,6 @@ public final class LinkGuiScreen extends Screen {
     private final List<NavHit> navHits = new ArrayList<>();
     private final List<ConfigHit> configHits = new ArrayList<>();
     private Rect closeHit;
-    private Rect themeHit;
-    private boolean themeWindowOpen;
-    private LinkGuiThemeWindowLayout.Layout themeWindowLayout;
-    private Rect themeWindowClose;
     private final List<ThemeHit> themeHits = new ArrayList<>();
     private Rect searchHit;
     private Rect headerToggleHit;
@@ -211,9 +208,7 @@ public final class LinkGuiScreen extends Screen {
         }
         drawPopups(context, metrics, mx, my, openT);
         drawFooter(context, metrics, openT);
-        if (themeWindowOpen) {
-            drawThemeWindow(context, metrics, mx, my, openT);
-        }
+        drawThemePanel(context, metrics, mx, my, openT);
         context.getMatrices().popMatrix();
     }
 
@@ -243,34 +238,31 @@ public final class LinkGuiScreen extends Screen {
 
     private void drawHeader(DrawContext context, Metrics metrics, float mx, float my,
                             float openT, float deltaSeconds) {
-        Rect header = metrics.header();
+        // Donor-style brand in the top-left corner, outside the floating main
+        // window. The module window owns its own player/search header.
         GlyphAtlas wordFont = LinkenFonts.bodyMedium();
         String word = "linken";
         float wordSize = 31.0f;
         float wordWidth = LinkenMenuChrome.textWidth(wordFont, word, wordSize);
-        LinkenMenuChrome.drawText(context, wordFont, word, header.x(), 38.0f, wordSize,
+        LinkenMenuChrome.drawText(context, wordFont, word, LinkGuiLayout.MARGIN, 38.0f, wordSize,
             LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
-        LinkenMenuChrome.drawText(context, wordFont, ".", header.x() + wordWidth, 38.0f, wordSize,
+        LinkenMenuChrome.drawText(context, wordFont, ".", LinkGuiLayout.MARGIN + wordWidth, 38.0f, wordSize,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "CLICKGUI",
-            header.x(), 78.0f, 9.5f, 2.7f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
+            LinkGuiLayout.MARGIN, 78.0f, 9.5f, 2.7f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
 
-        Rect theme = new Rect(metrics.close().x() - 132.0f, 42.0f, 112.0f, 48.0f);
-        boolean themeOver = theme.contains(mx, my);
-        LinkenMenuChrome.drawSecondary(context, theme.x(), theme.y(), theme.width(), theme.height(),
-            8.0f, themeOver ? 1.0f : 0.0f, false, openT, metrics.scale());
-        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "THEME",
-            theme.x() + 12.0f, theme.y() + 11.0f, 7.0f, 1.3f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), LinkGuiTheme.themeLabel(),
-            theme.x() + 12.0f, theme.y() + 24.0f, 9.5f,
-            LinkenMenuChrome.rgba(themeOver ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, openT));
-        themeHit = theme;
-
+        Rect main = metrics.center();
         String user = client != null && client.getSession() != null ? client.getSession().getUsername() : "player";
-        String label = user + "  /  " + selected.label().toUpperCase(Locale.ROOT);
-        LinkenMenuChrome.drawRightText(context, LinkenFonts.body(), label,
-            theme.x() - 22.0f, 48.0f, 11.5f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), user,
+            main.x() + 28.0f, main.y() + 24.0f, 17.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+        int count = selected == Category.CONFIG ? ConfigManager.getProfiles().size()
+            : ModuleRegistry.byCategory(selected).size();
+        LinkenMenuChrome.drawSpaced(context, LinkenFonts.mono(),
+            selected.label().toUpperCase(Locale.ROOT) + "  /  " + String.format(Locale.ROOT, "%02d", count)
+                + (count == 1 ? " MODULE" : " MODULES"),
+            main.x() + 28.0f, main.y() + 50.0f, 7.5f, 1.4f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
 
         Rect close = metrics.close();
         boolean closeOver = close.contains(mx, my);
@@ -302,13 +294,6 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, nav.x(), nav.y(), nav.width(), nav.height(), 12.0f, 1.0f,
             LinkenMenuChrome.rgba(0xFFFFFF, 17, openT), metrics.scale());
 
-        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "CATEGORIES",
-            nav.x() + 24.0f, nav.y() + 25.0f, 9.5f, 2.5f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
-        LinkenMenuChrome.drawRightText(context, LinkenFonts.mono(), "07",
-            nav.right() - 24.0f, nav.y() + 25.0f, 10.0f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
-
         navHits.clear();
         Category[] categories = Category.values();
         for (int i = 0; i < categories.length; i++) {
@@ -322,44 +307,30 @@ public final class LinkGuiScreen extends Screen {
 
             if (active) {
                 LinkenMenuChrome.roundedFill(context, item.x(), item.y(), item.width(), item.height(), 9.0f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 22, openT), metrics.scale());
+                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 26, openT), metrics.scale());
                 LinkenMenuChrome.roundedOutline(context, item.x(), item.y(), item.width(), item.height(), 9.0f, 1.0f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 88, openT), metrics.scale());
-                LinkenMenuChrome.roundedFill(context, item.x(), item.y() + 14.0f, 2.5f, item.height() - 28.0f, 1.2f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT), metrics.scale());
+                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 92, openT), metrics.scale());
             } else if (hover > 0.02f) {
                 LinkenMenuChrome.roundedFill(context, item.x(), item.y(), item.width(), item.height(), 9.0f,
                     LinkenMenuChrome.rgba(0xFFFFFF, Math.round(8 * hover * openT)),
                     metrics.scale());
             }
 
-            float iconX = item.x() + 18.0f;
-            float iconY = item.y() + (item.height() - 26.0f) * 0.5f;
+            float iconSize = 18.0f;
+            float iconX = item.x() + (item.width() - iconSize) * 0.5f;
+            float iconY = item.y() + 8.0f;
             context.drawTexture(RenderPipelines.GUI_TEXTURED, category.icon(),
-                Math.round(iconX), Math.round(iconY), 0.0f, 0.0f, 26, 26, 128, 128, 128, 128,
+                Math.round(iconX), Math.round(iconY), 0.0f, 0.0f, 18, 18, 128, 128, 128, 128,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkGuiTheme.MUTED,
                     active ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, active ? 1.0f : hover * 0.65f), openT));
 
-            LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(),
-                I18n.get("gui.category." + category.name().toLowerCase(Locale.ROOT)),
-                item.x() + 56.0f, item.y() + 20.0f, 16.5f,
+            String label = I18n.get("gui.category." + category.name().toLowerCase(Locale.ROOT));
+            float labelSize = 7.5f;
+            LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), label,
+                item.x() + item.width() * 0.5f, item.y() + 31.0f, labelSize,
                 LinkenMenuChrome.rgba(active ? LinkGuiTheme.TEXT : LinkGuiTheme.TEXT3, openT));
-            int count = category == Category.CONFIG ? ConfigManager.getProfiles().size()
-                : ModuleRegistry.byCategory(category).size();
-            LinkenMenuChrome.drawText(context, LinkenFonts.mono(), String.format(Locale.ROOT, "%02d", count),
-                item.x() + 56.0f, item.y() + 42.0f, 9.5f,
-                LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED3, openT));
-
             navHits.add(new NavHit(category, item));
         }
-
-        float footerY = nav.bottom() - 62.0f;
-        context.fill(Math.round(nav.x() + 24.0f), Math.round(footerY), Math.round(nav.right() - 24.0f),
-            Math.round(footerY + 1.0f), LinkenMenuChrome.rgba(0xFFFFFF, 13, openT));
-        LinkenMenuChrome.drawText(context, LinkenFonts.mono(), "v" + LinkenMenuChrome.version(),
-            nav.x() + 24.0f, footerY + 17.0f, 9.5f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
-        LinkenMenuChrome.drawRightText(context, LinkenFonts.headingLight(), "LINKEN",
-            nav.right() - 24.0f, footerY + 15.0f, 9.5f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT_DIM, openT));
     }
 
     // ------------------------------------------------------------------ module grid
@@ -372,17 +343,7 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f, 1.0f,
             LinkenMenuChrome.rgba(0xFFFFFF, 17, openT), metrics.scale());
 
-        String title = search.toString().isBlank()
-            ? I18n.get("gui.category." + selected.name().toLowerCase(Locale.ROOT))
-            : I18n.get("gui.search.placeholder");
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), title,
-            panel.x() + 28.0f, panel.y() + 28.0f, 27.0f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
         List<ModuleInfo> modules = visibleModules();
-        String count = String.format(Locale.ROOT, "%02d MODULES", modules.size());
-        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), count,
-            panel.x() + 30.0f, panel.y() + 67.0f, 8.5f, 1.7f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
 
         Rect searchRect = metrics.search();
         boolean searchOver = searchRect.contains(mx, my);
@@ -456,6 +417,63 @@ public final class LinkGuiScreen extends Screen {
         }
         context.disableScissor();
         scrollbar(context, metrics, area.right() - 4.0f, area.y(), area.height(), contentHeight, scroll, openT);
+        drawMediaStrip(context, metrics, panel, openT);
+    }
+
+    private void drawMediaStrip(DrawContext context, Metrics metrics, Rect panel, float openT) {
+        MediaWatcher.Track track = MediaWatcher.current();
+        boolean present = track != null && track.present();
+        Rect strip = new Rect(panel.x() + 24.0f, panel.bottom() - 88.0f,
+            panel.width() - 48.0f, 70.0f);
+        LinkenMenuChrome.roundedFill(context, strip.x(), strip.y(), strip.width(), strip.height(), 9.0f,
+            LinkenMenuChrome.rgba(0x111713, 220, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, strip.x(), strip.y(), strip.width(), strip.height(), 9.0f,
+            1.0f, LinkenMenuChrome.rgba(0xFFFFFF, 18, openT), metrics.scale());
+
+        LinkenMenuChrome.drawSpaced(context, LinkenFonts.body(),
+            present ? "NOW PLAYING" : "MEDIA",
+            strip.x() + 14.0f, strip.y() + 9.0f, 8.0f, 1.4f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
+        float barX = strip.x() + 14.0f;
+        float barY = strip.y() + 30.0f;
+        long now = System.currentTimeMillis();
+        float barW = 3.0f;
+        for (int i = 0; i < 3; i++) {
+            float pulse = present && track.playing()
+                ? 0.5f + 0.5f * (float) Math.sin(now / 180.0 + i * 1.7)
+                : 0.22f;
+            float barH = 8.0f + pulse * 14.0f;
+            LinkenMenuChrome.roundedFill(context, barX + i * (barW + 4.0f),
+                barY + 8.0f - barH * 0.5f, barW, barH, 1.5f,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkGuiTheme.MUTED, LinkGuiTheme.ACCENT, pulse), openT),
+                metrics.scale());
+        }
+
+        float textX = strip.x() + 48.0f;
+        float textW = strip.width() - 62.0f;
+        if (present) {
+            String title = LinkenMenuChrome.ellipsize(LinkenFonts.heading(), track.title(), textW, 11.0f);
+            LinkenMenuChrome.drawText(context, LinkenFonts.heading(), title,
+                textX, strip.y() + 14.0f, 11.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+            String artist = track.artist().isBlank() ? track.app() : track.artist();
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(),
+                LinkenMenuChrome.ellipsize(LinkenFonts.body(), artist, textW, 9.0f),
+                textX, strip.y() + 31.0f, 9.0f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
+            if (track.length() > 0L) {
+                float progress = Math.max(0.0f, Math.min(1.0f,
+                    (float) track.position() / (float) track.length()));
+                float progressY = strip.bottom() - 13.0f;
+                LinkenMenuChrome.roundedFill(context, textX, progressY, textW, 2.0f, 1.0f,
+                    LinkenMenuChrome.rgba(0xFFFFFF, 34, openT), metrics.scale());
+                if (progress > 0.001f) {
+                    LinkenMenuChrome.roundedFill(context, textX, progressY, textW * progress, 2.0f, 1.0f,
+                        LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT), metrics.scale());
+                }
+            }
+        } else {
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(), "Nothing is playing right now",
+                textX, strip.y() + 26.0f, 9.0f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
+        }
     }
 
     private void drawModuleCard(DrawContext context, Metrics metrics, ModuleInfo module, Rect card,
@@ -531,31 +549,31 @@ public final class LinkGuiScreen extends Screen {
         }
 
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), focused.name(),
-            panel.x() + 28.0f, panel.y() + 26.0f, 25.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+            panel.x() + 18.0f, panel.y() + 20.0f, 16.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
         String description = LinkenMenuChrome.ellipsize(LinkenFonts.body(), focused.description(),
-            panel.width() - 200.0f, 10.5f);
+            panel.width() - 36.0f, 9.5f);
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), description,
-            panel.x() + 30.0f, panel.y() + 61.0f, 10.5f,
+            panel.x() + 18.0f, panel.y() + 46.0f, 9.5f,
             LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
 
-        float toggleW = 48.0f;
-        float toggleH = 24.0f;
-        float toggleX = panel.right() - 28.0f - toggleW;
-        float toggleY = panel.y() + 28.0f;
+        float toggleW = 42.0f;
+        float toggleH = 22.0f;
+        float toggleX = panel.right() - 18.0f - toggleW;
+        float toggleY = panel.y() + 20.0f;
         focused.enableGlow.step(focused.enabled() ? 1.0 : 0.0, deltaSeconds);
         drawSwitch(context, toggleX, toggleY, toggleW, toggleH, (float) focused.enableGlow.get(), openT, metrics.scale());
         headerToggleHit = new Rect(toggleX - 6.0f, toggleY - 6.0f, toggleW + 12.0f, toggleH + 12.0f);
 
-        float dividerY = panel.y() + 88.0f;
-        context.fill(Math.round(panel.x() + 28.0f), Math.round(dividerY), Math.round(panel.right() - 28.0f),
+        float dividerY = panel.y() + 74.0f;
+        context.fill(Math.round(panel.x() + 18.0f), Math.round(dividerY), Math.round(panel.right() - 18.0f),
             Math.round(dividerY + 1.0f), LinkenMenuChrome.rgba(0xFFFFFF, 19, openT));
 
-        Rect bindRow = new Rect(panel.x() + 28.0f, dividerY + 13.0f, panel.width() - 56.0f, 50.0f);
+        Rect bindRow = new Rect(panel.x() + 18.0f, dividerY + 10.0f, panel.width() - 36.0f, 46.0f);
         drawBindRow(context, metrics, bindRow, mx, my, openT, deltaSeconds);
         moduleBindHit = bindRow;
 
         Rect area = metrics.settingsContent();
-        area = new Rect(area.x(), area.y() + 62.0f, area.width(), area.height() - 62.0f);
+        area = new Rect(area.x(), area.y() + 54.0f, area.width(), area.height() - 54.0f);
 
         List<Setting> settings = new ArrayList<>(focused.leftSettings());
         settings.addAll(focused.rightSettings());
@@ -621,7 +639,8 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, row.x(), row.y(), row.width(), row.height(), 7.0f, 1.0f,
             LinkenMenuChrome.rgba(0xFFFFFF, Math.round((14 + (hovered ? 20 : 0)) * openT)), metrics.scale());
 
-        LinkenMenuChrome.drawText(context, LinkenFonts.body(), setting.name(),
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(),
+            LinkenMenuChrome.ellipsize(LinkenFonts.body(), setting.name(), row.width() - 90.0f, 11.5f),
             row.x() + 16.0f, row.y() + 12.0f, 11.5f,
             LinkenMenuChrome.rgba(LinkGuiTheme.TEXT3, openT));
 
@@ -1056,38 +1075,31 @@ public final class LinkGuiScreen extends Screen {
 
     // ------------------------------------------------------------------ theme window
 
-    private void drawThemeWindow(DrawContext context, Metrics metrics, float mx, float my, float openT) {
-        context.fill(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
-            LinkenMenuChrome.rgba(0x020403, 168, openT));
-        LinkGuiTheme.Preset[] presets = LinkGuiTheme.Preset.values();
-        themeWindowLayout = LinkGuiThemeWindowLayout.compute(metrics.width(), metrics.height(), presets.length);
-        Rect panel = themeWindowLayout.panel();
+    private void drawThemePanel(DrawContext context, Metrics metrics, float mx, float my, float openT) {
+        Rect panel = metrics.theme();
         LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 14.0f,
-            LinkenMenuChrome.rgba(0x0E1411, 252, openT), metrics.scale());
+            LinkenMenuChrome.rgba(0x0E1411, 236, openT), metrics.scale());
         LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 14.0f,
-            1.0f, LinkenMenuChrome.rgba(0xFFFFFF, 32, openT), metrics.scale());
+            1.0f, LinkenMenuChrome.rgba(0xFFFFFF, 26, openT), metrics.scale());
 
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "THEME",
-            panel.x() + LinkGuiThemeWindowLayout.PAD, panel.y() + 20.0f, 9.0f, 1.7f,
+            panel.x() + 18.0f, panel.y() + 20.0f, 9.0f, 1.7f,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), "LINKEN CLICKGUI PALETTE",
-            panel.x() + LinkGuiThemeWindowLayout.PAD, panel.y() + 38.0f, 15.0f,
+        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), "CLICKGUI PALETTE",
+            panel.x() + 18.0f, panel.y() + 38.0f, 16.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
-
-        themeWindowClose = themeWindowLayout.close();
-        boolean closeHover = themeWindowClose.contains(mx, my);
-        LinkenMenuChrome.roundedFill(context, themeWindowClose.x(), themeWindowClose.y(),
-            themeWindowClose.width(), themeWindowClose.height(), 8.0f,
-            LinkenMenuChrome.rgba(closeHover ? 0x2A1A1A : 0x151C17, 235, openT), metrics.scale());
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "X",
-            themeWindowClose.x() + themeWindowClose.width() * 0.5f,
-            themeWindowClose.y() + 11.0f, 11.0f,
-            LinkenMenuChrome.rgba(closeHover ? LinkGuiTheme.DANGER : LinkGuiTheme.MUTED2, openT));
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(), "APPLIES TO THE WHOLE SHELL",
+            panel.x() + 18.0f, panel.y() + 62.0f, 9.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
 
         themeHits.clear();
-        for (int i = 0; i < presets.length && i < themeWindowLayout.cards().size(); i++) {
-            LinkGuiTheme.Preset preset = presets[i];
-            Rect card = themeWindowLayout.cards().get(i);
+        LinkGuiTheme.Preset[] presets = LinkGuiTheme.Preset.values();
+        float cardX = panel.x() + 18.0f;
+        float cardW = panel.width() - 36.0f;
+        float cardH = 94.0f;
+        float cardY = panel.y() + 88.0f;
+        for (LinkGuiTheme.Preset preset : presets) {
+            Rect card = new Rect(cardX, cardY, cardW, cardH);
             boolean hovered = card.contains(mx, my);
             boolean active = LinkGuiTheme.preset() == preset;
             LinkenMenuChrome.roundedFill(context, card.x(), card.y(), card.width(), card.height(), 10.0f,
@@ -1102,24 +1114,21 @@ public final class LinkGuiScreen extends Screen {
             LinkenMenuChrome.roundedFill(context, card.x() + 22.0f, card.y() + 22.0f, 18.0f, 18.0f,
                 6.0f, LinkenMenuChrome.rgba(preset.accentDim(), openT), metrics.scale());
             LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), preset.label(),
-                card.x() + 58.0f, card.y() + 17.0f, 11.0f,
+                card.x() + 58.0f, card.y() + 17.0f, 12.0f,
                 LinkenMenuChrome.rgba(active || hovered ? LinkGuiTheme.TEXT : LinkGuiTheme.TEXT3, openT));
             LinkenMenuChrome.drawSpaced(context, LinkenFonts.mono(),
                 active ? "ACTIVE" : "CLICK TO APPLY",
                 card.x() + 58.0f, card.y() + 38.0f, 7.0f, 1.0f,
                 LinkenMenuChrome.rgba(active ? preset.accent() : LinkGuiTheme.MUTED3, openT));
 
-            float barY = card.bottom() - 28.0f;
+            float barY = card.bottom() - 22.0f;
             LinkenMenuChrome.roundedFill(context, card.x() + 14.0f, barY, card.width() - 28.0f, 4.0f,
                 2.0f, LinkenMenuChrome.rgba(preset.accentDim(), 150, openT), metrics.scale());
             LinkenMenuChrome.roundedFill(context, card.x() + 14.0f, barY, (card.width() - 28.0f) * 0.62f,
                 4.0f, 2.0f, LinkenMenuChrome.rgba(preset.accent(), openT), metrics.scale());
             themeHits.add(new ThemeHit(preset, card));
+            cardY += cardH + 10.0f;
         }
-    }
-
-    private void closeThemeWindow() {
-        themeWindowOpen = false;
     }
 
     // ------------------------------------------------------------------ input
@@ -1134,34 +1143,17 @@ public final class LinkGuiScreen extends Screen {
         float my = (float) click.y() / metrics.scale();
         boolean rightClick = click.button() == 1;
 
-        if (themeWindowOpen) {
-            if (themeWindowClose != null && themeWindowClose.contains(mx, my)) {
-                closeThemeWindow();
+        for (ThemeHit hit : themeHits) {
+            if (hit.bounds().contains(mx, my)) {
+                LinkGuiTheme.apply(hit.preset().name());
+                LinkGuiConfig.setTheme(hit.preset().name());
+                playClick();
                 return true;
             }
-            if (themeWindowLayout != null && !themeWindowLayout.panel().contains(mx, my)) {
-                closeThemeWindow();
-                return true;
-            }
-            for (ThemeHit hit : themeHits) {
-                if (hit.bounds().contains(mx, my)) {
-                    LinkGuiTheme.apply(hit.preset().name());
-                    LinkGuiConfig.setTheme(hit.preset().name());
-                    playClick();
-                    closeThemeWindow();
-                    return true;
-                }
-            }
-            return true;
         }
 
         if (closeHit != null && closeHit.contains(mx, my)) {
             close();
-            return true;
-        }
-        if (themeHit != null && themeHit.contains(mx, my)) {
-            themeWindowOpen = true;
-            playClick();
             return true;
         }
         // Popup capture comes first so a click cannot accidentally toggle a row
@@ -1469,10 +1461,6 @@ public final class LinkGuiScreen extends Screen {
             return true;
         }
         if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
-            if (themeWindowOpen) {
-                closeThemeWindow();
-                return true;
-            }
             if (openColor != null) {
                 if (openColor.open()) {
                     openColor.toggleOpen();
