@@ -27,6 +27,24 @@ public final class LinkGuiLayout {
     public static final float CARD_GAP = 15.0f;
     public static final int CARD_COLUMNS = 2;
 
+    // Donor ModuleCard (1280x720) scaled by 1.5.
+    public static final float CARD_RADIUS = 15.0f;
+    public static final float CARD_BADGE_SIZE = 51.0f;
+    public static final float CARD_BADGE_PAD_X = 18.0f;
+    public static final float CARD_BADGE_CENTER_OFFSET = -7.5f;
+    public static final float CARD_STRIPE_X = 7.5f;
+    public static final float CARD_TITLE_X = 81.0f;
+    public static final float CARD_TITLE_Y = 34.5f;
+    public static final float CARD_TITLE_SIZE = 14.1f;
+    public static final float CARD_DESC_Y = 61.5f;
+    public static final float CARD_DESC_SIZE = 11.85f;
+    public static final float CARD_BIND_Y = 90.0f;
+    public static final float CARD_BIND_H = 21.0f;
+    public static final float CARD_TOGGLE_W = 54.0f;
+    public static final float CARD_TOGGLE_H = 27.0f;
+    public static final float CARD_TOGGLE_RIGHT = 69.0f;
+    public static final float CARD_TOGGLE_CENTER_OFFSET = -7.5f;
+
     private LinkGuiLayout() {
     }
 
@@ -133,5 +151,37 @@ public final class LinkGuiLayout {
 
     public static int columns(int moduleCount) {
         return Math.max(1, Math.min(CARD_COLUMNS, moduleCount));
+    }
+
+    public record CardMetrics(
+        Rect badge,
+        Rect title,
+        Rect description,
+        Rect bind,
+        Rect toggle,
+        Rect stripe,
+        Rect pin
+    ) {
+    }
+
+    /** Internal card geometry, matching donor ModuleCard ×1.5. */
+    public static CardMetrics cardMetrics(Rect card) {
+        float badgeY = card.y() + (card.height() - CARD_BADGE_SIZE) * 0.5f + CARD_BADGE_CENTER_OFFSET;
+        float stripeH = card.height() * 0.6f;
+        return new CardMetrics(
+            new Rect(card.x() + CARD_BADGE_PAD_X, badgeY, CARD_BADGE_SIZE, CARD_BADGE_SIZE),
+            new Rect(card.x() + CARD_TITLE_X, card.y() + CARD_TITLE_Y,
+                Math.max(10.0f, card.width() - 156.0f), 20.0f),
+            new Rect(card.x() + CARD_TITLE_X, card.y() + CARD_DESC_Y,
+                Math.max(10.0f, card.width() - 156.0f), 18.0f),
+            new Rect(card.x() + CARD_BADGE_PAD_X, card.y() + CARD_BIND_Y,
+                60.0f, CARD_BIND_H),
+            new Rect(card.right() - CARD_TOGGLE_RIGHT,
+                card.y() + (card.height() - CARD_TOGGLE_H) * 0.5f + CARD_TOGGLE_CENTER_OFFSET,
+                CARD_TOGGLE_W, CARD_TOGGLE_H),
+            new Rect(card.x() + CARD_STRIPE_X, card.y() + (card.height() - stripeH) * 0.5f,
+                4.5f, stripeH),
+            new Rect(card.right() - 24.0f, card.bottom() - 19.0f, 10.0f, 10.0f)
+        );
     }
 }

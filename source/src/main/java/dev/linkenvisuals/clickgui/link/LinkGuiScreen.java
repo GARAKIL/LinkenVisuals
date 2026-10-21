@@ -577,53 +577,61 @@ public final class LinkGuiScreen extends Screen {
         module.enableGlow.step(module.enabled() ? 1.0 : 0.0, 0.05);
         float on = (float) module.enableGlow.get();
 
+        // Donor hover lift is 3px on the 720p canvas, 4.5px on our 1.5x canvas.
+        Rect visual = new Rect(card.x(), card.y() - hover * 4.5f, card.width(), card.height());
+        LinkGuiLayout.CardMetrics cm = LinkGuiLayout.cardMetrics(visual);
+
         int fill = active ? LinkGuiTheme.ACTIVE : LinkGuiTheme.ROW;
         float fillAlpha = 208 + hover * 30;
-        LinkenMenuChrome.roundedFill(context, card.x(), card.y(), card.width(), card.height(), 9.0f,
+        LinkenMenuChrome.roundedFill(context, visual.x(), visual.y(), visual.width(), visual.height(),
+            LinkGuiLayout.CARD_RADIUS,
             LinkenMenuChrome.rgba(fill, Math.round(fillAlpha * openT)), metrics.scale());
         if (on > 0.02f) {
-            LinkenMenuChrome.roundedFill(context, card.x(), card.y() + 13.0f, 2.5f, card.height() - 26.0f, 1.2f,
+            LinkenMenuChrome.roundedFill(context, cm.stripe().x(), cm.stripe().y(),
+                cm.stripe().width(), cm.stripe().height(), cm.stripe().width() * 0.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, Math.round(220 * on * openT)), metrics.scale());
         }
         int outline = active ? LinkGuiTheme.ACCENT : 0xFFFFFF;
         int outlineAlpha = active ? 104 : Math.round(17 + hover * 26);
-        LinkenMenuChrome.roundedOutline(context, card.x(), card.y(), card.width(), card.height(), 9.0f, 1.0f,
+        LinkenMenuChrome.roundedOutline(context, visual.x(), visual.y(), visual.width(), visual.height(),
+            LinkGuiLayout.CARD_RADIUS, 1.0f,
             LinkenMenuChrome.rgba(outline, Math.round(outlineAlpha * openT)), metrics.scale());
 
-        LinkenMenuChrome.roundedFill(context, card.x() + 14.0f, card.y() + 12.0f, 28.0f, 28.0f, 7.0f,
-            LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACTIVE : LinkGuiTheme.PANEL_LIGHT, 220, openT), metrics.scale());
+        LinkenMenuChrome.roundedFill(context, cm.badge().x(), cm.badge().y(),
+            cm.badge().width(), cm.badge().height(), 12.0f,
+            LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACTIVE : LinkGuiTheme.PANEL_LIGHT, 220, openT),
+            metrics.scale());
         context.drawTexture(RenderPipelines.GUI_TEXTURED, module.category().icon(),
-            Math.round(card.x() + 20.0f), Math.round(card.y() + 18.0f), 0.0f, 0.0f,
-            16, 16, 128, 128, 128, 128,
+            Math.round(cm.badge().x() + 15.0f), Math.round(cm.badge().y() + 15.0f), 0.0f, 0.0f,
+            20, 20, 128, 128, 128, 128,
             LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED2, openT));
 
         LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(),
-            LinkenMenuChrome.ellipsize(LinkenFonts.headingLight(), module.name(), card.width() - 116.0f, 17.0f),
-            card.x() + 50.0f, card.y() + 15.0f, 17.0f,
+            LinkenMenuChrome.ellipsize(LinkenFonts.headingLight(), module.name(),
+                cm.title().width(), LinkGuiLayout.CARD_TITLE_SIZE),
+            cm.title().x(), cm.title().y(), LinkGuiLayout.CARD_TITLE_SIZE,
             LinkenMenuChrome.rgba(active ? LinkGuiTheme.TEXT : LinkGuiTheme.TEXT3, openT));
         String description = LinkenMenuChrome.ellipsize(LinkenFonts.body(), module.description(),
-            card.width() - 100.0f, 10.0f);
+            cm.description().width(), LinkGuiLayout.CARD_DESC_SIZE);
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), description,
-            card.x() + 50.0f, card.y() + 40.0f, 10.0f,
+            cm.description().x(), cm.description().y(), LinkGuiLayout.CARD_DESC_SIZE,
             LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
 
         String key = module.binding() ? "..." : (module.hasKeybind() ? module.keybind() : "UNBOUND");
-        float chipW = Math.max(54.0f, LinkenMenuChrome.textWidth(LinkenFonts.mono(), key, 8.0f) + 18.0f);
-        LinkenMenuChrome.roundedFill(context, card.x() + 16.0f, card.bottom() - 27.0f, chipW, 16.0f, 4.0f,
+        float chipW = Math.max(cm.bind().width(),
+            LinkenMenuChrome.textWidth(LinkenFonts.mono(), key, 9.9f) + 20.0f);
+        LinkenMenuChrome.roundedFill(context, cm.bind().x(), cm.bind().y(), chipW, cm.bind().height(), 7.0f,
             LinkenMenuChrome.rgba(0xFFFFFF, 18, openT), metrics.scale());
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), key,
-            card.x() + 16.0f + chipW * 0.5f, card.bottom() - 19.0f, 8.0f,
+        LinkenMenuChrome.drawText(context, LinkenFonts.mono(), key,
+            cm.bind().x() + 10.0f, cm.bind().y() + 6.5f, 9.9f,
             LinkenMenuChrome.rgba(module.binding() ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED, openT));
 
-        float switchW = 38.0f;
-        float switchH = 20.0f;
-        float switchX = card.right() - 18.0f - switchW;
-        float switchY = card.y() + 16.0f;
-        drawSwitch(context, switchX, switchY, switchW, switchH, on, openT, metrics.scale());
+        drawSwitch(context, cm.toggle().x(), cm.toggle().y(),
+            cm.toggle().width(), cm.toggle().height(), on, openT, metrics.scale());
 
         boolean pinned = LinkGuiConfig.pinned(module.name());
-        float pinX = card.right() - 24.0f;
-        float pinY = card.bottom() - 19.0f;
+        float pinX = cm.pin().x() + cm.pin().width() * 0.5f;
+        float pinY = cm.pin().y() + cm.pin().height() * 0.5f;
         CirclePipeline.draw(context, pinX, pinY, 5.2f,
             LinkenMenuChrome.rgba(pinned ? LinkGuiTheme.ACCENT : 0xFFFFFF,
                 pinned ? 210 : Math.round(45 + hover * 40), openT));

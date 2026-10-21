@@ -83,6 +83,30 @@ class LinkGuiLayoutTest {
     }
 
     @Test
+    void cardContentUsesDonorScaledGeometry() {
+        Metrics metrics = LinkGuiLayout.compute(1920, 1080);
+        Rect card = LinkGuiLayout.card(metrics, 0);
+        LinkGuiLayout.CardMetrics cm = LinkGuiLayout.cardMetrics(card);
+
+        assertEquals(51.0f, cm.badge().width(), 0.01f);
+        assertEquals(51.0f, cm.badge().height(), 0.01f);
+        assertEquals(81.0f, cm.title().x() - card.x(), 0.01f);
+        assertEquals(34.5f, cm.title().y() - card.y(), 0.01f);
+        assertEquals(54.0f, cm.toggle().width(), 0.01f);
+        assertEquals(27.0f, cm.toggle().height(), 0.01f);
+        assertEquals(15.0f, card.right() - cm.toggle().right(), 0.01f);
+        assertEquals(69.0f, card.right() - cm.toggle().x(), 0.01f);
+        assertEquals(15.0f, LinkGuiLayout.CARD_RADIUS, 0.01f);
+        assertTrue(cm.badge().x() >= card.x());
+        assertTrue(cm.badge().right() <= card.right());
+        assertTrue(cm.badge().y() >= card.y());
+        assertTrue(cm.badge().bottom() <= card.bottom());
+        assertTrue(cm.bind().bottom() <= card.bottom());
+        assertFalse(cm.title().intersects(cm.toggle()));
+        assertFalse(cm.description().intersects(cm.toggle()));
+    }
+
+    @Test
     void narrowWindowKeepsUsableColumns() {
         Metrics metrics = LinkGuiLayout.compute(1024, 768);
         assertNotNull(metrics);
