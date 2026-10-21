@@ -11,15 +11,15 @@
 4. **Локальный `options.txt` восстановлен** из `options.txt.lvaccept.bak` (resourcePacks `[]`, mainHand right, model parts true); тестовый `IncompatibleTest` пак удалён.
 
 ### Следующая задача
-- **Ручная приёмка keybind rebind** (автоматический ввод не сработал из-за фокуса) и, при желании, `OPEN FOLDER`/соцссылки/медиа-трек.
-- **Решить parity-гэп M7b-1**: в LINKEN Settings нет карточки Style/Editor; vanilla Video Settings больше не открывается, поэтому переключение Beta/Vanilla и редактор из LINKEN недоступны. Нужно добавить Style-entry (и, возможно, Editor) или подтвердить, что это осознанно.
-- **Проверить shader-source ERROR caveat**: в одном dev-прогоне при reload логировались `Couldn't find source for … shader` (включая `minecraft:core/position_color`), экраны при этом работали. Перепроверить на релизном jar/реальном клиенте; если воспроизводится — отдельный фикс.
+- **Ручная приёмка keybind rebind** (listening-состояние «PRESS A KEY / ESC CANCELS» подтверждено; фактический ввод клавиши автоматизация не подтвердила) и, при желании, `OPEN FOLDER`/соцссылки/медиа-трек.
+- **Style/Editor в LINKEN Settings не добавлять** — приказ пользователя от 21.10.2026; переключение Beta/Vanilla и редактор остаются вне LINKEN Settings, это принято.
+- **Проверить shader-source ERROR caveat**: в dev-прогонах при startup/reload логировались `Couldn't find source for … shader` (включая `minecraft:core/position_color`), экраны работали. Guard в `Pipelines.warmUp` не помог и откатан; перепроверить на релизном jar/реальном клиенте, при воспроизведении — отдельный фикс.
 - Финальное «принято» M2–M7 — за пользователем; после него M7 закрыть и выбрать следующий объём.
 
 ### Риски
-- Keybind rebind визуально не подтверждён; conflict-маркеры и экран отображаются корректно.
-- Shader-source ERRORs при ручном reload в dev — возможен resource race; на релизной сборке не проверено.
-- Style/Editor недоступны из LINKEN Settings (M7b-1), это functional parity gap, не косметика.
+- Keybind rebind визуально не подтверждён (только listening-состояние); conflict-маркеры и экран отображаются корректно.
+- Shader-source ERRORs при startup/reload в dev — возможен resource race; на релизной сборке не проверено.
+- Style/Editor недоступны из LINKEN Settings по приказу пользователя — принято, не дефект.
 - Физического 4K нет: только framebuffer 3840×2160.
 
 ## Состояние на 2026-10-21 (чат №17 — LINKEN M7b-4) — v1.0.86
