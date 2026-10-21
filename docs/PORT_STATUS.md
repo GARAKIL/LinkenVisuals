@@ -43,5 +43,6 @@
 - **M8.2 — донорская компоновка окон — ✅ v1.0.90, D67, `ea26c9c`.** 1280×720×1.5: главное окно 1080×720, док 540×72, левый inspector 330×600, правое Theme-окно 360×855, media strip; модальный ThemeWindow удалён. 204 теста.
 - **M8.3–M8.4 — ✅ v1.0.91, D68, `fa107f1`.** 2D player head, card badges/иконки категорий, read-only media strip; 8 палитр включая light LIGHT/FROST с полным token-pass; 206 тестов.
 - **M8.5 — style lock + Interface/Profile split — ✅ v1.0.92, D69, `5638ef7`.** Linken GUI заблокирован от Classic/Beta; левая колонка INTERFACE 330×282 + PROFILE 330×360; 207 тестов.
-- **M8.6 (остаток) — ⛔** draggable module settings windows, cursor trail/close overlay, 3D preview, music controls; pixel-perfect visual verification.
+- **M8.6 — draggable module settings window — ✅ v1.0.93, D70, `1d66355`.** Плавающее окно 330×440, drag/close/scroll; 207 тестов.
+- **M8.7 (остаток) — ⛔** cursor trail, close overlay (no-op), music controls/volume, финальная пиксельная сверка.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.

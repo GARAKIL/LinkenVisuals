@@ -633,3 +633,10 @@
 - **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft по просьбе пользователя не запускался. Jar `linkenvisuals-1.0.92.jar` (7 365 384 байта, SHA-256 `728C7BAA069D9BFE37F423E72EE4958DFAB5DFDCFDF054AE406F1368E350B5D0`).
 - **Commit**: `5638ef7` `feat(ui): split LINKEN LinkGUI interface/profile and lock style (v1.0.92, D69)`.
 - **Остаток строгого 1:1**: перетаскиваемые окна настроек модуля (донорский `LinkGuiSettingsWindow`), cursor trail/close overlay, 3D `ClickGuiPlayer`, управление музыкой/громкостью (read-only strip), точная сверка шрифтов/отступов по скриншоту донора.
+
+## 2026-10-21 · D70 · LINKEN ClickGUI: draggable module settings window — v1.0.93
+- **Окно настроек модуля**: клик по карточке (кроме switch/pin) открывает плавающее окно 330×440 вместо нижней панели. Окно можно тянуть за header, закрывать `X`; позиция клампится в canvas. Внутри — имя/описание, toggle, bind-row, настройки (scroll), конфликтные/цветовые/слотовые контролы переиспользуют существующий `drawSetting`.
+- **Профиль/Interface**: левая колонка остаётся `INTERFACE` 330×282 + `PROFILE` 330×360; окно настроек рисуется поверх и не ломает профиль. Клик по карточке `ClickGUI` открывает Interface/Profile, а не пустое окно.
+- **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft по просьбе пользователя не запускался. Jar `linkenvisuals-1.0.93.jar` (7 366 303 байта, SHA-256 `B7B6F14481432FDF571D96CDFD3C7DE9E1A5ACAEF28C5111D0495B70569296C7`).
+- **Commit**: `1d66355` `feat(ui): add draggable LINKEN module settings window (v1.0.93, D70)`.
+- **Остаток 1:1**: cursor trail (донорский `LinkGuiCursorTrail`), close overlay (в доноре — no-op стаб), управление музыкой/громкостью (у нас read-only), точная визуальная сверка с донором.
