@@ -2,24 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
-## Состояние на 2026-10-21 (чат №33 — Select World + clipping, D79) — v1.0.102
+## Состояние на 2026-10-21 (чат №34 — donor sounds + menu track, D80) — v1.0.103
 
 ### Сделано
-1. **D79/v1.0.102**: правый край правой карточки срезался scissor ровно по `cards.right()`. Scissor расширен на 14 px по бокам/16 px сверху-снизу; списки Friends/Waypoints/Settings/Configs получили +4 px; 3D-viewer профиля — scissor в design-координатах.
-2. **Singleplayer**: `LinkenSelectWorldScreen` — LINKEN-окно 1000×720 с tower-фоном, поиском, списком миров и кнопками Play/Create/Edit/Delete/Re-Create/Back. Backend — vanilla `WorldListWidget` (play/edit/delete/recreate), vanilla chrome скрыт, список обновляется off-screen. Роутинг из title и `MinecraftClientMixin`.
-3. **Аудит**: стилизованы title, splash/loading/connect, pause, settings hub/subpages, multiplayer, alt manager, LinkGUI, Select World. Остаются vanilla: Create/Edit/Re-Create World (донор тоже vanilla), death screen (donor vanilla), Inventory/Chat/HUD.
-4. **Сборка/тесты**: **212 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.102.jar` (7 598 412 байт, SHA-256 `D5B47E223F715ECE09E36A113C30E15689CB2496A86F2221BFAD400BAEF6D271`).
+1. **D80/v1.0.103**: перенесены все донорские звуки — **35 событий** в `sounds.json`, включая `mainmenu/evilshit.ogg`, kill/streak/totem/low-HP/death cues, HitSound Bell/Crime/Nya/Uwu, cosmetic/pet. Все OGG проверены тестом; `ui.*` перенаправлены на донорские `clickgui_open`/`disable`/`enable`.
+2. **Vanilla sounds removed**: все клики UI (ConfigPanel, LinkGuiScreen, CustomMultiplayer, MainMenu, MainMenuEditor, AltManager, Hub, Multiplayer, SelectWorld) используют `LinkenSounds.UI_CLICK`; `KillEffects` и `FakePlayer` используют донорские cues; в Java-исходниках мода не осталось `SoundEvents.*`.
+3. **Sounds module**: `SoundsModule` (Player, default ON) — Volume 130 %, Kills/Kill Streak/Totem Pop/Death/Low Health/Low Health At 6 HP; melee + `EntityDamageS2CPacket` (включая свои стрелы), streak 2–5 за 9 с, totem pop, death, low HP.
+4. **Main menu**: донорский трек `EVILSHIT` / `ARLEKIN 40 000` (131,3 с, volume 0.4) запускается один раз, продолжается между меню, останавливается при входе в мир, заменяет vanilla menu music; карточка рисует `EVILSHIT by ARLEKIN 40 000`, progress и play/pause.
+5. **Сборка/тесты**: **216 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.103.jar` (10 657 799 байт, SHA-256 `64494B17AE61674037DD9588ED5EA4DC20DEDE941CB27808FF971B9B679F26F3`). Release-jar 1920×1080: title с донорским треком и версией 1.0.103, в логе нет `Unable to play unknown soundEvent`.
 
 ### Следующая задача
-- Стилизовать Create World / Edit World (если требуется сверх donor-поведения), death/disconnect-проверка.
-- Остаток strict 1:1: pinned cards, donor media/audio, donor-only Interface groups, точная сверка шрифтов.
-- Устранить shader-source race при старте.
+- Ручная проверка боевых cues на сервере/в мире: kill, streak 2–5, totem pop, low HP, death, HitSound Bell/Crime/Nya/Uwu.
+- Остаток strict 1:1: pinned cards, donor-only Interface groups (HUD style/shape, scoreboard/tab), точная сверка шрифтов/отступов.
+- Устранить shader-source race (`Couldn't find source` для `linkenvisuals:core/*` / `minecraft:core/position_color`).
 - Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
 
 ### Риски
+- Аудиовоспроизведение проверено по состоянию/progress и отсутствию unknown-event, но не измерялось инструментально; боевые cues требуют живого прогона.
+- `LinkenMenuMusic.pause()` использует `pauseAllExcept()` — пауза трека глушит все звуки, как в доноре.
+- `SoundsModule` считает kill по исчезновению цели при HP ≤ 6 (мобы/игроки) и по damage-пакетам; скрытое сервером HP может дать пропуск, как и в доноре.
 - `LinkenSelectWorldScreen` использует vanilla `WorldListWidget` через off-screen `renderWidget`; при изменении vanilla API это хрупко.
 - Create/Edit/Re-Create открывают vanilla `CreateWorldScreen` — осознанный остаток.
-- Media strip без донорского трека показывает реальное состояние MediaWatcher.
 
 
 ## Состояние на 2026-10-21 (чат №32 — MSDF/icon pixelation fix, D78) — v1.0.101
