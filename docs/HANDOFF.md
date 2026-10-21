@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №18 — M7b-4 acceptance + splash reload fix) — v1.0.87
+
+### Сделано
+1. **D63/v1.0.86 — Skin и Resource Packs** (`62cb4e1`): `LinkenSkinScreen` (превью головы, 7 model parts, main arm, account action) + `LinkenResourcePacksScreen` (AVAILABLE/SELECTED, поиск, enable/disable, приоритет, pinned/locked/incompatible, confirm-modal, open folder, apply/reload); роутинг из Settings + `MinecraftClientMixin`; i18n en/ru/uk; `LinkenPackSearchTest` (+5), итого 204 теста.
+2. **D64/v1.0.87 — критический fix, найденный на приёмке** (`7f181cc`): `SplashOverlayMixin` отменял vanilla `render` до инициализации `reloadStartTime`; при ручном reload ресурсов оверлей зависал навсегда (чёрный экран после применения пака). Теперь mixin сам ставит `reloadStartTime`, если он `<= 0`; после `Enable Anyway`/закрытия паков возврат в Settings hub за ~3 с. 204 теста, 0 падений; jar `linkenvisuals-1.0.87.jar` (7 358 660 байт, SHA-256 `9A2E4D53378564D1B10CFB06CAA1FDA0A018126FD02CABE2391CB96D4D3769CC`).
+3. **Визуальная приёмка M7b-4**: 1280×720/GUI 2 — Skin (превью, 7 частей, ON/OFF пишутся в `options.txt`, Main Arm Left/Right, account manager), Resource Packs (две колонки, поиск по `p`, enable/disable, порядок 01/02, incompatible-confirm, DONE/ESC → apply/reload → hub), Language (автопрокрутка к активному `English (US)`), Keybinds (60 биндов, conflict-маркеры). 4K-framebuffer F2 PNG **3840×2160**: `run/screenshots/2026-10-21_10.48.11.png` (Resource Packs), `2026-10-21_10.51.10.png` (Skin); обрезки/перекрытий нет.
+4. **Локальный `options.txt` восстановлен** из `options.txt.lvaccept.bak` (resourcePacks `[]`, mainHand right, model parts true); тестовый `IncompatibleTest` пак удалён.
+
+### Следующая задача
+- **Ручная приёмка keybind rebind** (автоматический ввод не сработал из-за фокуса) и, при желании, `OPEN FOLDER`/соцссылки/медиа-трек.
+- **Решить parity-гэп M7b-1**: в LINKEN Settings нет карточки Style/Editor; vanilla Video Settings больше не открывается, поэтому переключение Beta/Vanilla и редактор из LINKEN недоступны. Нужно добавить Style-entry (и, возможно, Editor) или подтвердить, что это осознанно.
+- **Проверить shader-source ERROR caveat**: в одном dev-прогоне при reload логировались `Couldn't find source for … shader` (включая `minecraft:core/position_color`), экраны при этом работали. Перепроверить на релизном jar/реальном клиенте; если воспроизводится — отдельный фикс.
+- Финальное «принято» M2–M7 — за пользователем; после него M7 закрыть и выбрать следующий объём.
+
+### Риски
+- Keybind rebind визуально не подтверждён; conflict-маркеры и экран отображаются корректно.
+- Shader-source ERRORs при ручном reload в dev — возможен resource race; на релизной сборке не проверено.
+- Style/Editor недоступны из LINKEN Settings (M7b-1), это functional parity gap, не косметика.
+- Физического 4K нет: только framebuffer 3840×2160.
+
 ## Состояние на 2026-10-21 (чат №17 — LINKEN M7b-4) — v1.0.86
 
 ### Сделано
