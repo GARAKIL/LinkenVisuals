@@ -83,6 +83,18 @@ class LinkGuiLayoutTest {
     }
 
     @Test
+    void dockTabsUseDonorScaledGeometry() {
+        Metrics metrics = LinkGuiLayout.compute(1920, 1080);
+        Rect first = LinkGuiLayout.navItem(metrics, 0);
+        Rect second = LinkGuiLayout.navItem(metrics, 1);
+        assertEquals((metrics.nav().width() - 18.0f) / 7.0f, first.width(), 0.01f);
+        assertEquals(54.0f, first.height(), 0.01f);
+        assertEquals(metrics.nav().y() + 9.0f, first.y(), 0.01f);
+        assertEquals(metrics.nav().x() + 9.0f, first.x(), 0.01f);
+        assertEquals(first.right(), second.x(), 0.01f);
+    }
+
+    @Test
     void headerAndGridUseDonorScaledGeometry() {
         Metrics metrics = LinkGuiLayout.compute(1920, 1080);
         assertEquals(51.0f, metrics.all().width(), 0.01f);

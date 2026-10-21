@@ -11,24 +11,26 @@ import java.util.Locale;
  */
 public final class LinkGuiTheme {
     public enum Preset {
-        MIDNIGHT("Midnight", 0x7EDFB4, 0x3F8E6B, false),
-        GRAPHITE("Graphite", 0x9AA4AD, 0x5C656D, false),
-        AMETHYST("Amethyst", 0xB18AE0, 0x6A4F8A, false),
-        OCEAN("Ocean", 0x4DA3E8, 0x2D628F, false),
-        ROSE("Rose", 0xE05C74, 0x8C3446, false),
-        EMERALD("Emerald", 0x3ECF7A, 0x237A48, false),
-        LIGHT("Light", 0x4DA3E8, 0x2D628F, true),
-        FROST("Frost", 0x8A63E8, 0x5A3F9A, true);
+        MIDNIGHT("Midnight", 0x7EDFB4, 0x3F8E6B, 0x0F1217, false),
+        GRAPHITE("Graphite", 0x9AA4AD, 0x5C656D, 0x121317, false),
+        AMETHYST("Amethyst", 0xB18AE0, 0x6A4F8A, 0x14101C, false),
+        OCEAN("Ocean", 0x4DA3E8, 0x2D628F, 0x0C121C, false),
+        ROSE("Rose", 0xE05C74, 0x8C3446, 0x1A0E16, false),
+        EMERALD("Emerald", 0x3ECF7A, 0x237A48, 0x0C1612, false),
+        LIGHT("Light", 0x4DA3E8, 0x2D628F, 0xECEFF3, true),
+        FROST("Frost", 0x8A63E8, 0x5A3F9A, 0xF4F6FA, true);
 
         private final String label;
         private final int accent;
         private final int accentDim;
+        private final int background;
         private final boolean light;
 
-        Preset(String label, int accent, int accentDim, boolean light) {
+        Preset(String label, int accent, int accentDim, int background, boolean light) {
             this.label = label;
             this.accent = accent;
             this.accentDim = accentDim;
+            this.background = background;
             this.light = light;
         }
 
@@ -42,6 +44,10 @@ public final class LinkGuiTheme {
 
         public int accentDim() {
             return accentDim;
+        }
+
+        public int background() {
+            return background;
         }
 
         public boolean light() {

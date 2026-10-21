@@ -20,8 +20,11 @@ public final class LinkGuiLayout {
     public static final float THEME_WIDTH = 360.0f;
     public static final float THEME_HEIGHT = 855.0f;
     public static final int NAV_ITEMS = 7;
-    public static final float NAV_ITEM_HEIGHT = 52.0f;
-    public static final float NAV_ITEM_GAP = 5.0f;
+    public static final float NAV_PAD = 9.0f;
+    public static final float NAV_TAB_HEIGHT = 54.0f;
+    public static final float NAV_INDICATOR_INSET = 3.0f;
+    public static final float NAV_ITEM_HEIGHT = NAV_TAB_HEIGHT;
+    public static final float NAV_ITEM_GAP = 0.0f;
     public static final float HEADER_HEIGHT = 78.0f;
     public static final float CARD_HEIGHT = 129.0f;
     public static final float CARD_GAP = 15.0f;
@@ -138,10 +141,9 @@ public final class LinkGuiLayout {
     }
 
     public static Rect navItem(Metrics metrics, int index) {
-        float inner = metrics.nav().width() - 20.0f;
-        float itemWidth = (inner - (NAV_ITEMS - 1) * NAV_ITEM_GAP) / NAV_ITEMS;
-        return new Rect(metrics.nav().x() + 10.0f + index * (itemWidth + NAV_ITEM_GAP),
-            metrics.nav().y() + 10.0f, itemWidth, NAV_ITEM_HEIGHT);
+        float itemWidth = (metrics.nav().width() - NAV_PAD * 2.0f) / NAV_ITEMS;
+        return new Rect(metrics.nav().x() + NAV_PAD + index * itemWidth,
+            metrics.nav().y() + NAV_PAD, itemWidth, NAV_TAB_HEIGHT);
     }
 
     public static Rect card(Metrics metrics, int index) {

@@ -78,6 +78,7 @@ public final class LinkGuiScreen extends Screen {
     private final Spring panelScrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Spring configScrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Map<Category, Spring> navHover = new EnumMap<>(Category.class);
+    private final Spring navSlide = new Spring(0.0, 900.0, 50.0);
     private final Map<ModuleInfo, Spring> cardHover = new HashMap<>();
     private final Spring closeHover = new Spring(0.0, 900.0, 50.0);
     private final LinkGuiCursorTrail cursorTrail = new LinkGuiCursorTrail();
@@ -167,6 +168,7 @@ public final class LinkGuiScreen extends Screen {
             navHover.computeIfAbsent(category, key -> new Spring(0.0, 900.0, 48.0));
         }
         ensureState();
+        navSlide.reset(selected.ordinal());
         skin = loadSkin();
         cursorTrail.clear();
         closing = false;
@@ -359,13 +361,25 @@ public final class LinkGuiScreen extends Screen {
     private void drawNav(DrawContext context, Metrics metrics, float mx, float my,
                          float openT, float deltaSeconds) {
         Rect nav = metrics.nav();
-        LinkenMenuChrome.roundedFill(context, nav.x(), nav.y(), nav.width(), nav.height(), 12.0f,
+        LinkenMenuChrome.roundedFill(context, nav.x(), nav.y(), nav.width(), nav.height(), 18.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 232, openT), metrics.scale());
-        LinkenMenuChrome.roundedOutline(context, nav.x(), nav.y(), nav.width(), nav.height(), 12.0f, 1.0f,
+        LinkenMenuChrome.roundedOutline(context, nav.x(), nav.y(), nav.width(), nav.height(), 18.0f, 1.0f,
             LinkenMenuChrome.rgba(0xFFFFFF, 17, openT), metrics.scale());
 
-        navHits.clear();
         Category[] categories = Category.values();
+        float tabW = (nav.width() - LinkGuiLayout.NAV_PAD * 2.0f) / categories.length;
+        navSlide.step(selected.ordinal(), deltaSeconds);
+        float indicatorX = nav.x() + LinkGuiLayout.NAV_PAD
+            + (float) navSlide.get() * tabW + LinkGuiLayout.NAV_INDICATOR_INSET;
+        float indicatorW = tabW - LinkGuiLayout.NAV_INDICATOR_INSET * 2.0f;
+        LinkenMenuChrome.roundedFill(context, indicatorX, nav.y() + LinkGuiLayout.NAV_PAD,
+            indicatorW, LinkGuiLayout.NAV_TAB_HEIGHT, 13.5f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 28, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, indicatorX, nav.y() + LinkGuiLayout.NAV_PAD,
+            indicatorW, LinkGuiLayout.NAV_TAB_HEIGHT, 13.5f, 1.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 92, openT), metrics.scale());
+
+        navHits.clear();
         for (int i = 0; i < categories.length; i++) {
             Category category = categories[i];
             Rect item = LinkGuiLayout.navItem(metrics, i);
@@ -374,31 +388,33 @@ public final class LinkGuiScreen extends Screen {
             spring.step(hovered ? 1.0 : 0.0, deltaSeconds);
             float hover = (float) spring.get();
             boolean active = category == selected;
+            float lift = (active ? 1.0f : hover) * 6.75f;
 
-            if (active) {
-                LinkenMenuChrome.roundedFill(context, item.x(), item.y(), item.width(), item.height(), 9.0f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 26, openT), metrics.scale());
-                LinkenMenuChrome.roundedOutline(context, item.x(), item.y(), item.width(), item.height(), 9.0f, 1.0f,
-                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 92, openT), metrics.scale());
-            } else if (hover > 0.02f) {
-                LinkenMenuChrome.roundedFill(context, item.x(), item.y(), item.width(), item.height(), 9.0f,
-                    LinkenMenuChrome.rgba(0xFFFFFF, Math.round(8 * hover * openT)),
-                    metrics.scale());
+            if (!active && hover > 0.02f) {
+                LinkenMenuChrome.roundedFill(context, item.x() + 3.0f, item.y(),
+                    item.width() - 6.0f, item.height(), 13.5f,
+                    LinkenMenuChrome.rgba(0xFFFFFF, Math.round(10 * hover * openT)), metrics.scale());
             }
 
-            float iconSize = 18.0f;
+            float iconSize = 22.5f;
             float iconX = item.x() + (item.width() - iconSize) * 0.5f;
-            float iconY = item.y() + 8.0f;
+            float restY = item.y() + item.height() * 0.5f - 9.75f;
+            float activeY = item.y() + 13.5f;
+            float iconY = restY + (activeY - restY) * Math.max(active ? 1.0f : 0.0f, hover * 0.65f) - lift;
             context.drawTexture(RenderPipelines.GUI_TEXTURED, category.icon(),
-                Math.round(iconX), Math.round(iconY), 0.0f, 0.0f, 18, 18, 128, 128, 128, 128,
+                Math.round(iconX), Math.round(iconY), 0.0f, 0.0f, 23, 23, 128, 128, 128, 128,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkGuiTheme.MUTED,
-                    active ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, active ? 1.0f : hover * 0.65f), openT));
+                    active ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, active ? 1.0f : hover * 0.8f), openT));
 
             String label = I18n.get("gui.category." + category.name().toLowerCase(Locale.ROOT));
-            float labelSize = 7.5f;
-            LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), label,
-                item.x() + item.width() * 0.5f, item.y() + 31.0f, labelSize,
-                LinkenMenuChrome.rgba(active ? LinkGuiTheme.TEXT : LinkGuiTheme.TEXT3, openT));
+            float labelAlpha = active ? 1.0f : hover * 0.75f;
+            if (labelAlpha > 0.06f) {
+                LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), label,
+                    item.x() + item.width() * 0.5f, item.y() + item.height() - 19.0f - lift, 10.2f,
+                    LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkGuiTheme.MUTED,
+                        active ? LinkGuiTheme.TEXT : LinkGuiTheme.TEXT3, labelAlpha),
+                        Math.round(255 * labelAlpha * openT)));
+            }
             navHits.add(new NavHit(category, item));
         }
     }
@@ -1323,58 +1339,61 @@ public final class LinkGuiScreen extends Screen {
 
     private void drawThemePanel(DrawContext context, Metrics metrics, float mx, float my, float openT) {
         Rect panel = metrics.theme();
-        LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 14.0f,
+        LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 18.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.PANEL_LIGHT, 236, openT), metrics.scale());
-        LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 14.0f,
+        LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 18.0f,
             1.0f, LinkenMenuChrome.rgba(0xFFFFFF, 26, openT), metrics.scale());
 
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "THEME",
-            panel.x() + 18.0f, panel.y() + 20.0f, 9.0f, 1.7f,
+            panel.x() + 21.0f, panel.y() + 18.0f, 10.0f, 1.8f,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), "CLICKGUI PALETTE",
-            panel.x() + 18.0f, panel.y() + 38.0f, 16.0f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
-        LinkenMenuChrome.drawText(context, LinkenFonts.body(), "APPLIES TO THE WHOLE SHELL",
-            panel.x() + 18.0f, panel.y() + 62.0f, 9.0f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
 
         themeHits.clear();
         LinkGuiTheme.Preset[] presets = LinkGuiTheme.Preset.values();
-        float cardX = panel.x() + 18.0f;
-        float cardW = panel.width() - 36.0f;
-        float cardH = 86.0f;
-        float cardY = panel.y() + 88.0f;
-        for (LinkGuiTheme.Preset preset : presets) {
-            Rect card = new Rect(cardX, cardY, cardW, cardH);
+        float rowW = panel.width() - 30.0f;
+        float cellW = (rowW - 7.5f) * 0.5f;
+        float swatchH = 45.0f;
+        for (int i = 0; i < presets.length; i++) {
+            LinkGuiTheme.Preset preset = presets[i];
+            float cx = panel.x() + 15.0f + (i % 2) * (cellW + 7.5f);
+            float cy = panel.y() + 51.0f + (i / 2) * (swatchH + 7.5f);
+            Rect card = new Rect(cx, cy, cellW, swatchH);
             boolean hovered = card.contains(mx, my);
             boolean active = LinkGuiTheme.preset() == preset;
-            LinkenMenuChrome.roundedFill(context, card.x(), card.y(), card.width(), card.height(), 10.0f,
-                LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.HOVER : LinkGuiTheme.ROW, 240, openT), metrics.scale());
-            LinkenMenuChrome.roundedOutline(context, card.x(), card.y(), card.width(), card.height(), 10.0f,
-                active ? 1.4f : 1.0f,
-                LinkenMenuChrome.rgba(active ? preset.accent() : 0xFFFFFF,
-                    active ? 190 : 22 + Math.round((hovered ? 1.0f : 0.0f) * 28.0f), openT), metrics.scale());
-
-            LinkenMenuChrome.roundedFill(context, card.x() + 14.0f, card.y() + 14.0f, 34.0f, 34.0f,
-                9.0f, LinkenMenuChrome.rgba(preset.accent(), openT), metrics.scale());
-            LinkenMenuChrome.roundedFill(context, card.x() + 22.0f, card.y() + 22.0f, 18.0f, 18.0f,
-                6.0f, LinkenMenuChrome.rgba(preset.accentDim(), openT), metrics.scale());
+            LinkenMenuChrome.roundedFill(context, cx, cy, cellW, swatchH, 12.0f,
+                LinkenMenuChrome.rgba(preset.background(), 255, openT), metrics.scale());
+            LinkenMenuChrome.roundedFill(context, cx + 12.0f, cy + swatchH * 0.5f - 6.0f, 12.0f, 12.0f, 6.0f,
+                LinkenMenuChrome.rgba(preset.accent(), openT), metrics.scale());
+            int nameColor = preset.light() ? 0x1A1C22 : 0xEEF0F5;
             LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), preset.label(),
-                card.x() + 58.0f, card.y() + 17.0f, 12.0f,
-                LinkenMenuChrome.rgba(active || hovered ? LinkGuiTheme.TEXT : LinkGuiTheme.TEXT3, openT));
-            LinkenMenuChrome.drawSpaced(context, LinkenFonts.mono(),
-                active ? "ACTIVE" : "CLICK TO APPLY",
-                card.x() + 58.0f, card.y() + 38.0f, 7.0f, 1.0f,
-                LinkenMenuChrome.rgba(active ? preset.accent() : LinkGuiTheme.MUTED3, openT));
-
-            float barY = card.bottom() - 22.0f;
-            LinkenMenuChrome.roundedFill(context, card.x() + 14.0f, barY, card.width() - 28.0f, 4.0f,
-                2.0f, LinkenMenuChrome.rgba(preset.accentDim(), 150, openT), metrics.scale());
-            LinkenMenuChrome.roundedFill(context, card.x() + 14.0f, barY, (card.width() - 28.0f) * 0.62f,
-                4.0f, 2.0f, LinkenMenuChrome.rgba(preset.accent(), openT), metrics.scale());
+                cx + 31.5f, cy + 15.0f, 10.8f,
+                LinkenMenuChrome.rgba(nameColor, openT));
+            LinkenMenuChrome.drawSpaced(context, LinkenFonts.mono(), active ? "ACTIVE" : "",
+                cx + 31.5f, cy + 30.0f, 7.0f, 1.0f,
+                LinkenMenuChrome.rgba(preset.accent(), openT));
+            if (hovered && !active) {
+                LinkenMenuChrome.roundedFill(context, cx + 1.0f, cy + 1.0f, cellW - 2.0f, swatchH - 2.0f,
+                    11.0f, LinkenMenuChrome.rgba(0xFFFFFF, 16, openT), metrics.scale());
+            }
+            LinkenMenuChrome.roundedOutline(context, cx, cy, cellW, swatchH, 12.0f,
+                active ? 1.8f : 1.0f,
+                LinkenMenuChrome.rgba(preset.accent(), active ? 205 : 42, openT), metrics.scale());
             themeHits.add(new ThemeHit(preset, card));
-            cardY += cardH + 8.0f;
         }
+
+        float infoY = panel.y() + 51.0f + 4.0f * (swatchH + 7.5f) + 12.0f;
+        context.fill(Math.round(panel.x() + 15.0f), Math.round(infoY),
+            Math.round(panel.right() - 15.0f), Math.round(infoY + 1.0f),
+            LinkenMenuChrome.rgba(0xFFFFFF, 20, openT));
+        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "ACTIVE PALETTE",
+            panel.x() + 15.0f, infoY + 16.0f, 8.0f, 1.4f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
+        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), LinkGuiTheme.themeLabel(),
+            panel.x() + 15.0f, infoY + 34.0f, 18.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(), "THEMES APPLY TO THE WHOLE SHELL",
+            panel.x() + 15.0f, infoY + 61.0f, 9.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
     }
 
     // ------------------------------------------------------------------ input
