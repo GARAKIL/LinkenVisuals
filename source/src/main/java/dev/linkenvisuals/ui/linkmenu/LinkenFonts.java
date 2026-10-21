@@ -24,6 +24,8 @@ public final class LinkenFonts {
     private static GlyphAtlas headingLight;
     private static GlyphAtlas mono;
     private static GlyphAtlas icons;
+    private static GlyphAtlas iconsNew;
+    private static GlyphAtlas iconsFa;
     private static GlyphAtlas brands;
 
     private LinkenFonts() {
@@ -60,6 +62,18 @@ public final class LinkenFonts {
         return icons;
     }
 
+    /** Donor {@code iconsnew} atlas (category glyphs P/S/R/V/H). */
+    public static GlyphAtlas iconsNew() {
+        ensure();
+        return iconsNew;
+    }
+
+    /** Donor {@code iconsfa} atlas (FontAwesome UI glyphs). */
+    public static GlyphAtlas iconsFa() {
+        ensure();
+        return iconsFa;
+    }
+
     /** Shared {@code brands} atlas (Telegram, Discord). */
     public static GlyphAtlas brands() {
         ensure();
@@ -93,6 +107,8 @@ public final class LinkenFonts {
         headingLight = load("unbounded_light");
         mono = load("plexmono");
         icons = loadShared("fonts/msdf/wtmico.json", "fonts/msdf/wtmico.png", "wtmico");
+        iconsNew = loadShared("fonts/msdf/iconsnew.json", "fonts/msdf/iconsnew.png", "iconsnew");
+        iconsFa = loadShared("fonts/msdf/iconsfa.json", "fonts/msdf/iconsfa.png", "iconsfa");
         brands = loadShared("fonts/msdf/brands.json", "fonts/msdf/brands.png", "brands");
     }
 

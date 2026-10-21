@@ -391,7 +391,7 @@ public final class LinkGuiScreen extends Screen {
             7.0f, 0.9f, LinkenMenuChrome.rgba(searchFocused ? LinkGuiTheme.ACCENT : 0xFFFFFF,
                 searchFocused ? 150 : (searchOver ? 52 : 24), openT), metrics.scale());
         if (LinkenFonts.icons() != null) {
-            IconPipeline.draw(context, LinkenFonts.icons(), 'V', searchRect.x() + 15.0f, centerY, 13.0f,
+            IconPipeline.draw(context, LinkenFonts.iconsFa(), 0xF002, searchRect.x() + 15.0f, centerY, 13.0f,
                 LinkenMenuChrome.rgba(searchFocused ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED, openT));
         }
         String query = search.toString();
@@ -502,12 +502,12 @@ public final class LinkGuiScreen extends Screen {
             Rect item = new Rect(x, y, width, tile);
             boolean hovered = item.contains(mx, my);
             drawDockTile(context, metrics, item, label, active, hovered, openT, deltaSeconds,
-                category.icon(), -1);
+                null, categoryGlyph(category));
             navHits.add(new NavHit(category, item));
             x += width + gap;
         }
 
-        int[] utilityGlyphs = {LinkenMenuChrome.ICON_GEAR, LinkenMenuChrome.ICON_PEOPLE, '[', 87};
+        int[] utilityGlyphs = {0xF013, 0xF0C0, 0xF3C5, 0xF1DE};
         Runnable[] utilityActions = {
             () -> {
                 sidePanel = SidePanel.NONE;
@@ -575,11 +575,14 @@ public final class LinkGuiScreen extends Screen {
         if (texture != null) {
             context.drawTexture(RenderPipelines.GUI_TEXTURED, texture,
                 Math.round(iconX), Math.round(iconY - iconSize * 0.5f), 0.0f, 0.0f,
-                Math.round(iconSize), Math.round(iconSize), 128, 128, 128, 128,
+                Math.round(iconSize), Math.round(iconSize), 48, 48, 48, 48,
                 LinkenMenuChrome.rgba(iconColor, openT));
-        } else if (LinkenFonts.icons() != null) {
-            IconPipeline.draw(context, LinkenFonts.icons(), glyph, iconX + iconSize * 0.5f, iconY,
-                iconSize, LinkenMenuChrome.rgba(iconColor, openT));
+        } else {
+            GlyphAtlas iconAtlas = glyph >= 0xF000 ? LinkenFonts.iconsFa() : LinkenFonts.iconsNew();
+            if (iconAtlas != null) {
+                IconPipeline.draw(context, iconAtlas, glyph, iconX + iconSize * 0.5f, iconY,
+                    iconSize, LinkenMenuChrome.rgba(iconColor, openT));
+            }
         }
         if (active) {
             LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), label,
@@ -736,6 +739,26 @@ public final class LinkGuiScreen extends Screen {
             LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.ACCENT : LinkGuiTheme.ON_DARK, openT));
     }
 
+    private static int categoryGlyph(Category category) {
+        return switch (category) {
+            case COMBAT -> 'P';
+            case MOVEMENT -> 'S';
+            case VISUAL -> 'R';
+            case PLAYER -> 'V';
+            case MISC -> 'H';
+            case CONFIG -> 0xF013;
+        };
+    }
+
+    private static void drawCategoryGlyph(DrawContext context, Category category,
+                                          float centerX, float centerY, float size, int color) {
+        int glyph = categoryGlyph(category);
+        GlyphAtlas atlas = glyph >= 0xF000 ? LinkenFonts.iconsFa() : LinkenFonts.iconsNew();
+        if (atlas != null) {
+            IconPipeline.draw(context, atlas, glyph, centerX, centerY, size, color);
+        }
+    }
+
     private void drawModuleCard(DrawContext context, Metrics metrics, ModuleInfo module, Rect card,
                                 float hover, float openT) {
         boolean on = module.enabled();
@@ -758,9 +781,8 @@ public final class LinkGuiScreen extends Screen {
                 Math.round((on ? 62 : 20 + hover * 34) * openT)), metrics.scale());
 
         float iconSize = LinkGuiLayout.CARD_ICON_SIZE;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, module.category().icon(),
-            Math.round(cm.icon().x()), Math.round(cm.icon().y()), 0.0f, 0.0f,
-            Math.round(iconSize), Math.round(iconSize), 128, 128, 128, 128,
+        drawCategoryGlyph(context, module.category(),
+            cm.icon().x() + iconSize * 0.5f, cm.icon().y() + iconSize * 0.5f, iconSize,
             LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkGuiTheme.MUTED, LinkGuiTheme.ACCENT, onT), openT));
 
         LinkenMenuChrome.drawOn(context, LinkenFonts.headingLight(),
@@ -865,7 +887,7 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), I18n.get("gui.profile.title"),
             cx + 18.0f, cy + 6.0f, 13.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));
         if (LinkenFonts.icons() != null) {
-            IconPipeline.draw(context, LinkenFonts.icons(), LinkenMenuChrome.ICON_PERSON,
+            IconPipeline.draw(context, LinkenFonts.iconsFa(), 0xF007,
                 cx + 6.0f, cy + 6.0f, 12.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         }
         context.fill(Math.round(cx + 100.0f), Math.round(cy + 6.0f),
@@ -1527,7 +1549,7 @@ public final class LinkGuiScreen extends Screen {
         float cw = panel.width() - 32.0f;
         float headerY = panel.y() + 16.0f;
         if (LinkenFonts.icons() != null) {
-            IconPipeline.draw(context, LinkenFonts.icons(), friends ? LinkenMenuChrome.ICON_PEOPLE : '[',
+            IconPipeline.draw(context, LinkenFonts.iconsFa(), friends ? 0xF0C0 : 0xF3C5,
                 px + 7.0f, headerY + 7.0f, 14.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         }
         LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), title,
@@ -1621,7 +1643,7 @@ public final class LinkGuiScreen extends Screen {
         float px = panel.x() + 20.0f;
         float cw = panel.width() - 40.0f;
         float headerY = panel.y() + 20.0f;
-        CirclePipeline.draw(context, px + 6.0f, headerY + 6.0f, 5.0f,
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), 0xF043, px + 6.0f, headerY + 6.0f, 13.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), I18n.get("gui.theme.title"),
             px + 18.0f, headerY + 6.0f, 13.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));
@@ -1664,7 +1686,7 @@ public final class LinkGuiScreen extends Screen {
         }
 
         float interfaceY = chipTop + 4.0f * (chipH + gap) + 4.0f;
-        CirclePipeline.draw(context, px + 6.0f, interfaceY + 6.0f, 5.0f,
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), 0xF1DE, px + 6.0f, interfaceY + 6.0f, 13.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), I18n.get("gui.theme.interface"),
             px + 18.0f, interfaceY + 6.0f, 13.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));

@@ -22,7 +22,7 @@ void main() {
     vec2 delta = abs(point) - half_size + radius;
     float dist = length(max(delta, 0.0)) + min(max(delta.x, delta.y), 0.0) - radius;
 
-    float aa = 0.6;
+    float aa = 1.0;
     float coverage = 1.0 - smoothstep(-aa, aa, dist);
     if (coverage <= 0.001) {
         discard;

@@ -21,10 +21,10 @@ float median(vec3 value) {
 void main() {
     vec3 field = texture(Sampler0, texCoord0).rgb;
     float distance = median(field) - 0.5;
-    vec2 unitRange = vec2(10.0) / vec2(textureSize(Sampler0, 0));
-    vec2 texelsPerPixel = vec2(1.0) / fwidth(texCoord0);
-    float pixelRange = max(0.5 * dot(unitRange, texelsPerPixel), 1.0);
-    float alpha = clamp(distance * pixelRange + 0.5, 0.0, 1.0);
+    vec2 texelDerivative = vec2(dFdx(texCoord0.x), dFdy(texCoord0.y))
+        * vec2(textureSize(Sampler0, 0));
+    float pixelRange = 8.0 * inversesqrt(max(dot(texelDerivative, texelDerivative), 1.0e-8));
+    float alpha = smoothstep(-0.5, 0.5, distance * pixelRange);
     if (alpha <= 0.001) {
         discard;
     }

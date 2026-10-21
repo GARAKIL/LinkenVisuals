@@ -10,6 +10,9 @@ public final class IconPipeline {
     }
 
     public static void draw(DrawContext context, GlyphAtlas atlas, int codepoint, float centerX, float centerY, float size, int argb) {
+        if (atlas == null) {
+            return;
+        }
         GlyphAtlas.Glyph glyph = atlas.glyph(codepoint);
         if (glyph == null || !glyph.visible) {
             return;

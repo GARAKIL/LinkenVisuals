@@ -36,7 +36,7 @@ public final class MsdfText {
     }
 
     public static void draw(DrawContext context, GlyphAtlas font, String text, float x, float y, float size, int argb) {
-        write(context, font, text, x, Math.round(y + font.ascender() * size), size, argb);
+        write(context, font, text, x, y + font.ascender() * size, size, argb);
     }
 
     public static void drawExact(DrawContext context, GlyphAtlas font, String text, float x, float y, float size, int argb) {
