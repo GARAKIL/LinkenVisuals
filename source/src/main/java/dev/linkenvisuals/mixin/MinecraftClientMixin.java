@@ -7,7 +7,9 @@ import dev.linkenvisuals.ui.linkmenu.LinkenAltManagerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenResourcePacksScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenSettingsScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenSkinScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleManager;
 import net.minecraft.client.MinecraftClient;
@@ -16,6 +18,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.option.OptionsScreen;
+import net.minecraft.client.gui.screen.option.SkinOptionsScreen;
+import net.minecraft.client.gui.screen.pack.PackScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -71,6 +75,12 @@ public abstract class MinecraftClientMixin {
             // screen the user opened options from.
             Screen parent = MinecraftClient.getInstance().currentScreen;
             return new LinkenSettingsScreen(parent);
+        }
+        if (screen instanceof SkinOptionsScreen) {
+            return new LinkenSkinScreen(MinecraftClient.getInstance().currentScreen);
+        }
+        if (screen instanceof PackScreen) {
+            return new LinkenResourcePacksScreen(MinecraftClient.getInstance().currentScreen);
         }
         if (screen instanceof AltManagerScreen) {
             return new LinkenAltManagerScreen(MinecraftClient.getInstance().currentScreen);

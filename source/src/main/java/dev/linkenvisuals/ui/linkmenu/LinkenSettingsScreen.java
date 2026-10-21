@@ -2,16 +2,13 @@ package dev.linkenvisuals.ui.linkmenu;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.option.SkinOptionsScreen;
-import net.minecraft.client.gui.screen.pack.PackScreen;
-import net.minecraft.text.Text;
 
 import java.util.List;
 
 /**
  * LINKEN settings hub. Main option pages are rendered by the shared LINKEN
- * sub-settings shell; list pages (language, skin, packs) remain vanilla until
- * their own LINKEN lists are ported.
+ * sub-settings shell; language, skin and resource packs have dedicated LINKEN
+ * list screens.
  */
 public final class LinkenSettingsScreen extends LinkenHubScreen {
     public LinkenSettingsScreen(Screen parent) {
@@ -34,7 +31,7 @@ public final class LinkenSettingsScreen extends LinkenHubScreen {
         out.add(new Entry("Language", "INTERFACE LANGUAGE", LinkenMenuChrome.ICON_PEOPLE,
             false, false, () -> mc.setScreen(new LinkenLanguageScreen(this))));
         out.add(new Entry("Skin", "PLAYER APPEARANCE", LinkenMenuChrome.ICON_PERSON,
-            false, false, () -> mc.setScreen(new SkinOptionsScreen(this, mc.options))));
+            false, false, () -> mc.setScreen(new LinkenSkinScreen(this))));
         out.add(new Entry("Sound", "MASTER, MUSIC AND AMBIENCE", LinkenMenuChrome.ICON_PEOPLE,
             false, false, () -> mc.setScreen(
                 new LinkenSubSettingsScreen(this, "Sound", LinkenSettingsCatalog.sound()))));
@@ -45,10 +42,6 @@ public final class LinkenSettingsScreen extends LinkenHubScreen {
             false, false, () -> mc.setScreen(
                 new LinkenSubSettingsScreen(this, "Accessibility", LinkenSettingsCatalog.accessibility()))));
         out.add(new Entry("Resource Packs", "TEXTURES AND SOUND PACKS", LinkenMenuChrome.ICON_GEAR,
-            false, false, () -> mc.setScreen(new PackScreen(
-                mc.getResourcePackManager(),
-                manager -> mc.reloadResources(),
-                mc.getResourcePackDir(),
-                Text.translatable("resourcePack.title")))));
+            false, false, () -> mc.setScreen(new LinkenResourcePacksScreen(this))));
     }
 }
