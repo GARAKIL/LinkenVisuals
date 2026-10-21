@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №26 — donor card scale + media controls, M8.8) — v1.0.95
+
+### Сделано
+1. **D72/v1.0.95** (`f76016d`): карточки приведены к донорскому масштабу — высота 129, gap 15, header 78, grid top +80, media 126; media strip 94. Добавлены `<<` / `>||` / `>>`, отправляющие системные media-клавиши через `java.awt.Robot` (`LinkGuiMediaKeys`), ошибки в debug.
+2. **Сборка/тесты**: 207 тестов, 0 падений; `clean build --no-daemon` зелёный; Minecraft не запускался. Jar `linkenvisuals-1.0.95.jar` (7 371 851 байт, SHA-256 `886EF652F5FDEE6298178C0B15916412816CBEE780A8BE66C66D5D8480B65081`).
+3. **M8**: layout, dock, Interface/Profile, draggable settings, 8 тем, player head, badges, media strip/controls, style lock, cursor trail.
+
+### Следующая задача
+- Остаток строгого 1:1: volume slider/system volume (донорский audio backend не портирован), close overlay (no-op в доноре), точная пиксельная сверка шрифтов/отступов.
+- Визуальная приёмка 1280×720/4K — только с разрешения пользователя.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- System media keys через Robot могут не сработать на некоторых Windows/Java конфигурациях (debug-лог, без краша).
+- Volume/prev/play/next и light/theme/cursor не проверены глазами.
+- Масштаб карточек изменён по донорским константам, но визуальная сверка ещё нужна.
+
 ## Состояние на 2026-10-21 (чат №25 — cursor trail, M8.7) — v1.0.94
 
 ### Сделано

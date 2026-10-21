@@ -45,5 +45,6 @@
 - **M8.5 — style lock + Interface/Profile split — ✅ v1.0.92, D69, `5638ef7`.** Linken GUI заблокирован от Classic/Beta; левая колонка INTERFACE 330×282 + PROFILE 330×360; 207 тестов.
 - **M8.6 — draggable module settings window — ✅ v1.0.93, D70, `1d66355`.** Плавающее окно 330×440, drag/close/scroll; 207 тестов.
 - **M8.7 — cursor trail — ✅ v1.0.94, D71, `166869a`.** 64 точки/780 мс, glow-орбы + ядро; 207 тестов.
-- **M8.8 (остаток 1:1) — ⛔** music controls/volume, close overlay (no-op), финальная пиксельная сверка.
+- **M8.8 — donor card scale + media controls — ✅ v1.0.95, D72, `f76016d`.** Карточки 129/gap 15/header 78/media 126; prev/play/next через media-клавиши; 207 тестов.
+- **M8.9 (остаток 1:1) — ⛔** volume slider/system volume, close overlay (no-op), финальная пиксельная сверка.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.

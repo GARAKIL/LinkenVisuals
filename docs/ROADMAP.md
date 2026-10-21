@@ -83,6 +83,7 @@
 - [x] **M8.5 — style lock + Interface/Profile split**, v1.0.92, D69, commit `5638ef7`: Linken GUI нельзя переключить на Classic/Beta (Ctrl+Left/Right/setGuiStyle/GUI Style row заблокированы); левая колонка разделена на INTERFACE 330×282 + PROFILE 330×360. 207 тестов.
 - [x] **M8.6 — draggable module settings window**, v1.0.93, D70, commit `1d66355`: плавающее окно 330×440, drag за header, close, clamp, scroll; 207 тестов.
 - [x] **M8.7 — cursor trail**, v1.0.94, D71, commit `166869a`: 64 точки/780 мс, glow-орбы + ядро; 207 тестов.
-- [ ] **M8.8 (остаток 1:1)** — music controls/volume (донорский backend), close overlay (no-op), финальная пиксельная сверка.
+- [x] **M8.8 — donor card scale + media controls**, v1.0.95, D72, commit `f76016d`: карточки 129/gap 15/header 78/media 126; prev/play/next через системные media-клавиши; 207 тестов.
+- [ ] **M8.9 (остаток 1:1)** — volume slider/system volume, close overlay (no-op), финальная пиксельная сверка.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

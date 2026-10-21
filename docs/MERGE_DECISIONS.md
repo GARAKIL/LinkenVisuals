@@ -646,3 +646,10 @@
 - **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft по просьбе пользователя не запускался. Jar `linkenvisuals-1.0.94.jar` (7 370 108 байт, SHA-256 `FC4974DB090D25907B91B2FE055F8056EECA80F172975ACBA0B9AF6C64E48991`).
 - **Commit**: `166869a` `feat(ui): add LINKEN ClickGUI cursor trail (v1.0.94, D71)`.
 - **Остаток 1:1**: close overlay (в доноре пустой стаб — можно не портировать), управление музыкой/громкостью (нет донорского playback-бэкенда), точная пиксельная сверка отступов/шрифтов.
+
+## 2026-10-21 · D72 · LINKEN ClickGUI: donor card scale + media controls — v1.0.95
+- **Масштаб карточек 1:1**: `CARD_HEIGHT` 94→**129** (донорские 86×1.5), `CARD_GAP` 12→**15**, header main-окна 64→**78**, grid top `+80`, нижний media-блок 126; media strip 94 px. Это выравнивает сетку и высоту главного окна под донорские 1280×720×1.5.
+- **Media controls**: в strip добавлены `<<`, `> / ||`, `>>`; клики отправляют системные media-клавиши через `java.awt.Robot` (`LinkGuiMediaKeys`, VK 0xB1/0xB3/0xB0), ошибки — `LOGGER.debug`, без dead clicks. Громкость/system volume не портирована (нет донорского audio backend).
+- **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft не запускался. Jar `linkenvisuals-1.0.95.jar` (7 371 851 байт, SHA-256 `886EF652F5FDEE6298178C0B15916412816CBEE780A8BE66C66D5D8480B65081`).
+- **Commit**: `f76016d` `feat(ui): align LinkGUI card scale and add media controls (v1.0.95, D72)`.
+- **Остаток**: volume slider/system volume, close overlay (no-op), финальная пиксельная сверка.
