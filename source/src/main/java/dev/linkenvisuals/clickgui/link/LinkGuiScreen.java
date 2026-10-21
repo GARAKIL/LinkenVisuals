@@ -80,6 +80,7 @@ public final class LinkGuiScreen extends Screen {
     private final Map<Category, Spring> navHover = new EnumMap<>(Category.class);
     private final Map<ModuleInfo, Spring> cardHover = new HashMap<>();
     private final Spring closeHover = new Spring(0.0, 900.0, 50.0);
+    private final LinkGuiCursorTrail cursorTrail = new LinkGuiCursorTrail();
 
     private long lastFrame = System.nanoTime();
     private boolean closing;
@@ -162,6 +163,7 @@ public final class LinkGuiScreen extends Screen {
         }
         ensureState();
         skin = loadSkin();
+        cursorTrail.clear();
         closing = false;
         lastFrame = System.nanoTime();
         if (client != null) {
@@ -251,6 +253,8 @@ public final class LinkGuiScreen extends Screen {
             drawSettingsPanel(context, metrics, mx, my, openT, deltaSeconds);
         }
         drawThemePanel(context, metrics, mx, my, openT);
+        cursorTrail.update(mx, my);
+        cursorTrail.render(context);
         context.getMatrices().popMatrix();
     }
 
