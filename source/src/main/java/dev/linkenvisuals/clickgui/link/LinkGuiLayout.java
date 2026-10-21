@@ -22,8 +22,9 @@ public final class LinkGuiLayout {
     public static final int NAV_ITEMS = 7;
     public static final float NAV_ITEM_HEIGHT = 52.0f;
     public static final float NAV_ITEM_GAP = 5.0f;
-    public static final float CARD_HEIGHT = 94.0f;
-    public static final float CARD_GAP = 12.0f;
+    public static final float HEADER_HEIGHT = 78.0f;
+    public static final float CARD_HEIGHT = 129.0f;
+    public static final float CARD_GAP = 15.0f;
     public static final int CARD_COLUMNS = 2;
 
     private LinkGuiLayout() {
@@ -104,8 +105,8 @@ public final class LinkGuiLayout {
         Rect profile = new Rect(MARGIN, settings.bottom() + MAIN_GAP, SIDE_WIDTH, PROFILE_HEIGHT);
         Rect theme = new Rect(width - MARGIN - THEME_WIDTH,
             mainY + (MAIN_HEIGHT - THEME_HEIGHT) * 0.5f, THEME_WIDTH, THEME_HEIGHT);
-        Rect cards = new Rect(center.x() + 24.0f, center.y() + 104.0f,
-            center.width() - 48.0f, center.height() - 104.0f - 100.0f);
+        Rect cards = new Rect(center.x() + 24.0f, center.y() + HEADER_HEIGHT + 2.0f,
+            center.width() - 48.0f, center.height() - HEADER_HEIGHT - 128.0f);
         Rect settingsContent = new Rect(settings.x() + 18.0f, settings.y() + 96.0f,
             settings.width() - 36.0f, settings.height() - 116.0f);
         Rect profileContent = new Rect(profile.x() + 18.0f, profile.y() + 96.0f,

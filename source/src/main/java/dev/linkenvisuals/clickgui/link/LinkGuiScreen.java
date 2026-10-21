@@ -117,6 +117,9 @@ public final class LinkGuiScreen extends Screen {
     private float settingsDragY;
     private Rect settingsCloseHit;
     private Rect settingsHeaderHit;
+    private Rect mediaPrevHit;
+    private Rect mediaPlayHit;
+    private Rect mediaNextHit;
     private Rect configInputHit;
     private Rect configCreateHit;
     private Rect configFolderHit;
@@ -482,14 +485,15 @@ public final class LinkGuiScreen extends Screen {
         }
         context.disableScissor();
         scrollbar(context, metrics, area.right() - 4.0f, area.y(), area.height(), contentHeight, scroll, openT);
-        drawMediaStrip(context, metrics, panel, openT);
+        drawMediaStrip(context, metrics, panel, mx, my, openT);
     }
 
-    private void drawMediaStrip(DrawContext context, Metrics metrics, Rect panel, float openT) {
+    private void drawMediaStrip(DrawContext context, Metrics metrics, Rect panel, float mx, float my,
+                                float openT) {
         MediaWatcher.Track track = MediaWatcher.current();
         boolean present = track != null && track.present();
-        Rect strip = new Rect(panel.x() + 24.0f, panel.bottom() - 88.0f,
-            panel.width() - 48.0f, 70.0f);
+        Rect strip = new Rect(panel.x() + 24.0f, panel.bottom() - 118.0f,
+            panel.width() - 48.0f, 94.0f);
         LinkenMenuChrome.roundedFill(context, strip.x(), strip.y(), strip.width(), strip.height(), 9.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.PANEL_LIGHT, 220, openT), metrics.scale());
         LinkenMenuChrome.roundedOutline(context, strip.x(), strip.y(), strip.width(), strip.height(), 9.0f,
@@ -515,19 +519,19 @@ public final class LinkGuiScreen extends Screen {
         }
 
         float textX = strip.x() + 48.0f;
-        float textW = strip.width() - 62.0f;
+        float textW = strip.width() - 170.0f;
         if (present) {
             String title = LinkenMenuChrome.ellipsize(LinkenFonts.heading(), track.title(), textW, 11.0f);
             LinkenMenuChrome.drawText(context, LinkenFonts.heading(), title,
-                textX, strip.y() + 14.0f, 11.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+                textX, strip.y() + 20.0f, 11.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
             String artist = track.artist().isBlank() ? track.app() : track.artist();
             LinkenMenuChrome.drawText(context, LinkenFonts.body(),
                 LinkenMenuChrome.ellipsize(LinkenFonts.body(), artist, textW, 9.0f),
-                textX, strip.y() + 31.0f, 9.0f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
+                textX, strip.y() + 39.0f, 9.0f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
             if (track.length() > 0L) {
                 float progress = Math.max(0.0f, Math.min(1.0f,
                     (float) track.position() / (float) track.length()));
-                float progressY = strip.bottom() - 13.0f;
+                float progressY = strip.bottom() - 16.0f;
                 LinkenMenuChrome.roundedFill(context, textX, progressY, textW, 2.0f, 1.0f,
                     LinkenMenuChrome.rgba(0xFFFFFF, 34, openT), metrics.scale());
                 if (progress > 0.001f) {
@@ -539,6 +543,32 @@ public final class LinkGuiScreen extends Screen {
             LinkenMenuChrome.drawText(context, LinkenFonts.body(), "Nothing is playing right now",
                 textX, strip.y() + 26.0f, 9.0f, LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
         }
+
+        boolean playing = present && track.playing();
+        float button = 26.0f;
+        float gap = 6.0f;
+        float group = button * 3.0f + gap * 2.0f;
+        float buttonX = strip.right() - 14.0f - group;
+        float buttonY = strip.bottom() - 38.0f;
+        mediaPrevHit = new Rect(buttonX, buttonY, button, button);
+        mediaPlayHit = new Rect(buttonX + button + gap, buttonY, button, button);
+        mediaNextHit = new Rect(buttonX + (button + gap) * 2.0f, buttonY, button, button);
+        drawMediaButton(context, metrics, mediaPrevHit, "<<", mx, my, openT);
+        drawMediaButton(context, metrics, mediaPlayHit, playing ? "||" : ">", mx, my, openT);
+        drawMediaButton(context, metrics, mediaNextHit, ">>", mx, my, openT);
+    }
+
+    private void drawMediaButton(DrawContext context, Metrics metrics, Rect rect, String label,
+                                 float mx, float my, float openT) {
+        boolean hovered = rect.contains(mx, my);
+        LinkenMenuChrome.roundedFill(context, rect.x(), rect.y(), rect.width(), rect.height(), 7.0f,
+            LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.HOVER : LinkGuiTheme.ROW, 226, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, rect.x(), rect.y(), rect.width(), rect.height(), 7.0f, 1.0f,
+            LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.ACCENT : 0xFFFFFF, hovered ? 92 : 18, openT),
+            metrics.scale());
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), label,
+            rect.x() + rect.width() * 0.5f, rect.y() + 8.0f, 9.0f,
+            LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.ACCENT : LinkGuiTheme.ON_DARK, openT));
     }
 
     private void drawModuleCard(DrawContext context, Metrics metrics, ModuleInfo module, Rect card,
@@ -1419,6 +1449,22 @@ public final class LinkGuiScreen extends Screen {
                 }
                 return true;
             }
+        }
+
+        if (mediaPrevHit != null && mediaPrevHit.contains(mx, my)) {
+            LinkGuiMediaKeys.previous();
+            playClick();
+            return true;
+        }
+        if (mediaPlayHit != null && mediaPlayHit.contains(mx, my)) {
+            LinkGuiMediaKeys.playPause();
+            playClick();
+            return true;
+        }
+        if (mediaNextHit != null && mediaNextHit.contains(mx, my)) {
+            LinkGuiMediaKeys.next();
+            playClick();
+            return true;
         }
 
         for (NavHit hit : navHits) {
