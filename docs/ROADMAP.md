@@ -91,5 +91,6 @@
 - [x] **M8.10 — main menu + LinkGUI re-base on the actually-used donor screen**, v1.0.99, D76: title menu 1:1 donor `CustomMainMenuScreen` (центрированный wordmark, 3 строки кнопок, inline-аккаунт, 4 соц-плитки, media 320 по центру, footer); LinkGUI 1090×830/3×102 cards/theme 340×920/profile 330×358/dock 52; Interface Scale, GUI Transparency, Cursor Tracker; Theme+Interface panel. 211 тестов.
 - [x] **M8.11 — donor visual diff (release jar 2.0, 1280×720)**, v1.0.100, D77: canvas centering offsets, default Profile/Theme open, dock 9 tiles + Friends/Waypoints panels, 3D profile via screen-space `drawEntity`, title-case labels/localized All. 212 тестов.
 - [x] **M8.12 — MSDF/icon pixelation fix**, v1.0.101, D78: donor MSDF pixel-range formula, no baseline rounding, rounded-rect AA 1.0, donor `iconsnew`/`iconsfa` MSDF atlases instead of 48×48 PNGs. 212 тестов.
+- [x] **M8.13 — Select World + clipping**, v1.0.102, D79: scissor margins 14/16 px for the card grid (right edge no longer cut), LINKEN `LinkenSelectWorldScreen` 1000×720 with search/list/6 actions, routed from title and `SelectWorldScreen` mixin. 212 тестов.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

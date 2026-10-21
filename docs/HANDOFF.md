@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №33 — Select World + clipping, D79) — v1.0.102
+
+### Сделано
+1. **D79/v1.0.102**: правый край правой карточки срезался scissor ровно по `cards.right()`. Scissor расширен на 14 px по бокам/16 px сверху-снизу; списки Friends/Waypoints/Settings/Configs получили +4 px; 3D-viewer профиля — scissor в design-координатах.
+2. **Singleplayer**: `LinkenSelectWorldScreen` — LINKEN-окно 1000×720 с tower-фоном, поиском, списком миров и кнопками Play/Create/Edit/Delete/Re-Create/Back. Backend — vanilla `WorldListWidget` (play/edit/delete/recreate), vanilla chrome скрыт, список обновляется off-screen. Роутинг из title и `MinecraftClientMixin`.
+3. **Аудит**: стилизованы title, splash/loading/connect, pause, settings hub/subpages, multiplayer, alt manager, LinkGUI, Select World. Остаются vanilla: Create/Edit/Re-Create World (донор тоже vanilla), death screen (donor vanilla), Inventory/Chat/HUD.
+4. **Сборка/тесты**: **212 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.102.jar` (7 598 412 байт, SHA-256 `D5B47E223F715ECE09E36A113C30E15689CB2496A86F2221BFAD400BAEF6D271`).
+
+### Следующая задача
+- Стилизовать Create World / Edit World (если требуется сверх donor-поведения), death/disconnect-проверка.
+- Остаток strict 1:1: pinned cards, donor media/audio, donor-only Interface groups, точная сверка шрифтов.
+- Устранить shader-source race при старте.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- `LinkenSelectWorldScreen` использует vanilla `WorldListWidget` через off-screen `renderWidget`; при изменении vanilla API это хрупко.
+- Create/Edit/Re-Create открывают vanilla `CreateWorldScreen` — осознанный остаток.
+- Media strip без донорского трека показывает реальное состояние MediaWatcher.
+
+
 ## Состояние на 2026-10-21 (чат №32 — MSDF/icon pixelation fix, D78) — v1.0.101
 
 ### Сделано
