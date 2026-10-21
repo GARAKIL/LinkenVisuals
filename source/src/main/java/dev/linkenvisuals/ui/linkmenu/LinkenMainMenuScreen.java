@@ -9,6 +9,7 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenSelectWorldScreen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 
@@ -262,7 +263,7 @@ public final class LinkenMainMenuScreen extends Screen {
         }
         if (metrics.singleplayer().contains(mouseX, mouseY)) {
             if (client != null) {
-                client.setScreen(new SelectWorldScreen(this));
+                client.setScreen(new LinkenSelectWorldScreen(this));
             }
             return true;
         }

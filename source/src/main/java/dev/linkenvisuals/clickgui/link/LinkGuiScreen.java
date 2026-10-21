@@ -612,8 +612,8 @@ public final class LinkGuiScreen extends Screen {
         scrollSpring.step(scrollTarget, deltaSeconds);
         float scroll = (float) scrollSpring.get();
 
-        context.enableScissor(Math.round(area.x()), Math.round(area.y()),
-            Math.round(area.right()), Math.round(area.bottom()));
+        context.enableScissor(Math.round(area.x() - 14.0f), Math.round(area.y() - 16.0f),
+            Math.round(area.right() + 14.0f), Math.round(area.bottom() + 16.0f));
         cardHits.clear();
         if (modules.isEmpty()) {
             LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), I18n.get("gui.empty.category_title"),
@@ -929,8 +929,11 @@ public final class LinkGuiScreen extends Screen {
             int ew = Math.round((cw - 32.0f) * s);
             int eh = Math.round((viewerH - 22.0f) * s);
             int size = Math.max(2, Math.round(eh / 3.2f));
+            context.enableScissor(Math.round(cx + 16.0f), Math.round(viewerY + 12.0f),
+                Math.round(cx + cw - 16.0f), Math.round(viewerY + viewerH - 10.0f));
             net.minecraft.client.gui.screen.ingame.InventoryScreen.drawEntity(context, ex, ey,
                 ex + ew, ey + eh, size, 0.0625f, ex + ew * 0.5f, ey + eh * 0.80f, client.player);
+            context.disableScissor();
         } else if (skin != null) {
             float preview = 96.0f;
             float previewX = cx + (cw - preview) * 0.5f;
@@ -1005,8 +1008,8 @@ public final class LinkGuiScreen extends Screen {
         panelScrollSpring.step(panelScrollTarget, deltaSeconds);
         float scroll = (float) panelScrollSpring.get();
 
-        context.enableScissor(Math.round(area.x()), Math.round(area.y()),
-            Math.round(area.right()), Math.round(area.bottom()));
+        context.enableScissor(Math.round(area.x() - 4.0f), Math.round(area.y()),
+            Math.round(area.right() + 4.0f), Math.round(area.bottom()));
         float y = area.y() - scroll;
         settingHits.clear();
         if (settings.isEmpty()) {
@@ -1231,8 +1234,8 @@ public final class LinkGuiScreen extends Screen {
         configScrollSpring.step(configScrollTarget, deltaSeconds);
         float scroll = (float) configScrollSpring.get();
 
-        context.enableScissor(Math.round(list.x()), Math.round(list.y()),
-            Math.round(list.right()), Math.round(list.bottom()));
+        context.enableScissor(Math.round(list.x() - 4.0f), Math.round(list.y()),
+            Math.round(list.right() + 4.0f), Math.round(list.bottom()));
         configHits.clear();
         if (profiles.isEmpty()) {
             LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), I18n.get("gui.config.empty"),
@@ -1593,7 +1596,8 @@ public final class LinkGuiScreen extends Screen {
 
         float listTop = inputY + 44.0f;
         float listBottom = panel.bottom() - 16.0f;
-        context.enableScissor(Math.round(px), Math.round(listTop), Math.round(px + cw), Math.round(listBottom));
+        context.enableScissor(Math.round(px - 4.0f), Math.round(listTop),
+            Math.round(px + cw + 4.0f), Math.round(listBottom));
         sideRemoveHits.clear();
         if (count == 0) {
             LinkenMenuChrome.drawCentered(context, LinkenFonts.body(),

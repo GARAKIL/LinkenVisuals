@@ -56,7 +56,8 @@
     "PlayerEntityRenderStateMixin",
     "PlayerEntityRendererMixin",
     "PlayerEntityModelMixin",
-    "ArmorFeatureRendererMixin"
+    "ArmorFeatureRendererMixin",
+    "SelectWorldScreenAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

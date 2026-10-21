@@ -8,6 +8,7 @@ import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenResourcePacksScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenSelectWorldScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenSettingsScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenSkinScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
@@ -20,6 +21,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.option.OptionsScreen;
 import net.minecraft.client.gui.screen.option.SkinOptionsScreen;
 import net.minecraft.client.gui.screen.pack.PackScreen;
+import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -92,6 +94,9 @@ public abstract class MinecraftClientMixin {
         }
         if (screen instanceof MultiplayerScreen) {
             return new LinkenMultiplayerScreen(MinecraftClient.getInstance().currentScreen);
+        }
+        if (screen instanceof SelectWorldScreen && !(screen instanceof LinkenSelectWorldScreen)) {
+            return new LinkenSelectWorldScreen(MinecraftClient.getInstance().currentScreen);
         }
         return screen;
     }
