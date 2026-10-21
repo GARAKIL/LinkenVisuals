@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui.editor;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
@@ -27,7 +29,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.DefaultSkinHelper;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -1240,13 +1241,13 @@ public final class MainMenuEditorScreen extends Screen {
 
     private void playClick() {
         if (client != null && client.getSoundManager() != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 1.0f));
+            client.getSoundManager().play(PositionedSoundInstance.ui(LinkenSounds.UI_CLICK, 1.0f, 1.0f));
         }
     }
 
     private void playSaveSound() {
         if (client != null && client.getSoundManager() != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.2f, 1.0f));
+            client.getSoundManager().play(PositionedSoundInstance.ui(LinkenSounds.ENABLE, 1.2f, 1.0f));
         }
     }
 }

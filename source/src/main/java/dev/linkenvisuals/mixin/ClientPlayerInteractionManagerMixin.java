@@ -4,6 +4,7 @@ import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
+import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
 import dev.linkenvisuals.player.KillEffects;
@@ -11,6 +12,7 @@ import dev.linkenvisuals.player.TargetMarks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -29,6 +31,9 @@ public abstract class ClientPlayerInteractionManagerMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         boolean fake = FakePlayer.hit(client, target);
         HitSoundModule.tryPlay(client, HitSoundModule.isCrit(player, target));
+        if (target instanceof LivingEntity living) {
+            SoundsModule.noteHit(living);
+        }
         if (fake) {
             ci.cancel();
             return;

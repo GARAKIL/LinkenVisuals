@@ -300,15 +300,25 @@ public final class LinkenMenuChrome {
             0.0f, 0.0f, 9, 9, 9, 9, rgba(playing ? TEXT : MUTED, fade));
 
         float textX = card.x() + coverSize + 12.0f;
-        float textWidth = card.width() - (textX - card.x());
+        float availableWidth = card.width() - (textX - card.x());
+        float rowCenter = rowY + coverSize * 0.5f;
         if (present) {
-            String title = ellipsize(LinkenFonts.heading(), track.title(), textWidth, 13.0f);
-            drawOn(context, LinkenFonts.heading(), title, textX, rowY + coverSize * 0.5f, 13.0f,
+            // Donor line: "TITLE by ARTIST", title/artist in the heading face.
+            String title = ellipsize(LinkenFonts.heading(), track.title(), availableWidth, 13.0f);
+            drawOn(context, LinkenFonts.heading(), title, textX, rowCenter, 13.0f,
+                rgba(TEXT, fade));
+            float byX = textX + textWidth(LinkenFonts.heading(), title, 13.0f) + 4.0f;
+            float byWidth = textWidth(LinkenFonts.body(), "by ", 11.0f);
+            String artist = ellipsize(LinkenFonts.heading(), track.artist(),
+                Math.max(0.0f, card.right() - byX - byWidth), 13.0f);
+            drawOn(context, LinkenFonts.body(), "by", byX, rowCenter + 1.0f, 11.0f,
+                rgba(MUTED2, fade));
+            drawOn(context, LinkenFonts.heading(), artist, byX + byWidth, rowCenter, 13.0f,
                 rgba(TEXT, fade));
         } else {
             String hint = ellipsize(LinkenFonts.body(), I18n.get("linkenvisuals.linkmenu.media.hint"),
-                textWidth, 10.5f);
-            drawOn(context, LinkenFonts.body(), hint, textX, rowY + coverSize * 0.5f, 10.5f,
+                availableWidth, 10.5f);
+            drawOn(context, LinkenFonts.body(), hint, textX, rowCenter, 10.5f,
                 rgba(MUTED2, fade));
         }
 

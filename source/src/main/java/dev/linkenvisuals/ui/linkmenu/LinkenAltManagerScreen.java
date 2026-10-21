@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui.linkmenu;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.account.AccountStorage;
 import dev.linkenvisuals.account.AltAccountFilter;
 import dev.linkenvisuals.account.StoredAccount;
@@ -720,7 +722,7 @@ public final class LinkenAltManagerScreen extends Screen {
     private void playClick() {
         if (client != null && client.getSoundManager() != null) {
             client.getSoundManager().play(net.minecraft.client.sound.PositionedSoundInstance.ui(
-                net.minecraft.sound.SoundEvents.UI_BUTTON_CLICK.value(), 0.8f, 1.0f));
+                LinkenSounds.UI_CLICK, 0.8f, 1.0f));
         }
     }
 

@@ -1,5 +1,6 @@
 package dev.linkenvisuals.ui.linkmenu;
 
+import dev.linkenvisuals.audio.LinkenSounds;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.mixin.SelectWorldScreenAccessor;
 import dev.linkenvisuals.render.Pipelines;
@@ -325,12 +326,14 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
         }
         for (ButtonHit hit : buttonHits) {
             if (hit.enabled() && hit.bounds().contains(mx, my)) {
+                LinkenSounds.playUiClick();
                 hit.action().run();
                 return true;
             }
         }
         for (RowHit hit : rowHits) {
             if (hit.bounds().contains(mx, my)) {
+                LinkenSounds.playUiClick();
                 if (levelList != null) {
                     levelList.setSelected(hit.entry());
                 }

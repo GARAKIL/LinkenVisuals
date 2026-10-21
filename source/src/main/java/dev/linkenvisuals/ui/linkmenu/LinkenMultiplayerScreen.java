@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui.linkmenu;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.CirclePipeline;
@@ -20,7 +22,6 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.ServerList;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.network.NetworkingBackend;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
@@ -866,7 +867,7 @@ public final class LinkenMultiplayerScreen extends Screen {
 
     private void playClick() {
         if (client != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK.value(), 0.8f, 1.0f));
+            client.getSoundManager().play(PositionedSoundInstance.ui(LinkenSounds.UI_CLICK, 0.8f, 1.0f));
         }
     }
 }

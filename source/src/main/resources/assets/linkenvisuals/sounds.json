@@ -1,42 +1,154 @@
 {
   "ui.open": {
+    "category": "master",
     "sounds": [
-      {
-        "name": "linkenvisuals:ui/open",
-        "stream": false
-      }
+      { "name": "linkenvisuals:clickgui_open", "stream": false }
     ]
   },
   "ui.back": {
+    "category": "master",
     "sounds": [
-      {
-        "name": "linkenvisuals:ui/back",
-        "stream": false
-      }
+      { "name": "linkenvisuals:disable", "stream": false }
     ]
   },
   "ui.toggle_on": {
+    "category": "master",
     "sounds": [
-      {
-        "name": "linkenvisuals:ui/toggle_on",
-        "stream": false
-      }
+      { "name": "linkenvisuals:enable", "stream": false }
     ]
   },
   "ui.toggle_off": {
+    "category": "master",
     "sounds": [
-      {
-        "name": "linkenvisuals:ui/toggle_off",
-        "stream": false
-      }
+      { "name": "linkenvisuals:disable", "stream": false }
     ]
   },
-  "pet/ult": {
+  "ui.click": {
+    "category": "master",
     "sounds": [
-      {
-        "name": "linkenvisuals:pet/itachi",
-        "stream": false
-      }
+      { "name": "linkenvisuals:enable", "stream": false }
     ]
+  },
+  "enable": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:enable" ]
+  },
+  "disable": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:disable" ]
+  },
+  "critical": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:critical" ]
+  },
+  "clickgui_open": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:clickgui_open" ]
+  },
+  "bell": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:bell" ]
+  },
+  "crime": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:crime" ]
+  },
+  "nya": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:nya" ]
+  },
+  "uwu": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:uwu" ]
+  },
+  "hellodragons": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:hellodragons" ]
+  },
+  "krithealth_lechisy": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:krithealth_lechisy" ]
+  },
+  "molodec_ubil": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:molodec_ubil" ]
+  },
+  "unichtozjen": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:unichtozjen" ]
+  },
+  "zapen": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:zapen" ]
+  },
+  "vcheli": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:vcheli" ]
+  },
+  "respawn": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:respawn" ]
+  },
+  "next_raz_povezyo": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:next_raz_povezyo" ]
+  },
+  "snes_totema": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:snes_totema" ]
+  },
+  "snesli_totem": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:snesli_totem" ]
+  },
+  "multikill": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:multikill" ]
+  },
+  "neostonovim": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:neostonovim" ]
+  },
+  "dabkill": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:dabkill" ]
+  },
+  "dota_double_kill": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:dota_double_kill" ]
+  },
+  "dota_triple_kill": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:dota_triple_kill" ]
+  },
+  "dota_mega_kill": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:dota_mega_kill" ]
+  },
+  "dota_monster_kill": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:dota_monster_kill" ]
+  },
+  "dota_rampage": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:dota_rampage" ]
+  },
+  "mainmenu/track": {
+    "category": "master",
+    "sounds": [
+      { "name": "linkenvisuals:mainmenu/evilshit", "stream": true }
+    ]
+  },
+  "cosmetic/itachi": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:cosmetic/sounds/itachi" ]
+  },
+  "cosmetic/naruto_shadow_clones": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:cosmetic/sounds/naruto_shadow_clones" ]
+  },
+  "pet/ult": {
+    "category": "master",
+    "sounds": [ "linkenvisuals:pet/itachi" ]
   }
 }

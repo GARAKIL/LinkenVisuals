@@ -1,5 +1,6 @@
 package dev.linkenvisuals.module.impl;
 
+import dev.linkenvisuals.audio.LinkenSounds;
 import dev.linkenvisuals.clickgui.Category;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
@@ -13,7 +14,6 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public final class HitSoundModule extends Module {
     public final BooleanSetting onlyCrit;
 
     public HitSoundModule() {
-        this(new ModeSetting("Sound", List.of("Bell", "Click", "Pop"), 0),
+        this(new ModeSetting("Sound", List.of("Bell", "Crime", "Nya", "Uwu"), 0),
              new BooleanSetting("Only Crit", false));
     }
 
@@ -55,9 +55,10 @@ public final class HitSoundModule extends Module {
             return;
         }
         SoundEvent event = switch (module.sound.value()) {
-            case "Click" -> SoundEvents.UI_BUTTON_CLICK.value();
-            case "Pop" -> SoundEvents.ENTITY_CHICKEN_EGG;
-            default -> SoundEvents.BLOCK_NOTE_BLOCK_BELL.value();
+            case "Crime" -> LinkenSounds.CRIME;
+            case "Nya" -> LinkenSounds.NYA;
+            case "Uwu" -> LinkenSounds.UWU;
+            default -> LinkenSounds.BELL;
         };
         client.getSoundManager().play(PositionedSoundInstance.ui(event, 1.0f, 1.0f));
     }

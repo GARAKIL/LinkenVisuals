@@ -1,5 +1,6 @@
 package dev.linkenvisuals.player;
 
+import dev.linkenvisuals.audio.LinkenSounds;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.cosmetic.CosmeticContext;
 import dev.linkenvisuals.cosmetic.Material;
@@ -19,7 +20,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -152,23 +152,23 @@ public final class KillEffects {
         }
         switch (ModuleRegistry.killStyle().current()) {
             case "Portal" -> {
-                play(client, at, SoundEvents.BLOCK_PORTAL_TRIGGER, 0.55f, 1.45f);
-                play(client, at, SoundEvents.ENTITY_ENDERMAN_TELEPORT, 0.7f, 0.65f);
+                play(client, at, LinkenSounds.HELLO, 0.55f, 1.45f);
+                play(client, at, LinkenSounds.CRITICAL, 0.7f, 0.65f);
                 echoAt[slot] = clock + 0.32f;
             }
             case "Tornado" -> {
-                play(client, at, SoundEvents.ENTITY_ENDER_DRAGON_FLAP, 1.0f, 0.55f);
-                play(client, at, SoundEvents.ENTITY_BREEZE_WIND_BURST.value(), 0.9f, 0.7f);
+                play(client, at, LinkenSounds.ARROW_HIT, 1.0f, 0.55f);
+                play(client, at, LinkenSounds.DOTA_MEGA_KILL, 0.9f, 0.7f);
                 echoAt[slot] = clock + 0.45f;
             }
             case "Shatter" -> {
-                play(client, at, SoundEvents.BLOCK_GLASS_BREAK, 1.0f, 0.6f);
-                play(client, at, SoundEvents.BLOCK_AMETHYST_CLUSTER_BREAK, 0.9f, 0.65f);
+                play(client, at, LinkenSounds.BELL, 1.0f, 0.6f);
+                play(client, at, LinkenSounds.CRIME, 0.9f, 0.65f);
                 echoAt[slot] = clock + 0.14f;
             }
             default -> {
-                play(client, at, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), 0.8f, 0.55f);
-                play(client, at, SoundEvents.BLOCK_BEACON_ACTIVATE, 0.35f, 1.6f);
+                play(client, at, LinkenSounds.KILL_MOLODEC, 0.8f, 0.55f);
+                play(client, at, LinkenSounds.KILL_ZAPEN, 0.35f, 1.6f);
                 echoAt[slot] = clock + 0.6f;
             }
         }
@@ -177,13 +177,10 @@ public final class KillEffects {
     private static void echo(MinecraftClient client, int slot) {
         Vec3d at = new Vec3d(atX[slot], atY[slot], atZ[slot]);
         switch (ModuleRegistry.killStyle().current()) {
-            case "Portal" -> play(client, at, SoundEvents.ENTITY_GENERIC_EXPLODE.value(),
-                0.35f, 1.9f);
-            case "Tornado" -> play(client, at, SoundEvents.ENTITY_BREEZE_WIND_BURST.value(),
-                0.6f, 0.5f);
-            case "Shatter" -> play(client, at, SoundEvents.ENTITY_GENERIC_EXPLODE.value(),
-                0.45f, 1.7f);
-            default -> play(client, at, SoundEvents.BLOCK_AMETHYST_BLOCK_CHIME, 0.7f, 0.75f);
+            case "Portal" -> play(client, at, LinkenSounds.DOTA_MONSTER_KILL, 0.35f, 1.9f);
+            case "Tornado" -> play(client, at, LinkenSounds.DOTA_RAMPAGE, 0.6f, 0.5f);
+            case "Shatter" -> play(client, at, LinkenSounds.KILL_UNICHTOZJEN, 0.45f, 1.7f);
+            default -> play(client, at, LinkenSounds.DABKILL, 0.7f, 0.75f);
         }
     }
 

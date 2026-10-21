@@ -1,5 +1,7 @@
 package dev.linkenvisuals.clickgui.link;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.clickgui.Category;
 import dev.linkenvisuals.clickgui.ConfigManager;
@@ -41,7 +43,6 @@ import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.DefaultSkinHelper;
 import net.minecraft.entity.player.SkinTextures;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import dev.linkenvisuals.waypoint.Waypoint;
@@ -2317,9 +2318,7 @@ public final class LinkGuiScreen extends Screen {
     }
 
     private void playClick() {
-        if (client != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK.value(), 0.8f, 1.0f));
-        }
+        LinkenSounds.playUiClick();
     }
 
     private void playToggle(boolean enabled) {

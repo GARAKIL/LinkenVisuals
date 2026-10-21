@@ -96,6 +96,31 @@ class ConfigJsonTest {
     }
 
     @Test
+    void roundTripsSoundsModuleSettings() {
+        dev.linkenvisuals.module.impl.SoundsModule module =
+            new dev.linkenvisuals.module.impl.SoundsModule();
+        SliderSetting volume = (SliderSetting) module.info().leftSettings().getFirst();
+        BooleanSetting totem = (BooleanSetting) module.info().leftSettings().get(3);
+        SliderSetting lowHp = (SliderSetting) module.info().rightSettings().getLast();
+        volume.setValue(65.0f);
+        totem.setValue(false);
+        lowHp.setValue(10.0f);
+
+        JsonObject json = ConfigJson.build(List.of(module.info()));
+
+        volume.setValue(100.0f);
+        totem.setValue(true);
+        lowHp.setValue(6.0f);
+        module.info().toggleSilently(false);
+        ConfigJson.apply(List.of(module.info()), json);
+
+        assertTrue(module.enabled());
+        assertEquals(65.0f, volume.value(), 1.0e-6f);
+        assertFalse(totem.value());
+        assertEquals(10.0f, lowHp.value(), 1.0e-6f);
+    }
+
+    @Test
     void ignoresUnknownModulesAndNull() {
         ModuleInfo module = new ModuleInfo("Known", "", Category.VISUAL, List.of(), List.of());
         JsonObject json = new JsonObject();

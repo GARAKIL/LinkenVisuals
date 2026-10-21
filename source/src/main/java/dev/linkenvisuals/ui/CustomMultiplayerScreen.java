@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
@@ -30,7 +32,6 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.ServerList;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
@@ -1108,7 +1109,7 @@ public final class CustomMultiplayerScreen extends Screen {
 
     private void playClick() {
         if (client != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 1.0f));
+            client.getSoundManager().play(PositionedSoundInstance.ui(LinkenSounds.UI_CLICK, 1.0f, 1.0f));
         }
     }
 

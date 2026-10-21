@@ -78,6 +78,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         Registry.register(Registries.SOUND_EVENT, BACK_SOUND_ID, BACK_SOUND);
         Registry.register(Registries.SOUND_EVENT, TOGGLE_ON_SOUND_ID, TOGGLE_ON_SOUND);
         Registry.register(Registries.SOUND_EVENT, TOGGLE_OFF_SOUND_ID, TOGGLE_OFF_SOUND);
+        dev.linkenvisuals.audio.LinkenSounds.register();
         migrateLegacyPlayerData();
         AccountStorage.load();
         dev.linkenvisuals.macro.MacroManager.load();
@@ -252,6 +253,11 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.module.impl.TimeChangerModule.tick();
         tickHandSwap(client);
         dev.linkenvisuals.module.impl.FastExpModule.tick();
+        dev.linkenvisuals.audio.LinkenMenuMusic.tick(client);
+        dev.linkenvisuals.module.impl.SoundsModule sounds = dev.linkenvisuals.module.Modules.sounds();
+        if (sounds != null) {
+            sounds.tick(client);
+        }
         dev.linkenvisuals.module.impl.TotemCounterModule.tick();
         dev.linkenvisuals.module.impl.UseTrackerModule.tick();
         tickElytraSwap(client);

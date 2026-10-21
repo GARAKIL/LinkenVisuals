@@ -1,5 +1,7 @@
 package dev.linkenvisuals.ui.linkmenu;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
@@ -10,7 +12,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
@@ -278,7 +279,7 @@ public abstract class LinkenHubScreen extends Screen {
 
     private void playClick() {
         if (client != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(SoundEvents.UI_BUTTON_CLICK.value(), 0.8f, 1.0f));
+            client.getSoundManager().play(PositionedSoundInstance.ui(LinkenSounds.UI_CLICK, 0.8f, 1.0f));
         }
     }
 }

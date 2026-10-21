@@ -1,5 +1,7 @@
 package dev.linkenvisuals.clickgui;
 
+import dev.linkenvisuals.audio.LinkenSounds;
+
 import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlyphAtlas;
@@ -15,7 +17,6 @@ import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import dev.linkenvisuals.i18n.I18n;
 import org.joml.Matrix3x2fStack;
 import org.lwjgl.glfw.GLFW;
@@ -383,7 +384,7 @@ final class ConfigPanel {
         // Folder button
         if (mx >= folderX && mx <= folderX + folderW && my >= folderY && my <= folderY + folderH) {
             ConfigManager.openFolder();
-            playUiSound(SoundEvents.UI_BUTTON_CLICK.value());
+            playUiSound(LinkenSounds.UI_CLICK);
             return true;
         }
 
@@ -391,7 +392,7 @@ final class ConfigPanel {
         if (mx >= refreshX && mx <= refreshX + refreshW && my >= refreshY && my <= refreshY + refreshH) {
             ConfigManager.reloadProfiles();
             setStatus(I18n.get("gui.config.status.refreshed"), 0x4ADE80);
-            playUiSound(SoundEvents.UI_BUTTON_CLICK.value());
+            playUiSound(LinkenSounds.UI_CLICK);
             return true;
         }
 
@@ -399,7 +400,7 @@ final class ConfigPanel {
         if (mx >= autoX && mx <= autoX + autoW && my >= autoY && my <= autoY + autoH) {
             if (ModuleRegistry.configAutoSave() != null) {
                 ModuleRegistry.configAutoSave().toggle();
-                playUiSound(SoundEvents.UI_BUTTON_CLICK.value());
+                playUiSound(LinkenSounds.UI_CLICK);
             }
             return true;
         }

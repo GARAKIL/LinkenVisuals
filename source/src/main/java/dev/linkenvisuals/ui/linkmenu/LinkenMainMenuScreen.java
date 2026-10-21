@@ -1,8 +1,7 @@
 package dev.linkenvisuals.ui.linkmenu;
 
-import dev.linkenvisuals.clickgui.link.LinkGuiMediaKeys;
+import dev.linkenvisuals.audio.LinkenMenuMusic;
 import dev.linkenvisuals.i18n.I18n;
-import dev.linkenvisuals.media.MediaWatcher;
 import dev.linkenvisuals.render.Pipelines;
 import dev.linkenvisuals.ui.Spring;
 import net.minecraft.client.gui.Click;
@@ -58,7 +57,7 @@ public final class LinkenMainMenuScreen extends Screen {
     protected void init() {
         Pipelines.warmUp();
         LinkenFonts.body();
-        MediaWatcher.ensureRunning();
+        LinkenMenuMusic.autoStartOnce();
         openedAt = Util.getMeasuringTimeMs();
         lastFrame = System.nanoTime();
         quitArmedUntil = 0L;
@@ -111,7 +110,7 @@ public final class LinkenMainMenuScreen extends Screen {
             quitHoverValue, quitArmed, true, intro, metrics.scale());
 
         renderSocials(context, metrics, virtualMouseX, virtualMouseY, deltaSeconds, intro);
-        LinkenMenuChrome.drawMusic(context, metrics.music(), MediaWatcher.current(), intro, metrics.scale());
+        LinkenMenuChrome.drawMusic(context, metrics.music(), LinkenMenuMusic.track(), intro, metrics.scale());
         LinkenMenuChrome.drawFooter(context, metrics, intro);
         context.getMatrices().popMatrix();
 
@@ -303,7 +302,7 @@ public final class LinkenMainMenuScreen extends Screen {
         }
 
         if (musicCover(metrics).contains(mouseX, mouseY)) {
-            LinkGuiMediaKeys.playPause();
+            LinkenMenuMusic.toggle();
             return true;
         }
         return super.mouseClicked(click, doubleClick);

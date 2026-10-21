@@ -1,12 +1,12 @@
 package dev.linkenvisuals.player;
 
 import com.mojang.authlib.GameProfile;
+import dev.linkenvisuals.audio.LinkenSounds;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -160,7 +160,7 @@ public final class FakePlayer {
         dummy.hurtTime = dummy.maxHurtTime = 10;
         dummy.onDamaged(client.world.getDamageSources().playerAttack(client.player));
         client.world.playSoundClient(dummy.getX(), dummy.getY(), dummy.getZ(),
-            SoundEvents.ENTITY_PLAYER_HURT, dummy.getSoundCategory(), 1.0f, 1.0f, false);
+            LinkenSounds.BELL, dummy.getSoundCategory(), 1.0f, 1.0f, false);
 
         dummy.setVelocity(Vec3d.ZERO);
         dummy.velocityDirty = false;
@@ -198,7 +198,7 @@ public final class FakePlayer {
     private static void kill(MinecraftClient client) {
         dummy.setHealth(0.0f);
         client.world.playSoundClient(dummy.getX(), dummy.getY(), dummy.getZ(),
-            SoundEvents.ENTITY_PLAYER_DEATH, dummy.getSoundCategory(), 1.0f, 1.0f, false);
+            LinkenSounds.SELF_RESPAWN, dummy.getSoundCategory(), 1.0f, 1.0f, false);
         dummy.onDeath(client.world.getDamageSources().playerAttack(client.player));
         dummy.discard();
         dummy = null;
