@@ -428,8 +428,10 @@ public final class LinkenKeybindsScreen extends Screen {
             if (click.button() == 1) {
                 entry.binding.setBoundKey(entry.binding.getDefaultKey());
                 if (client != null && client.options != null) {
+                    KeyBinding.updateKeysByCode();
                     client.options.write();
                 }
+                refresh();
                 return true;
             }
             listening = entry.binding;
@@ -449,8 +451,10 @@ public final class LinkenKeybindsScreen extends Screen {
             listening.setBoundKey(InputUtil.fromKeyCode(input));
             listening = null;
             if (client != null && client.options != null) {
+                KeyBinding.updateKeysByCode();
                 client.options.write();
             }
+            refresh();
             return true;
         }
         if (key == GLFW.GLFW_KEY_ESCAPE) {
@@ -516,7 +520,9 @@ public final class LinkenKeybindsScreen extends Screen {
                 binding.setBoundKey(binding.getDefaultKey());
             }
         }
+        KeyBinding.updateKeysByCode();
         client.options.write();
+        refresh();
     }
 
     @Override
