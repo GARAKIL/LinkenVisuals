@@ -617,3 +617,12 @@
 - **Evidence**: 1280×720 visual — новое окно/док/левая панель/правая панель читаются, карточки и док не пересекаются; media strip добавлен после этого снимка и глазами не перепроверен. `clean build --no-daemon` — 204/0; jar `linkenvisuals-1.0.90.jar` (7 361 749 байт, SHA-256 `3531B024BED331B6496E931DD73231536BCD6D88AC79530E681D437526C015AE`).
 - **Commit**: `ea26c9c` `feat(ui): port donor LinkGUI window layout (v1.0.90, D67)`.
 - **Дальше**: M8.3 — раскрывающиеся ModuleCard, player preview, донорский MusicPlayerStrip (read-only основа уже есть); M8.4 — light-темы LIGHT/FROST.
+
+## 2026-10-21 · D68 · LINKEN ClickGUI: player preview, card badges, light themes (M8.3/M8.4) — v1.0.91
+- **Player preview**: в шапке главного окна — 2D-голова активного скина (`PlayerSkinDrawer` + `PlayerSkinProvider`/`DefaultSkinHelper`, fallback-плитка), ник и категория/счётчик сдвинуты. Это осознанная адаптация донорского 3D `ClickGuiPlayer` (2D-голова вместо 3D-модели), чтобы не тащить донорский рендер-стек.
+- **ModuleCard**: слева добавлен badge 28×28 с иконкой категории; имя/описание выровнены под badge и обрезаются под ширину; сохранены switch, bind-chip, pin, активная полоса и hover. Read-only media strip из v1.0.90 остаётся внизу главного окна.
+- **Light-темы**: добавлены донорские `LIGHT` и `FROST` (всего 8 палитр). `LinkGuiTheme` теперь хранит изменяемые токены (`TEXT/PANEL/ROW/HOVER/ACTIVE/FIELD/TRACK/BACKDROP`, `ON_DARK`); при light-теме фон становится светлым градиентом, панели/строки/поля — светлыми, текст — тёмным; тёмные secondary-кнопки используют `ON_DARK`. Theme-панель показывает 8 карточек (86 px, gap 8), применяет и сохраняет выбор.
+- **Тесты**: `LinkGuiThemeTest` +2 (light-токены и byName, расширенный cycle), итого **206**, 0 падений.
+- **Evidence**: по просьбе пользователя Minecraft не запускался; только `clean build --no-daemon` — **206/0**, Java-ворнингов 0; jar `linkenvisuals-1.0.91.jar` (7 363 633 байта, SHA-256 `79DD285FA99E729BB64559C68B10033FA3960B34403979A2A961D56BD90573D9`). Визуальная приёмка layout/light-тем — за пользователем.
+- **Commit**: `fa107f1` `feat(ui): add LINKEN ClickGUI player preview, card badges and light themes (v1.0.91, D68)`.
+- **Что ещё не 1:1 с донором**: глобальный `InterfaceWindow` (interface scale / cursor tracker / Apply-Default), отдельные перетаскиваемые окна настроек модуля, cursor trail/close overlay, 3D player preview и управление музыкой (у нас read-only). Это следующие срезы, если нужен строгий 100% паритет.

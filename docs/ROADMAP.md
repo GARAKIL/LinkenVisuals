@@ -78,7 +78,8 @@
 - [x] **M7b-4 — Skin/Resource Packs list screens**, v1.0.86, D63, commit `62cb4e1`: `LinkenSkinScreen` (head preview, 7 model parts, main arm, account manager) + `LinkenResourcePacksScreen` (available/selected columns, search, enable/disable, priority arrows, pinned/incompatible markers, confirm, open folder, apply+reload). 204 теста; визуальная приёмка 1280×720/4K-framebuffer выполнена (D64). Keybind-строка обновляется после rebind (v1.0.88, D65). Style/Editor в LINKEN Settings **не добавляются** по приказу пользователя.
 - [x] **M8.1 — LinkGUI ThemeWindow**, v1.0.89, D66, commit `43031da`: первое окно донорского `screen/linkgui`; чистая геометрия `LinkGuiThemeWindowLayout`, модальное THEME-окно с 6 палитрами, selected/hover, сохранение; 3 теста, итого 207. Визуальный прогон — за пользователем (Right Shift automation не открыла ClickGUI).
 - [x] **M8.2 — донорская компоновка окон**, v1.0.90, D67, commit `ea26c9c`: 1280×720×1.5 — главное окно 1080×720, горизонтальный док 540×72, левый inspector 330×600, правое Theme-окно 360×855, media strip; модальный ThemeWindow удалён; 204 теста.
-- [ ] **M8.3 — ModuleCard / MusicPlayerStrip / player preview**.
-- [ ] **M8.4 — light-темы LIGHT/FROST** и переход палитр.
+- [x] **M8.3 — ModuleCard / MusicPlayerStrip / player preview**, v1.0.91, D68, commit `fa107f1`: card badges/иконки категорий, 2D player head в шапке, read-only media strip; 206 тестов.
+- [x] **M8.4 — light-темы LIGHT/FROST**, v1.0.91, D68: 8 палитр, полный token-pass (backdrop/panels/rows/fields/text), theme-панель 8 карточек.
+- [ ] **M8.5 (опционально)** — глобальный InterfaceWindow, перетаскиваемые окна настроек модуля, cursor trail/close overlay, 3D preview, управление музыкой.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.
