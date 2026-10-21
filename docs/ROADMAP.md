@@ -77,7 +77,7 @@
 - [x] **M7b-3a — LINKEN language list**, v1.0.85, D62, commit `f9dbed3`: 143 языка, поиск, ACTIVE, клавиатурная навигация, Apply через `LanguageManager`, автопрокрутка к текущему.
 - [x] **M7b-4 — Skin/Resource Packs list screens**, v1.0.86, D63, commit `62cb4e1`: `LinkenSkinScreen` (head preview, 7 model parts, main arm, account manager) + `LinkenResourcePacksScreen` (available/selected columns, search, enable/disable, priority arrows, pinned/incompatible markers, confirm, open folder, apply+reload). 204 теста; визуальная приёмка 1280×720/4K-framebuffer выполнена (D64). Keybind-строка обновляется после rebind (v1.0.88, D65). Style/Editor в LINKEN Settings **не добавляются** по приказу пользователя.
 - [x] **M8.1 — LinkGUI ThemeWindow**, v1.0.89, D66, commit `43031da`: первое окно донорского `screen/linkgui`; чистая геометрия `LinkGuiThemeWindowLayout`, модальное THEME-окно с 6 палитрами, selected/hover, сохранение; 3 теста, итого 207. Визуальный прогон — за пользователем (Right Shift automation не открыла ClickGUI).
-- [ ] **M8.2 — донорская компоновка окон**: `MainModuleWindow` 720×480, `CategoryDockWindow`, `InterfaceWindow`, `ThemeWindow`; 1280×720 + fit-scale.
+- [x] **M8.2 — донорская компоновка окон**, v1.0.90, D67, commit `ea26c9c`: 1280×720×1.5 — главное окно 1080×720, горизонтальный док 540×72, левый inspector 330×600, правое Theme-окно 360×855, media strip; модальный ThemeWindow удалён; 204 теста.
 - [ ] **M8.3 — ModuleCard / MusicPlayerStrip / player preview**.
 - [ ] **M8.4 — light-темы LIGHT/FROST** и переход палитр.
 
