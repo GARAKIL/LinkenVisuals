@@ -83,6 +83,7 @@ public final class LinkGuiLayout {
         Rect settings,
         Rect profile,
         Rect config,
+        Rect all,
         Rect search,
         Rect cards,
         Rect settingsContent,
@@ -112,10 +113,12 @@ public final class LinkGuiLayout {
         float mainX = (width - mainWidth) * 0.5f;
         float mainY = MAIN_TOP;
         Rect center = new Rect(mainX, mainY, mainWidth, MAIN_HEIGHT);
-        Rect header = new Rect(center.x() + 24.0f, center.y() + 18.0f,
-            center.width() - 48.0f, 64.0f);
-        Rect close = new Rect(center.right() - 60.0f, center.y() + 18.0f, 44.0f, 44.0f);
-        Rect search = new Rect(center.right() - 72.0f - 380.0f, center.y() + 28.0f, 380.0f, 44.0f);
+        Rect header = new Rect(center.x() + 24.0f, center.y() + 9.0f,
+            center.width() - 48.0f, 60.0f);
+        Rect close = new Rect(center.right() - 60.0f, center.y() + 21.0f, 36.0f, 36.0f);
+        Rect all = new Rect(center.x() + 132.0f, center.y() + 18.0f, 51.0f, 42.0f);
+        Rect search = new Rect(center.x() + 192.0f, center.y() + 18.0f,
+            Math.max(120.0f, center.width() - 294.0f), 42.0f);
 
         Rect nav = new Rect((width - DOCK_WIDTH) * 0.5f, center.bottom() + MAIN_GAP,
             DOCK_WIDTH, DOCK_HEIGHT);
@@ -123,15 +126,15 @@ public final class LinkGuiLayout {
         Rect profile = new Rect(MARGIN, settings.bottom() + MAIN_GAP, SIDE_WIDTH, PROFILE_HEIGHT);
         Rect theme = new Rect(width - MARGIN - THEME_WIDTH,
             mainY + (MAIN_HEIGHT - THEME_HEIGHT) * 0.5f, THEME_WIDTH, THEME_HEIGHT);
-        Rect cards = new Rect(center.x() + 24.0f, center.y() + HEADER_HEIGHT + 2.0f,
-            center.width() - 48.0f, center.height() - HEADER_HEIGHT - 128.0f);
+        Rect cards = new Rect(center.x() + 63.0f, center.y() + HEADER_HEIGHT + 2.0f,
+            center.width() - 126.0f, center.height() - HEADER_HEIGHT - 131.0f);
         Rect settingsContent = new Rect(settings.x() + 18.0f, settings.y() + 96.0f,
             settings.width() - 36.0f, settings.height() - 116.0f);
         Rect profileContent = new Rect(profile.x() + 18.0f, profile.y() + 96.0f,
             profile.width() - 36.0f, profile.height() - 116.0f);
 
         return new Metrics(scale, width, height, header, close, nav, center, settings, profile,
-            center, search, cards, settingsContent, profileContent, theme);
+            center, all, search, cards, settingsContent, profileContent, theme);
     }
 
     public static Rect navItem(Metrics metrics, int index) {

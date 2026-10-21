@@ -83,6 +83,20 @@ class LinkGuiLayoutTest {
     }
 
     @Test
+    void headerAndGridUseDonorScaledGeometry() {
+        Metrics metrics = LinkGuiLayout.compute(1920, 1080);
+        assertEquals(51.0f, metrics.all().width(), 0.01f);
+        assertEquals(42.0f, metrics.all().height(), 0.01f);
+        assertEquals(metrics.all().right() + 9.0f, metrics.search().x(), 0.01f);
+        assertEquals(36.0f, metrics.close().width(), 0.01f);
+        assertEquals(36.0f, metrics.close().height(), 0.01f);
+        assertEquals(metrics.center().right() - 60.0f, metrics.close().x(), 0.01f);
+        assertEquals(metrics.center().width() - 126.0f, metrics.cards().width(), 0.01f);
+        Rect first = LinkGuiLayout.card(metrics, 0);
+        assertEquals((metrics.cards().width() - LinkGuiLayout.CARD_GAP) / 2.0f, first.width(), 0.01f);
+    }
+
+    @Test
     void cardContentUsesDonorScaledGeometry() {
         Metrics metrics = LinkGuiLayout.compute(1920, 1080);
         Rect card = LinkGuiLayout.card(metrics, 0);
