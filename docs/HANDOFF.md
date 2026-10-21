@@ -2,6 +2,21 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №19 — LINKEN keybind refresh) — v1.0.88
+
+### Сделано
+1. **D65/v1.0.88 — keybind refresh fix** (`23ce1d0`): `LinkenKeybindsScreen` после rebind/right-click reset/RESET ALL теперь вызывает `KeyBinding.updateKeysByCode()` и `refresh()`. До фикса новая клавиша сохранялась в `options.txt` (проверено `key_key.forward:key.keyboard.b`), но строка показывала старую, а карта клавиш в сессии не обновлялась. Listening-состояние и запись в options подтверждены; ручной end-to-end UI rebind всё ещё рекомендуется. `clean build --no-daemon` — 204 теста, 0 падений; jar `linkenvisuals-1.0.88.jar` (7 358 704 байта, SHA-256 `3B7583E3CE18616DBE34E650BAD7B0C7172AFB0FBBDA512864495021DB779860`).
+
+### Следующая задача
+- Ручной end-to-end keybind rebind (новая клавиша сразу в строке и в игре).
+- Shader-source ERROR caveat: в dev-прогонах при startup/reload логируются `Couldn't find source for … shader` (включая `minecraft:core/position_color`), экраны рендерятся; на релизном jar/реальном клиенте не перепроверено.
+- `OPEN FOLDER`, соцссылки и медиа-трек — по желанию.
+- Финальное «принято» M2–M7; Style/Editor в LINKEN Settings не добавлять (приказ пользователя).
+
+### Риски
+- Shader-source ERRORs в dev — вероятный resource race; не воспроизведён/не проверен на релизной сборке.
+- Физического 4K нет: только framebuffer 3840×2160.
+
 ## Состояние на 2026-10-21 (чат №18 — M7b-4 acceptance + splash reload fix) — v1.0.87
 
 ### Сделано
