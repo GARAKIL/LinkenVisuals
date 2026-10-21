@@ -31,11 +31,15 @@ class LinkGuiLayoutTest {
             assertTrue(metrics.center().inside(metrics.width(), metrics.height()), label);
             assertTrue(metrics.nav().inside(metrics.width(), metrics.height()), label);
             assertTrue(metrics.settings().inside(metrics.width(), metrics.height()), label);
+            assertTrue(metrics.profile().inside(metrics.width(), metrics.height()), label);
             assertTrue(metrics.theme().inside(metrics.width(), metrics.height()), label);
             assertFalse(metrics.center().intersects(metrics.settings()), label);
+            assertFalse(metrics.center().intersects(metrics.profile()), label);
             assertFalse(metrics.center().intersects(metrics.theme()), label);
             assertFalse(metrics.center().intersects(metrics.nav()), label);
+            assertFalse(metrics.settings().intersects(metrics.profile()), label);
             assertFalse(metrics.settings().intersects(metrics.theme()), label);
+            assertFalse(metrics.profile().intersects(metrics.theme()), label);
             assertTrue(metrics.cards().width() > 0.0f, label);
             assertTrue(metrics.settingsContent().width() > 0.0f, label);
         }

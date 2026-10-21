@@ -840,8 +840,24 @@ public final class ModuleRegistry {
         return guiStyle != null && "Linken".equalsIgnoreCase(guiStyle.value());
     }
 
+    /**
+     * While the Linken shell is active the style is locked: the user must not
+     * be able to fall back to Classic/Beta from the GUI or Ctrl+Left/Right.
+     */
+    public static boolean isGuiStyleLocked() {
+        return isGuiStyleLocked(isLinkenGui() ? "Linken" : null);
+    }
+
+    /** Pure rule used by tests and callers that already have the style name. */
+    public static boolean isGuiStyleLocked(String style) {
+        return style != null && "Linken".equalsIgnoreCase(style.trim());
+    }
+
     /** Ctrl+Left/Right cycle: Classic -> Beta -> Linken -> Classic. */
     public static void cycleGuiStyle(int direction) {
+        if (isGuiStyleLocked()) {
+            return;
+        }
         List<String> styles = List.of("Classic", "Beta", "Linken");
         String current = guiStyle == null ? "Classic" : guiStyle.value();
         int index = 0;
@@ -856,6 +872,9 @@ public final class ModuleRegistry {
     }
 
     public static void setGuiStyle(String style) {
+        if (isGuiStyleLocked() && style != null && !"Linken".equalsIgnoreCase(style)) {
+            return;
+        }
         if (guiStyle != null) {
             guiStyle.set(style);
             ConfigManager.save();

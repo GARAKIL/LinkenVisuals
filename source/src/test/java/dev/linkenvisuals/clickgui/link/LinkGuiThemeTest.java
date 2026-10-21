@@ -3,6 +3,8 @@ package dev.linkenvisuals.clickgui.link;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import dev.linkenvisuals.clickgui.ModuleRegistry;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -64,5 +66,13 @@ class LinkGuiThemeTest {
     void lightPresetsExposeNames() {
         assertEquals(LinkGuiTheme.Preset.LIGHT, LinkGuiTheme.Preset.byName("light"));
         assertEquals(LinkGuiTheme.Preset.FROST, LinkGuiTheme.Preset.byName("Frost"));
+    }
+
+    @Test
+    void linkenGuiStyleLocksTheStyleSwitcher() {
+        assertTrue(ModuleRegistry.isGuiStyleLocked("Linken"));
+        assertTrue(ModuleRegistry.isGuiStyleLocked("linken"));
+        assertFalse(ModuleRegistry.isGuiStyleLocked("Beta"));
+        assertFalse(ModuleRegistry.isGuiStyleLocked((String) null));
     }
 }

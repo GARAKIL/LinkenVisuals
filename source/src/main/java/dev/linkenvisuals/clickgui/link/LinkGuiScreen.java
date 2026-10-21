@@ -99,6 +99,7 @@ public final class LinkGuiScreen extends Screen {
     private long lastTyped;
 
     private final List<CardHit> cardHits = new ArrayList<>();
+    private final List<SettingHit> interfaceHits = new ArrayList<>();
     private final List<SettingHit> settingHits = new ArrayList<>();
     private final List<NavHit> navHits = new ArrayList<>();
     private final List<ConfigHit> configHits = new ArrayList<>();
@@ -236,6 +237,7 @@ public final class LinkGuiScreen extends Screen {
         }
         drawPopups(context, metrics, mx, my, openT);
         drawFooter(context, metrics, openT);
+        drawInterfacePanel(context, metrics, mx, my, openT, deltaSeconds);
         drawThemePanel(context, metrics, mx, my, openT);
         context.getMatrices().popMatrix();
     }
@@ -586,9 +588,100 @@ public final class LinkGuiScreen extends Screen {
 
     // ------------------------------------------------------------------ settings
 
+    private ModuleInfo clickGuiModule() {
+        for (ModuleInfo module : ModuleRegistry.byCategory(Category.VISUAL)) {
+            if ("ClickGUI".equalsIgnoreCase(module.name())) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    private void drawInterfacePanel(DrawContext context, Metrics metrics, float mx, float my,
+                                    float openT, float deltaSeconds) {
+        Rect panel = metrics.settings();
+        LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 232, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f, 1.0f,
+            LinkenMenuChrome.rgba(0xFFFFFF, 17, openT), metrics.scale());
+        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "INTERFACE",
+            panel.x() + 18.0f, panel.y() + 16.0f, 8.5f, 2.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(), "CLICKGUI / UI",
+            panel.x() + 18.0f, panel.y() + 34.0f, 11.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.TEXT2, openT));
+
+        interfaceHits.clear();
+        ModuleInfo ui = clickGuiModule();
+        if (ui == null) {
+            return;
+        }
+        List<Setting> settings = new ArrayList<>(ui.leftSettings());
+        settings.addAll(ui.rightSettings());
+        if (ModuleRegistry.isGuiStyleLocked()) {
+            settings.removeIf(setting -> "GUI Style".equalsIgnoreCase(setting.name()));
+        }
+        Rect area = metrics.settingsContent();
+        float y = area.y() - 4.0f;
+        for (Setting setting : settings) {
+            float h = rowHeight(setting);
+            if (y + h > area.bottom()) {
+                break;
+            }
+            Rect row = new Rect(area.x(), y, area.width(), h);
+            drawSetting(context, metrics, setting, row, mx, my, openT, deltaSeconds);
+            interfaceHits.add(new SettingHit(setting, row));
+            y += h + 6.0f;
+        }
+    }
+
+    private void drawProfilePanel(DrawContext context, Metrics metrics, float openT) {
+        Rect panel = metrics.profile();
+        LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 232, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f, 1.0f,
+            LinkenMenuChrome.rgba(0xFFFFFF, 17, openT), metrics.scale());
+        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "PROFILE",
+            panel.x() + 18.0f, panel.y() + 16.0f, 8.5f, 2.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(), ConfigManager.getActiveProfile(),
+            panel.x() + 18.0f, panel.y() + 34.0f, 12.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
+        List<String> profiles = ConfigManager.getProfiles();
+        float y = panel.y() + 62.0f;
+        int shown = 0;
+        for (String profile : profiles) {
+            if (shown >= 5) {
+                break;
+            }
+            boolean active = profile.equalsIgnoreCase(ConfigManager.getActiveProfile());
+            Rect row = new Rect(panel.x() + 18.0f, y, panel.width() - 36.0f, 36.0f);
+            LinkenMenuChrome.roundedFill(context, row.x(), row.y(), row.width(), row.height(), 7.0f,
+                LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACTIVE : LinkGuiTheme.ROW, 220, openT),
+                metrics.scale());
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(), profile,
+                row.x() + 12.0f, row.y() + 10.0f, 10.0f,
+                LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, openT));
+            y += 42.0f;
+            shown++;
+        }
+        if (shown == 0) {
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(), "NO PROFILES",
+                panel.x() + 18.0f, panel.y() + 72.0f, 10.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
+        }
+    }
+
     private void drawSettingsPanel(DrawContext context, Metrics metrics, float mx, float my,
                                    float openT, float deltaSeconds) {
-        Rect panel = metrics.settings();
+        if (focused != null && focused == clickGuiModule()) {
+            drawProfilePanel(context, metrics, openT);
+            settingHits.clear();
+            headerToggleHit = null;
+            moduleBindHit = null;
+            return;
+        }
+        Rect panel = metrics.profile();
         LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f,
             LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 224, openT), metrics.scale());
         LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f, 1.0f,
@@ -627,11 +720,14 @@ public final class LinkGuiScreen extends Screen {
         drawBindRow(context, metrics, bindRow, mx, my, openT, deltaSeconds);
         moduleBindHit = bindRow;
 
-        Rect area = metrics.settingsContent();
+        Rect area = metrics.profileContent();
         area = new Rect(area.x(), area.y() + 54.0f, area.width(), area.height() - 54.0f);
 
         List<Setting> settings = new ArrayList<>(focused.leftSettings());
         settings.addAll(focused.rightSettings());
+        if (ModuleRegistry.isGuiStyleLocked()) {
+            settings.removeIf(setting -> "GUI Style".equalsIgnoreCase(setting.name()));
+        }
         float contentHeight = 0.0f;
         for (Setting setting : settings) {
             contentHeight += rowHeight(setting) + 8.0f;
@@ -1305,6 +1401,13 @@ public final class LinkGuiScreen extends Screen {
             return true;
         }
 
+        for (SettingHit hit : interfaceHits) {
+            if (!hit.bounds.contains(mx, my)) {
+                continue;
+            }
+            handleSettingClick(hit.setting, hit.bounds, mx, my, rightClick);
+            return true;
+        }
         for (SettingHit hit : settingHits) {
             if (!hit.bounds.contains(mx, my)) {
                 continue;
@@ -1460,7 +1563,7 @@ public final class LinkGuiScreen extends Screen {
                 Math.max(0.0f, configContentHeight - configView)));
             return true;
         }
-        if (metrics.settings().contains(mx, my)) {
+        if (metrics.profile().contains(mx, my)) {
             panelScrollTarget -= (float) verticalAmount * 34.0f;
             panelScrollTarget = Math.max(0.0f, Math.min(panelScrollTarget,
                 Math.max(0.0f, panelContentHeight - panelView)));
