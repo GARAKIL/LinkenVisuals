@@ -653,3 +653,12 @@
 - **Тесты/сборка**: **207 тестов, 0 падений**; `clean build --no-daemon` зелёный; Minecraft не запускался. Jar `linkenvisuals-1.0.95.jar` (7 371 851 байт, SHA-256 `886EF652F5FDEE6298178C0B15916412816CBEE780A8BE66C66D5D8480B65081`).
 - **Commit**: `f76016d` `feat(ui): align LinkGUI card scale and add media controls (v1.0.95, D72)`.
 - **Остаток**: volume slider/system volume, close overlay (no-op), финальная пиксельная сверка.
+
+## 2026-10-21 · D73 · LINKEN strict 1:1: donor module-card geometry (M8.9a) — v1.0.96
+- **Донор**: путь `C:\StrangeVisuals\donor2\visualy` на этом устройстве отсутствует; для сверки использован локальный донор `C:\Users\gameg\Desktop\Главная` (`screen/linkgui`, те же 1280×720-константы: MAIN 720×480, CARD_HEIGHT 86, HEADER 52, MUSIC 84). Донор не изменялся.
+- **1:1 карточки (×1.5)**: badge 34→**51**, badge pad 12→**18**, title x 54→**81**, y 23→**34.5**, size 9.4→**14.1**, description x 54→**81**, y 41→**61.5**, size 7.9→**11.85**, bind pill y = badge bottom + 5 → **+90**, height 14→**21**, toggle 36×18 → **54×27** (left = width−69, right margin 15), card radius 10→**15**, hover lift 3→**4.5**. `pin` — наша M4-фича, не донорская; оставлен в правом нижнем углу.
+- **Код**: чистая геометрия `LinkGuiLayout.CardMetrics` + `cardMetrics(Rect)`; `drawModuleCard` использует её, а не разрозненные магические числа. Title/description теперь обрезаются под ширину до toggle.
+- **Тест**: `cardContentUsesDonorScaledGeometry` — badge 51, title +81/+34.5, toggle 54×27 с right margin 15, radius 15, badge/bind внутри карточки, title/description не пересекают toggle. Итого **208 тестов, 0 падений**.
+- **Evidence**: `clean build --no-daemon` — 208/0; jar `linkenvisuals-1.0.96.jar` (7 373 730 байт, SHA-256 `139A07F5B48329270D64D774F3D6C1CC7F1C34A3CF7F1ACB518DD4F6A0DC0BFB`). Minecraft не запускался.
+- **Commit**: `a081296` `feat(ui): align LINKEN module cards with donor geometry (v1.0.96, D73)`.
+- **Остаток strict 1:1**: main header (logo chip 60, head 42 at +87, All+search 51+42, close 36, theme button), dock indicator slide, Interface/Profile/Theme spacing, media strip typography/volume, pixel reference/визуальная приёмка.

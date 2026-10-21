@@ -46,5 +46,6 @@
 - **M8.6 — draggable module settings window — ✅ v1.0.93, D70, `1d66355`.** Плавающее окно 330×440, drag/close/scroll; 207 тестов.
 - **M8.7 — cursor trail — ✅ v1.0.94, D71, `166869a`.** 64 точки/780 мс, glow-орбы + ядро; 207 тестов.
 - **M8.8 — donor card scale + media controls — ✅ v1.0.95, D72, `f76016d`.** Карточки 129/gap 15/header 78/media 126; prev/play/next через media-клавиши; 207 тестов.
-- **M8.9 (остаток 1:1) — ⛔** volume slider/system volume, close overlay (no-op), финальная пиксельная сверка.
+- **M8.9a — strict card 1:1 — ✅ v1.0.96, D73, `a081296`.** badge 51, title 14.1/+81/+34.5, desc 11.85/+61.5, bind +90/21, toggle 54×27/right 15, radius 15, hover lift 4.5; `CardMetrics` + тест; 208 тестов.
+- **M8.9b — strict header/dock/panels — ⛔** logo chip/head/All+search/close/theme, dock indicator, Interface/Profile/Theme spacing, media strip, volume; close overlay — docs-only (no-op в доноре). Затем визуальная приёмка 1280×720/4K.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.

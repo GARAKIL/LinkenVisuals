@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №27 — strict card 1:1, M8.9a) — v1.0.96
+
+### Сделано
+1. **D73/v1.0.96** (`a081296`): строгая геометрия `ModuleCard` из донора ×1.5 — badge 51/pad 18, title 14.1 на +81/+34.5, description 11.85 на +61.5, bind pill +90/h21, toggle 54×27 (right margin 15), radius 15, hover lift 4.5. Чистая `LinkGuiLayout.CardMetrics` + `cardContentUsesDonorScaledGeometry`.
+2. **Сборка/тесты**: **208 тестов, 0 падений**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.96.jar` (7 373 730 байт, SHA-256 `139A07F5B48329270D64D774F3D6C1CC7F1C34A3CF7F1ACB518DD4F6A0DC0BFB`). Minecraft не запускался.
+3. **Донор**: `C:\StrangeVisuals\donor2\visualy` отсутствует на этом устройстве; использован локальный донор `C:\Users\gameg\Desktop\Главная` (`screen/linkgui`, те же 1280×720-константы). Донор не изменялся.
+
+### Следующая задача
+- **M8.9b**: main header (logo chip 60, head 42 на +87, All+search, close 36, theme), dock indicator slide, Interface/Profile/Theme spacing, media strip typography/volume; volume/system volume — только реальный контрол или зафиксировать отклонение.
+- Close overlay: в доноре no-op, новый не выдумывать; зафиксировать в D-решении.
+- Визуальная приёмка 1280×720/4K — только после явного разрешения пользователя.
+
+### Риски
+- Карточки не проверены глазами после изменения; нужна визуальная сверка.
+- `pin` — наша M4-фича, не донорская; оставлена в нижнем правом углу.
+- Строгий 1:1 остаётся неполным: header/dock/panels/media ещё не сверены.
+
 ## Состояние на 2026-10-21 (чат №26 — donor card scale + media controls, M8.8) — v1.0.95
 
 ### Сделано
