@@ -89,5 +89,6 @@
 - [x] **M8.9b-2a — dock + theme swatches**, v1.0.98, D75, commit `1c529bc`: dock pad 9/54px tabs/sliding indicator/22.5px icons/lift 6.75; theme 2×4 swatches 45px с donor backgrounds; 210 тестов.
 - [ ] **M8.9b-2b — Interface/Theme/media 1:1** — остаток: pinned settings cards, 3D profile preview (2D — fallback D76), media volume/system volume, close overlay (no-op) — docs. Release-jar визуальная приёмка 1280×720 выполнена, 4K — за пользователем.
 - [x] **M8.10 — main menu + LinkGUI re-base on the actually-used donor screen**, v1.0.99, D76: title menu 1:1 donor `CustomMainMenuScreen` (центрированный wordmark, 3 строки кнопок, inline-аккаунт, 4 соц-плитки, media 320 по центру, footer); LinkGUI 1090×830/3×102 cards/theme 340×920/profile 330×358/dock 52; Interface Scale, GUI Transparency, Cursor Tracker; Theme+Interface panel. 211 тестов.
+- [x] **M8.11 — donor visual diff (release jar 2.0, 1280×720)**, v1.0.100, D77: canvas centering offsets, default Profile/Theme open, dock 9 tiles + Friends/Waypoints panels, 3D profile via screen-space `drawEntity`, title-case labels/localized All. 212 тестов.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

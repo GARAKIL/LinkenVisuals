@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №31 — donor visual diff, D77) — v1.0.100
+
+### Сделано
+1. **D77/v1.0.100**: собран и запущен донорский release-jar `linkenvisuals-2.0.jar` на MC 1.21.4 (только запуск, исходники не менялись) и снят эталон 1280×720 (title + LinkGUI). Найдены и исправлены системные расхождения: canvas не центрировался (`offsetX/offsetY` — сдвиг ~40/24 px), Profile/Theme были закрыты по умолчанию, dock был неполным (5 категорий + 4 утилиты), 3D profile не рисовался.
+2. **LinkGUI**: `LinkGuiLayout.Metrics.offsetX/offsetY`; матрица и мышь через `translate(ox,oy)+scale`; backdrop в screen-space. Profile/Theme открыты сразу. Dock 9 тайлов: Combat/Movement/Visual/Player/Misc + Configs/Friends/Waypoints/Elements. Friends/Waypoints — рабочие side-панели 340×600; Elements — HUD edit + чат (fallback).
+3. **3D profile**: `InventoryScreen.drawEntity` получает screen-space (`offset + design*scale`) и размер `eh/3.2`; модель внутри viewer, 2D-голова — fallback.
+4. **Текст**: title-case кнопки, локализованный `gui.header.all`, keycap `None`.
+5. **Сборка/тесты**: **212 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.100.jar` (7 384 704 байт, SHA-256 `F32C5338B4F3B17F0624E4A97B0D6D2BED66E45D5ACA44942FF25EA7DC4159C0`). Визуально проверены title, LinkGUI с Profile/Theme, 3D profile, dock, смена темы.
+
+### Следующая задача
+- Остаток strict 1:1: pinned settings cards, donor media track/audio, donor-only Interface groups (HUD style/shape, custom scoreboard/tab), точная сверка шрифтов/отступов на 1920×1080.
+- Устранить shader-source race при старте.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Media strip без донорского трека показывает реальное состояние MediaWatcher (часто «ничего не играет») — визуально отличается от донора.
+- Theme-панель короче донорской: в моде нет HUD style/shape, scoreboard/tab настроек.
+- Pinned cards не отрисовываются.
+
+
 ## Состояние на 2026-10-21 (чат №30 — main menu + LinkGUI re-base, D76) — v1.0.99
 
 ### Сделано
