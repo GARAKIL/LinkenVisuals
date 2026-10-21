@@ -108,6 +108,14 @@ public final class LinkGuiScreen extends Screen {
     private Rect searchHit;
     private Rect headerToggleHit;
     private Rect moduleBindHit;
+    private boolean settingsOpen;
+    private boolean settingsDragging;
+    private float settingsX = Float.NaN;
+    private float settingsY = Float.NaN;
+    private float settingsDragX;
+    private float settingsDragY;
+    private Rect settingsCloseHit;
+    private Rect settingsHeaderHit;
     private Rect configInputHit;
     private Rect configCreateHit;
     private Rect configFolderHit;
@@ -238,6 +246,10 @@ public final class LinkGuiScreen extends Screen {
         drawPopups(context, metrics, mx, my, openT);
         drawFooter(context, metrics, openT);
         drawInterfacePanel(context, metrics, mx, my, openT, deltaSeconds);
+        drawProfilePanel(context, metrics, openT);
+        if (settingsOpen && focused != null && focused != clickGuiModule()) {
+            drawSettingsPanel(context, metrics, mx, my, openT, deltaSeconds);
+        }
         drawThemePanel(context, metrics, mx, my, openT);
         context.getMatrices().popMatrix();
     }
@@ -597,6 +609,26 @@ public final class LinkGuiScreen extends Screen {
         return null;
     }
 
+    private Rect settingsWindowRect(Metrics metrics) {
+        float w = 330.0f;
+        float h = 440.0f;
+        if (Float.isNaN(settingsX) || Float.isNaN(settingsY)) {
+            settingsX = metrics.profile().x() + 40.0f;
+            settingsY = metrics.profile().y() - 40.0f;
+        }
+        settingsX = Math.max(20.0f, Math.min(settingsX, metrics.width() - w - 20.0f));
+        settingsY = Math.max(20.0f, Math.min(settingsY, metrics.height() - h - 20.0f));
+        return new Rect(settingsX, settingsY, w, h);
+    }
+
+    private void openSettingsWindow(ModuleInfo module, Rect card) {
+        focused = module;
+        settingsOpen = true;
+        settingsX = card.x() + 40.0f;
+        settingsY = card.y() + 20.0f;
+        panelScrollTarget = 0.0f;
+    }
+
     private void drawInterfacePanel(DrawContext context, Metrics metrics, float mx, float my,
                                     float openT, float deltaSeconds) {
         Rect panel = metrics.settings();
@@ -674,18 +706,24 @@ public final class LinkGuiScreen extends Screen {
 
     private void drawSettingsPanel(DrawContext context, Metrics metrics, float mx, float my,
                                    float openT, float deltaSeconds) {
-        if (focused != null && focused == clickGuiModule()) {
-            drawProfilePanel(context, metrics, openT);
-            settingHits.clear();
-            headerToggleHit = null;
-            moduleBindHit = null;
+        if (focused == null || focused == clickGuiModule()) {
             return;
         }
-        Rect panel = metrics.profile();
+        Rect panel = settingsWindowRect(metrics);
         LinkenMenuChrome.roundedFill(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f,
-            LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 224, openT), metrics.scale());
+            LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, 240, openT), metrics.scale());
         LinkenMenuChrome.roundedOutline(context, panel.x(), panel.y(), panel.width(), panel.height(), 12.0f, 1.0f,
-            LinkenMenuChrome.rgba(0xFFFFFF, 17, openT), metrics.scale());
+            LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 80, openT), metrics.scale());
+        settingsHeaderHit = new Rect(panel.x(), panel.y(), panel.width() - 40.0f, 56.0f);
+        settingsCloseHit = new Rect(panel.right() - 36.0f, panel.y() + 10.0f, 26.0f, 26.0f);
+        boolean closeHover = settingsCloseHit.contains(mx, my);
+        LinkenMenuChrome.roundedFill(context, settingsCloseHit.x(), settingsCloseHit.y(),
+            settingsCloseHit.width(), settingsCloseHit.height(), 7.0f,
+            LinkenMenuChrome.rgba(closeHover ? 0x2A1A1A : LinkGuiTheme.FIELD, 230, openT), metrics.scale());
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "X",
+            settingsCloseHit.x() + settingsCloseHit.width() * 0.5f,
+            settingsCloseHit.y() + 8.0f, 9.0f,
+            LinkenMenuChrome.rgba(closeHover ? LinkGuiTheme.DANGER : LinkGuiTheme.MUTED2, openT));
         settingHits.clear();
         headerToggleHit = null;
         moduleBindHit = null;
@@ -696,7 +734,8 @@ public final class LinkGuiScreen extends Screen {
             return;
         }
 
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), focused.name(),
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(),
+            LinkenMenuChrome.ellipsize(LinkenFonts.bodyMedium(), focused.name(), panel.width() - 140.0f, 16.0f),
             panel.x() + 18.0f, panel.y() + 20.0f, 16.0f, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
         String description = LinkenMenuChrome.ellipsize(LinkenFonts.body(), focused.description(),
             panel.width() - 36.0f, 9.5f);
@@ -706,8 +745,8 @@ public final class LinkGuiScreen extends Screen {
 
         float toggleW = 42.0f;
         float toggleH = 22.0f;
-        float toggleX = panel.right() - 18.0f - toggleW;
-        float toggleY = panel.y() + 20.0f;
+        float toggleX = panel.right() - 92.0f;
+        float toggleY = panel.y() + 14.0f;
         focused.enableGlow.step(focused.enabled() ? 1.0 : 0.0, deltaSeconds);
         drawSwitch(context, toggleX, toggleY, toggleW, toggleH, (float) focused.enableGlow.get(), openT, metrics.scale());
         headerToggleHit = new Rect(toggleX - 6.0f, toggleY - 6.0f, toggleW + 12.0f, toggleH + 12.0f);
@@ -720,8 +759,8 @@ public final class LinkGuiScreen extends Screen {
         drawBindRow(context, metrics, bindRow, mx, my, openT, deltaSeconds);
         moduleBindHit = bindRow;
 
-        Rect area = metrics.profileContent();
-        area = new Rect(area.x(), area.y() + 54.0f, area.width(), area.height() - 54.0f);
+        Rect area = new Rect(panel.x() + 18.0f, panel.y() + 150.0f,
+            panel.width() - 36.0f, panel.height() - 168.0f);
 
         List<Setting> settings = new ArrayList<>(focused.leftSettings());
         settings.addAll(focused.rightSettings());
@@ -1345,6 +1384,39 @@ public final class LinkGuiScreen extends Screen {
             return true;
         }
 
+        if (settingsOpen) {
+            Rect window = settingsWindowRect(metrics);
+            if (settingsCloseHit != null && settingsCloseHit.contains(mx, my)) {
+                settingsOpen = false;
+                return true;
+            }
+            if (settingsHeaderHit != null && settingsHeaderHit.contains(mx, my)) {
+                settingsDragging = true;
+                settingsDragX = mx - window.x();
+                settingsDragY = my - window.y();
+                return true;
+            }
+            if (window.contains(mx, my)) {
+                if (headerToggleHit != null && headerToggleHit.contains(mx, my) && focused != null) {
+                    focused.toggle();
+                    playToggle(focused.enabled());
+                    return true;
+                }
+                if (moduleBindHit != null && moduleBindHit.contains(mx, my) && focused != null) {
+                    focused.armBinding();
+                    playClick();
+                    return true;
+                }
+                for (SettingHit hit : settingHits) {
+                    if (hit.bounds.contains(mx, my)) {
+                        handleSettingClick(hit.setting, hit.bounds, mx, my, rightClick);
+                        return true;
+                    }
+                }
+                return true;
+            }
+        }
+
         for (NavHit hit : navHits) {
             if (hit.bounds.contains(mx, my)) {
                 selectCategory(hit.category);
@@ -1390,11 +1462,16 @@ public final class LinkGuiScreen extends Screen {
                 return true;
             }
             boolean onSwitch = mx >= hit.bounds.right() - 62.0f;
-            focused = hit.module;
             if (onSwitch) {
+                focused = hit.module;
                 hit.module.toggle();
                 playToggle(hit.module.enabled());
+            } else if (hit.module == clickGuiModule()) {
+                focused = hit.module;
+                settingsOpen = false;
+                playClick();
             } else {
+                openSettingsWindow(hit.module, hit.bounds);
                 playClick();
             }
             panelScrollTarget = 0.0f;
@@ -1530,6 +1607,11 @@ public final class LinkGuiScreen extends Screen {
         Metrics metrics = LinkGuiLayout.compute(width, height);
         float mx = (float) click.x() / metrics.scale();
         float my = (float) click.y() / metrics.scale();
+        if (settingsDragging) {
+            settingsX = mx - settingsDragX;
+            settingsY = my - settingsDragY;
+            return true;
+        }
         if (draggingColor) {
             applyColorDrag(mx, my);
             return true;
@@ -1543,6 +1625,10 @@ public final class LinkGuiScreen extends Screen {
 
     @Override
     public boolean mouseReleased(Click click) {
+        if (settingsDragging) {
+            settingsDragging = false;
+            return true;
+        }
         draggingColor = false;
         draggingHue = false;
         if (draggingSlider != null) {
