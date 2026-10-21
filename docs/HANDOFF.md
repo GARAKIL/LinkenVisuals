@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №17 — LINKEN M7b-4) — v1.0.86
+
+### Сделано
+1. **D63 — M7b-4: Skin и Resource Packs, v1.0.86, `62cb4e1`.** `LinkenSkinScreen`: LINKEN-окно 1060×740, живой 2D-превью головы из `PlayerSkinProvider`/`DefaultSkinHelper` (fallback `?`), все 7 `PlayerModelPart` как ON/OFF-строки, `Main Arm` Left/Right, `ACCOUNT & SKIN` → существующий `LinkenAltManagerScreen`. В 1.21.11 у `SkinOptionsScreen` нет отдельного skin chooser для offline-аккаунтов — это осознанное отклонение (см. D63), а не пропущенная кнопка.
+2. **`LinkenResourcePacksScreen`**: две колонки AVAILABLE/SELECTED на `ResourcePackOrganizer`, поиск по имени/описанию/id, включение/выключение кликом, стрелки приоритета, `PINNED`/`LOCKED`/`INCOMPATIBLE`, подтверждение включения несовместимого пака, `OPEN FOLDER`, DONE/ESC. Применение — `GameOptions.refreshResourcePacks(manager)` (запись options + reload при изменении) и возврат в Settings. Иконки — LINKEN-монограммы, без vanilla texture-loader.
+3. **Роутинг**: Settings → Skin/Resource Packs ведут в новые экраны; `MinecraftClientMixin` дополнительно перехватывает vanilla `SkinOptionsScreen`/`PackScreen` в LINKEN. Beta/Vanilla не перерисовываются.
+4. **i18n**: en/ru/uk — skin (title/subtitle/preview/account/model parts/main arm/on/off) и packs (title/subtitle/available/selected/open folder/none/hint/locked/pinned/conflict/incompatible modal/cancel/enable anyway); `LangParityTest` зелёный.
+5. **Тесты/сборка**: `LinkenPackSearchTest` (+5) — итого **204 теста, 0 падений/ошибок/скипов**; `clean build --no-daemon` зелёный, Java-ворнингов 0; jar `source/build/libs/linkenvisuals-1.0.86.jar` (7 358 636 байт).
+6. **Визуальная приёмка не выполнялась**: в этом чате не было явного разрешения на `runClient`; 1280×720/4K, Skin-превью, Resource Packs enable/disable/move/apply/reload, incompatible-confirm и Open Folder — за следующим шагом.
+
+### Следующая задача
+- **Финальная визуальная приёмка M7** (нужно явное разрешение на `runClient`): 1280×720 и 4K-framebuffer — Skin (превью головы, все 7 частей, main arm, account action), Resource Packs (поиск, enable/disable, порядок, apply/reload, incompatible-confirm, open folder), Language (активная строка после автопрокрутки), keybind rebind, Beta/Vanilla regression. После «принято» — закрыть M7 и решить следующий объём.
+- Открытые решения без изменений: LICENSE copyright, `MASTER_PROMPT.md` в публичном репо, UK-глифы MSDF, waypoints UX, StreamerMode nametag-санитизация.
+
+### Риски
+- Физического 4K нет: проверка только framebuffer 3840×2160; окно может уезжать на второй монитор/терять фокус (как в M6).
+- Skin: offline-аккаунты не имеют in-game skin chooser в 1.21.11; показывается голова активного скина и переход в account manager — осознанное отклонение.
+- Resource Packs: иконки — монограммы, не оригинальные pack.png; несовместимый пак можно включить только через подтверждение. `ResourcePackOrganizer` — vanilla API; поведение apply/reload нужно проверить в игре.
+- Keybind rebind и Language активная строка всё ещё не подтверждены визуально после изменений M7b-2/M7b-3a.
+
 ## Состояние на 2026-10-21 (чат №16 — LINKEN M7a/M7b-1/M7b-2/M7b-3a) — v1.0.85
 
 ### Сделано

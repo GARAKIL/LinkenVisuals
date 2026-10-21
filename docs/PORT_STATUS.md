@@ -38,5 +38,5 @@
 - **M7b-1 — дочерние Settings: option-страницы — ✅ v1.0.83, D60, `a129b8f`.** `LinkenSubSettingsScreen` + catalog/filter; Video/Controls/Sound/Chat/Accessibility на LINKEN, значения через vanilla `SimpleOption`; поиск, toggle/slider/cycle. 199 тестов.
 - **M7b-2 — LINKEN keybinds — ✅ v1.0.84, D61, `2d569c8`.** Категории/поиск/capture/conflict/reset; `options.write()`. Ручной rebind — на приёмку.
 - **M7b-3a — LINKEN language list — ✅ v1.0.85, D62, `f9dbed3`.** 143 языка, поиск, ACTIVE, Apply, автопрокрутка.
-- **M7b-4 — Skin/Resource Packs — ⛔ не начат.** Затем визуальная приёмка M7 1280×720/4K.
+- **M7b-4 — Skin/Resource Packs — ✅ v1.0.86, D63, `62cb4e1`.** `LinkenSkinScreen` (превью головы, 7 model parts, main arm, account action) + `LinkenResourcePacksScreen` (две колонки, поиск, enable/disable, приоритет, incompatible-confirm, open folder, apply/reload). 204 теста; визуальная приёмка 1280×720/4K — следующий шаг.
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.
