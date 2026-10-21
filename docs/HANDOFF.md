@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-21 (чат №32 — MSDF/icon pixelation fix, D78) — v1.0.101
+
+### Сделано
+1. **D78/v1.0.101**: найдена причина «пиксельности» — `core/icon.fsh` клампил `pixelRange` в 1.0, из-за чего MSDF-переход был почти бинарным; плюс категории/утилиты рисовались PNG 48×48 на 17 px с неверным UV 128×128. Исправлено: донорская формула `Range * inversesqrt((dFdx*W)^2 + (dFdy*H)^2)`, `Range=8`, `smoothstep(-0.5,0.5)`, baseline без округления, `aa` скруглений 0.6→1.0.
+2. **Иконки**: добавлены донорские MSDF-атласы `iconsnew` и `iconsfa` (+mcmeta blur/clamp); категории P/S/R/V/H, утилиты FontAwesome (search, gear, users, map-pin, sliders, user, droplet). PNG-иконки 48×48 больше не используются в LinkGUI. TTF/шрифты не импортировались — только атласы.
+3. **Сборка/тесты**: **212 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.101.jar` (7 585 612 байт, SHA-256 `FA4181AAD894515C6630D788B8E892E65E0C15D331A2FB9C969944C8FD34C5C8`).
+4. **Визуал**: при client 1280×720 текст/иконки/dock/Theme/Profile гладкие; окно 1264×681 (нестандартный клиент) даёт дробный canvas-scale и субъективно усиливает пиксельность — это property canvas-подхода.
+
+### Следующая задача
+- Остаток strict 1:1: pinned settings cards, donor media track/audio, donor-only Interface groups (HUD style/shape, custom scoreboard/tab), точная сверка шрифтов/отступов на 1920×1080.
+- Устранить shader-source race при старте.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Media strip без донорского трека показывает реальное состояние MediaWatcher.
+- Theme-панель короче донорской: нет HUD style/shape, scoreboard/tab настроек.
+- Pinned cards не отрисовываются.
+
+
 ## Состояние на 2026-10-21 (чат №31 — donor visual diff, D77) — v1.0.100
 
 ### Сделано
