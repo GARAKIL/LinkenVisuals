@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.108**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.109**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -44,7 +44,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | HelperItemsHud / LowArmorNotificationsHud | ❌ open |
 | DynamicIsland (full) | ❌ open |
 | Custom Hotbar | ✅ `HotbarHud` |
-| HUD Style (8 variants) | ✅ all donor variants ported (D85); border smoothness approximated |
+| HUD Style (8 variants) | ✅ all donor variants ported (D85); donor border smoothness ported (D86) |
 | HUD Shape (Rounded/Pill/Sharp) | ✅ implemented centrally in `HudStyle`; geometry test |
 | HUD element enable/disable list | ◐ our edit mode supports layout/drag; donor per-element toggles are not fully exposed |
 

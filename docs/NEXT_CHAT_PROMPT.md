@@ -1,102 +1,205 @@
-﻿# NEXT CHAT — LinkenVisuals: звуки донора + остаток strict 1:1
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.109 / D86
 
-## Контекст
-- Репозиторий: https://github.com/KurumaOfficial/LinkenVisuals
-- Ветка: `main`
-- HEAD при передаче: см. `git log -1` (последний docs-коммит), последний код: `D80`
-- Версия мода: **1.0.103**
-- Тесты: **216 / 0 падений**
-- Исходники: `<repo>/source`
-- Документация: `<repo>/docs`
-- Донор (READ-ONLY): `C:\Users\gameg\Desktop\визуалы`; release-jar — `build/libs/linkenvisuals-2.0.jar`.
-- Авторство донорских ассетов подтверждено пользователем (D6), лицензия донора — ARR.
+You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
-## Первым делом
-1. `git clone https://github.com/KurumaOfficial/LinkenVisuals.git`
-2. `git checkout main && git pull`
-3. Проверь: последний код `D80`; `source/gradle.properties` → `mod_version=1.0.103`.
-4. Прочитай `docs/HANDOFF.md` (верхняя секция, чат №34), `docs/MERGE_DECISIONS.md` D76–D80, `docs/ROADMAP.md` M8.10–M8.14, `docs/PORT_STATUS.md`.
-5. `cd source`
-6. `.\gradlew.bat test --console=plain --no-daemon` → ожидаемо 216/0.
+## 1. Repository
 
-## Главная цель
-Довести visual-слой LINKEN до строгого 1:1 с донорским `LinkGuiScreen` и принять звуковую часть: боевые cues (kill / streak 2–5 / totem pop / low HP / death / HitSound Bell/Crime/Nya/Uwu) на сервере или в мире. Визуальный и звуковой слой уже перенесены; остались ручная приёмка и точечные расхождения.
+- Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
+- Branch: `main`
+- Version at handoff: **1.0.109**
+- Tests at handoff: **218 / 0 failures / 0 errors / 0 skipped**
+- Autotest at handoff: **678/678**, no new ERROR/exception
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.109.jar`
+- Size: **10 682 349 bytes**
+- SHA-256: `AAEEAA5874602EEC1B533F936787F322E921F839B6660B91CEC0C31F03A6F31A`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D86.
 
-## Жёсткие требования пользователя
-- Пока активен **Linken GUI**, переключение на Classic/Beta **запрещено**. Не возвращай эту возможность.
-- Кнопку смены стилей GUI и кнопку редактора главного меню в **LINKEN Settings не добавлять**.
-- Beta/Vanilla не должны ломаться или перерисовываться.
-- Все видимые кнопки должны работать; мёртвые клики запрещены.
-- i18n: en/ru/uk для новых строк; `LangParityTest` зелёный.
-- Не коммитить `build/`, `run/`, jar, логи, скриншоты, временные файлы.
-- Feature/fix-коммит: `+1 patch` от фактической версии. Docs-only — без бампа.
-- Перед коммитом: `git fetch origin`, force push запрещён. После зелёной сборки — commit + push, jar в `source/build/libs`, SHA-256, отчёт на русском.
-- Новый запуск Minecraft — только после явного разрешения пользователя (в этой задаче разрешение было выдано на release-jar приёмку).
+Clone and verify:
 
-## Что уже сделано (D80 / v1.0.103)
-- 35 донорских sound-событий в `assets/linkenvisuals/sounds.json`; все OGG на месте, включая `mainmenu/evilshit.ogg` и `cosmetic/sounds/*`.
-- `audio/LinkenSounds` — реестр и playback helpers; `audio/LinkenMenuMusic` — title-трек.
-- UI-клики всех LINKEN-экранов → `LinkenSounds.UI_CLICK` (`enable.ogg`); тумблеры → `enable`/`disable`.
-- `HitSoundModule` — донорские Bell/Crime/Nya/Uwu; `KillEffects` и `FakePlayer` — только донорские cues.
-- `SoundsModule` (Player, default ON): Volume 130 %, Kills, Kill Streak, Totem Pop, Death, Low Health, Low Health At 6 HP; melee + `EntityDamageS2CPacket` (свои стрелы).
-- Главное меню: `EVILSHIT` / `ARLEKIN 40 000`, 131,3 с, volume 0.4; запускается один раз, живёт между меню, останавливается при входе в мир, заменяет vanilla menu music; карточка показывает `EVILSHIT by ARLEKIN 40 000`.
-- `SoundAssetsTest` (35 событий + OGG + `ui.click` → `enable`), `SoundsModuleTest`, config round-trip для Sounds.
-- Release-jar 1920×1080: title с треком/версией 1.0.103, в логе нет `Unable to play unknown soundEvent`; чёрные области слева совпадают с донорским reference (не регрессия).
-- Jar: `source/build/libs/linkenvisuals-1.0.103.jar`, 10 657 799 байт, SHA-256 `64494B17AE61674037DD9588ED5EA4DC20DEDE941CB27808FF971B9B679F26F3`.
-
-## Что осталось (приоритет)
-1. **Звуковая приёмка в игре**
-   - Убийство мечом/стрелой: `molodec_ubil` / `unichtozjen` / `zapen`.
-   - Серия 2–5 за 9 с: `dota_double_kill` … `dota_rampage`.
-   - Totem pop, смерть, low HP; HitSound все 4 режима.
-   - Проверить, что vanilla-звуки мода не звучат (UI clicks, FakePlayer, KillEffects).
-2. **Остаток strict 1:1**
-   - Pinned settings cards.
-   - Donor-only Interface groups: HUD style/shape, custom scoreboard/tab (в нашем моде этих настроек нет — панель короче; либо портировать, либо зафиксировать отклонение).
-   - Точная сверка шрифтов/отступов/радиусов на 1280×720 и 1920×1080.
-3. **Shader-source race** при старте (`Couldn't find source` для `linkenvisuals:core/*` и `minecraft:core/position_color`) — отдельный открытый дефект, не блокирует UI/мир.
-4. **Media strip в LinkGUI** (in-game) по-прежнему читает `MediaWatcher`, а не menu-трек. Это осознанно: трек принадлежит title screen.
-
-## Ключевые файлы
-```
-source/src/main/java/dev/linkenvisuals/audio/
-  LinkenSounds.java        — 35 events, play/playAt/ui click, Cue enum
-  LinkenMenuMusic.java     — title track state/progress/pause/resume
-source/src/main/java/dev/linkenvisuals/module/impl/
-  SoundsModule.java        — kill/streak/totem/low HP/death
-  HitSoundModule.java      — Bell/Crime/Nya/Uwu
-source/src/main/java/dev/linkenvisuals/mixin/
-  ClientPlayerInteractionManagerMixin.java — melee hit + SoundsModule.noteHit
-  ClientPlayNetworkHandlerMixin.java       — damage packet + totem pop
-source/src/main/resources/assets/linkenvisuals/
-  sounds.json              — 35 events
-  sounds/mainmenu/evilshit.ogg
-  sounds/{bell,crime,nya,uwu,...}.ogg
-source/src/test/java/dev/linkenvisuals/audio/SoundAssetsTest.java
-source/src/test/java/dev/linkenvisuals/module/SoundsModuleTest.java
-source/src/main/java/dev/linkenvisuals/ui/linkmenu/LinkenMainMenuScreen.java
-source/src/main/java/dev/linkenvisuals/ui/linkmenu/LinkenMenuChrome.java
+```powershell
+git clone https://github.com/KurumaOfficial/LinkenVisuals.git
+cd LinkenVisuals
+git checkout main
+git pull
+git log -1
+Get-Content source/gradle.properties   # mod_version=1.0.109
 ```
 
-## Правила работы
-- Перед изменением layout обновляй соответствующий тест (`LinkGuiLayoutTest`, `LinkenMenuLayoutTest`).
-- Не тянуть Lombok, донорские Module/Setting, legacy `Render2D`/`WindowGuiRender`, Gif/Lottie, сеть, косметику, лишнее аудио.
-- Ошибки/fallback — через `LOGGER.warn/debug`, не пустые catch.
-- После зелёной сборки: commit + push, SHA-256, отчёт на русском.
-- В конце обновить `docs/HANDOFF.md`, `docs/MERGE_DECISIONS.md` (D81+), `docs/ROADMAP.md`, `docs/PORT_STATUS.md`; docs-коммит отдельно.
+## 2. Donor
 
-## Команды
+The donor is **READ-ONLY**. On the previous machine it was:
+
+`C:\StrangeVisuals\donor2\visualy`
+
+Release jar may be at:
+
+`C:\Users\gameg\Desktop\визуалы\build\libs\linkenvisuals-2.0.jar`
+
+If the path is missing on the new machine, **ask the user for the donor path/copy**. Never invent assets, dimensions or behavior. Do not modify donor files.
+
+Important: the actually used donor screen is the monolithic
+`src/main/java/ru/method/linkenvisuals/screen/linkgui/LinkGuiScreen.java`.
+Do **not** use `screen/linkgui/windows/*` as the reference; those classes are unused.
+
+Read first:
+
+- `docs/HANDOFF.md` — top section (chat #40, D86);
+- `docs/MERGE_DECISIONS.md` — D80–D86;
+- `docs/ROADMAP.md` — M8.10–M8.17;
+- `docs/PORT_STATUS.md` — M8.14–M8.17;
+- `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
+
+## 3. Hard requirements
+
+- While **Linken GUI** is active, switching to Classic/Beta is forbidden. Do not restore that path.
+- Do not add Style/Editor buttons to LINKEN Settings.
+- Beta and Vanilla must not be broken, restyled or behaviorally changed.
+- Every visible control must work. Dead clicks/fake controls are forbidden.
+- New strings go to i18n **en/ru/uk**; `LangParityTest` must stay green.
+- Feature/fix commits bump **+1 patch** from the actual version.
+- Docs-only commits do not bump.
+- Before commit: `git fetch origin`. Force push is forbidden.
+- Do not commit `build/`, `run/`, jars, logs, screenshots or temp files.
+- Errors/fallbacks via `LOGGER.warn/debug`; no empty catch, `TODO`, `FIXME`, `System.out`.
+- Do not add Lombok, donor `Module`/`Setting`, legacy `Render2D`/`WindowGuiRender`, raw GL, Lottie `welcome.json`, network, cosmetics catalog, crashers, Discord RPC or IAS. These are intentionally out of scope (D6/D19/D52).
+- Minecraft may be launched only with the user's explicit permission. If the user asks for a hidden run, use a separate Windows desktop/minimized window; do not leave the window on their active desktop.
+
+## 4. What is already done
+
+- D80/v1.0.103: 35 donor sound events, all OGGs, `LinkenSounds`, `LinkenMenuMusic`, `SoundsModule`, UI/combat cues no longer use vanilla sounds.
+- D81/v1.0.104: shader warm-up deferral; later verified and replaced by readiness gating.
+- D82/v1.0.105: pinned settings cards, verified shader readiness after `ResourceReloaderKeys.Client.SHADERS` + tick fallback.
+- D83/v1.0.106: HUD Style/Shape settings, custom scoreboard, custom tab, Interface scroll, HUD edge clamp.
+- D84/v1.0.107: donor **Minimal** HUD style exact.
+- D85/v1.0.108: **all 8 donor HUD styles** (Card, Minimal, Neon, Aurora, Glass, Solid, Gradient, Outline) with per-vertex rounded gradients.
+- D86/v1.0.109: donor **border smoothness** via `rounded_rect_border` pipeline (`POSITION_TEXTURE_COLOR_NORMAL`; thickness/internal/external through normals, radius through Position.z).
+- Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
+- Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
+
+Do not redo these from scratch. Use the docs and current code as the baseline.
+
+## 5. What remains — next code slices
+
+Use `docs/FEATURE_PARITY.md` as the source of truth. Recommended order:
+
+1. **HUD elements**, port donor behavior/geometry one by one:
+   - `TargetHud`
+   - `CoordinatesHud`
+   - `CooldownsHud`
+   - `ArmorHud`
+   - `InventoryHud`
+   - `HelperItemsHud`
+   - `LowArmorNotificationsHud`
+   - `DynamicIsland` (only after the simpler elements)
+   Donor sources: `hud/impl/*.java`, `hud/HudElement.java`, `hud/LinkHudStyle.java`, `managers/system/HudManager.java`.
+   Our HUD architecture: `hud/HudElement.java`, `hud/HudManager.java`, `hud/HudStyle.java`, `hud/HudSurface.java`, layout persistence in `hud/HudLayoutStorage.java`.
+   Add each element to `HudManager.ELEMENTS`, preserve edit-mode drag/snap, add a working enable/disable setting if needed, and add an autotest screenshot/behavior step.
+
+2. **Remaining visual modules** from `FEATURE_PARITY.md`:
+   - `CameraSettings`, `AspectRatio`, `CustomHitBox`, `CustomVitals`, `DamageParticles`, `FortniteDamage`, `HitRange`, `ItemRadius`, `NoRender`, `Optimization`, `Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands.
+   - Do not add dead settings for modules that have no backend.
+   - Port only donor client/visual behavior; leave server helpers/network/crashers out.
+
+3. **Human acceptance**:
+   - Sound cues: kill melee/arrow, streak 2–5, totem, death, low HP, HitSound Bell/Crime/Nya/Uwu/Only Crit, UI/ClickGUI.
+   - Check `latest.log` for `Unable to play unknown soundEvent`, vanilla sounds, shader-source errors.
+   - Custom Tab needs a multiplayer server; singleplayer has no listed entries.
+   - Visual pixel diff at 1280×720 and 1920×1080.
+
+4. **Final polish**:
+   - Any remaining donor border/geometry differences, hover animations, exact font metrics.
+   - Keep `FEATURE_PARITY.md` updated; do not claim 100% parity until every open item is closed.
+
+## 6. Build and verification
+
 ```powershell
 cd source
+$env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot'
+.\gradlew.bat test --console=plain --no-daemon
 .\gradlew.bat clean build --console=plain --no-daemon
-# bump patch:
-.\gradlew.bat clean build -PbumpVersion --console=plain --no-daemon
 ```
 
-## Известные риски
-- `pauseAllExcept()` на паузе menu-трека глушит все звуки (как в доноре).
-- Kill detection по исчезновению цели при HP ≤ 6: скрытое сервером HP может дать пропуск.
-- `LinkenSelectWorldScreen` использует vanilla `WorldListWidget` через off-screen `renderWidget` — хрупко к API.
-- Create/Edit/Re-Create World и death screen остаются vanilla (донор тоже).
-- `LinkGuiScreen.java` большой; правки точечные, не ломать hit-зоны.
-- Донорский `LinkGuiThemeWindowLayout` удалён в D67 — не возвращать.
+Expected baseline: **218 tests, 0 failures/errors/skips**.
+
+Hidden/automated smoke test (requires explicit user permission):
+
+```powershell
+# run/options.txt: fullscreen:false, overrideWidth:1920, overrideHeight:1080
+.\gradlew.bat runAutotest -PautotestWorld=AutoTestWorld -PautotestQuit --console=plain --no-daemon
+```
+
+- Autotest opens both GUIs, LinkGUI, title, inventory, attacks mobs, sweeps every module/setting, takes screenshots and writes a report.
+- Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`.
+- Expected at handoff: **678/678**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events.
+- Restore `run/options.txt` after the run.
+
+Jar check:
+
+```powershell
+Get-ChildItem build\libs\linkenvisuals-*.jar |
+  ForEach-Object { Get-FileHash $_.FullName -Algorithm SHA256 }
+```
+
+## 7. Key files
+
+```text
+source/src/main/java/dev/linkenvisuals/
+  clickgui/ModuleRegistry.java
+  clickgui/link/LinkGuiScreen.java
+  clickgui/link/LinkGuiLayout.java
+  clickgui/link/LinkGuiConfig.java
+  clickgui/link/LinkGuiTheme.java
+  hud/HudManager.java
+  hud/HudElement.java
+  hud/HudStyle.java
+  hud/HudSurface.java
+  hud/ScoreboardHud.java
+  hud/Watermark.java
+  hud/KeybindPanel.java
+  hud/HotbarHud.java
+  hud/MediaPlayerHud.java
+  hud/PotionSlot.java
+  hud/PotionBlock.java
+  hud/TotemCounterHud.java
+  hud/UseTrackerHud.java
+  render/RoundedRectPipeline.java
+  render/Pipelines.java
+  mixin/InGameHudMixin.java
+  mixin/PlayerListHudMixin.java
+  autotest/AutoTestDriver.java
+  ui/linkmenu/*
+source/src/main/resources/assets/linkenvisuals/
+  shaders/core/rounded_rect_border.{vsh,fsh}
+  sounds.json
+  sounds/*
+source/src/test/java/dev/linkenvisuals/
+  clickgui/link/LinkGuiLayoutTest.java
+  hud/HudStyleTest.java
+  audio/SoundAssetsTest.java
+```
+
+## 8. Current important decisions
+
+- **Linken style lock**: `ModuleRegistry.isGuiStyleLocked`, `cycleGuiStyle`, `setGuiStyle`; `GUI Style` hidden in Linken Interface/pinned cards.
+- **Shader readiness**: `Pipelines.resourcesReady` set after `ResourceReloaderKeys.Client.SHADERS` + tick fallback; custom splash/loading/title gated.
+- **HUD style**: all variants use `HudStyle`; donor border smoothness uses `RoundedRectPipeline.drawBorder`.
+- **Custom scoreboard**: `ScoreboardHud`; vanilla sidebar cancelled while enabled.
+- **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
+- **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
+- **Media strip** reads `MediaWatcher`, not the title music track; title track belongs to `LinkenMenuMusic`.
+- **Close overlay** donor is a no-op; do not invent a new behavior.
+
+## 9. Definition of Done for the next task
+
+- `clean build` green, **218+ tests** (or more) with zero failures/errors/skips.
+- No new shader/sound errors in hidden/runClient log.
+- Every visible control works; no fake controls.
+- Beta/Vanilla unchanged; Linken style lock preserved.
+- New strings in en/ru/uk; `LangParityTest` green.
+- Feature/fix commit **+1 patch**, docs commit without bump.
+- `git fetch`, commit, push; no force push.
+- Jar path, size, SHA-256 and Russian report with what was verified visually/in the log and what remains manual.
+
+## 10. First action
+
+Read the docs and current code, run `test`, then pick **TargetHud** as the first remaining HUD element. Implement it in our `HudElement` architecture using donor `TargetHud.java` as the behavioral reference, add it to `HudManager.ELEMENTS`, add an autotest screenshot/check, and keep the existing HUD style/border pipeline intact. Do not touch the already working title/LinkGUI/pinned/scoreboard/tab slices unless a test proves a regression.

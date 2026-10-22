@@ -777,3 +777,12 @@
 - **Сборка/тесты**: **218 тестов, 0 падений/ошибок/скипов**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.108.jar` (10 679 178 байт, SHA-256 `1A471D94BFE6AF27D8D55F0D7834FE988675F2974767AA58F70FA112940AB6F3`).
 - **Commit**: `e5064b7` `feat(hud): match all donor HUD style variants (v1.0.108, D85)`.
 - **Остаток**: border smoothness shader, HUD-элементы Target/Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland, human acceptance.
+
+## 2026-10-22 · D86 · Donor border smoothness shader — v1.0.109
+- **Border smoothness**: добавлен отдельный `rounded_rect_border` pipeline с vertex-format `POSITION_TEXTURE_COLOR_NORMAL`; thickness/internal/external smoothness передаются через normal, radius — через Position.z. Фрагментный шейдер повторяет donor-формулу `outer - inner` с `smoothstep` для internal/external краёв.
+- **HudStyle**: все donor-стили теперь используют `RoundedRectPipeline.drawBorder` с donor-парами smoothness (Card 1.5/6 + 1.0/1.6, Neon 1.5/5 + 1.0/2 + 1.0/1.2, Aurora 1.1/2.6, Solid/Gradient/Outline/Glass 1.0/2.0, cell 1.0/1.4/1.6). Это закрывает остаток D85 по border smoothness.
+- **Исправление**: `external` — зарезервированное слово GLSL; переменные переименованы в `externalSmooth/internalSmooth`; первый runtime-прогон выявил ошибку, после фикса `Couldn't compile` больше нет.
+- **Проверки**: **218 тестов, 0 падений**; скрытый autotest **678/678**, 1920×1080, shader-source/compile ошибок нет, unknown sound events нет.
+- **Сборка**: jar `linkenvisuals-1.0.109.jar` (10 682 349 байт, SHA-256 `AAEEAA5874602EEC1B533F936787F322E921F839B6660B91CEC0C31F03A6F31A`).
+- **Commit**: `376c532` `fix(hud): port donor border smoothness shader (v1.0.109, D86)`.
+- **Остаток**: HUD-элементы и visual-модули из `FEATURE_PARITY.md`; human sound/visual acceptance.

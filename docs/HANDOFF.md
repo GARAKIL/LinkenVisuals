@@ -2,6 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №40 — donor border smoothness, D86) — v1.0.109
+
+### Сделано
+1. **D86/v1.0.109** (`376c532`): добавлен `rounded_rect_border` pipeline (POSITION_TEXTURE_COLOR_NORMAL), thickness/internal/external smoothness через normal, radius через Position.z; `HudStyle` использует donor-пары smoothness для всех 8 стилей.
+2. **Исправление**: `external` — reserved word GLSL, переименовано; runtime shader compile error устранён.
+3. **Проверки**: **218 тестов, 0 падений**; скрытый autotest **678/678**, 1920×1080, `Couldn't compile`/unknown sound events нет.
+4. **Сборка**: jar `linkenvisuals-1.0.109.jar` (10 682 349 байт, SHA-256 `AAEEAA5874602EEC1B533F936787F322E921F839B6660B91CEC0C31F03A6F31A`).
+
+### Следующая задача
+- HUD-элементы: TargetHud → CoordinatesHud → CooldownsHud → ArmorHud → InventoryHud → HelperItemsHud → LowArmorNotificationsHud → DynamicIsland.
+- Visual-модули из `FEATURE_PARITY.md`; human sound/visual acceptance; multiplayer Custom Tab.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Полный donor parity не закрыт; открытые пункты в `FEATURE_PARITY.md`.
+- HUD Style применяется к `HudSurface`; внутренние радиусы отдельных элементов могут отличаться.
+- Border smoothness теперь donor-подобный, но нормализация/масштаб проверены визуально на 1920×1080, не на всех GUI scale.
+
 ## Состояние на 2026-10-22 (чат №39 — all donor HUD styles, D85) — v1.0.108
 
 ### Сделано
