@@ -49,6 +49,16 @@ public final class LinkenMenuChrome {
     public static final int ICON_DISCORD = 0xF144;
     public static final int ICON_TELEGRAM = 0xF1B6;
 
+    /** Donor {@code icons2} glyphs used by the main menu. */
+    public static final int MENU_ICON_PERSON = 'A';
+    public static final int MENU_ICON_GEAR = 'B';
+    public static final int MENU_ICON_GLOBE = 'C';
+    public static final int MENU_ICON_POWER = 'D';
+    public static final int MENU_ICON_TELEGRAM = 'E';
+    public static final int MENU_ICON_DISCORD = 'F';
+    public static final int MENU_ICON_PEOPLE = 'G';
+    public static final int MENU_ICON_CODE = 'H';
+
     private static final Identifier BACKGROUND = LinkenVisuals.id("textures/linkmenu/bg-tower.png");
     private static final Identifier MUSIC_PLAY = LinkenVisuals.id("textures/linkmenu/music/play.png");
     private static final Identifier MUSIC_PAUSE = LinkenVisuals.id("textures/linkmenu/music/pause.png");
@@ -223,7 +233,7 @@ public final class LinkenMenuChrome {
 
         int iconColor = primary ? INK : MUTED;
         int labelColor = primary ? INK : (danger ? DANGER : TEXT2);
-        GlyphAtlas iconAtlas = LinkenFonts.icons();
+        GlyphAtlas iconAtlas = LinkenFonts.icons2();
         if (iconAtlas != null) {
             IconPipeline.draw(context, iconAtlas, icon, iconX + iconSize * 0.5f, centerY,
                 iconSize, rgba(iconColor, fade));
@@ -251,9 +261,9 @@ public final class LinkenMenuChrome {
         drawSecondary(context, rect.x(), y, rect.width(), rect.height(), 8.0f, hover, false, fade, uiScale);
         int color = rgba(mix(MUTED, ACCENT, hover), fade);
         if (icon > 0) {
-            GlyphAtlas brandAtlas = LinkenFonts.brands();
-            if (brandAtlas != null) {
-                IconPipeline.draw(context, brandAtlas, icon,
+            GlyphAtlas menuIcons = LinkenFonts.icons2();
+            if (menuIcons != null) {
+                IconPipeline.draw(context, menuIcons, icon,
                     rect.x() + rect.width() * 0.5f, y + rect.height() * 0.5f, 17.0f, color);
             }
             return;

@@ -104,15 +104,15 @@ public final class LinkenMainMenuScreen extends Screen {
         float settingsHoverValue = step(settingsHover, metrics.settings().contains(virtualMouseX, virtualMouseY), deltaSeconds);
         float quitHoverValue = step(quitHover, metrics.quit().contains(virtualMouseX, virtualMouseY), deltaSeconds);
 
-        LinkenMenuChrome.drawButton(context, metrics.multiplayer(), true, LinkenMenuChrome.ICON_GLOBE,
+        LinkenMenuChrome.drawButton(context, metrics.multiplayer(), true, LinkenMenuChrome.MENU_ICON_GLOBE,
             I18n.get("linkenvisuals.menu.multiplayer"), multiHover, false, false, intro, metrics.scale());
-        LinkenMenuChrome.drawButton(context, metrics.singleplayer(), false, LinkenMenuChrome.ICON_PERSON,
+        LinkenMenuChrome.drawButton(context, metrics.singleplayer(), false, LinkenMenuChrome.MENU_ICON_PERSON,
             I18n.get("linkenvisuals.menu.singleplayer"), singleHover, false, false, intro, metrics.scale());
-        LinkenMenuChrome.drawButton(context, metrics.settings(), false, LinkenMenuChrome.ICON_GEAR,
+        LinkenMenuChrome.drawButton(context, metrics.settings(), false, LinkenMenuChrome.MENU_ICON_GEAR,
             I18n.get("linkenvisuals.menu.settings"), settingsHoverValue, false, false, intro, metrics.scale());
 
         boolean quitArmed = millis < quitArmedUntil;
-        LinkenMenuChrome.drawButton(context, metrics.quit(), false, LinkenMenuChrome.ICON_POWER,
+        LinkenMenuChrome.drawButton(context, metrics.quit(), false, LinkenMenuChrome.MENU_ICON_POWER,
             I18n.get(quitArmed ? "linkenvisuals.linkmenu.quit_confirm" : "linkenvisuals.linkmenu.quit_short"),
             quitHoverValue, quitArmed, true, intro, metrics.scale());
 
@@ -172,9 +172,9 @@ public final class LinkenMainMenuScreen extends Screen {
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.body(), meta,
             textX + 10.0f, rect.y() + 1.0f, 10.5f, 0.84f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
-        if (LinkenFonts.icons() != null) {
-            dev.linkenvisuals.render.IconPipeline.draw(context, LinkenFonts.icons(),
-                LinkenMenuChrome.ICON_PERSON, textX + 4.5f, rect.y() + 6.5f, 9.0f,
+        if (LinkenFonts.icons2() != null) {
+            dev.linkenvisuals.render.IconPipeline.draw(context, LinkenFonts.icons2(),
+                LinkenMenuChrome.MENU_ICON_PERSON, textX + 4.5f, rect.y() + 6.5f, 9.0f,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
         }
         LinkenMenuChrome.drawText(context, LinkenFonts.heading(),
@@ -199,8 +199,9 @@ public final class LinkenMainMenuScreen extends Screen {
     private void renderSocials(DrawContext context, LinkenMenuLayout.Metrics metrics, float mouseX, float mouseY,
                                double deltaSeconds, float fade) {
         LinkenMenuLayout.Rect socials = metrics.socials();
-        int[] icons = {LinkenMenuChrome.ICON_TELEGRAM, LinkenMenuChrome.ICON_DISCORD, 0, 0};
-        String[] labels = {null, null, "LV", "</>"};
+        int[] icons = {LinkenMenuChrome.MENU_ICON_TELEGRAM, LinkenMenuChrome.MENU_ICON_DISCORD, 0,
+            LinkenMenuChrome.MENU_ICON_CODE};
+        String[] labels = {null, null, "LV", null};
         for (int i = 0; i < 4; i++) {
             float x = socials.x() + i * (LinkenMenuLayout.SOCIAL_SIZE + LinkenMenuLayout.SOCIAL_GAP);
             LinkenMenuLayout.Rect tile = new LinkenMenuLayout.Rect(
