@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.113 / D90
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.114 / D91
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.113**
+- Version at handoff: **1.0.114**
 - Tests at handoff: **223 / 0 failures / 0 errors / 0 skipped**
 - Autotest at handoff: **697/697**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.113.jar`
-- Size: **10 708 899 bytes**
-- SHA-256: `ACF84E88C101F902A7F182177573D5DD8BDFDF6191EB212FA35CF0D304FFA03B`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D90.
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.114.jar`
+- Size: **10 742 664 bytes**
+- SHA-256: `66217AE9EDDBE0192925AB4854C6EB52626015B0B9AB555644D42D4C943B5543`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D91.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.113
+Get-Content source/gradle.properties   # mod_version=1.0.114
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #44, D90);
-- `docs/MERGE_DECISIONS.md` — D80–D90;
-- `docs/ROADMAP.md` — M8.10–M8.18a;
-- `docs/PORT_STATUS.md` — M8.14–M8.18a;
+- `docs/HANDOFF.md` — top section (chat #45, D91);
+- `docs/MERGE_DECISIONS.md` — D80–D91;
+- `docs/ROADMAP.md` — M8.10–M8.18b;
+- `docs/PORT_STATUS.md` — M8.14–M8.18b;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -77,6 +77,7 @@ Read first:
 - D88/v1.0.111: donor **CoordinatesHud** — 17 px card, `iconsnew` compass, integer XYZ, two-decimal BPS, animated width/fade, `Coordinates HUD` setting (default off), `coordinates-hud.png` autotest; shared `HudTween`.
 - D89/v1.0.112: donor **server browser 4b** — 1000×272 list window, donor chrome, search/refresh, selected/hover rows, favicon/letter tiles, players/ping, smooth scroll, double-click join, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice; `multiplayer.png` + `multiplayer-add.png`.
 - D90/v1.0.113: donor **secondary/social gradient** material, account-avatar gradient, lowercase RU meta, donor disclaimer line height; RU title/server/modal autotest.
+- D91/v1.0.114: donor **icons2** atlas + `MENU_ICON_*` for main-menu globe/person/gear/power/Telegram/Discord/LV/code.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -170,6 +171,8 @@ source/src/main/java/dev/linkenvisuals/
   hud/UseTrackerHud.java
   render/RoundedRectPipeline.java
   render/Pipelines.java
+  ui/linkmenu/LinkenMenuChrome.java
+  ui/linkmenu/LinkenMenuLayout.java
   mixin/InGameHudMixin.java
   mixin/PlayerListHudMixin.java
   autotest/AutoTestDriver.java
@@ -193,6 +196,7 @@ source/src/test/java/dev/linkenvisuals/
 - **CoordinatesHud**: `CoordinatesHud` in `HudManager.ELEMENTS`; `ModuleRegistry.coordinatesHud()` (default off) gates rendering, edit/chat shows self-preview; BPS = horizontal velocity ×20 (1.21.11 has no public `prevX/prevZ`).
 - **HUD animation**: `HudTween` is the shared time-based linear/ease-out helper; do not duplicate per-element tween classes.
 - **Server browser**: `LinkenMultiplayerScreen` mirrors donor 4b list geometry (1000×272, topbar 68/row 64/footer 76); Add/Edit/Direct/Delete use a 460 px donor-style modal with resource-pack policy. Backend pinned servers are not ported.
+- **Main-menu icons**: use `LinkenFonts.icons2()` / `MENU_ICON_*`; do not swap the global `ICON_*` constants used by ClickGUI and auxiliary screens.
 - **Custom scoreboard**: `ScoreboardHud`; vanilla sidebar cancelled while enabled.
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.

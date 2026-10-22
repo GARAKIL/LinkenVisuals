@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №45 — donor icons2 main-menu set, D91) — v1.0.114
+
+### Сделано
+1. **D91/v1.0.114** (`9883204`): скопирован donor-атлас `icons2` (`fonts/msdf/icons2.json/png/mcmeta`), добавлен `LinkenFonts.icons2()`; main-menu кнопки/account-meta/socials переведены с `wtmico`/`brands` на donor-глифы `MENU_ICON_*` (`A/B/C/D/E/F/H`). Social «code» теперь donor-иконка `H`, а не текст `</>`.
+2. **Визуал**: RU title screenshot — иконки multiplayer (globe), singleplayer (person), settings (gear), quit (power), Telegram/Discord/LV/code совпадают с donor-набором; social-tiles сохраняют donor-градиент D90.
+3. **Проверки**: **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; скрытый runAutotest (RU) **697/697**, 0 fail/skip, 1920×1080; новых ERROR/exception, shader/sound ошибок нет.
+4. **Сборка**: jar `linkenvisuals-1.0.114.jar` (10 742 664 байт, SHA-256 `66217AE9EDDBE0192925AB4854C6EB52626015B0B9AB555644D42D4C943B5543`).
+
+### Следующая задача
+- Реальные server rows/favicons (MOTD/players/ping) на пользовательском списке; favicon rounded-clip.
+- Остаток title media/hover/press-анимаций; затем Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland HUD.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- `icons2` применён только к main menu; остальные LINKEN-экраны пока используют `wtmico`/`iconsfa`.
+- Donor pinned-сервера отсутствуют (network out of scope); favicon без rounded-clip, hatching окна нет.
+- Профиль по умолчанию `language: en_us`; donor UI — RU. Скриншоты autotest 1920×1061 из-за border окна.
+- Полный 100% pixel parity не заявлен.
+
 ## Состояние на 2026-10-22 (чат №44 — menu material/footer pixel pass, D90) — v1.0.113
 
 ### Сделано

@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.113**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.114**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -16,7 +16,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 
 | Area | State | Notes |
 |---|---|---|
-| Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing. |
+| Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing; D91 donor `icons2` main-menu icon set. |
 | Splash/loading | ✅ ported | LINKEN scene + deterministic fallback to vanilla until shaders are ready. |
 | LinkGUI | ✅ ported | 1090×830 main window, 3×102 cards, dock, profile, theme/interface, search, configs, friends/waypoints, media strip, pinned cards. |
 | LinkGUI Interface settings | ✅ ported + scroll | Scale, transparency, cursor tracker, close animation, corner rounding, accent/tints, **HUD Style/Shape**, **custom scoreboard**, **custom tab**. The section is scrollable via mouse wheel. |
@@ -89,7 +89,8 @@ not silently faked; no dead controls are exposed for them.
 
 - `clean build`: **223 tests / 0 failures / 0 errors / 0 skips**.
 - Hidden `runAutotest` (RU profile): **697/697 steps**, no new ERROR/exception,
-  no shader source errors, no unknown sound events.
+  no shader source errors, no unknown sound events; title screenshot includes the
+  donor `icons2` main-menu set.
 - Screenshots at 1280×720 and 1920×1080 for title, LinkGUI, pinned cards,
   custom scoreboard and all eight HUD styles; TargetHUD/CoordinatesHud
   self-previews and the donor server browser + Add modal were captured at

@@ -829,3 +829,12 @@
 - **Сборка**: jar `linkenvisuals-1.0.113.jar` (10 708 899 байт, SHA-256 `ACF84E88C101F902A7F182177573D5DD8BDFDF6191EB212FA35CF0D304FFA03B`).
 - **Commit**: `c1a9b7f` `fix(menu): match donor secondary material and footer spacing (v1.0.113, D90)`.
 - **Остаток**: полный pixel-diff icons/media/hover, real server rows/favicon; donor pinned servers вне scope.
+
+## 2026-10-22 · D91 · Donor icons2 main-menu set — v1.0.114
+- **Атлас**: скопирован donor `icons2` (`fonts/icons2.json/png`) в `assets/linkenvisuals/fonts/msdf/icons2.*` + `.mcmeta` (blur/clamp); `LinkenFonts.icons2()` — ленивая загрузка с fallback/логом, как у остальных атласов.
+- **Глифы**: `MENU_ICON_PERSON='A'`, `MENU_ICON_GEAR='B'`, `MENU_ICON_GLOBE='C'`, `MENU_ICON_POWER='D'`, `MENU_ICON_TELEGRAM='E'`, `MENU_ICON_DISCORD='F'`, `MENU_ICON_PEOPLE='G'`, `MENU_ICON_CODE='H'`. Main-menu `drawButton`, account-meta icon и socials используют `icons2`; social code — глиф `H`, а не текст `</>`.
+- **Почему не глобально**: `wtmico`/`iconsfa` остаются для ClickGUI и подсобных LINKEN-экранов; смена общих `ICON_*` сломала бы их codepoint-контракт. Добавлены отдельные `MENU_ICON_*`.
+- **Evidence**: RU autotest title screenshot — globe/person/gear/power/TG/Discord/LV/code совпадают с donor-набором; **223 теста**, 697/697, 0 fail/skip, 0 новых ERROR/exception/shader/sound.
+- **Сборка**: jar `linkenvisuals-1.0.114.jar` (10 742 664 байт, SHA-256 `66217AE9EDDBE0192925AB4854C6EB52626015B0B9AB555644D42D4C943B5543`).
+- **Commit**: `9883204` `feat(menu): port donor icons2 atlas for main menu (v1.0.114, D91)`.
+- **Остаток**: real server rows/favicon, title media/hover; остальные экраны — на `wtmico`/`iconsfa`.
