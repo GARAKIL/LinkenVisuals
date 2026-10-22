@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №36 — pinned cards + verified shader readiness, D82) — v1.0.105
+
+### Сделано
+1. **D82/v1.0.105** (`6aeb1b3`): найдена причина shader-source race — кастомный `LinkenLoadingScreen` рисовал пайплайны до загрузки `linkenvisuals:core/*`. Readiness теперь выставляется reloader’ом после `ResourceReloaderKeys.Client.SHADERS` + tick-fallback; `Pipelines.warmUp`, splash, loading screen и title не рисуют до готовности. Проверено скрытым `runAutotest`: `Couldn't find source`/`Couldn't compile` больше нет.
+2. **Pinned settings cards**: донорский подход `drawPinnedCard` — карточки закреплённых модулей слева под Profile (справа при закрытой Theme), header toggle/unpin, строки настроек, `...` при переполнении. Под style lock `GUI Style` из pinned card скрыт; переключение Classic/Beta из LinkGUI запрещено. Добавлен тест `pinnedCardsFitBelowProfileAndAboveDock`.
+3. **Autotest**: добавлены LINKEN title, LinkGUI и pinned screenshot; скрытый прогон **625/625, 0 fail/skip**; сняты 1280×720 и 1920×1080, новых ERROR/exception нет.
+4. **Сборка**: **217 тестов, 0 падений/ошибок/скипов**; clean build зелёный; jar `linkenvisuals-1.0.105.jar` (10 662 645 байт, SHA-256 `5DC8AF5AB6F1BA4180013D6D3EAF95343C6850F1C6F17058570DD5B88E072074`).
+
+### Следующая задача
+- **Слуховая приёмка человеком**: kill меч/стрела, streak 2–5, totem, death, low HP, HitSound Bell/Crime/Nya/Uwu/Only Crit, UI/ClickGUI. Лог уже чист от `Unable to play unknown soundEvent`.
+- **Визуальная приёмка человеком**: title + LinkGUI + pinned cards на 1280×720/1920×1080; точные шрифты/отступы/hover.
+- **Остаток strict 1:1**: донорские HUD style/shape и custom scoreboard/tab — либо портировать с backend, либо зафиксировать отклонение; мёртвые контролы не рисовать.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Звук проверен по логу/ассетам и боевому autotest, но не на слух; полный клик-свип UI не автоматизирован.
+- HUD style/shape и scoreboard/tab отсутствуют; это открытый визуальный долг, не «сделано».
+- Точная пиксельная сверка с донором на обоих разрешениях ещё не исчерпывающая.
+- Пока shader sources не готовы, initial splash остаётся vanilla; кастомный splash включается после readiness.
+
 ## Состояние на 2026-10-22 (чат №35 — shader warm-up deferral, D81) — v1.0.104
 
 ### Сделано
