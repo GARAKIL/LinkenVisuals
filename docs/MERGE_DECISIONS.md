@@ -798,3 +798,14 @@
 - **Commit**: `dc7abd0` `feat(hud): port donor TargetHud (v1.0.110, D87)`.
 - **Hidden-run lesson**: сворачивание dev-окна ставит singleplayer на паузу, и `AutoTestDriver.maybeAutoStart` не стартует (currentScreen != null). Для скрытого прогона: `pauseOnLostFocus:false` + вынести окно за пределы desktop через `SetWindowPos` без `SW_MINIMIZE`; после — восстановить `options.txt`.
 - **Остаток**: donor middle-click copy ника не портирован (нет видимого контрола и отдельного notify API); Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland и visual-модули — открыты.
+
+## 2026-10-22 · D88 · Donor CoordinatesHud — v1.0.111
+- **Геометрия**: `CoordinatesHud` повторяет donor-карточку (height `17`, padding `5`, icon `9`, text `7.5`, BPS label `6.5`, bullet `4`, icon spacing `4`, extra `4`); compass-глиф — `"J"` из donor `iconsnew`, fallback на bold-шрифт при отсутствии атласа. Панель идёт через `HudSurface`/`HudStyle`.
+- **Данные**: `floor(player.getX/Y/Z)`; координатный текст ровно donor-формата `" x  y  z"`; BPS с двумя знаками через ручной `hundredths`-формат. В 1.21.11 `prevX/prevZ` недоступны, поэтому BPS = `hypot(velocity.x, velocity.z) * 20` — та же per-tick displacement семантика.
+- **Анимации**: fade `200 мс`, width `200 мс`; в edit-mode ширина сразу target (как donor). Для повторного использования `Tween` вынесен в общий `HudTween`, `TargetHud` переведён на него.
+- **Интеграция**: `Coordinates HUD` (`BooleanSetting`, default `false`) в Interface-группе `ModuleRegistry`, элемент вторым в `HudManager.ELEMENTS`; в edit-mode/чате self-preview, default-позиция top-left под watermark.
+- **Autotest**: 5 новых шагов + `coordinates-hud.png` (compass, `-130 67 617`, `0.00 BPS`). `summonMobs` расширен с 4 до 8 целей, чтобы sweep/ранний kill не приводил к skip на attack-шагах. Итог **692/692**, 0 fail/skip, 1920×1080.
+- **Проверки**: **223 теста, 0 падений/ошибок/скипов** (3 новых `CoordinatesHudTest`); clean build зелёный; новых ERROR/exception, shader-source/compile ошибок и unknown sound events нет. В `latest.log` только offline-auth/Realms ERROR dev-сессии.
+- **Сборка**: jar `linkenvisuals-1.0.111.jar` (10 699 109 байт, SHA-256 `3BED0F4CC5E7CD3BF1100FB1BDA444DDFBA4BAA1C4E2A3B05339DED2D4D0AFD2`).
+- **Commit**: `16be18e` `feat(hud): port donor CoordinatesHud (v1.0.111, D88)`.
+- **Остаток**: middle-click copy координат не портирован; default-позиция отличается от donor center-spawn; Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland и visual-модули — открыты.

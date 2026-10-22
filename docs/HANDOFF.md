@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №42 — donor CoordinatesHud, D88) — v1.0.111
+
+### Сделано
+1. **D88/v1.0.111** (`16be18e`): портирован donor `CoordinatesHud`. Карточка 17 px: compass-глиф `J` из `iconsnew` 9 px, integer `X Y Z` шрифтом 7.5, bullet 4 px, `BPS` 6.5, padding 5, animated width 200 мс; панель — `HudSurface`/`HudStyle` (все 8 стилей и border smoothness).
+2. **Поведение**: координаты `floor(player.X/Y/Z)`, BPS с двумя знаками, self-preview в edit-mode/чате; настройка `Coordinates HUD` (BooleanSetting, default OFF) в Interface-группе; элемент в `HudManager.ELEMENTS`, drag/snap работают. Общий `HudTween` вынесен из TargetHud и переиспользован.
+3. **BPS**: в 1.21.11 поля `prevX/prevZ` недоступны, поэтому скорость считается как `hypot(velocity.x, velocity.z) * 20` — эквивалент donor per-tick displacement.
+4. **Autotest**: +5 шагов (`enable`, `open preview`, `check`, `screenshot coordinates-hud`, `close`); снят `coordinates-hud.png` (compass, `-130 67 617`, `0.00 BPS`). Дополнительно `summonMobs` расширен до 8 целей, чтобы 4 attack-шага не скипались после sweep/раннего kill.
+5. **Проверки**: **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; скрытый runAutotest **692/692**, 0 fail/skip, 1920×1080; новых ERROR/exception, shader-source/compile и unknown sound events — 0. `latest.log` содержит только прежние offline-auth/Realms ERROR.
+6. **Сборка**: jar `linkenvisuals-1.0.111.jar` (10 699 109 байт, SHA-256 `3BED0F4CC5E7CD3BF1100FB1BDA444DDFBA4BAA1C4E2A3B05339DED2D4D0AFD2`).
+
+### Следующая задача
+- `CooldownsHud` — следующий HUD-элемент по donor `hud/impl/CooldownsHud.java`, затем Armor/Inventory/HelperItems/LowArmor/DynamicIsland.
+- Visual-модули из `FEATURE_PARITY.md`; human sound/visual acceptance; multiplayer Custom Tab.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- CoordinatesHud проверен self-preview’ом и idle BPS; движение/смена знаков BPS — за человеком.
+- Donor middle-click copy координат не портирован (нет видимого контрола и отдельного notify API).
+- Default-позиция карточки — top-left под watermark, не donor center-spawn; выбрана, чтобы не пересекаться с TargetHud в нашем layout.
+- Полный donor parity не закрыт; открытые пункты в `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-22 (чат №41 — donor TargetHud, D87) — v1.0.110
 
 ### Сделано
