@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №37 — donor HUD parity, D83) — v1.0.106
+
+### Сделано
+1. **D83/v1.0.106** (`7bfc584`): HUD Style (8) и HUD Shape (3) добавлены в Interface-группу LinkGUI и применены центрально через `HudStyle`/`HudSurface`; Interface-секция получила scroll/scrollbar.
+2. **Custom Scoreboard**: новый `ScoreboardHud` + настройки Custom Scoreboard/Radius/Opacity; vanilla sidebar отменяется, пока custom включён; autotest создаёт временный objective и снимает `scoreboard.png`.
+3. **Custom Tab**: настройки Custom Tab/Colour/Opacity + mixin background по захваченным границам; путь render/mixin проверен в runClient, визуальный multiplayer-скриншот — за человеком.
+4. **Parity audit**: `docs/FEATURE_PARITY.md` перечисляет ported/covered/open/excluded; полный donor parity **не** заявлен.
+5. **Проверки**: **218 тестов, 0 падений**; clean build зелёный; скрытый autotest **661/661**, 1920×1080, новых ERROR/exception, shader-source и unknown-sound-event ошибок нет. Jar `linkenvisuals-1.0.106.jar` (10 676 970 байт, SHA-256 `92A68738DC89F5F38066B5F86D8FCD216EAA49670443D9ABD8B41008EC5A8A14`).
+
+### Следующая задача
+- Выбрать следующий parity-срез из `FEATURE_PARITY.md`: TargetHud/Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland, CameraSettings/AspectRatio/CustomHitBox/Vitals/DamageParticles/HitRange/ItemRadius/NoRender/Optimization/Particles/Trajectories/KillStreak/ViewModel.
+- Проверить Custom Tab на multiplayer-сервере (singleplayer без entries не рисует список).
+- Человеческая приёмка звуков/визуала; точный donor pixel diff.
+
+### Риски
+- Custom Tab визуально не подтверждён в singleplayer; mixin/путь рендера проверен.
+- Новые HUD-настройки сохраняются generic ConfigJson, отдельного schema bump не было.
+- HUD Style/Shape применены к поверхностям `HudSurface`; часть мелких внутренних радиусов элементов остаётся собственной.
+- Полный donor parity не закрыт; см. audit.
+
 ## Состояние на 2026-10-22 (чат №36 — pinned cards + verified shader readiness, D82) — v1.0.105
 
 ### Сделано
