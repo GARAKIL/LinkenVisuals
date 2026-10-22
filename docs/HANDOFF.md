@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №35 — shader warm-up deferral, D81) — v1.0.104
+
+### Сделано
+1. **D81/v1.0.104** (`1713548`): `Pipelines.warmUp()` убран из `Fonts.ensure`/`LinkenFonts.ensure`; `LinkenMainMenuScreen.init` больше не прогревает пайплайны; `render` не рисует меню, пока `client.getOverlay() != null`, и вызывает `warmUp` только после снятия splash/resource-overlay. Кандидат-фикс shader-source race; в runClient **не проверен**.
+2. **Strict 1:1**: зафиксированы отклонения — pinned settings cards (донорский `drawPinnedCard`) не портированы (пины только всплывают в сетке); HUD style/shape и custom scoreboard/tab отсутствуют в backend, мёртвые контролы не рисуются.
+3. **Сборка**: **216 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.104.jar` (10 657 617 байт, SHA-256 `179E5F2623AA41B49171D5397CA99EC7F5730011CB3E724FC3399AE7FE04F4D2`). Minecraft не запускался.
+
+### Следующая задача
+- **Явно запросить разрешение на runClient** и провести:
+  - приёмку боевых звуков D80 (kill меч/стрела, streak 2–5, totem, death, low HP, HitSound Bell/Crime/Nya/Uwu/Only Crit, UI/ClickGUI);
+  - проверку `latest.log` на `Unable to play unknown soundEvent`, vanilla-звуки и shader-source race;
+  - визуальную приёмку 1280×720/1920×1080 (pinned cards/HUD/scoreboard/tab и точные отступы).
+- После приёмки — либо портировать pinned cards + HUD/scoreboard/tab, либо оставить зафиксированное отклонение.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Shader-фикс не проверен в игре; возможно, ошибки останутся или проявятся на другом этапе загрузки.
+- Боевые cues и media-трек не проверены живьём в этом чате.
+- Pinned cards / HUD style/shape / scoreboard/tab — открытый визуальный долг.
+- Точная пиксельная сверка на 1920×1080 ещё не выполнена.
+
 ## Состояние на 2026-10-21 (чат №34 — donor sounds + menu track, D80) — v1.0.103
 
 ### Сделано
