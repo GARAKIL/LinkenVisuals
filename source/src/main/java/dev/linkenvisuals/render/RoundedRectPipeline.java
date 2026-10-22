@@ -23,6 +23,7 @@ public final class RoundedRectPipeline {
 
     private static final RenderPipeline FILL = build("rounded_rect", "core/rounded_rect");
     private static final RenderPipeline OUTLINE = build("rounded_rect_outline", "core/rounded_rect_outline");
+    private static final RenderPipeline BORDER = buildBorder();
 
     private RoundedRectPipeline() {
     }
@@ -37,6 +38,20 @@ public final class RoundedRectPipeline {
                 .withVertexShader(LinkenVisuals.id("core/rounded_rect"))
                 .withFragmentShader(LinkenVisuals.id(shader))
                 .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR, com.mojang.blaze3d.vertex.VertexFormat.DrawMode.QUADS)
+                .withBlend(BlendFunction.TRANSLUCENT)
+                .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+                .withCull(false)
+                .build());
+    }
+
+    private static RenderPipeline buildBorder() {
+        return Pipelines.register(
+            RenderPipeline.builder(RenderPipelines.TRANSFORMS_AND_PROJECTION_SNIPPET)
+                .withLocation(LinkenVisuals.id("pipeline/rounded_rect_border"))
+                .withVertexShader(LinkenVisuals.id("core/rounded_rect_border"))
+                .withFragmentShader(LinkenVisuals.id("core/rounded_rect_border"))
+                .withVertexFormat(VertexFormats.POSITION_TEXTURE_COLOR_NORMAL,
+                    com.mojang.blaze3d.vertex.VertexFormat.DrawMode.QUADS)
                 .withBlend(BlendFunction.TRANSLUCENT)
                 .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
                 .withCull(false)
@@ -71,6 +86,76 @@ public final class RoundedRectPipeline {
     public static void drawHorizontalGradient(DrawContext context, float x, float y, float width, float height,
                                                float radius, int left, int right) {
         quad(context, FILL, x, y, width, height, radius, 0.0f, left, left, right, right);
+    }
+
+    /**
+     * Donor-compatible soft border: thickness and edge smoothness are passed
+     * through vertex normals to the dedicated border shader. A thickness of
+     * zero reproduces the donor {@code drawBorder} default.
+     */
+    public static void drawBorder(DrawContext context, float x, float y, float width, float height,
+                                  float radius, float thickness, float internalSmoothness,
+                                  float externalSmoothness, int argb) {
+        if (width <= 0.0f || height <= 0.0f) {
+            return;
+        }
+        MinecraftClient mc = MinecraftClient.getInstance();
+        float guiScale = mc != null && mc.getWindow() != null ? (float) mc.getWindow().getScaleFactor() : 1.0f;
+        float radiusPx = radius * guiScale;
+        float thicknessPx = Math.max(0.0f, thickness * guiScale);
+        float internalPx = Math.max(0.5f, internalSmoothness * guiScale);
+        float externalPx = Math.max(0.5f, externalSmoothness * guiScale);
+
+        Matrix3x2f pose = new Matrix3x2f(context.getMatrices());
+        float z = radiusPx;
+
+        ScreenRect bounds = new ScreenRect(
+            (int) Math.floor(x),
+            (int) Math.floor(y),
+            (int) Math.ceil(width),
+            (int) Math.ceil(height)
+        ).transformEachVertex(pose);
+
+        ScreenRect scissor = context.scissorStack != null ? context.scissorStack.peekLast() : null;
+
+        context.state.addSimpleElement(new SimpleGuiElementRenderState() {
+            @Override
+            public void setupVertices(VertexConsumer consumer) {
+                Vector2f p0 = pose.transformPosition(x, y, new Vector2f());
+                Vector2f p1 = pose.transformPosition(x, y + height, new Vector2f());
+                Vector2f p2 = pose.transformPosition(x + width, y + height, new Vector2f());
+                Vector2f p3 = pose.transformPosition(x + width, y, new Vector2f());
+
+                consumer.vertex(p0.x, p0.y, z).texture(0.0f, 0.0f).color(argb)
+                    .normal(thicknessPx, internalPx, externalPx);
+                consumer.vertex(p1.x, p1.y, z).texture(0.0f, 1.0f).color(argb)
+                    .normal(thicknessPx, internalPx, externalPx);
+                consumer.vertex(p2.x, p2.y, z).texture(1.0f, 1.0f).color(argb)
+                    .normal(thicknessPx, internalPx, externalPx);
+                consumer.vertex(p3.x, p3.y, z).texture(1.0f, 0.0f).color(argb)
+                    .normal(thicknessPx, internalPx, externalPx);
+            }
+
+            @Override
+            public RenderPipeline pipeline() {
+                return BORDER;
+            }
+
+            @Override
+            public TextureSetup textureSetup() {
+                return TextureSetup.empty();
+            }
+
+            @Override
+            public ScreenRect scissorArea() {
+                return scissor;
+            }
+
+            @Override
+            public ScreenRect bounds() {
+                return bounds;
+            }
+        });
     }
 
     private static void quad(DrawContext context, RenderPipeline pipeline, float x, float y, float width, float height, float radius, float thickness, int argb) {

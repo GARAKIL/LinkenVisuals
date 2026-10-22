@@ -73,8 +73,8 @@ public final class HudStyle {
         int accent = accent(element);
         switch (variant()) {
             case CARD -> {
-                RoundedRectPipeline.drawOutline(context, x - 6.0f, y - 6.0f + 1.5f,
-                    width + 12.0f, height + 12.0f, radius + 6.0f, 1.5f,
+                RoundedRectPipeline.drawBorder(context, x - 6.0f, y - 6.0f + 1.5f,
+                    width + 12.0f, height + 12.0f, radius + 6.0f, 0.0f, 1.5f, 6.0f,
                     ColorMath.withAlpha(0x000000, Math.round(46.0f * a)));
                 RoundedRectPipeline.drawVerticalGradient(context, x, y, width, height, radius,
                     hudShade(base, accent, 0.05f, Math.round(238.0f * a)),
@@ -90,7 +90,7 @@ public final class HudStyle {
                     ColorMath.withAlpha(0x000000, Math.round(58.0f * a)));
                 int border = ColorMath.mix(ColorMath.mix(base,
                     LinkGuiTheme.isLight() ? 0x000000 : 0xFFFFFF, 0.14f), accent, 0.35f);
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 1.6f,
                     ColorMath.withAlpha(border, Math.round(120.0f * a)));
                 RoundedRectPipeline.draw(context, x + radius, y + 1.0f,
                     width - radius * 2.0f, 1.0f, 0.5f,
@@ -108,8 +108,8 @@ public final class HudStyle {
                     ColorMath.withAlpha(Theme.secondary(), Math.round(235.0f * a)));
             }
             case NEON -> {
-                RoundedRectPipeline.drawOutline(context, x - 5.0f, y - 5.0f,
-                    width + 10.0f, height + 10.0f, radius + 5.0f, 1.5f,
+                RoundedRectPipeline.drawBorder(context, x - 5.0f, y - 5.0f,
+                    width + 10.0f, height + 10.0f, radius + 5.0f, 0.0f, 1.5f, 5.0f,
                     ColorMath.withAlpha(accent, Math.round(72.0f * a)));
                 RoundedRectPipeline.drawVerticalGradient(context, x, y, width, height, radius,
                     hudShade(base, accent, 0.02f, Math.round(236.0f * a)),
@@ -117,10 +117,10 @@ public final class HudStyle {
                 RoundedRectPipeline.draw(context, x + radius, y + 1.2f,
                     width - radius * 2.0f, 1.0f, 0.5f,
                     ColorMath.withAlpha(0xFFFFFF, Math.round(22.0f * a)));
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 2.0f,
                     ColorMath.withAlpha(accent, Math.round(220.0f * a)));
-                RoundedRectPipeline.drawOutline(context, x + 1.2f, y + 1.2f,
-                    width - 2.4f, height - 2.4f, Math.max(0.0f, radius - 1.2f), 1.0f,
+                RoundedRectPipeline.drawBorder(context, x + 1.2f, y + 1.2f,
+                    width - 2.4f, height - 2.4f, Math.max(0.0f, radius - 1.2f), 0.0f, 1.0f, 1.2f,
                     ColorMath.withAlpha(accent, Math.round(60.0f * a)));
             }
             case AURORA -> {
@@ -138,7 +138,7 @@ public final class HudStyle {
                     barWidth, height - radius * 1.1f, barWidth * 0.5f,
                     ColorMath.withAlpha(accent, Math.round(240.0f * a)),
                     ColorMath.withAlpha(Theme.secondary(), Math.round(240.0f * a)));
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.1f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.1f, 2.6f,
                     ColorMath.withAlpha(accent, Math.round(125.0f * a)));
             }
             case SOLID -> {
@@ -146,7 +146,7 @@ public final class HudStyle {
                 int fill = ColorMath.mix(base, 0x000000, 0.10f);
                 RoundedRectPipeline.draw(context, x, y, width, height, r,
                     ColorMath.withAlpha(fill, Math.round(246.0f * a)));
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, r, 1.0f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, r, 0.0f, 1.0f, 2.0f,
                     ColorMath.withAlpha(accent, Math.round(135.0f * a)));
             }
             case GRADIENT -> {
@@ -160,7 +160,7 @@ public final class HudStyle {
                     width - radius, stripeHeight, stripeHeight * 0.5f,
                     ColorMath.withAlpha(accent, Math.round(220.0f * a)),
                     ColorMath.withAlpha(Theme.secondary(), Math.round(220.0f * a)));
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 2.0f,
                     ColorMath.withAlpha(accent, Math.round(95.0f * a)));
             }
             case OUTLINE -> {
@@ -180,7 +180,7 @@ public final class HudStyle {
                     length, thickness, thickness * 0.5f, border);
                 RoundedRectPipeline.draw(context, x + width - thickness, y + height - length,
                     thickness, length, thickness * 0.5f, border);
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 2.0f,
                     ColorMath.withAlpha(accent, Math.round(80.0f * a)));
             }
             default -> {
@@ -189,7 +189,7 @@ public final class HudStyle {
                 RoundedRectPipeline.drawVerticalGradient(context, x, y, width, height, radius,
                     ColorMath.withAlpha(top, Math.round(232.0f * a)),
                     ColorMath.withAlpha(bottom, Math.round(246.0f * a)));
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+                RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 2.0f,
                     ColorMath.withAlpha(accent, Math.round(115.0f * a)));
             }
         }
@@ -207,10 +207,10 @@ public final class HudStyle {
             inset(Math.round(205.0f * a)));
         Variant variant = variant();
         if (variant == Variant.OUTLINE || variant == Variant.GRADIENT) {
-            RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+            RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 1.6f,
                 ColorMath.withAlpha(accent, Math.round(70.0f * a)));
         } else if (variant == Variant.CARD || variant == Variant.NEON) {
-            RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
+            RoundedRectPipeline.drawBorder(context, x, y, width, height, radius, 0.0f, 1.0f, 1.4f,
                 ColorMath.withAlpha(LinkGuiTheme.isLight() ? 0x000000 : 0xFFFFFF,
                     Math.round(34.0f * a)));
         }
