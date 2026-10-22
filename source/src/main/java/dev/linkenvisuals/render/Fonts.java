@@ -47,7 +47,6 @@ public final class Fonts {
         }
         attempted = true;
         try {
-            Pipelines.warmUp();
             titleFont = GlyphAtlas.load(TITLE_FONT_DATA, TITLE_FONT_ATLAS);
             textFont = GlyphAtlas.load(TEXT_FONT_DATA, TEXT_FONT_ATLAS);
         } catch (Exception e) {

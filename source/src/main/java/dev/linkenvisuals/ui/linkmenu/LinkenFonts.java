@@ -3,7 +3,6 @@ package dev.linkenvisuals.ui.linkmenu;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.render.GlyphAtlas;
-import dev.linkenvisuals.render.Pipelines;
 import net.minecraft.util.Identifier;
 
 /**
@@ -96,11 +95,6 @@ public final class LinkenFonts {
             return;
         }
         attempted = true;
-        try {
-            Pipelines.warmUp();
-        } catch (RuntimeException failure) {
-            LinkenVisuals.LOGGER.warn("LINKEN menu pipeline warm-up failed: {}", failure.getMessage());
-        }
         body = load("golos");
         bodyMedium = load("golos_semi");
         heading = load("unbounded");
