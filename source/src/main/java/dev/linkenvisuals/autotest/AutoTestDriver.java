@@ -284,6 +284,9 @@ public final class AutoTestDriver {
         STEPS.clear();
 
         add("screenshot world", 2, () -> screenshot(client, "world"));
+        add("set minimal hud", 1, () -> ModuleRegistry.hudStyle().select(1));
+        add("screenshot minimal hud", 4, () -> screenshot(client, "hud-minimal"));
+        add("restore hud style", 1, () -> ModuleRegistry.hudStyle().select(0));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");

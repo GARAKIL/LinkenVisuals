@@ -81,13 +81,17 @@ public final class HudStyle {
                 NeonEdge.frame(context, x, y, width, height, 0, alpha);
             }
             case MINIMAL -> {
-                RoundedRectPipeline.draw(context, x, y, width, height, radius,
-                    ColorMath.withAlpha(BODY, Math.round(168 * alpha)));
-                RoundedRectPipeline.draw(context, x + 2.0f, y + 3.0f, 2.0f,
-                    Math.max(2.0f, height - 6.0f), 1.0f,
-                    ColorMath.withAlpha(Theme.accent(), Math.round(220 * alpha)));
-                RoundedRectPipeline.drawOutline(context, x, y, width, height, radius,
-                    ColorMath.withAlpha(0xFFFFFF, Math.round(18 * alpha)));
+                // Donor Minimal: a low-alpha tinted body and a thin vertical
+                // accent gradient rail, with a 4 px radius cap and no border.
+                float minimalRadius = Math.min(radius, 4.0f);
+                float barWidth = 2.2f;
+                float barInset = Math.min(height * 0.18f, radius + 1.0f);
+                RoundedRectPipeline.draw(context, x, y, width, height, minimalRadius,
+                    ColorMath.withAlpha(mixAccentIntoBody(0.02f), Math.round(120 * alpha)));
+                context.fillGradient(Math.round(x + 2.0f), Math.round(y + barInset),
+                    Math.round(x + 2.0f + barWidth), Math.round(y + height - barInset),
+                    ColorMath.withAlpha(Theme.accent(), Math.round(235 * alpha)),
+                    ColorMath.withAlpha(Theme.secondary(), Math.round(235 * alpha)));
             }
             case NEON -> {
                 RoundedRectPipeline.draw(context, x, y, width, height, radius,
@@ -147,5 +151,9 @@ public final class HudStyle {
             ColorMath.withAlpha(BODY, Math.round(200 * alpha)));
         RoundedRectPipeline.drawOutline(context, x, y, width, height, radius,
             ColorMath.withAlpha(0xFFFFFF, Math.round(20 * alpha)));
+    }
+
+    private static int mixAccentIntoBody(float amount) {
+        return ColorMath.mix(BODY, Theme.accent(), amount);
     }
 }
