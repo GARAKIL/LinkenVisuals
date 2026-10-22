@@ -228,8 +228,14 @@ public final class HudStyle {
         return ColorMath.withAlpha(ColorMath.mix(base, accent, amount), alpha);
     }
 
-    private static int inset(int alpha) {
-        int mixed = ColorMath.mix(base(), LinkGuiTheme.isLight() ? 0x000000 : 0xFFFFFF, 0.16f);
+    /** Donor {@code themeInset}: theme/base colour mixed 16 % toward the contrast colour. */
+    public static int inset(int alpha) {
+        return inset(alpha, 0.16f);
+    }
+
+    /** Donor {@code themeInset(alpha, mix)} used by item cells and tinted plates. */
+    public static int inset(int alpha, float mix) {
+        int mixed = ColorMath.mix(base(), LinkGuiTheme.isLight() ? 0x000000 : 0xFFFFFF, mix);
         return ColorMath.withAlpha(mixed, alpha);
     }
 }

@@ -13,9 +13,11 @@ import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.hud.TargetHud;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -292,6 +294,19 @@ public final class AutoTestDriver {
             add("screenshot hud " + label, 10, () -> screenshot(client, "hud-" + label));
         }
         add("restore hud style", 10, () -> ModuleRegistry.hudStyle().select(0));
+        add("enable target hud", 1, () -> {
+            if (ModuleRegistry.targetHud() != null) {
+                ModuleRegistry.targetHud().setValue(true);
+            }
+        });
+        add("open target hud preview", 3, () -> client.setScreen(new ChatScreen("", false)));
+        add("check target hud", 5, () -> {
+            if (!TargetHud.lastRenderVisible()) {
+                throw new IllegalStateException("TargetHUD не отрисовался в preview");
+            }
+        });
+        add("screenshot target hud", 1, () -> screenshot(client, "target-hud"));
+        add("close target hud preview", 3, () -> client.setScreen(null));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");
