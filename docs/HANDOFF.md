@@ -2,6 +2,29 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №43 — donor server browser, D89) — v1.0.112
+
+### Сделано
+1. **D89/v1.0.112** (`05111f2`): `LinkenMultiplayerScreen` переписан с 3×3-сетки на donor 4b list-layout: окно 1000×272 (topbar 68, rows 64, footer 76), `WIN_TOP=168`, padding 22, search 320 (+24 при фокусе), refresh 36×36, back-chip 38, account-pill под wordmark, clock/version/music chrome.
+2. **Список**: row tile 38, favicon/letter tile, name 11.5 + version chip 9, MOTD 12, players mono 11, ping-bars 4×3 px, selected accent bar/фон, hover, smooth scroll, двойной клик = join; empty state и Add.
+3. **Формы**: donor-размер 460, поля 36, labels 11/12.5, resource-pack segmented choice (Disabled/Prompt/Enabled), primary/cancel 44, `Modal.ADD/EDIT/DIRECT/DELETE`; сохранение policy в `ServerInfo`.
+4. **i18n**: 29 новых ключей `linkenvisuals.multiplayer.*` в en/ru/uk (title/back/search/join/add/direct/empty/not_found/change/ms/forms/packs); LangParityTest зелёный.
+5. **Autotest**: +5 шагов — open Linken multiplayer, screenshot `multiplayer.png`, open Add modal, screenshot `multiplayer-add.png`, close. Итог **697/697**, 0 fail/skip, 1920×1080.
+6. **Проверки**: **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; новых ERROR/exception, shader-source/compile и unknown sound events — 0. `latest.log` содержит только прежние offline-auth/Realms ERROR.
+7. **Сборка**: jar `linkenvisuals-1.0.112.jar` (10 708 865 байт, SHA-256 `B3819CEA7FF717FA79A9C8B5022D743855B6DC1E9D447F4A41C3CAC6EDA91994`).
+
+### Следующая задача
+- Доводка pixel-diff title/menu (тексты/иконки/footer) и server forms; donor backend pinned servers не портированы (network out of scope).
+- Проверка списка с реальными серверами и favicon-ами; human visual acceptance.
+- HUD-элементы дальше: Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Donor pinned-сервера приходят с бэкенда (`UserSyncManager`), у нас их нет; локальный список показывает пустое состояние.
+- Favicon рисуется квадратом 32 внутри tile 38 без rounded-clip; hatching окна не портирован.
+- Метки в скриншотах EN, потому что `linkenvisuals_config.json` = `language: en_us`; donor UI хардкодит RU. Для пиксельной сверки ставить RU.
+- Полный donor parity не закрыт; открытые пункты в `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-22 (чат №42 — donor CoordinatesHud, D88) — v1.0.111
 
 ### Сделано

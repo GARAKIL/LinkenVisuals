@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.111**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.112**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -23,7 +23,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | Pinned cards | ✅ ported | Left below Profile / right when Theme is closed; per-card toggle, unpin, settings, truncation marker. |
 | Style lock | ✅ preserved | Linken → Classic/Beta is blocked; `GUI Style` is hidden in Linken settings/pinned cards. |
 | Settings hub/subpages | ✅ ported | Language, keybinds, resource packs, skin, graphics, credits where applicable. |
-| Multiplayer / Alt Manager / Select World | ✅ ported | LINKEN chrome; select-world uses vanilla `WorldListWidget` as backend. |
+| Multiplayer / Alt Manager / Select World | ✅ ported | Donor server browser 4b: 1000×272 list window, selected/hover rows, favicon/letter tiles, players/ping, search/refresh, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice (D89). Backend pinned servers are not ported. Select-world uses vanilla `WorldListWidget` as backend. |
 | Pause menu | ✅ ported | Donor-style pause screen. |
 | Inventory / Create/Edit World / death | ⚪ vanilla by design | Donor also uses vanilla for these paths. |
 
@@ -88,19 +88,20 @@ not silently faked; no dead controls are exposed for them.
 ## Verification used for this snapshot
 
 - `clean build`: **223 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **692/692 steps**, no new ERROR/exception, no shader
+- Hidden `runAutotest`: **697/697 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events.
 - Screenshots at 1280×720 and 1920×1080 for title, LinkGUI, pinned cards,
-  custom scoreboard and all eight HUD styles; the TargetHUD and CoordinatesHud
-  self-previews were captured at 1920×1080. Custom-tab path renders/injects
-  without mixin errors, but a singleplayer list does not show entries, so its
-  visual check needs a multiplayer server.
+  custom scoreboard and all eight HUD styles; TargetHUD/CoordinatesHud
+  self-previews and the donor server browser + Add modal were captured at
+  1920×1080. Custom-tab path renders/injects without mixin errors, but a
+  singleplayer list does not show entries, so its visual check needs a
+  multiplayer server.
 - Beta/Classic GUI shells were opened/closed by autotest; style lock remains.
 
 ## Bottom line
 
 The **LinkGUI + title + settings + HUD material/shape + TargetHud +
-CoordinatesHud + pinned cards + custom scoreboard/tab** slice is now in place.
-Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab**
+slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.111 / D88
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.112 / D89
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.111**
+- Version at handoff: **1.0.112**
 - Tests at handoff: **223 / 0 failures / 0 errors / 0 skipped**
-- Autotest at handoff: **692/692**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.111.jar`
-- Size: **10 699 109 bytes**
-- SHA-256: `3BED0F4CC5E7CD3BF1100FB1BDA444DDFBA4BAA1C4E2A3B05339DED2D4D0AFD2`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D88.
+- Autotest at handoff: **697/697**, no new ERROR/exception
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.112.jar`
+- Size: **10 708 865 bytes**
+- SHA-256: `B3819CEA7FF717FA79A9C8B5022D743855B6DC1E9D447F4A41C3CAC6EDA91994`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D89.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.111
+Get-Content source/gradle.properties   # mod_version=1.0.112
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #42, D88);
-- `docs/MERGE_DECISIONS.md` — D80–D88;
-- `docs/ROADMAP.md` — M8.10–M8.17b;
-- `docs/PORT_STATUS.md` — M8.14–M8.17b;
+- `docs/HANDOFF.md` — top section (chat #43, D89);
+- `docs/MERGE_DECISIONS.md` — D80–D89;
+- `docs/ROADMAP.md` — M8.10–M8.18;
+- `docs/PORT_STATUS.md` — M8.14–M8.18;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -75,6 +75,7 @@ Read first:
 - D86/v1.0.109: donor **border smoothness** via `rounded_rect_border` pipeline (`POSITION_TEXTURE_COLOR_NORMAL`; thickness/internal/external through normals, radius through Position.z).
 - D87/v1.0.110: donor **TargetHud** — 104×30 card + armour/offhand row, crosshair/aim-cone + LOS target pick with 1 s hold, head/HP/absorption/durability/hit flash, `Target HUD` setting, `target-hud.png` autotest.
 - D88/v1.0.111: donor **CoordinatesHud** — 17 px card, `iconsnew` compass, integer XYZ, two-decimal BPS, animated width/fade, `Coordinates HUD` setting (default off), `coordinates-hud.png` autotest; shared `HudTween`.
+- D89/v1.0.112: donor **server browser 4b** — 1000×272 list window, donor chrome, search/refresh, selected/hover rows, favicon/letter tiles, players/ping, smooth scroll, double-click join, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice; `multiplayer.png` + `multiplayer-add.png`.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -130,7 +131,7 @@ Hidden/automated smoke test (requires explicit user permission):
 
 - Autotest opens both GUIs, LinkGUI, title, inventory, attacks mobs, sweeps every module/setting, takes screenshots and writes a report.
 - Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`.
-- Expected at handoff: **692/692**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
+- Expected at handoff: **697/697**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
 - Restore `run/options.txt` after the run.
 
 Jar check:
@@ -157,6 +158,7 @@ source/src/main/java/dev/linkenvisuals/
   hud/CoordinatesHud.java
   hud/HudTween.java
   hud/ScoreboardHud.java
+  ui/linkmenu/LinkenMultiplayerScreen.java
   hud/Watermark.java
   hud/KeybindPanel.java
   hud/HotbarHud.java
@@ -189,6 +191,7 @@ source/src/test/java/dev/linkenvisuals/
 - **TargetHud**: `TargetHud` in `HudManager.ELEMENTS`; `ModuleRegistry.targetHud()` gates rendering, edit/chat shows self-preview; favours crosshair over aim-cone and holds the last target for 1 s.
 - **CoordinatesHud**: `CoordinatesHud` in `HudManager.ELEMENTS`; `ModuleRegistry.coordinatesHud()` (default off) gates rendering, edit/chat shows self-preview; BPS = horizontal velocity ×20 (1.21.11 has no public `prevX/prevZ`).
 - **HUD animation**: `HudTween` is the shared time-based linear/ease-out helper; do not duplicate per-element tween classes.
+- **Server browser**: `LinkenMultiplayerScreen` mirrors donor 4b list geometry (1000×272, topbar 68/row 64/footer 76); Add/Edit/Direct/Delete use a 460 px donor-style modal with resource-pack policy. Backend pinned servers are not ported.
 - **Custom scoreboard**: `ScoreboardHud`; vanilla sidebar cancelled while enabled.
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
@@ -208,4 +211,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test`, then pick **CooldownsHud** as the next remaining HUD element. Implement it in our `HudElement` architecture using donor `CooldownsHud.java` as the behavioral reference, add it to `HudManager.ELEMENTS`, add an autotest screenshot/check, and keep the existing HUD style/border pipeline intact. Do not touch the already working title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud slices unless a test proves a regression.
+Read the docs and current code, run `test`, then continue the **pixel-diff pass on the menu**: compare `LinkenMainMenuScreen` and `LinkenMultiplayerScreen` against the donor 1280×720/1920×1080 screenshots, fix remaining text/icon/footer/server-row differences, and only then move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud.

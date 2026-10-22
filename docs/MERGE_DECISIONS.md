@@ -809,3 +809,14 @@
 - **Сборка**: jar `linkenvisuals-1.0.111.jar` (10 699 109 байт, SHA-256 `3BED0F4CC5E7CD3BF1100FB1BDA444DDFBA4BAA1C4E2A3B05339DED2D4D0AFD2`).
 - **Commit**: `16be18e` `feat(hud): port donor CoordinatesHud (v1.0.111, D88)`.
 - **Остаток**: middle-click copy координат не портирован; default-позиция отличается от donor center-spawn; Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland и visual-модули — открыты.
+
+## 2026-10-22 · D89 · Donor server browser layout — v1.0.112
+- **Layout**: `LinkenMultiplayerScreen` переписан с 3×3 grid на donor `CustomMultiplayerScreen` 4b: `WIN_W=1000`, `WIN_TOP=168`, topbar `68`, row `64`, footer `76`, `PAD_X=22`, tile `38`; maxRows считается от `1080-44-110`; empty list = один row.
+- **Chrome**: back-chip 56/44 (`h38`, icon 17), centered account pill под wordmark, `LinkenMenuChrome.drawClock`, version label `by @emper0rhero`, media strip 320×86; search 320 (+24 при фокусе) и refresh 36×36.
+- **Rows**: selected accent 0.05 + 2 px bar, hover white 0.035, hairline white 0.05; favicon/letter tile; name UNBOUNDED 11.5 + version chip PLEXMONO 9; MOTD GOLOS 12; players PLEXMONO 11; ping-bars 4×3 (5/8/11/14) и `NN мс`; smooth scroll + scissor, double-click join.
+- **Forms**: donor `MultiplayerModal` geometry — width 460, field 36, labels GOLOS 11, values GOLOS 12.5, resource-pack segmented choice (3×), primary/cancel 44; сохранение `ResourcePackPolicy` в `ServerInfo`. Add/Edit/Direct/Delete — рабочие.
+- **i18n**: 29 ключей `linkenvisuals.multiplayer.*` в en/ru/uk; LangParityTest зелёный. Метки берут язык из конфига мода (`en_us` в текущем профиле), поэтому скриншоты EN, а donor UI — RU.
+- **Autotest**: +5 шагов (open screen, screenshot `multiplayer.png`, open Add modal, screenshot `multiplayer-add.png`, close); **697/697**, 0 fail/skip, 1920×1080; новых ERROR/exception/shader/sound ошибок нет.
+- **Проверки**: **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; jar `linkenvisuals-1.0.112.jar` (10 708 865 байт, SHA-256 `B3819CEA7FF717FA79A9C8B5022D743855B6DC1E9D447F4A41C3CAC6EDA91994`).
+- **Commit**: `05111f2` `feat(menu): match donor server browser layout (v1.0.112, D89)`.
+- **Остаток**: donor backend pinned servers (`UserSyncManager`) вне scope; favicon без rounded-clip; window hatching не портирован; title/menu text/icon pixel diff и реальные server rows/favicons — на следующую итерацию.
