@@ -15,6 +15,7 @@ import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.hud.CoordinatesHud;
 import dev.linkenvisuals.hud.TargetHud;
+import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
@@ -321,6 +322,15 @@ public final class AutoTestDriver {
         });
         add("screenshot coordinates hud", 1, () -> screenshot(client, "coordinates-hud"));
         add("close coordinates hud preview", 3, () -> client.setScreen(null));
+        add("open linken multiplayer", 5, () -> client.setScreen(new LinkenMultiplayerScreen(null)));
+        add("screenshot linken multiplayer", 2, () -> screenshot(client, "multiplayer"));
+        add("open multiplayer add modal", 2, () -> {
+            if (client.currentScreen instanceof LinkenMultiplayerScreen screen) {
+                screen.openAddModalForTest();
+            }
+        });
+        add("screenshot multiplayer add", 1, () -> screenshot(client, "multiplayer-add"));
+        add("close linken multiplayer", 2, () -> client.setScreen(null));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");

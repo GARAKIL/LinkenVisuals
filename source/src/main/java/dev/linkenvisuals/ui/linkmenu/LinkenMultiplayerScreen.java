@@ -1,13 +1,15 @@
 package dev.linkenvisuals.ui.linkmenu;
 
-import dev.linkenvisuals.audio.LinkenSounds;
-
 import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.audio.LinkenMenuMusic;
+import dev.linkenvisuals.audio.LinkenSounds;
 import dev.linkenvisuals.i18n.I18n;
-import dev.linkenvisuals.render.CirclePipeline;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.IconPipeline;
+import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Spring;
+import dev.linkenvisuals.ui.Theme;
+import dev.linkenvisuals.util.ColorMath;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
@@ -21,25 +23,51 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.ServerList;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.network.NetworkingBackend;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.lwjgl.glfw.GLFW;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * LINKEN server browser. It owns its data model (vanilla {@link ServerList}),
- * pinger and a small custom text-input modal so the whole screen can share the
- * 1920x1080 LINKEN chrome instead of the Beta browser.
+ * Donor-style LINKEN server browser. Geometry follows the donor
+ * {@code CustomMultiplayerScreen} 4b handoff: a 1000-wide window at y=168,
+ * 68 px topbar, 64 px rows, 76 px footer and a search/filter list.
+ *
+ * <p>The data model stays native to our port ({@link ServerList},
+ * {@link MultiplayerServerListPinger}); donor backend-pinned servers and
+ * UserSync are intentionally not part of this slice.</p>
  */
 public final class LinkenMultiplayerScreen extends Screen {
-    private static final int COLUMNS = 3;
-    private static final int ROWS = 3;
-    private static final int PER_PAGE = COLUMNS * ROWS;
+    private static final float WIN_W = 1000.0f;
+    private static final float WIN_TOP = 168.0f;
+    private static final float TOPBAR_H = 68.0f;
+    private static final float ROW_H = 64.0f;
+    private static final float FOOTER_H = 76.0f;
+    private static final float PAD_X = 22.0f;
+    private static final float TILE = 38.0f;
+
+    private static final int ICON_ARROW_LEFT = 0xF060;
+    private static final int ICON_ARROW_RIGHT = 0xF061;
+    private static final int ICON_REFRESH = 0xF021;
+    private static final int ICON_SEARCH = 0xF002;
+    private static final int ICON_GEAR = 0xF013;
+    private static final int ICON_TRASH = 0xF1F8;
+    private static final int ICON_PLUS = 0xF067;
+    private static final int ICON_CLOSE = 0xF00D;
 
     private enum Modal {
         NONE, ADD, EDIT, DIRECT, DELETE
@@ -47,69 +75,78 @@ public final class LinkenMultiplayerScreen extends Screen {
 
     private final Screen parent;
     private final Spring openSpring = new Spring(0.0, 900.0, 42.0);
-    private final Spring backSpring = new Spring(0.0, 900.0, 50.0);
-    private final Spring[] cardHover = new Spring[PER_PAGE];
-    private final Spring[] toolbarHover = new Spring[4];
-    private final Spring prevSpring = new Spring(0.0, 900.0, 50.0);
-    private final Spring nextSpring = new Spring(0.0, 900.0, 50.0);
-    private final Spring modalCancelSpring = new Spring(0.0, 900.0, 50.0);
-    private final Spring modalConfirmSpring = new Spring(0.0, 900.0, 50.0);
-    private final Spring modalCloseSpring = new Spring(0.0, 900.0, 50.0);
+    private final Spring backHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring changeHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring refreshHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring searchFocus = new Spring(0.0, 900.0, 50.0);
+    private final Spring searchHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring editHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring deleteHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring directHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring addHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring addEmptyHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring joinHover = new Spring(0.0, 900.0, 50.0);
+    private final Map<ServerInfo, Spring> rowHover = new IdentityHashMap<>();
+    private final Map<ServerInfo, Identifier> faviconIds = new IdentityHashMap<>();
+    private final Set<ServerInfo> faviconTried = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final List<NativeImageBackedTexture> faviconTextures = new ArrayList<>();
+
     private ServerList serverList;
     private final MultiplayerServerListPinger pinger = new MultiplayerServerListPinger();
     private final List<ServerInfo> servers = new ArrayList<>();
+    private final List<ServerInfo> visible = new ArrayList<>();
+    private final List<LinkenMenuLayout.Rect> rowRects = new ArrayList<>();
+
     private int selected = -1;
-    private int page;
-    private int lastClickedIndex = -1;
-    private long lastClickTime;
-    private long lastFrame = System.nanoTime();
-    private boolean openSoundPlayed;
+    private String query = "";
+    private boolean searchFocused;
+    private float scroll;
+    private float scrollTarget;
+    private long lastClickMs;
+    private int lastClickIndex = -1;
+    private int faviconSerial;
+
+    private long openMs;
+    private long lastFrameMs = System.nanoTime();
+    private float parallaxX;
+    private float parallaxY;
+
     private Modal modal = Modal.NONE;
     private String nameInput = "";
     private String addressInput = "";
     private int focusedField = -1;
-    private long caretTick;
     private String modalError;
+    private int packPolicy = 1;
+    private LinkenMenuLayout.Rect[] packRects = new LinkenMenuLayout.Rect[3];
 
     private LinkenMenuLayout.Rect backRect;
-    private LinkenMenuLayout.Rect addRect;
-    private LinkenMenuLayout.Rect directRect;
+    private LinkenMenuLayout.Rect changeRect;
     private LinkenMenuLayout.Rect refreshRect;
-    private final LinkenMenuLayout.Rect[] cardRects = new LinkenMenuLayout.Rect[PER_PAGE];
-    private LinkenMenuLayout.Rect joinRect;
+    private LinkenMenuLayout.Rect searchRect;
     private LinkenMenuLayout.Rect editRect;
     private LinkenMenuLayout.Rect deleteRect;
-    private LinkenMenuLayout.Rect prevRect;
-    private LinkenMenuLayout.Rect nextRect;
-    private LinkenMenuLayout.Rect nameFieldRect;
-    private LinkenMenuLayout.Rect addressFieldRect;
+    private LinkenMenuLayout.Rect directRect;
+    private LinkenMenuLayout.Rect addRect;
+    private LinkenMenuLayout.Rect addEmptyRect;
+    private LinkenMenuLayout.Rect joinRect;
     private LinkenMenuLayout.Rect modalCancelRect;
     private LinkenMenuLayout.Rect modalConfirmRect;
     private LinkenMenuLayout.Rect modalCloseRect;
+    private LinkenMenuLayout.Rect nameFieldRect;
+    private LinkenMenuLayout.Rect addressFieldRect;
     private LinkenMenuLayout.Rect modalBounds;
 
     public LinkenMultiplayerScreen(Screen parent) {
-        super(Text.literal("Multiplayer"));
+        super(Text.literal(I18n.get("linkenvisuals.multiplayer.title")));
         this.parent = parent;
-        for (int i = 0; i < cardHover.length; i++) {
-            cardHover[i] = new Spring(0.0, 900.0, 50.0);
-        }
-        for (int i = 0; i < toolbarHover.length; i++) {
-            toolbarHover[i] = new Spring(0.0, 900.0, 50.0);
-        }
     }
 
     @Override
     protected void init() {
-        if (client != null && client.getSoundManager() != null) {
-            client.getSoundManager().play(PositionedSoundInstance.ui(LinkenVisuals.OPEN_SOUND, 0.9f, 1.0f));
-            openSoundPlayed = true;
-        }
+        openMs = System.currentTimeMillis();
         serverList = new ServerList(client);
         serverList.loadFile();
         refreshServers();
-        openSpring.reset(0.0);
-        lastFrame = System.nanoTime();
     }
 
     @Override
@@ -120,23 +157,15 @@ public final class LinkenMultiplayerScreen extends Screen {
     private void refreshServers() {
         pinger.cancel();
         servers.clear();
-        if (serverList == null) {
-            return;
+        if (serverList != null) {
+            for (int i = 0; i < serverList.size(); i++) {
+                ServerInfo info = serverList.get(i);
+                servers.add(info);
+                info.setStatus(ServerInfo.Status.INITIAL);
+                Util.getIoWorkerExecutor().execute(() -> ping(info));
+            }
         }
-        for (int i = 0; i < serverList.size(); i++) {
-            ServerInfo info = serverList.get(i);
-            servers.add(info);
-            info.setStatus(ServerInfo.Status.INITIAL);
-            Util.getIoWorkerExecutor().execute(() -> ping(info));
-        }
-        int pages = pageCount();
-        if (page >= pages) {
-            page = Math.max(0, pages - 1);
-        }
-        if (selected >= servers.size()) {
-            selected = servers.isEmpty() ? -1 : servers.size() - 1;
-        }
-        ensureSelectedVisible();
+        rebuildVisible();
     }
 
     private void ping(ServerInfo info) {
@@ -153,420 +182,718 @@ public final class LinkenMultiplayerScreen extends Screen {
                 }
             }, () -> {
                 if (client != null) {
-                    client.execute(() -> {
-                        // Legacy or otherwise incompatible servers still return
-                        // their MOTD before the pinger rejects the protocol.
-                        info.setStatus(info.label != null && info.protocolVersion > 0
-                            ? ServerInfo.Status.INCOMPATIBLE
-                            : ServerInfo.Status.UNREACHABLE);
-                    });
+                    client.execute(() -> info.setStatus(info.label != null && info.protocolVersion > 0
+                        ? ServerInfo.Status.INCOMPATIBLE
+                        : ServerInfo.Status.UNREACHABLE));
                 }
             }, backend);
-        } catch (UnknownHostException failure) {
-            info.setStatus(ServerInfo.Status.UNREACHABLE);
-        } catch (Exception failure) {
+        } catch (UnknownHostException | RuntimeException failure) {
             info.setStatus(ServerInfo.Status.UNREACHABLE);
         }
     }
 
-    private int pageCount() {
-        return Math.max(1, (servers.size() + PER_PAGE - 1) / PER_PAGE);
-    }
+    // ------------------------------------------------------------------ list state
 
-    private int startIndex() {
-        return page * PER_PAGE;
-    }
-
-    private void ensureSelectedVisible() {
-        if (selected >= 0 && (selected < startIndex() || selected >= startIndex() + PER_PAGE)) {
-            page = selected / PER_PAGE;
+    private void rebuildVisible() {
+        visible.clear();
+        String needle = query.trim().toLowerCase(Locale.ROOT);
+        for (ServerInfo info : servers) {
+            if (needle.isEmpty() || matches(info, needle)) {
+                visible.add(info);
+            }
         }
+        if (selected >= visible.size()) {
+            selected = visible.isEmpty() ? -1 : visible.size() - 1;
+        }
+        clampScroll();
     }
+
+    private static boolean matches(ServerInfo info, String needle) {
+        String name = cleanName(info).toLowerCase(Locale.ROOT);
+        String address = info.address == null ? "" : info.address.toLowerCase(Locale.ROOT);
+        String motd = motdText(info).toLowerCase(Locale.ROOT);
+        return name.contains(needle) || address.contains(needle) || motd.contains(needle);
+    }
+
+    private void clampScroll() {
+        scrollTarget = Math.max(0.0f, Math.min(scrollTarget,
+            Math.max(0.0f, visible.size() * ROW_H - listHeight())));
+        scroll = Math.max(0.0f, Math.min(scroll, Math.max(0.0f, visible.size() * ROW_H - listHeight())));
+    }
+
+    private int maxRows() {
+        float bottomLimit = 1080.0f - 44.0f - 110.0f;
+        float available = bottomLimit - WIN_TOP - TOPBAR_H - FOOTER_H;
+        return Math.max(1, (int) Math.floor(available / ROW_H));
+    }
+
+    private float listHeight() {
+        int rows = Math.min(Math.max(visible.size(), 1), maxRows());
+        return rows * ROW_H;
+    }
+
+    private float windowHeight() {
+        return TOPBAR_H + listHeight() + FOOTER_H;
+    }
+
+    private float windowX(float virtualWidth) {
+        return virtualWidth * 0.5f - WIN_W * 0.5f;
+    }
+
+    // ------------------------------------------------------------------ render
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         long now = System.nanoTime();
-        float seconds = Math.min((now - lastFrame) / 1_000_000_000.0f, 0.05f);
-        lastFrame = now;
-        openSpring.step(modal == Modal.NONE ? 1.0 : 0.86, seconds);
-        float fade = (float) openSpring.get();
+        float seconds = Math.min((now - lastFrameMs) / 1_000_000_000.0f, 0.05f);
+        lastFrameMs = now;
+        openSpring.step(1.0, seconds);
 
         LinkenMenuLayout.Metrics metrics = LinkenMenuLayout.compute(width, height);
-        float mx = mouseX / metrics.scale();
-        float my = mouseY / metrics.scale();
+        float scale = metrics.scale();
+        float vw = metrics.width();
+        float vh = 1080.0f;
+        float mx = mouseX / scale;
+        float my = mouseY / scale;
+
+        float targetParX = Math.max(-1.0f, Math.min(1.0f, (mx - vw * 0.5f) / (vw * 0.5f)));
+        float targetParY = Math.max(-1.0f, Math.min(1.0f, (my - vh * 0.5f) / (vh * 0.5f)));
+        parallaxX += (targetParX - parallaxX) * 0.08f;
+        parallaxY += (targetParY - parallaxY) * 0.08f;
 
         context.getMatrices().pushMatrix();
-        context.getMatrices().scale(metrics.scale(), metrics.scale());
-        LinkenMenuChrome.drawBackground(context, metrics, 0.0f, 0.0f, 1.0f);
-        GlowPipeline.radial(context, metrics.width() * 0.55f, 470.0f, 720.0f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 10, fade));
+        context.getMatrices().scale(scale, scale);
+        LinkenMenuChrome.drawBackground(context, metrics, parallaxX, parallaxY, 1.0f);
 
-        context.getMatrices().translate(0.0f, (1.0f - fade) * 18.0f);
-        LinkenMenuChrome.drawWordmark(context, fade);
-        LinkenMenuChrome.drawClock(context, metrics, fade);
+        drawBackChip(context, mx, my, scale, seconds);
+        LinkenMenuChrome.drawWordmark(context, metrics, 1.0f);
+        drawAccountPill(context, vw, mx, my, scale, seconds);
+        LinkenMenuChrome.drawClock(context, metrics, 1.0f);
+        drawVersionLabel(context, vh);
+        LinkenMenuChrome.drawMusic(context, metrics.music(), LinkenMenuMusic.track(), 1.0f, scale);
 
-        backRect = new LinkenMenuLayout.Rect(metrics.width() - LinkenMenuLayout.MARGIN - 132.0f,
-            104.0f, 132.0f, 44.0f);
-        drawChip(context, metrics, backRect, "BACK", LinkenMenuChrome.ICON_POWER, mx, my, fade, backSpring, seconds);
-
-        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "SERVER BROWSER",
-            LinkenMenuLayout.MARGIN, 146.0f, 8.5f, 1.6f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), "MULTIPLAYER",
-            LinkenMenuLayout.MARGIN, 162.0f, 40.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
-        String savedLabel = servers.size() == 1 ? "1 SAVED SERVER" : servers.size() + " SAVED SERVERS";
-        LinkenMenuChrome.drawText(context, LinkenFonts.body(),
-            servers.isEmpty() ? "NO SERVERS SAVED YET" : savedLabel + "  /  DOUBLE CLICK TO JOIN",
-            LinkenMenuLayout.MARGIN, 218.0f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
-
-        float actionY = 160.0f;
-        addRect = new LinkenMenuLayout.Rect(metrics.width() - LinkenMenuLayout.MARGIN - 164.0f, actionY, 164.0f, 50.0f);
-        directRect = new LinkenMenuLayout.Rect(addRect.x() - 12.0f - 210.0f, actionY, 210.0f, 50.0f);
-        drawButton(context, metrics, addRect, "ADD SERVER", true, mx, my, fade, 0.3f, seconds);
-        drawButton(context, metrics, directRect, "DIRECT CONNECT", false, mx, my, fade, 1.3f, seconds);
-
-        float gridTop = 256.0f;
-        float gapX = 16.0f;
-        float gapY = 16.0f;
-        float gridWidth = metrics.width() - LinkenMenuLayout.MARGIN * 2.0f;
-        float cardWidth = (gridWidth - gapX * (COLUMNS - 1)) / COLUMNS;
-        float cardHeight = 198.0f;
-
-        for (int i = 0; i < PER_PAGE; i++) {
-            int index = startIndex() + i;
-            int column = i % COLUMNS;
-            int row = i / COLUMNS;
-            LinkenMenuLayout.Rect rect = new LinkenMenuLayout.Rect(
-                LinkenMenuLayout.MARGIN + column * (cardWidth + gapX),
-                gridTop + row * (cardHeight + gapY), cardWidth, cardHeight);
-            cardRects[i] = rect;
-            if (index >= servers.size()) {
-                cardHover[i].step(0.0, seconds);
-                continue;
-            }
-            drawServerCard(context, metrics, servers.get(index), index, rect, mx, my, fade, seconds, i);
-        }
-
-        if (servers.isEmpty()) {
-            drawEmptyState(context, metrics, gridTop, cardWidth, cardHeight, fade);
-        }
-
-        float toolbarY = gridTop + ROWS * cardHeight + (ROWS - 1) * gapY + 22.0f;
-        drawToolbar(context, metrics, mx, my, fade, seconds, toolbarY);
+        float open = (float) openSpring.get();
+        float openEase = 1.0f - (1.0f - open) * (1.0f - open) * (1.0f - open);
+        context.getMatrices().pushMatrix();
+        context.getMatrices().translate(0.0f, (1.0f - openEase) * 18.0f);
+        drawWindow(context, vw, vh, mx, my, scale, seconds);
+        context.getMatrices().popMatrix();
         context.getMatrices().popMatrix();
 
         if (modal != Modal.NONE) {
             context.fill(0, 0, width, height, 0xA8050806);
             context.getMatrices().pushMatrix();
-            context.getMatrices().scale(metrics.scale(), metrics.scale());
-            drawModal(context, metrics, mx, my, fade, seconds);
+            context.getMatrices().scale(scale, scale);
+            drawModal(context, metrics, mx, my, 1.0f, seconds);
             context.getMatrices().popMatrix();
         }
     }
 
-    private void drawChip(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
-                          String label, int icon, float mx, float my, float fade, Spring spring, float seconds) {
-        boolean hovered = rect.contains(mx, my);
-        spring.step(hovered ? 1.0 : 0.0, seconds);
-        float hover = (float) spring.get();
-        LinkenMenuChrome.drawSecondary(context, rect.x(), rect.y(), rect.width(), rect.height(),
-            8.0f, hover, false, fade, metrics.scale());
-        float iconX = rect.x() + 16.0f;
-        if (LinkenFonts.icons() != null) {
-            IconPipeline.draw(context, LinkenFonts.icons(), icon, iconX + 7.0f,
-                rect.y() + rect.height() * 0.5f, 14.0f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.MUTED2, LinkenMenuChrome.ACCENT, hover), fade));
-        }
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), label, iconX + 24.0f,
-            rect.y() + 15.0f, 10.5f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.TEXT3, LinkenMenuChrome.TEXT, hover), fade));
+    private void drawBackChip(DrawContext context, float mx, float my, float scale, float seconds) {
+        String label = I18n.get("linkenvisuals.multiplayer.back");
+        float labelWidth = LinkenMenuChrome.textWidth(LinkenFonts.heading(), label, 10.0f);
+        float width = 12.0f + 17.0f + 9.0f + labelWidth + 15.0f;
+        float x = 56.0f;
+        float y = 44.0f;
+        backHover.step(backRect != null && backRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        float hover = (float) backHover.get();
+        LinkenMenuChrome.drawSecondary(context, x, y - hover, width, 38.0f, 8.0f,
+            hover, false, 1.0f, scale);
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_ARROW_LEFT, x + 20.5f,
+            y - hover + 19.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED, 1.0f));
+        LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), label, x + 38.0f,
+            y - hover + 19.0f, 10.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+        backRect = new LinkenMenuLayout.Rect(x, y, width, 38.0f);
     }
 
-    private void drawButton(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
-                            String label, boolean primary, float mx, float my, float fade, float index, float seconds) {
-        int slot = (int) index;
-        Spring spring = toolbarHover[slot % toolbarHover.length];
-        boolean hovered = rect.contains(mx, my);
-        spring.step(hovered ? 1.0 : 0.0, seconds);
-        float hover = (float) spring.get();
-        if (primary) {
-            LinkenMenuChrome.roundedFill(context, rect.x() + 4.0f, rect.y() + rect.height() - 6.0f,
-                rect.width() - 8.0f, 12.0f, 8.0f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(55 + 35 * hover), fade), metrics.scale());
-            LinkenMenuChrome.roundedFill(context, rect.x(), rect.y() - hover, rect.width(), rect.height(), 8.0f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.ACCENT, 0xFFFFFF, hover * 0.07f), fade),
-                metrics.scale());
-        } else {
-            LinkenMenuChrome.drawSecondary(context, rect.x(), rect.y() - hover, rect.width(), rect.height(),
-                8.0f, hover, false, fade, metrics.scale());
-        }
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), label,
-            rect.x() + rect.width() * 0.5f, rect.y() + 15.0f - hover, 10.5f,
-            LinkenMenuChrome.rgba(primary ? LinkenMenuChrome.INK : LinkenMenuChrome.TEXT3, fade));
+    private void drawAccountPill(DrawContext context, float vw, float mx, float my,
+                                 float scale, float seconds) {
+        String nick = LinkenMenuChrome.username();
+        String change = I18n.get("linkenvisuals.multiplayer.change");
+        float nickWidth = LinkenMenuChrome.textWidth(LinkenFonts.heading(), nick, 11.0f);
+        float changeWidth = LinkenMenuChrome.textWidth(LinkenFonts.body(), change, 11.0f);
+        float width = 5.0f + 26.0f + 10.0f + nickWidth + 10.0f + 1.0f + 10.0f + changeWidth + 7.0f;
+        float x = vw * 0.5f - width * 0.5f;
+        float y = 98.0f;
+        LinkenMenuChrome.drawSecondary(context, x, y, width, 34.0f, 17.0f, 0.0f,
+            false, 1.0f, scale);
+
+        float ax = x + 5.0f;
+        float ay = y + 4.0f;
+        RoundedRectPipeline.drawVerticalGradient(context, ax, ay, 26.0f, 26.0f, 13.0f * scale,
+            ColorMath.withAlpha(0x2A3830, 255), ColorMath.withAlpha(0x101613, 255));
+        RoundedRectPipeline.drawBorder(context, ax, ay, 26.0f, 26.0f, 13.0f * scale,
+            1.0f * scale, 1.4f * scale, 1.4f * scale,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 82, 1.0f));
+        String initial = nick.isEmpty() ? "?" : nick.substring(0, 1).toUpperCase(Locale.ROOT);
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), initial, ax + 13.0f,
+            ay + 13.0f, 9.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 1.0f));
+
+        float tx = ax + 26.0f + 10.0f;
+        LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), nick, tx, y + 17.0f, 11.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, 1.0f));
+        tx += nickWidth + 10.0f;
+        context.fill(Math.round(tx), Math.round(y + 10.0f), Math.round(tx + 1.0f),
+            Math.round(y + 24.0f), LinkenMenuChrome.rgba(0xFFFFFF, 31, 1.0f));
+        tx += 11.0f;
+
+        float cx = tx + changeWidth * 0.5f;
+        changeHover.step(changeRect != null && changeRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        float hover = (float) changeHover.get();
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), change, cx, y + 16.0f,
+            11.0f, LinkenMenuChrome.rgba(
+                LinkenMenuChrome.mix(LinkenMenuChrome.MUTED2, LinkenMenuChrome.ACCENT, hover), 1.0f));
+        changeRect = new LinkenMenuLayout.Rect(tx, y, changeWidth, 34.0f);
     }
 
-    private void drawServerCard(DrawContext context, LinkenMenuLayout.Metrics metrics, ServerInfo info, int index,
-                                LinkenMenuLayout.Rect rect, float mx, float my, float fade, float seconds, int slot) {
-        boolean hovered = rect.contains(mx, my);
-        cardHover[slot].step(hovered ? 1.0 : 0.0, seconds);
-        float hover = (float) cardHover[slot].get();
-        boolean active = index == selected;
-
-        int fill = LinkenMenuChrome.mix(0x111713, 0x18211B, hover);
-        LinkenMenuChrome.roundedFill(context, rect.x(), rect.y() - hover * 2.0f, rect.width(), rect.height(),
-            12.0f, LinkenMenuChrome.rgba(fill, 238, fade), metrics.scale());
-        int border = active ? LinkenMenuChrome.ACCENT : 0xFFFFFF;
-        int alpha = active ? 170 : Math.round(20 + hover * 50);
-        LinkenMenuChrome.roundedOutline(context, rect.x(), rect.y() - hover * 2.0f, rect.width(), rect.height(),
-            12.0f, active ? 1.4f : 1.0f, LinkenMenuChrome.rgba(border, alpha, fade), metrics.scale());
-
-        float iconSize = 48.0f;
-        float iconX = rect.x() + 18.0f;
-        float iconY = rect.y() + 18.0f - hover * 2.0f;
-        LinkenMenuChrome.roundedFill(context, iconX, iconY, iconSize, iconSize, 9.0f,
-            LinkenMenuChrome.rgba(active ? LinkenMenuChrome.mix(LinkenMenuChrome.ACCENT, 0x0A0F0C, 0.35f) : 0x253029, 220, fade), metrics.scale());
-        String initial = info.name == null || info.name.isBlank()
-            ? "?" : info.name.substring(0, 1).toUpperCase(Locale.ROOT);
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), initial,
-            iconX + iconSize * 0.5f, iconY + 10.0f, 23.0f,
-            LinkenMenuChrome.rgba(active ? LinkenMenuChrome.INK : LinkenMenuChrome.TEXT2, fade));
-
-        float textX = iconX + iconSize + 14.0f;
-        float textRight = rect.right() - 18.0f;
-        String name = LinkenMenuChrome.ellipsize(LinkenFonts.headingLight(),
-            info.name == null ? "SERVER" : info.name, textRight - textX, 15.0f);
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), name,
-            textX, rect.y() + 21.0f - hover * 2.0f, 15.0f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
-        String address = LinkenMenuChrome.ellipsize(LinkenFonts.mono(), info.address,
-            textRight - textX, 9.5f);
-        LinkenMenuChrome.drawText(context, LinkenFonts.mono(), address,
-            textX, rect.y() + 44.0f - hover * 2.0f, 9.5f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
-
-        String motd = info.label == null ? "" : info.label.getString().replace('\n', ' ');
-        motd = LinkenMenuChrome.ellipsize(LinkenFonts.body(), motd, rect.width() - 36.0f, 10.0f);
-        if (motd.isBlank()) {
-            motd = "NO DESCRIPTION";
-        }
-        LinkenMenuChrome.drawText(context, LinkenFonts.body(), motd,
-            rect.x() + 18.0f, rect.y() + 86.0f - hover * 2.0f, 10.0f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT3, fade));
-
-        String status = statusLabel(info);
-        int statusColor = statusColor(info);
-        CirclePipeline.draw(context, rect.x() + 22.0f, rect.bottom() - 27.0f - hover * 2.0f, 4.0f,
-            LinkenMenuChrome.rgba(statusColor, 220, fade));
-        LinkenMenuChrome.drawText(context, LinkenFonts.body(), status,
-            rect.x() + 32.0f, rect.bottom() - 35.0f - hover * 2.0f, 9.0f,
-            LinkenMenuChrome.rgba(statusColor, fade));
-        String ping = info.getStatus() == ServerInfo.Status.SUCCESSFUL && info.ping > 0
-            ? info.ping + " ms" : "";
-        if (!ping.isBlank()) {
-            LinkenMenuChrome.drawRightText(context, LinkenFonts.mono(), ping,
-                rect.right() - 18.0f, rect.bottom() - 35.0f - hover * 2.0f, 9.0f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
-        }
-        if (active) {
-            LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "SELECTED",
-                rect.right() - 74.0f, rect.y() + 66.0f - hover * 2.0f, 7.0f, 1.1f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
-        }
+    private void drawVersionLabel(DrawContext context, float vh) {
+        LinkenMenuChrome.drawText(context, LinkenFonts.mono(), "by @emper0rhero", 56.0f,
+            vh - 44.0f - 11.0f, 9.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED4, 1.0f));
     }
 
-    private void drawEmptyState(DrawContext context, LinkenMenuLayout.Metrics metrics, float gridTop,
-                                float cardWidth, float cardHeight, float fade) {
-        float cx = metrics.width() * 0.5f;
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "NOTHING HERE YET",
-            cx, gridTop + 70.0f, 22.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, fade));
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), "ADD A SERVER OR USE DIRECT CONNECT",
-            cx, gridTop + 106.0f, 10.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
+    private void drawWindow(DrawContext context, float vw, float vh, float mx, float my,
+                            float scale, float seconds) {
+        float x = windowX(vw);
+        float y = WIN_TOP;
+        float w = WIN_W;
+        float h = windowHeight();
+
+        windowMaterial(context, x, y, w, h, scale);
+        drawTopbar(context, x, y, w, mx, my, scale, seconds);
+        float listTop = y + TOPBAR_H;
+        drawList(context, x, listTop, w, listHeight(), mx, my, scale, seconds);
+        drawFooter(context, x, y + h - FOOTER_H, w, mx, my, scale, seconds);
+        corners(context, x, y, w, h, scale);
     }
 
-    private void drawToolbar(DrawContext context, LinkenMenuLayout.Metrics metrics, float mx, float my,
-                             float fade, float seconds, float y) {
-        joinRect = new LinkenMenuLayout.Rect(LinkenMenuLayout.MARGIN, y, 206.0f, 46.0f);
-        editRect = new LinkenMenuLayout.Rect(joinRect.right() + 12.0f, y, 96.0f, 46.0f);
-        deleteRect = new LinkenMenuLayout.Rect(editRect.right() + 8.0f, y, 96.0f, 46.0f);
-        refreshRect = new LinkenMenuLayout.Rect(deleteRect.right() + 8.0f, y, 112.0f, 46.0f);
-
-        drawToolbarButton(context, metrics, joinRect, selected >= 0 ? "JOIN SERVER" : "SELECT A SERVER",
-            selected >= 0, mx, my, fade, seconds, 0);
-        drawToolbarButton(context, metrics, editRect, "EDIT", selected >= 0, mx, my, fade, seconds, 1);
-        drawToolbarButton(context, metrics, deleteRect, "DELETE", selected >= 0, mx, my, fade, seconds, 2);
-        drawToolbarButton(context, metrics, refreshRect, "REFRESH", true, mx, my, fade, seconds, 3);
-
-        if (selected >= 0 && selected < servers.size()) {
-            String name = LinkenMenuChrome.ellipsize(LinkenFonts.body(), servers.get(selected).name,
-                280.0f, 10.0f);
-            LinkenMenuChrome.drawText(context, LinkenFonts.body(), "SELECTED  /  " + name,
-                refreshRect.right() + 18.0f, y + 17.0f, 9.5f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
+    private void windowMaterial(DrawContext context, float x, float y, float w, float h, float scale) {
+        for (int i = 6; i >= 1; i--) {
+            float spread = i * 2.6f;
+            RoundedRectPipeline.draw(context, x - spread, y - spread + 10.0f,
+                w + spread * 2.0f, h + spread * 2.0f, (12.0f + spread) * scale,
+                ColorMath.withAlpha(0x000000, Math.round(10.0f - i * 0.9f)));
         }
-
-        float navX = metrics.width() - LinkenMenuLayout.MARGIN - 160.0f;
-        prevRect = new LinkenMenuLayout.Rect(navX, y, 44.0f, 46.0f);
-        nextRect = new LinkenMenuLayout.Rect(navX + 116.0f, y, 44.0f, 46.0f);
-        boolean canPrev = page > 0;
-        boolean canNext = page + 1 < pageCount();
-        drawToolbarButton(context, metrics, prevRect, "<", canPrev, mx, my, fade, seconds, 0);
-        drawToolbarButton(context, metrics, nextRect, ">", canNext, mx, my, fade, seconds, 0);
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), (page + 1) + " / " + pageCount(),
-            navX + 80.0f, y + 16.0f, 10.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
-    }
-
-    private void drawToolbarButton(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
-                                   String label, boolean enabled, float mx, float my, float fade, float seconds, int slot) {
-        boolean hovered = enabled && rect.contains(mx, my);
-        Spring spring = toolbarHover[slot % toolbarHover.length];
-        spring.step(hovered ? 1.0 : 0.0, seconds);
-        float hover = (float) spring.get();
-        if (slot == 0) {
-            if (enabled) {
-                LinkenMenuChrome.roundedFill(context, rect.x() + 4.0f, rect.y() + rect.height() - 5.0f,
-                    rect.width() - 8.0f, 10.0f, 7.0f,
-                    LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(45 + 35 * hover), fade), metrics.scale());
+        for (int i = 6; i >= 1; i--) {
+            float spread = i * 2.6f;
+            int alpha = Math.round(41.0f * (1.0f - (i - 1) / 6.0f) / 6.0f * 2.2f);
+            if (alpha <= 0) {
+                continue;
             }
-            LinkenMenuChrome.roundedFill(context, rect.x(), rect.y() - hover, rect.width(), rect.height(), 7.0f,
-                LinkenMenuChrome.rgba(enabled
-                    ? LinkenMenuChrome.mix(LinkenMenuChrome.ACCENT, 0xFFFFFF, hover * 0.07f)
-                    : 0x202622, fade), metrics.scale());
-        } else {
-            LinkenMenuChrome.drawSecondary(context, rect.x(), rect.y() - hover, rect.width(), rect.height(),
-                7.0f, enabled ? hover : 0.0f, false, fade, metrics.scale());
+            RoundedRectPipeline.draw(context, x - spread, y - spread,
+                w + spread * 2.0f, h + spread * 2.0f, (12.0f + spread) * scale,
+                ColorMath.withAlpha(LinkenMenuChrome.ACCENT, Math.min(255, alpha)));
         }
-        int color = enabled ? (slot == 0 ? LinkenMenuChrome.INK : LinkenMenuChrome.TEXT3) : LinkenMenuChrome.MUTED4;
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), label,
-            rect.x() + rect.width() * 0.5f, rect.y() + 14.0f - hover, 9.5f,
-            LinkenMenuChrome.rgba(color, fade));
+
+        RoundedRectPipeline.drawVerticalGradient(context, x, y, w, h, 12.0f * scale,
+            ColorMath.withAlpha(0x111A15, 230), ColorMath.withAlpha(0x050807, 230));
+        RoundedRectPipeline.drawVerticalGradient(context, x, y, w, Math.min(240.0f, h), 12.0f * scale,
+            ColorMath.withAlpha(LinkenMenuChrome.ACCENT, 18), ColorMath.withAlpha(LinkenMenuChrome.ACCENT, 0));
+        context.fill(Math.round(x + 12.0f), Math.round(y + 1.0f),
+            Math.round(x + w - 12.0f), Math.round(y + 2.0f),
+            LinkenMenuChrome.rgba(0xFFFFFF, 13, 1.0f));
+        RoundedRectPipeline.drawBorder(context, x, y, w, h, 12.0f * scale,
+            1.0f * scale, 1.4f * scale, 1.4f * scale,
+            LinkenMenuChrome.rgba(0xFFFFFF, 23, 1.0f));
     }
+
+    private void corners(DrawContext context, float x, float y, float w, float h, float scale) {
+        int color = LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 237, 1.0f);
+        float size = 20.0f;
+        float thickness = 2.0f;
+        float offset = 14.0f;
+        RoundedRectPipeline.draw(context, x + offset, y + offset, size, thickness,
+            thickness * 0.5f * scale, color);
+        RoundedRectPipeline.draw(context, x + offset, y + offset, thickness, size,
+            thickness * 0.5f * scale, color);
+        float brx = x + w - offset + 2.0f;
+        float bry = y + h - offset + 2.0f;
+        RoundedRectPipeline.draw(context, brx - size, bry - thickness, size, thickness,
+            thickness * 0.5f * scale, color);
+        RoundedRectPipeline.draw(context, brx - thickness, bry - size, thickness, size,
+            thickness * 0.5f * scale, color);
+    }
+
+    private void drawTopbar(DrawContext context, float x, float y, float w, float mx, float my,
+                            float scale, float seconds) {
+        float cy = y + TOPBAR_H * 0.5f;
+        LinkenMenuChrome.drawOn(context, LinkenFonts.bodyMedium(),
+            I18n.get("linkenvisuals.multiplayer.title"), x + PAD_X, cy, 17.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, 1.0f));
+
+        float refreshSize = 36.0f;
+        float rx = x + w - PAD_X - refreshSize;
+        float ry = cy - refreshSize * 0.5f;
+        refreshHover.step(refreshRect != null && refreshRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        float refreshT = (float) refreshHover.get();
+        fieldBox(context, rx, ry, refreshSize, refreshSize, refreshT, false, scale);
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_REFRESH, rx + refreshSize * 0.5f,
+            ry + refreshSize * 0.5f, 18.0f, LinkenMenuChrome.rgba(
+                LinkenMenuChrome.mix(LinkenMenuChrome.MUTED, LinkenMenuChrome.ACCENT, refreshT), 1.0f));
+        refreshRect = new LinkenMenuLayout.Rect(rx, ry, refreshSize, refreshSize);
+
+        searchFocus.step(searchFocused ? 1.0 : 0.0, seconds);
+        float focusT = (float) searchFocus.get();
+        float searchWidth = 320.0f + 24.0f * focusT;
+        float searchHeight = 36.0f;
+        float sx = rx - 12.0f - searchWidth;
+        float sy = cy - searchHeight * 0.5f;
+        searchHover.step(searchRect != null && searchRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        float searchT = Math.max((float) searchHover.get(), focusT);
+        fieldBox(context, sx, sy, searchWidth, searchHeight, searchT, false, scale);
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_SEARCH, sx + 20.0f,
+            sy + searchHeight * 0.5f, 17.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.MUTED3,
+                LinkenMenuChrome.ACCENT, focusT), 1.0f));
+
+        float textX = sx + 37.0f;
+        if (query.isEmpty() && !searchFocused) {
+            LinkenMenuChrome.drawOn(context, LinkenFonts.body(),
+                I18n.get("linkenvisuals.multiplayer.search"), textX, sy + searchHeight * 0.5f,
+                12.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, 1.0f));
+        } else {
+            LinkenMenuChrome.drawOn(context, LinkenFonts.body(), query, textX,
+                sy + searchHeight * 0.5f, 12.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+            if (searchFocused && (System.currentTimeMillis() / 500L) % 2L == 0L) {
+                float caretX = textX + LinkenMenuChrome.textWidth(LinkenFonts.body(), query, 12.5f) + 1.0f;
+                context.fill(Math.round(caretX), Math.round(sy + 12.0f), Math.round(caretX + 1.0f),
+                    Math.round(sy + 24.0f), LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+            }
+        }
+        searchRect = new LinkenMenuLayout.Rect(sx, sy, searchWidth, searchHeight);
+
+        context.fill(Math.round(x), Math.round(y + TOPBAR_H - 1.0f),
+            Math.round(x + w), Math.round(y + TOPBAR_H),
+            LinkenMenuChrome.rgba(0xFFFFFF, 18, 1.0f));
+    }
+
+    private void fieldBox(DrawContext context, float x, float y, float w, float h,
+                          float hover, boolean danger, float scale) {
+        RoundedRectPipeline.draw(context, x, y, w, h, 7.0f * scale,
+            LinkenMenuChrome.rgba(0xFFFFFF, 10, 1.0f));
+        int borderRgb = danger ? LinkenMenuChrome.mix(0xFFFFFF, 0xE06E6E, hover) : 0xFFFFFF;
+        int borderAlpha = danger ? Math.round(20.0f + 120.0f * hover) : Math.round(20.0f + 41.0f * hover);
+        RoundedRectPipeline.drawBorder(context, x, y, w, h, 7.0f * scale,
+            1.0f * scale, 1.4f * scale, 1.4f * scale,
+            LinkenMenuChrome.rgba(borderRgb, borderAlpha, 1.0f));
+    }
+
+    private void drawList(DrawContext context, float x, float y, float w, float h,
+                          float mx, float my, float scale, float seconds) {
+        rowRects.clear();
+        if (visible.isEmpty()) {
+            String label = query.isEmpty()
+                ? I18n.get("linkenvisuals.multiplayer.empty")
+                : I18n.get("linkenvisuals.multiplayer.not_found");
+            LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), label, x + w * 0.5f,
+                y + h * 0.5f - 20.0f, 13.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, 1.0f));
+            if (query.isEmpty()) {
+                String add = I18n.get("linkenvisuals.multiplayer.add");
+                float bw = 18.0f + 15.0f + 10.0f
+                    + LinkenMenuChrome.textWidth(LinkenFonts.heading(), add, 11.0f) + 18.0f;
+                float bh = 44.0f;
+                float bx = x + (w - bw) * 0.5f;
+                float by = y + h * 0.5f + 6.0f;
+                addEmptyHover.step(addEmptyRect != null && addEmptyRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+                fieldBox(context, bx, by, bw, bh, (float) addEmptyHover.get(), false, scale);
+                IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_PLUS, bx + 25.5f,
+                    by + bh * 0.5f, 18.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED, 1.0f));
+                LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), add, bx + 43.0f,
+                    by + bh * 0.5f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+                addEmptyRect = new LinkenMenuLayout.Rect(bx, by, bw, bh);
+            } else {
+                addEmptyRect = null;
+            }
+            return;
+        }
+        addEmptyRect = null;
+
+        float dt = Math.max(0.001f, Math.min(0.05f, seconds));
+
+        float maxScroll = Math.max(0.0f, visible.size() * ROW_H - h);
+        scrollTarget = Math.max(0.0f, Math.min(scrollTarget, maxScroll));
+        scroll += (scrollTarget - scroll) * (1.0f - (float) Math.exp(-13.0f * dt));
+        if (Math.abs(scrollTarget - scroll) < 0.4f) {
+            scroll = scrollTarget;
+        }
+
+        context.enableScissor(Math.round(x), Math.round(y), Math.round(x + w), Math.round(y + h));
+        for (int i = 0; i < visible.size(); i++) {
+            float ry = y + i * ROW_H - scroll;
+            if (ry + ROW_H < y - ROW_H || ry > y + h + ROW_H) {
+                rowRects.add(null);
+                continue;
+            }
+            LinkenMenuLayout.Rect rect = new LinkenMenuLayout.Rect(x, ry, w, ROW_H);
+            rowRects.add(rect);
+            drawRow(context, visible.get(i), i, rect, mx, my, y, h, scale, seconds);
+        }
+        context.disableScissor();
+    }
+
+    private void drawRow(DrawContext context, ServerInfo info, int index, LinkenMenuLayout.Rect rect,
+                         float mx, float my, float clipY, float clipH, float scale, float seconds) {
+        boolean selectedRow = index == selected;
+        boolean hoverable = my >= clipY && my <= clipY + clipH;
+        Spring hoverSpring = rowHover.computeIfAbsent(info, key -> new Spring(0.0, 900.0, 50.0));
+        hoverSpring.step(hoverable && rect.contains(mx, my) && !selectedRow ? 1.0 : 0.0, seconds);
+        float hover = (float) hoverSpring.get();
+
+        if (selectedRow) {
+            RoundedRectPipeline.draw(context, rect.x(), rect.y(), rect.width(), ROW_H, 0.0f,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 13, 1.0f));
+            RoundedRectPipeline.draw(context, rect.x(), rect.y(), 2.0f, ROW_H, 0.0f,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 255, 1.0f));
+        } else if (hover > 0.001f) {
+            RoundedRectPipeline.draw(context, rect.x(), rect.y(), rect.width(), ROW_H, 0.0f,
+                LinkenMenuChrome.rgba(0xFFFFFF, Math.round(9.0f * hover), 1.0f));
+        }
+        context.fill(Math.round(rect.x()), Math.round(rect.y() + ROW_H - 1.0f),
+            Math.round(rect.x() + rect.width()), Math.round(rect.y() + ROW_H),
+            LinkenMenuChrome.rgba(0xFFFFFF, 13, 1.0f));
+
+        float cx = rect.x() + PAD_X;
+        float cy = rect.y() + ROW_H * 0.5f;
+        float tx = cx;
+        float ty = cy - TILE * 0.5f;
+
+        Identifier favicon = favicon(info);
+        if (favicon != null) {
+            context.drawTexture(net.minecraft.client.gl.RenderPipelines.GUI_TEXTURED, favicon,
+                Math.round(tx + 3.0f), Math.round(ty + 3.0f), 0.0f, 0.0f, 32, 32, 32, 32, 32, 32, -1);
+            RoundedRectPipeline.drawBorder(context, tx, ty, TILE, TILE, 8.0f * scale,
+                1.0f * scale, 1.4f * scale, 1.4f * scale,
+                LinkenMenuChrome.rgba(0xFFFFFF, Math.round(26 * (selectedRow ? 1.4f : 1.0f)), 1.0f));
+        } else {
+            int tint = tileTint(info);
+            RoundedRectPipeline.drawVerticalGradient(context, tx, ty, TILE, TILE, 8.0f * scale,
+                ColorMath.withAlpha(tint, 255), ColorMath.withAlpha(darker(tint), 255));
+            RoundedRectPipeline.drawBorder(context, tx, ty, TILE, TILE, 8.0f * scale,
+                1.0f * scale, 1.4f * scale, 1.4f * scale,
+                LinkenMenuChrome.rgba(selectedRow ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
+                    Math.round(selectedRow ? 82 : 26), 1.0f));
+            String clean = cleanName(info);
+            String letter = clean.isEmpty() ? "?" : clean.substring(0, 1).toUpperCase(Locale.ROOT);
+            LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), letter,
+                tx + TILE * 0.5f, ty + TILE * 0.5f, 12.0f,
+                selectedRow ? LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 1.0f)
+                    : ColorMath.withAlpha(letterColor(info), 255));
+        }
+
+        String players = playersText(info);
+        String pingText = pingText(info);
+        float barsWidth = 4.0f * 3.0f + 3.0f * 2.0f;
+        float pingWidth = barsWidth + (pingText.isEmpty() ? 0.0f
+            : 7.0f + LinkenMenuChrome.textWidth(LinkenFonts.mono(), pingText, 10.5f));
+        float rightWidth = Math.max(LinkenMenuChrome.textWidth(LinkenFonts.mono(), players, 11.0f), pingWidth);
+        float rightX = rect.x() + rect.width() - PAD_X - rightWidth;
+
+        LinkenMenuChrome.drawRightText(context, LinkenFonts.mono(), players,
+            rect.x() + rect.width() - PAD_X, cy - 12.5f, 11.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED, 1.0f));
+        float barsX = rect.x() + rect.width() - PAD_X - pingWidth;
+        float barsBottom = cy + 19.0f;
+        drawPingBars(context, barsX, barsBottom, info, scale);
+        if (!pingText.isEmpty()) {
+            LinkenMenuChrome.drawOn(context, LinkenFonts.mono(), pingText,
+                barsX + barsWidth + 7.0f, barsBottom - 7.0f, 10.5f,
+                LinkenMenuChrome.rgba(selectedRow ? LinkenMenuChrome.ACCENT : LinkenMenuChrome.MUTED, 1.0f));
+        }
+
+        float colX = tx + TILE + 14.0f;
+        float colWidth = rightX - 14.0f - colX;
+        String name = cleanName(info);
+        String nameClip = LinkenMenuChrome.ellipsize(LinkenFonts.heading(), name, colWidth, 11.5f);
+        LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), nameClip, colX, cy - 3.0f,
+            11.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, 1.0f));
+        String chip = versionChip(info);
+        if (!chip.isEmpty()) {
+            float chipX = colX + LinkenMenuChrome.textWidth(LinkenFonts.heading(), nameClip, 11.5f) + 8.0f;
+            float chipWidth = LinkenMenuChrome.textWidth(LinkenFonts.mono(), chip, 9.0f) + 12.0f;
+            if (chipX + chipWidth <= colX + colWidth) {
+                RoundedRectPipeline.drawBorder(context, chipX, cy - 11.0f, chipWidth, 16.0f,
+                    4.0f * scale, 1.0f * scale, 1.4f * scale, 1.4f * scale,
+                    LinkenMenuChrome.rgba(0xFFFFFF, 31, 1.0f));
+                LinkenMenuChrome.drawOn(context, LinkenFonts.mono(), chip, chipX + 6.0f,
+                    cy - 3.0f, 9.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED, 1.0f));
+            }
+        }
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(),
+            LinkenMenuChrome.ellipsize(LinkenFonts.body(), motdText(info), colWidth, 12.0f),
+            colX, cy + 4.0f, 12.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, 1.0f));
+    }
+
+    private void drawPingBars(DrawContext context, float x, float bottom, ServerInfo info, float scale) {
+        int filled = pingBars(info);
+        float[] heights = {5.0f, 8.0f, 11.0f, 14.0f};
+        for (int i = 0; i < 4; i++) {
+            RoundedRectPipeline.draw(context, x + i * 5.0f, bottom - heights[i], 3.0f, heights[i],
+                1.0f * scale, i < filled
+                    ? LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 1.0f)
+                    : LinkenMenuChrome.rgba(0xFFFFFF, 41, 1.0f));
+        }
+    }
+
+    private void drawFooter(DrawContext context, float x, float y, float w, float mx, float my,
+                            float scale, float seconds) {
+        float cy = y + FOOTER_H * 0.5f;
+        boolean has = selected >= 0 && selected < visible.size();
+
+        float is = 38.0f;
+        float iy = cy - is * 0.5f;
+        float ex = x + PAD_X;
+        editHover.step(has && editRect != null && editRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        float editT = has ? (float) editHover.get() : 0.0f;
+        fieldBox(context, ex, iy, is, is, editT, false, scale);
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_GEAR, ex + is * 0.5f,
+            iy + is * 0.5f, 17.0f, LinkenMenuChrome.rgba(has
+                ? LinkenMenuChrome.mix(LinkenMenuChrome.MUTED, LinkenMenuChrome.TEXT2, editT)
+                : LinkenMenuChrome.MUTED4, 1.0f));
+        editRect = new LinkenMenuLayout.Rect(ex, iy, is, is);
+
+        float dx = ex + is + 9.0f;
+        deleteHover.step(has && deleteRect != null && deleteRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        float deleteT = has ? (float) deleteHover.get() : 0.0f;
+        fieldBox(context, dx, iy, is, is, deleteT, true, scale);
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_TRASH, dx + is * 0.5f,
+            iy + is * 0.5f, 17.0f, LinkenMenuChrome.rgba(has
+                ? LinkenMenuChrome.mix(LinkenMenuChrome.MUTED, LinkenMenuChrome.DANGER, deleteT)
+                : LinkenMenuChrome.MUTED4, 1.0f));
+        deleteRect = new LinkenMenuLayout.Rect(dx, iy, is, is);
+
+        float bh = 44.0f;
+        float by = cy - bh * 0.5f;
+        String join = I18n.get("linkenvisuals.multiplayer.join");
+        float joinWidth = 24.0f + 15.0f + 11.0f
+            + LinkenMenuChrome.textWidth(LinkenFonts.heading(), join, 11.0f) + 24.0f;
+        float joinX = x + w - PAD_X - joinWidth;
+        joinHover.step(joinRect != null && joinRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        drawJoinButton(context, joinX, by - (float) joinHover.get(), joinWidth, bh,
+            (float) joinHover.get(), join, scale);
+        joinRect = new LinkenMenuLayout.Rect(joinX, by, joinWidth, bh);
+
+        String add = I18n.get("linkenvisuals.multiplayer.add");
+        float addWidth = 18.0f + 15.0f + 10.0f
+            + LinkenMenuChrome.textWidth(LinkenFonts.heading(), add, 11.0f) + 18.0f;
+        float addX = joinX - 9.0f - addWidth;
+        addHover.step(addRect != null && addRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        drawFooterButton(context, addX, by, addWidth, bh, (float) addHover.get(), add, true, scale);
+        addRect = new LinkenMenuLayout.Rect(addX, by, addWidth, bh);
+
+        String direct = I18n.get("linkenvisuals.multiplayer.direct");
+        float directWidth = 20.0f
+            + LinkenMenuChrome.textWidth(LinkenFonts.heading(), direct, 11.0f) + 20.0f;
+        float directX = addX - 9.0f - directWidth;
+        directHover.step(directRect != null && directRect.contains(mx, my) ? 1.0 : 0.0, seconds);
+        drawTextButton(context, directX, by, directWidth, bh, (float) directHover.get(), direct, scale);
+        directRect = new LinkenMenuLayout.Rect(directX, by, directWidth, bh);
+    }
+
+    private void drawFooterButton(DrawContext context, float x, float y, float w, float h,
+                                  float hover, String label, boolean plus, float scale) {
+        RoundedRectPipeline.draw(context, x, y, w, h, 8.0f * scale,
+            LinkenMenuChrome.rgba(0xFFFFFF, 10, 1.0f));
+        RoundedRectPipeline.drawBorder(context, x, y, w, h, 8.0f * scale,
+            1.0f * scale, 1.4f * scale, 1.4f * scale,
+            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(20.0f + 41.0f * hover), 1.0f));
+        if (plus) {
+            IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_PLUS, x + 25.5f, y + h * 0.5f,
+                18.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED, 1.0f));
+            LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), label, x + 43.0f,
+                y + h * 0.5f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+        } else {
+            LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), label, x + w * 0.5f,
+                y + h * 0.5f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+        }
+    }
+
+    private void drawTextButton(DrawContext context, float x, float y, float w, float h,
+                                float hover, String label, float scale) {
+        RoundedRectPipeline.draw(context, x, y, w, h, 8.0f * scale,
+            LinkenMenuChrome.rgba(0xFFFFFF, 10, 1.0f));
+        RoundedRectPipeline.drawBorder(context, x, y, w, h, 8.0f * scale,
+            1.0f * scale, 1.4f * scale, 1.4f * scale,
+            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(20.0f + 41.0f * hover), 1.0f));
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), label, x + w * 0.5f,
+            y + h * 0.5f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
+    }
+
+    private void drawJoinButton(DrawContext context, float x, float y, float w, float h,
+                                float hover, String label, float scale) {
+        int fill = LinkenMenuChrome.mix(LinkenMenuChrome.ACCENT, 0xFFFFFF, hover * 0.07f);
+        RoundedRectPipeline.draw(context, x, y, w, h, 8.0f * scale,
+            LinkenMenuChrome.rgba(fill, 1.0f));
+        context.fill(Math.round(x + 8.0f), Math.round(y + 1.0f),
+            Math.round(x + w - 8.0f), Math.round(y + 2.0f),
+            LinkenMenuChrome.rgba(0xFFFFFF, 89, 1.0f));
+        IconPipeline.draw(context, LinkenFonts.iconsFa(), ICON_ARROW_RIGHT, x + 31.5f,
+            y + h * 0.5f, 18.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.INK, 1.0f));
+        LinkenMenuChrome.drawOn(context, LinkenFonts.heading(), label, x + 50.0f,
+            y + h * 0.5f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.INK, 1.0f));
+    }
+
+    // ------------------------------------------------------------------ modal
 
     private void drawModal(DrawContext context, LinkenMenuLayout.Metrics metrics, float mx, float my,
                            float fade, float seconds) {
-        float width = modal == Modal.DELETE ? 540.0f : 620.0f;
-        float height = modal == Modal.DELETE ? 270.0f : (modal == Modal.DIRECT ? 320.0f : 388.0f);
+        float width = 460.0f;
+        float height = modalHeight();
         float x = (metrics.width() - width) * 0.5f;
-        float y = (metrics.height() - height) * 0.5f;
+        float y = (1080.0f - height) * 0.5f;
         modalBounds = new LinkenMenuLayout.Rect(x, y, width, height);
-        LinkenMenuChrome.roundedFill(context, x, y, width, height, 14.0f,
-            LinkenMenuChrome.rgba(0x0E1411, 250, fade), metrics.scale());
-        LinkenMenuChrome.roundedOutline(context, x, y, width, height, 14.0f, 1.0f,
-            LinkenMenuChrome.rgba(0xFFFFFF, 32, fade), metrics.scale());
+        windowMaterial(context, x, y, width, height, metrics.scale());
 
         String title = switch (modal) {
-            case ADD -> "ADD SERVER";
-            case EDIT -> "EDIT SERVER";
-            case DIRECT -> "DIRECT CONNECT";
-            case DELETE -> "DELETE SERVER";
+            case ADD -> I18n.get("linkenvisuals.multiplayer.add_title");
+            case EDIT -> I18n.get("linkenvisuals.multiplayer.edit_title");
+            case DIRECT -> I18n.get("linkenvisuals.multiplayer.direct_title");
+            case DELETE -> I18n.get("linkenvisuals.multiplayer.delete_title");
             case NONE -> "";
         };
-        LinkenMenuChrome.drawText(context, LinkenFonts.headingLight(), title, x + 30.0f, y + 26.0f, 20.0f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
-        LinkenMenuChrome.drawText(context, LinkenFonts.body(),
-            modal == Modal.DELETE ? "THIS CANNOT BE UNDONE." : "FILL IN THE DETAILS BELOW.",
-            x + 30.0f, y + 56.0f, 9.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
-
-        modalCloseRect = new LinkenMenuLayout.Rect(x + width - 52.0f, y + 22.0f, 30.0f, 30.0f);
-        modalCloseSpring.step(modalCloseRect.contains(mx, my) ? 1.0 : 0.0, seconds);
-        LinkenMenuChrome.drawSecondary(context, modalCloseRect.x(), modalCloseRect.y(), 30.0f, 30.0f,
-            7.0f, (float) modalCloseSpring.get(), false, fade, metrics.scale());
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), "x", modalCloseRect.x() + 15.0f,
-            modalCloseRect.y() + 9.0f, 10.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), title, x + 22.0f, y + 22.0f,
+            17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
 
         nameFieldRect = null;
         addressFieldRect = null;
-        if (modal == Modal.ADD || modal == Modal.EDIT || modal == Modal.DIRECT) {
-            float fieldY = y + 102.0f;
-            if (modal != Modal.DIRECT) {
-                nameFieldRect = new LinkenMenuLayout.Rect(x + 30.0f, fieldY, width - 60.0f, 54.0f);
-                drawField(context, metrics, nameFieldRect, "SERVER NAME", nameInput, focusedField == 0, fade);
-                fieldY += 92.0f;
+        modalCloseRect = null;
+        packRects = new LinkenMenuLayout.Rect[3];
+        if (modal == Modal.DELETE) {
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(),
+                I18n.get("linkenvisuals.multiplayer.delete_prompt"), x + 22.0f, y + 66.0f,
+                12.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
+            String target = selected >= 0 && selected < visible.size() ? cleanName(visible.get(selected)) : "";
+            LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), target, x + 22.0f, y + 96.0f,
+                13.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, fade));
+        } else {
+            if (modal == Modal.DIRECT) {
+                LinkenMenuChrome.drawText(context, LinkenFonts.body(),
+                    I18n.get("linkenvisuals.multiplayer.direct_hint"), x + 22.0f, y + 62.0f,
+                    12.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
             }
-            addressFieldRect = new LinkenMenuLayout.Rect(x + 30.0f, fieldY, width - 60.0f, 54.0f);
-            drawField(context, metrics, addressFieldRect, "SERVER ADDRESS", addressInput, focusedField == 1, fade);
-        } else if (modal == Modal.DELETE) {
-            String target = selected >= 0 && selected < servers.size() ? servers.get(selected).name : "";
-            LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), target,
-                x + width * 0.5f, y + 118.0f, 18.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, fade));
+            float cy = y + (modal == Modal.DIRECT ? 96.0f : 72.0f);
+            if (modal != Modal.DIRECT) {
+                nameFieldRect = new LinkenMenuLayout.Rect(x + 22.0f, cy + 17.0f, width - 44.0f, 36.0f);
+                drawField(context, nameFieldRect, I18n.get("linkenvisuals.multiplayer.name"), nameInput,
+                    focusedField == 0, fade, metrics.scale());
+                cy += 69.0f;
+            }
+            addressFieldRect = new LinkenMenuLayout.Rect(x + 22.0f, cy + 17.0f, width - 44.0f, 36.0f);
+            drawField(context, addressFieldRect, I18n.get("linkenvisuals.multiplayer.address"), addressInput,
+                focusedField == 1, fade, metrics.scale());
+            if (modal != Modal.DIRECT) {
+                cy += 69.0f;
+                LinkenMenuChrome.drawText(context, LinkenFonts.body(),
+                    I18n.get("linkenvisuals.multiplayer.resource_pack"), x + 22.0f, cy, 11.0f,
+                    LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
+                String[] options = {
+                    I18n.get("linkenvisuals.multiplayer.pack_disabled"),
+                    I18n.get("linkenvisuals.multiplayer.pack_prompt"),
+                    I18n.get("linkenvisuals.multiplayer.pack_enabled")
+                };
+                float gap = 6.0f;
+                float segWidth = (width - 44.0f - gap * 2.0f) / 3.0f;
+                for (int i = 0; i < 3; i++) {
+                    float sx = x + 22.0f + i * (segWidth + gap);
+                    boolean active = packPolicy == i;
+                    float hover = !active && new LinkenMenuLayout.Rect(sx, cy + 17.0f, segWidth, 34.0f)
+                        .contains(mx, my) ? 1.0f : 0.0f;
+                    if (active) {
+                        RoundedRectPipeline.draw(context, sx, cy + 17.0f, segWidth, 34.0f,
+                            7.0f * metrics.scale(), LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
+                        context.fill(Math.round(sx + 7.0f), Math.round(cy + 18.0f),
+                            Math.round(sx + segWidth - 7.0f), Math.round(cy + 19.0f),
+                            LinkenMenuChrome.rgba(0xFFFFFF, 89, fade));
+                    } else {
+                        RoundedRectPipeline.draw(context, sx, cy + 17.0f, segWidth, 34.0f,
+                            7.0f * metrics.scale(), LinkenMenuChrome.rgba(0xFFFFFF,
+                                Math.round(8.0f + 8.0f * hover), fade));
+                        RoundedRectPipeline.drawBorder(context, sx, cy + 17.0f, segWidth, 34.0f,
+                            7.0f * metrics.scale(), 1.0f * metrics.scale(),
+                            1.4f * metrics.scale(), 1.4f * metrics.scale(),
+                            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(20.0f + 36.0f * hover), fade));
+                    }
+                    LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), options[i],
+                        sx + segWidth * 0.5f, cy + 34.0f, 12.0f, LinkenMenuChrome.rgba(
+                            active ? LinkenMenuChrome.INK : LinkenMenuChrome.MUTED2, fade));
+                    packRects[i] = new LinkenMenuLayout.Rect(sx, cy + 17.0f, segWidth, 34.0f);
+                }
+            }
         }
 
         if (modalError != null) {
-            LinkenMenuChrome.drawText(context, LinkenFonts.body(), modalError, x + 30.0f,
-                y + height - 96.0f, 9.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.DANGER, fade));
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(), modalError, x + 22.0f,
+                y + height - 64.0f, 11.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.DANGER, fade));
         }
 
-        modalCancelRect = new LinkenMenuLayout.Rect(x + width - 30.0f - 110.0f - 10.0f - 130.0f,
-            y + height - 64.0f, 110.0f, 42.0f);
-        modalConfirmRect = new LinkenMenuLayout.Rect(x + width - 30.0f - 130.0f, y + height - 64.0f, 130.0f, 42.0f);
-        drawModalButton(context, metrics, modalCancelRect, "CANCEL", false, mx, my, fade, seconds, modalCancelSpring);
-        drawModalButton(context, metrics, modalConfirmRect, modal == Modal.DELETE ? "DELETE" : "CONFIRM",
-            true, mx, my, fade, seconds, modalConfirmSpring);
+        String cancel = I18n.get("linkenvisuals.multiplayer.cancel");
+        String primary = switch (modal) {
+            case ADD -> I18n.get("linkenvisuals.multiplayer.add");
+            case DIRECT -> I18n.get("linkenvisuals.multiplayer.connect");
+            case DELETE -> I18n.get("linkenvisuals.multiplayer.delete_confirm");
+            default -> I18n.get("linkenvisuals.multiplayer.save");
+        };
+        float primaryWidth = 24.0f
+            + LinkenMenuChrome.textWidth(LinkenFonts.heading(), primary, 11.0f) + 24.0f;
+        float cancelWidth = 18.0f
+            + LinkenMenuChrome.textWidth(LinkenFonts.heading(), cancel, 11.0f) + 18.0f;
+        float by = y + height - 22.0f - 44.0f;
+        modalConfirmRect = new LinkenMenuLayout.Rect(x + width - 22.0f - primaryWidth, by, primaryWidth, 44.0f);
+        modalCancelRect = new LinkenMenuLayout.Rect(modalConfirmRect.x() - 9.0f - cancelWidth, by, cancelWidth, 44.0f);
+        drawModalButton(context, modalCancelRect, cancel, false, mx, my, fade, metrics.scale());
+        drawModalButton(context, modalConfirmRect, primary, true, mx, my, fade, metrics.scale());
+        corners(context, x, y, width, height, metrics.scale());
     }
 
-    private void drawField(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
-                           String label, String value, boolean focused, float fade) {
-        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), label, rect.x(), rect.y() - 20.0f,
-            7.5f, 1.4f, LinkenMenuChrome.rgba(focused ? LinkenMenuChrome.ACCENT : LinkenMenuChrome.MUTED3, fade));
-        LinkenMenuChrome.roundedFill(context, rect.x(), rect.y(), rect.width(), rect.height(), 7.0f,
-            LinkenMenuChrome.rgba(focused ? 0x212C24 : 0x181F1A, 240, fade), metrics.scale());
-        LinkenMenuChrome.roundedOutline(context, rect.x(), rect.y(), rect.width(), rect.height(), 7.0f,
-            focused ? 1.3f : 1.0f,
-            LinkenMenuChrome.rgba(focused ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
-                focused ? 170 : 28, fade), metrics.scale());
-        String shown = value.isBlank() ? (focused ? "" : "TYPE HERE...") : value;
-        LinkenMenuChrome.drawText(context, LinkenFonts.mono(), shown, rect.x() + 16.0f,
-            rect.y() + 18.0f, 10.0f,
-            LinkenMenuChrome.rgba(value.isBlank() && !focused ? LinkenMenuChrome.MUTED4 : LinkenMenuChrome.TEXT2, fade));
+    private float modalHeight() {
+        return switch (modal) {
+            case DIRECT -> 239.0f;
+            case DELETE -> 200.0f;
+            default -> 337.0f;
+        };
+    }
+
+    private void drawField(DrawContext context, LinkenMenuLayout.Rect rect, String label,
+                           String value, boolean focused, float fade, float scale) {
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(), label, rect.x(), rect.y() - 17.0f,
+            11.0f, LinkenMenuChrome.rgba(
+                focused ? LinkenMenuChrome.ACCENT : LinkenMenuChrome.MUTED3, fade));
+        fieldBox(context, rect.x(), rect.y(), rect.width(), rect.height(), focused ? 1.0f : 0.0f,
+            false, scale);
+        if (focused) {
+            RoundedRectPipeline.drawBorder(context, rect.x() - 0.5f, rect.y() - 0.5f,
+                rect.width() + 1.0f, rect.height() + 1.0f, 7.0f * scale,
+                1.0f * scale, 1.4f * scale, 1.4f * scale,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 107, fade));
+        }
+        String shown = value.isBlank() ? (focused ? "" : I18n.get("linkenvisuals.multiplayer.type_here")) : value;
+        LinkenMenuChrome.drawText(context, LinkenFonts.body(), shown, rect.x() + 13.0f, rect.y() + 12.0f,
+            12.5f, LinkenMenuChrome.rgba(value.isBlank() && !focused
+                ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
         if (focused && (System.currentTimeMillis() / 500L) % 2L == 0L) {
-            float caretX = rect.x() + 16.0f + LinkenMenuChrome.textWidth(LinkenFonts.mono(), value, 10.0f);
-            context.fill(Math.round(caretX), Math.round(rect.y() + 17.0f),
-                Math.round(caretX + 1.0f), Math.round(rect.y() + 37.0f),
+            float caretX = rect.x() + 13.0f
+                + LinkenMenuChrome.textWidth(LinkenFonts.body(), value, 12.5f);
+            context.fill(Math.round(caretX), Math.round(rect.y() + 12.0f),
+                Math.round(caretX + 1.5f), Math.round(rect.y() + 24.0f),
                 LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
         }
     }
 
-    private void drawModalButton(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
-                                 String label, boolean primary, float mx, float my, float fade, float seconds,
-                                 Spring spring) {
-        boolean hovered = rect.contains(mx, my);
-        spring.step(hovered ? 1.0 : 0.0, seconds);
-        float hover = (float) spring.get();
+    private void drawModalButton(DrawContext context, LinkenMenuLayout.Rect rect, String label,
+                                 boolean primary, float mx, float my, float fade, float scale) {
+        float hover = rect.contains(mx, my) ? 1.0f : 0.0f;
         if (primary) {
-            LinkenMenuChrome.roundedFill(context, rect.x(), rect.y() - hover, rect.width(), rect.height(), 7.0f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.ACCENT, 0xFFFFFF, hover * 0.07f), fade),
-                metrics.scale());
+            RoundedRectPipeline.draw(context, rect.x(), rect.y() - hover, rect.width(), rect.height(),
+                7.0f * scale, LinkenMenuChrome.rgba(LinkenMenuChrome.mix(
+                    LinkenMenuChrome.ACCENT, 0xFFFFFF, hover * 0.07f), fade));
         } else {
-            LinkenMenuChrome.drawSecondary(context, rect.x(), rect.y() - hover, rect.width(), rect.height(),
-                7.0f, hover, false, fade, metrics.scale());
+            LinkenMenuChrome.drawSecondary(context, rect.x(), rect.y() - hover, rect.width(),
+                rect.height(), 7.0f, hover, false, fade, scale);
         }
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), label,
-            rect.x() + rect.width() * 0.5f, rect.y() + 13.0f - hover, 9.5f,
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), label,
+            rect.x() + rect.width() * 0.5f, rect.y() + rect.height() * 0.5f - hover, 9.5f,
             LinkenMenuChrome.rgba(primary ? LinkenMenuChrome.INK : LinkenMenuChrome.TEXT3, fade));
     }
 
-    private String statusLabel(ServerInfo info) {
-        if (info.getStatus() == ServerInfo.Status.SUCCESSFUL) {
-            if (info.playerCountLabel != null && !info.playerCountLabel.getString().isBlank()) {
-                return info.playerCountLabel.getString();
-            }
-            return "ONLINE";
-        }
-        return switch (info.getStatus()) {
-            case PINGING -> "PINGING...";
-            case UNREACHABLE -> "OFFLINE";
-            case INCOMPATIBLE -> "INCOMPATIBLE";
-            default -> "UNKNOWN";
-        };
-    }
-
-    private int statusColor(ServerInfo info) {
-        return switch (info.getStatus()) {
-            case SUCCESSFUL -> LinkenMenuChrome.ACCENT;
-            case PINGING -> LinkenMenuChrome.MUTED2;
-            case UNREACHABLE, INCOMPATIBLE -> LinkenMenuChrome.DANGER;
-            default -> LinkenMenuChrome.MUTED3;
-        };
-    }
+    // ------------------------------------------------------------------ input
 
     @Override
     public boolean mouseClicked(Click click, boolean doubleClick) {
@@ -583,7 +910,28 @@ public final class LinkenMultiplayerScreen extends Screen {
             close();
             return true;
         }
-        if (addRect != null && addRect.contains(mx, my)) {
+        if (changeRect != null && changeRect.contains(mx, my)) {
+            playClick();
+            client.setScreen(new LinkenAltManagerScreen(this));
+            return true;
+        }
+        if (searchRect != null && searchRect.contains(mx, my)) {
+            searchFocused = true;
+            return true;
+        }
+        searchFocused = false;
+        if (refreshRect != null && refreshRect.contains(mx, my)) {
+            playClick();
+            refreshServers();
+            return true;
+        }
+        if (joinRect != null && joinRect.contains(mx, my)) {
+            playClick();
+            joinSelected();
+            return true;
+        }
+        if ((addRect != null && addRect.contains(mx, my))
+            || (addEmptyRect != null && addEmptyRect.contains(mx, my))) {
             playClick();
             openModal(Modal.ADD);
             return true;
@@ -591,30 +939,6 @@ public final class LinkenMultiplayerScreen extends Screen {
         if (directRect != null && directRect.contains(mx, my)) {
             playClick();
             openModal(Modal.DIRECT);
-            return true;
-        }
-        for (int i = 0; i < cardRects.length; i++) {
-            LinkenMenuLayout.Rect rect = cardRects[i];
-            int index = startIndex() + i;
-            if (rect != null && index < servers.size() && rect.contains(mx, my)) {
-                long now = Util.getMeasuringTimeMs();
-                if (lastClickedIndex == index && now - lastClickTime < 280L) {
-                    selected = index;
-                    joinSelected();
-                } else {
-                    selected = index;
-                    lastClickedIndex = index;
-                    lastClickTime = now;
-                    playClick();
-                }
-                return true;
-            }
-        }
-        if (joinRect != null && joinRect.contains(mx, my)) {
-            if (selected >= 0) {
-                playClick();
-                joinSelected();
-            }
             return true;
         }
         if (editRect != null && editRect.contains(mx, my)) {
@@ -631,19 +955,21 @@ public final class LinkenMultiplayerScreen extends Screen {
             }
             return true;
         }
-        if (refreshRect != null && refreshRect.contains(mx, my)) {
-            playClick();
-            refreshServers();
-            return true;
-        }
-        if (prevRect != null && prevRect.contains(mx, my) && page > 0) {
-            playClick();
-            page--;
-            return true;
-        }
-        if (nextRect != null && nextRect.contains(mx, my) && page + 1 < pageCount()) {
-            playClick();
-            page++;
+        for (int i = 0; i < rowRects.size(); i++) {
+            LinkenMenuLayout.Rect rect = rowRects.get(i);
+            if (rect == null || !rect.contains(mx, my)) {
+                continue;
+            }
+            long now = Util.getMeasuringTimeMs();
+            boolean doubleClickRow = i == lastClickIndex && now - lastClickMs < 300L;
+            selected = i;
+            lastClickIndex = i;
+            lastClickMs = now;
+            if (doubleClickRow) {
+                joinSelected();
+            } else {
+                playClick();
+            }
             return true;
         }
         return super.mouseClicked(click, doubleClick);
@@ -669,6 +995,13 @@ public final class LinkenMultiplayerScreen extends Screen {
             focusedField = 1;
             return;
         }
+        for (int i = 0; i < packRects.length; i++) {
+            if (packRects[i] != null && packRects[i].contains(mx, my)) {
+                packPolicy = i;
+                playClick();
+                return;
+            }
+        }
         if (modalBounds == null || !modalBounds.contains(mx, my)) {
             closeModal();
         }
@@ -676,21 +1009,26 @@ public final class LinkenMultiplayerScreen extends Screen {
 
     @Override
     public boolean charTyped(CharInput input) {
-        if (modal == Modal.NONE || focusedField < 0) {
-            return super.charTyped(input);
-        }
-        if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-            return false;
-        }
-        String value = input.asString();
-        if (focusedField == 0) {
-            if (nameInput.length() < 40) {
-                nameInput += value;
+        if (modal != Modal.NONE && focusedField >= 0) {
+            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
+                return false;
             }
-        } else if (addressInput.length() < 128) {
-            addressInput += value;
+            String value = input.asString();
+            if (focusedField == 0) {
+                if (nameInput.length() < 40) {
+                    nameInput += value;
+                }
+            } else if (addressInput.length() < 128) {
+                addressInput += value;
+            }
+            return true;
         }
-        return true;
+        if (searchFocused && input.isValidChar() && !Character.isISOControl(input.codepoint())) {
+            query += input.asString();
+            rebuildVisible();
+            return true;
+        }
+        return super.charTyped(input);
     }
 
     @Override
@@ -717,7 +1055,8 @@ public final class LinkenMultiplayerScreen extends Screen {
                 if (focusedField == 0 && !nameInput.isEmpty()) {
                     nameInput = nameInput.substring(0, nameInput.offsetByCodePoints(nameInput.length(), -1));
                 } else if (focusedField == 1 && !addressInput.isEmpty()) {
-                    addressInput = addressInput.substring(0, addressInput.offsetByCodePoints(addressInput.length(), -1));
+                    addressInput = addressInput.substring(0,
+                        addressInput.offsetByCodePoints(addressInput.length(), -1));
                 }
                 return true;
             }
@@ -727,60 +1066,68 @@ public final class LinkenMultiplayerScreen extends Screen {
             close();
             return true;
         }
+        if (searchFocused) {
+            if (key == GLFW.GLFW_KEY_BACKSPACE) {
+                if (!query.isEmpty()) {
+                    query = query.substring(0, query.offsetByCodePoints(query.length(), -1));
+                    rebuildVisible();
+                }
+                return true;
+            }
+            if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
+                searchFocused = false;
+                return true;
+            }
+        }
         if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
-            if (selected >= 0) {
-                joinSelected();
-            }
-            return true;
-        }
-        if (key == GLFW.GLFW_KEY_LEFT) {
-            if (page > 0) {
-                page--;
-            }
-            return true;
-        }
-        if (key == GLFW.GLFW_KEY_RIGHT) {
-            if (page + 1 < pageCount()) {
-                page++;
-            }
-            return true;
-        }
-        if (key == GLFW.GLFW_KEY_DOWN) {
-            if (!servers.isEmpty()) {
-                selected = Math.min(servers.size() - 1, selected + COLUMNS);
-                ensureSelectedVisible();
-            }
-            return true;
-        }
-        if (key == GLFW.GLFW_KEY_UP) {
-            if (!servers.isEmpty()) {
-                selected = Math.max(0, selected - COLUMNS);
-                ensureSelectedVisible();
-            }
+            joinSelected();
             return true;
         }
         if (key == GLFW.GLFW_KEY_F5) {
             refreshServers();
             return true;
         }
+        if (key == GLFW.GLFW_KEY_DOWN) {
+            if (!visible.isEmpty()) {
+                selected = Math.min(visible.size() - 1, selected + 1);
+                ensureSelectedVisible();
+            }
+            return true;
+        }
+        if (key == GLFW.GLFW_KEY_UP) {
+            if (!visible.isEmpty()) {
+                selected = Math.max(0, selected - 1);
+                ensureSelectedVisible();
+            }
+            return true;
+        }
         return super.keyPressed(input);
     }
 
     @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount,
+                                 double verticalAmount) {
         if (modal != Modal.NONE) {
             return true;
         }
-        if (verticalAmount > 0 && page > 0) {
-            page--;
-            return true;
-        }
-        if (verticalAmount < 0 && page + 1 < pageCount()) {
-            page++;
-            return true;
-        }
-        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        scrollTarget = Math.max(0.0f, Math.min(scrollTarget - (float) verticalAmount * ROW_H * 0.8f,
+            Math.max(0.0f, visible.size() * ROW_H - listHeight())));
+        return true;
     }
+
+    private void ensureSelectedVisible() {
+        if (selected < 0) {
+            return;
+        }
+        float top = selected * ROW_H;
+        if (top < scrollTarget) {
+            scrollTarget = top;
+        } else if (top + ROW_H > scrollTarget + listHeight()) {
+            scrollTarget = top + ROW_H - listHeight();
+        }
+    }
+
+    // ------------------------------------------------------------------ modal actions
 
     private void openModal(Modal type) {
         modal = type;
@@ -789,13 +1136,21 @@ public final class LinkenMultiplayerScreen extends Screen {
         if (type == Modal.ADD) {
             nameInput = "";
             addressInput = "";
-        } else if (type == Modal.EDIT && selected >= 0 && selected < servers.size()) {
-            ServerInfo info = servers.get(selected);
+        } else if (type == Modal.EDIT && selected >= 0 && selected < visible.size()) {
+            ServerInfo info = visible.get(selected);
             nameInput = info.name == null ? "" : info.name;
             addressInput = info.address == null ? "" : info.address;
+            packPolicy = switch (info.getResourcePackPolicy()) {
+                case DISABLED -> 0;
+                case ENABLED -> 2;
+                default -> 1;
+            };
         } else if (type == Modal.DIRECT) {
             addressInput = "";
             nameInput = "";
+            packPolicy = 1;
+        } else {
+            packPolicy = 1;
         }
     }
 
@@ -807,8 +1162,8 @@ public final class LinkenMultiplayerScreen extends Screen {
 
     private void confirmModal() {
         if (modal == Modal.DELETE) {
-            if (selected >= 0 && selected < servers.size() && serverList != null) {
-                serverList.remove(servers.get(selected));
+            if (selected >= 0 && selected < visible.size() && serverList != null) {
+                serverList.remove(visible.get(selected));
                 serverList.saveFile();
                 selected = -1;
                 closeModal();
@@ -818,7 +1173,7 @@ public final class LinkenMultiplayerScreen extends Screen {
         }
         String address = addressInput.trim();
         if (address.isEmpty() || !ServerAddress.isValid(address)) {
-            modalError = "ENTER A VALID SERVER ADDRESS.";
+            modalError = I18n.get("linkenvisuals.multiplayer.invalid_address");
             focusedField = 1;
             return;
         }
@@ -830,32 +1185,182 @@ public final class LinkenMultiplayerScreen extends Screen {
         }
         String name = nameInput.trim().isEmpty() ? address : nameInput.trim();
         if (modal == Modal.ADD && serverList != null) {
-            serverList.add(new ServerInfo(name, address, ServerInfo.ServerType.OTHER), false);
+            ServerInfo info = new ServerInfo(name, address, ServerInfo.ServerType.OTHER);
+            info.setResourcePackPolicy(policyFor(packPolicy));
+            serverList.add(info, false);
             serverList.saveFile();
             closeModal();
             refreshServers();
             return;
         }
-        if (modal == Modal.EDIT && serverList != null && selected >= 0 && selected < servers.size()) {
-            ServerInfo info = servers.get(selected);
+        if (modal == Modal.EDIT && serverList != null && selected >= 0 && selected < visible.size()) {
+            ServerInfo info = visible.get(selected);
             info.name = name;
             info.address = address;
+            info.setResourcePackPolicy(policyFor(packPolicy));
             serverList.saveFile();
             closeModal();
             refreshServers();
         }
     }
 
+    private static ServerInfo.ResourcePackPolicy policyFor(int index) {
+        return switch (index) {
+            case 0 -> ServerInfo.ResourcePackPolicy.DISABLED;
+            case 2 -> ServerInfo.ResourcePackPolicy.ENABLED;
+            default -> ServerInfo.ResourcePackPolicy.PROMPT;
+        };
+    }
+
     private void joinSelected() {
-        if (selected < 0 || selected >= servers.size() || client == null) {
+        if (selected < 0 || selected >= visible.size() || client == null) {
             return;
         }
-        ServerInfo info = servers.get(selected);
+        ServerInfo info = visible.get(selected);
         if (info.address == null || !ServerAddress.isValid(info.address)) {
             return;
         }
         ConnectScreen.connect(this, client, ServerAddress.parse(info.address), info, false, null);
     }
+
+    private Identifier favicon(ServerInfo info) {
+        if (faviconIds.containsKey(info)) {
+            return faviconIds.get(info);
+        }
+        if (faviconTried.contains(info)) {
+            return null;
+        }
+        faviconTried.add(info);
+        byte[] data = info.getFavicon();
+        if (data == null || client == null) {
+            return null;
+        }
+        try {
+            NativeImage image = NativeImage.read(data);
+            Identifier id = LinkenVisuals.id("dynamic/server_icon_" + faviconSerial++);
+            NativeImageBackedTexture texture = new NativeImageBackedTexture(id::toString, image);
+            client.getTextureManager().registerTexture(id, texture);
+            faviconTextures.add(texture);
+            faviconIds.put(info, id);
+            return id;
+        } catch (Exception failure) {
+            LinkenVisuals.LOGGER.warn("[Multiplayer] bad favicon for {}", info.address);
+            return null;
+        }
+    }
+
+    /** Autotest hook: renders the donor Add Server form without mouse simulation. */
+    public void openAddModalForTest() {
+        openModal(Modal.ADD);
+    }
+
+    // ------------------------------------------------------------------ donor row helpers
+
+    private static final Pattern FORMATTING = Pattern.compile("[§&][0-9A-Za-z]");
+    private static final Pattern AD_PAREN = Pattern.compile(
+        "(?i)\\s*[\\(\\[](?=[^\\)\\]]*(?:erid|\\d+\\+))[^\\)\\]]*[\\)\\]]");
+    private static final Pattern ERID = Pattern.compile("(?i)\\berid[:=]?\\S*");
+    private static final Pattern VERSION = Pattern.compile("1\\.(\\d{1,2})(?:\\.\\d{1,2})?");
+
+    private static String stripFormatting(String value) {
+        if (value == null) {
+            return "";
+        }
+        return FORMATTING.matcher(value).replaceAll("").replaceAll("\\s+", " ").trim();
+    }
+
+    private static String cleanName(ServerInfo info) {
+        String name = stripFormatting(info.name == null ? "" : info.name);
+        name = AD_PAREN.matcher(name).replaceAll("");
+        name = ERID.matcher(name).replaceAll("").trim();
+        name = name.replaceAll("[\\s,;·|]+$", "").trim();
+        if (name.isEmpty()) {
+            name = info.address == null ? "" : info.address;
+        }
+        return name;
+    }
+
+    private static String motdText(ServerInfo info) {
+        return stripFormatting(info.label == null ? "" : info.label.getString().replace('\n', ' '));
+    }
+
+    private static String versionChip(ServerInfo info) {
+        String raw = stripFormatting(info.version == null ? "" : info.version.getString());
+        if (raw.isEmpty()) {
+            return "";
+        }
+        Matcher matcher = VERSION.matcher(raw);
+        int low = Integer.MAX_VALUE;
+        int high = Integer.MIN_VALUE;
+        while (matcher.find()) {
+            int minor = Integer.parseInt(matcher.group(1));
+            low = Math.min(low, minor);
+            high = Math.max(high, minor);
+        }
+        if (high < 0) {
+            return raw.length() > 12 ? raw.substring(0, 12) : raw;
+        }
+        return low == high ? "1." + low : "1." + low + "–" + "1." + high;
+    }
+
+    private static String playersText(ServerInfo info) {
+        if (info.players == null) {
+            return "—";
+        }
+        return group(info.players.online()) + " / " + group(info.players.max());
+    }
+
+    private static String group(int value) {
+        String digits = Integer.toString(Math.max(0, value));
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < digits.length(); i++) {
+            if (i > 0 && (digits.length() - i) % 3 == 0) {
+                out.append(' ');
+            }
+            out.append(digits.charAt(i));
+        }
+        return out.toString();
+    }
+
+    private static int pingBars(ServerInfo info) {
+        if (info.getStatus() != ServerInfo.Status.SUCCESSFUL) {
+            return 0;
+        }
+        long ping = info.ping;
+        if (ping < 80) {
+            return 4;
+        }
+        if (ping <= 120) {
+            return 3;
+        }
+        if (ping <= 200) {
+            return 2;
+        }
+        return 1;
+    }
+
+    private static String pingText(ServerInfo info) {
+        return info.getStatus() == ServerInfo.Status.SUCCESSFUL
+            ? info.ping + " " + I18n.get("linkenvisuals.multiplayer.ms") : "";
+    }
+
+    private static int tileTint(ServerInfo info) {
+        String source = info.address == null ? (info.name == null ? "?" : info.name) : info.address;
+        int hash = Math.abs(source.hashCode());
+        return Theme.hsvToRgb((hash % 360) / 360.0f, 0.42f, 0.20f);
+    }
+
+    private static int letterColor(ServerInfo info) {
+        String source = info.address == null ? (info.name == null ? "?" : info.name) : info.address;
+        int hash = Math.abs(source.hashCode());
+        return Theme.hsvToRgb((hash % 360) / 360.0f, 0.45f, 0.80f);
+    }
+
+    private static int darker(int rgb) {
+        return ColorMath.mix(rgb, 0x000000, 0.38f);
+    }
+
+    // ------------------------------------------------------------------ lifecycle
 
     @Override
     public void close() {
@@ -863,6 +1368,22 @@ public final class LinkenMultiplayerScreen extends Screen {
         if (client != null) {
             client.setScreen(parent);
         }
+    }
+
+    @Override
+    public void removed() {
+        pinger.cancel();
+        for (NativeImageBackedTexture texture : faviconTextures) {
+            try {
+                texture.close();
+            } catch (RuntimeException failure) {
+                LinkenVisuals.LOGGER.debug("[Multiplayer] favicon close failed: {}", failure.toString());
+            }
+        }
+        faviconTextures.clear();
+        faviconIds.clear();
+        faviconTried.clear();
+        super.removed();
     }
 
     private void playClick() {
