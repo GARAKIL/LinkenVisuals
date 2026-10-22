@@ -42,7 +42,8 @@ public final class LinkenLanguageScreen extends Screen {
     private final Spring doneSpring = new Spring(0.0, 900.0, 50.0);
     private final Spring[] rowHover = new Spring[96];
 
-    private String query = "";
+    private final dev.linkenvisuals.util.input.TextInput query =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(40);
     private boolean searchFocused;
     private String selected;
     private float scroll;
@@ -83,7 +84,7 @@ public final class LinkenLanguageScreen extends Screen {
 
     private void refresh() {
         visible.clear();
-        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String needle = query.value().trim().toLowerCase(Locale.ROOT);
         for (Entry entry : all) {
             if (needle.isEmpty()
                 || entry.label().toLowerCase(Locale.ROOT).contains(needle)
@@ -221,10 +222,11 @@ public final class LinkenLanguageScreen extends Screen {
             searchFocused ? 1.3f : 1.0f,
             LinkenMenuChrome.rgba(searchFocused ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
                 searchFocused ? 170 : 24, fade), metrics.scale());
-        String shown = query.isBlank() ? "SEARCH LANGUAGES..." : query;
+        String queryValue = query.value();
+        String shown = queryValue.isBlank() ? "SEARCH LANGUAGES..." : queryValue;
         LinkenMenuChrome.drawText(context, LinkenFonts.mono(), shown, searchRect.x() + 14.0f,
             searchRect.y() + 13.0f, 9.0f,
-            LinkenMenuChrome.rgba(query.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
+            LinkenMenuChrome.rgba(queryValue.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
     }
 
     private void drawRow(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
@@ -354,14 +356,11 @@ public final class LinkenLanguageScreen extends Screen {
     @Override
     public boolean charTyped(CharInput input) {
         if (searchFocused) {
-            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-                return false;
-            }
-            if (query.length() < 40) {
-                query += input.asString();
+            boolean handled = query.charTyped(input);
+            if (handled) {
                 refresh();
             }
-            return true;
+            return handled;
         }
         return super.charTyped(input);
     }
@@ -370,17 +369,16 @@ public final class LinkenLanguageScreen extends Screen {
     public boolean keyPressed(KeyInput input) {
         int key = input.key();
         if (key == GLFW.GLFW_KEY_ESCAPE) {
-            if (searchFocused || !query.isBlank()) {
+            if (searchFocused || !query.value().isBlank()) {
                 searchFocused = false;
-                query = "";
+                query.clear();
                 refresh();
             } else {
                 close();
             }
             return true;
         }
-        if (key == GLFW.GLFW_KEY_BACKSPACE && searchFocused && !query.isEmpty()) {
-            query = query.substring(0, query.offsetByCodePoints(query.length(), -1));
+        if (searchFocused && query.keyPressed(input)) {
             refresh();
             return true;
         }

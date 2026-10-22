@@ -72,8 +72,10 @@ public final class LinkGuiScreen extends Screen {
 
     private static Category selected = Category.VISUAL;
     private static ModuleInfo focused;
-    private static final StringBuilder search = new StringBuilder();
-    private static final StringBuilder configName = new StringBuilder();
+    private static final dev.linkenvisuals.util.input.TextInput search =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(64);
+    private static final dev.linkenvisuals.util.input.TextInput configName =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(32);
     private static float scrollTarget;
     private static float panelScrollTarget;
     private static float configScrollTarget;
@@ -127,7 +129,8 @@ public final class LinkGuiScreen extends Screen {
     private boolean profileOpen = true;
     private boolean themeOpen = true;
     private SidePanel sidePanel = SidePanel.NONE;
-    private final StringBuilder sideInput = new StringBuilder();
+    private final dev.linkenvisuals.util.input.TextInput sideInput =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(64);
     private boolean sideInputFocused;
     private Rect sideCloseHit;
     private Rect sideAddHit;
@@ -402,7 +405,7 @@ public final class LinkGuiScreen extends Screen {
             IconPipeline.draw(context, LinkenFonts.iconsFa(), 0xF002, searchRect.x() + 15.0f, centerY, 13.0f,
                 LinkenMenuChrome.rgba(searchFocused ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED, openT));
         }
-        String query = search.toString();
+        String query = search.value();
         String placeholder = I18n.get("gui.search.placeholder");
         if (query.isEmpty() && !searchFocused) {
             LinkenMenuChrome.drawOn(context, LinkenFonts.body(), placeholder,
@@ -412,8 +415,9 @@ public final class LinkGuiScreen extends Screen {
             LinkenMenuChrome.drawOn(context, LinkenFonts.body(), query,
                 searchRect.x() + 30.0f, centerY, 12.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+            String beforeCaret = query.substring(0, Math.min(search.caret(), query.length()));
             float caret = searchRect.x() + 30.0f
-                + LinkenMenuChrome.textWidth(LinkenFonts.body(), query, 12.5f);
+                + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 12.5f);
             float blink = (System.currentTimeMillis() - lastTyped) < 700L
                 ? 1.0f : 0.35f + 0.65f * (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000.0 * 3.1));
             context.fill(Math.round(caret), Math.round(centerY - 7.0f),
@@ -525,14 +529,14 @@ public final class LinkGuiScreen extends Screen {
             () -> {
                 sidePanel = sidePanel == SidePanel.FRIENDS ? SidePanel.NONE : SidePanel.FRIENDS;
                 themeOpen = false;
-                sideInput.setLength(0);
+                sideInput.clear();
                 sideInputFocused = false;
                 playClick();
             },
             () -> {
                 sidePanel = sidePanel == SidePanel.WAYPOINTS ? SidePanel.NONE : SidePanel.WAYPOINTS;
                 themeOpen = false;
-                sideInput.setLength(0);
+                sideInput.clear();
                 sideInputFocused = false;
                 playClick();
             },
@@ -1313,7 +1317,7 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, input.x(), input.y(), input.width(), input.height(), 7.0f, 1.0f,
             LinkenMenuChrome.rgba(inputBorder, configInputFocused ? 120 : (inputHover ? 50 : 25), openT),
             metrics.scale());
-        String name = configName.toString();
+        String name = configName.value();
         if (name.isEmpty() && !configInputFocused) {
             LinkenMenuChrome.drawText(context, LinkenFonts.body(), I18n.get("gui.config.input_placeholder"),
                 input.x() + 15.0f, input.y() + 12.0f, 11.5f,
@@ -1323,7 +1327,9 @@ public final class LinkGuiScreen extends Screen {
                 input.x() + 15.0f, input.y() + 12.0f, 11.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
             if (configInputFocused) {
-                float caret = input.x() + 15.0f + LinkenMenuChrome.textWidth(LinkenFonts.body(), name, 11.5f);
+                String beforeCaret = name.substring(0, Math.min(configName.caret(), name.length()));
+                float caret = input.x() + 15.0f
+                    + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 11.5f);
                 context.fill(Math.round(caret), Math.round(input.y() + 10.0f),
                     Math.round(caret + 1.2f), Math.round(input.bottom() - 10.0f),
                     LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 220, openT));
@@ -1641,7 +1647,7 @@ public final class LinkGuiScreen extends Screen {
     }
 
     private List<ModuleInfo> visibleModules() {
-        String query = search.toString().trim().toLowerCase(Locale.ROOT);
+        String query = search.value().trim().toLowerCase(Locale.ROOT);
         List<ModuleInfo> source = query.isEmpty() && !searchAll
             ? ModuleRegistry.byCategory(selected) : ModuleRegistry.all();
         List<ModuleInfo> result = new ArrayList<>();
@@ -1705,13 +1711,15 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, input.x(), input.y(), input.width(), input.height(), 7.0f, 1.0f,
             LinkenMenuChrome.rgba(sideInputFocused ? LinkGuiTheme.ACCENT : 0xFFFFFF,
                 sideInputFocused ? 120 : 24, openT), metrics.scale());
-        String text = sideInput.toString();
+        String text = sideInput.value();
         String placeholder = I18n.get(friends ? "gui.friends.placeholder" : "gui.waypoints.placeholder");
         LinkenMenuChrome.drawOn(context, LinkenFonts.body(), text.isEmpty() ? placeholder : text,
             input.x() + 10.0f, input.y() + 16.0f, 10.5f,
             LinkenMenuChrome.rgba(text.isEmpty() ? LinkGuiTheme.MUTED3 : LinkGuiTheme.TEXT, openT));
         if (sideInputFocused) {
-            float caret = input.x() + 10.0f + LinkenMenuChrome.textWidth(LinkenFonts.body(), text, 10.5f);
+            String beforeCaret = text.substring(0, Math.min(sideInput.caret(), text.length()));
+            float caret = input.x() + 10.0f
+                + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 10.5f);
             context.fill(Math.round(caret), Math.round(input.y() + 9.0f),
                 Math.round(caret + 1.0f), Math.round(input.bottom() - 9.0f),
                 LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
@@ -1927,8 +1935,8 @@ public final class LinkGuiScreen extends Screen {
                 lastTyped = System.currentTimeMillis();
                 return true;
             }
-            if (sideAddHit != null && sideAddHit.contains(mx, my) && !sideInput.toString().trim().isEmpty()) {
-                String name = sideInput.toString().trim();
+            if (sideAddHit != null && sideAddHit.contains(mx, my) && !sideInput.value().trim().isEmpty()) {
+                String name = sideInput.value().trim();
                 boolean added;
                 if (sidePanel == SidePanel.FRIENDS) {
                     added = LinkGuiConfig.addFriend(name);
@@ -1942,7 +1950,7 @@ public final class LinkGuiScreen extends Screen {
                     added = false;
                 }
                 if (added) {
-                    sideInput.setLength(0);
+                    sideInput.clear();
                 }
                 playClick();
                 return true;
@@ -2177,11 +2185,11 @@ public final class LinkGuiScreen extends Screen {
                 setStatus("Enter a profile name", LinkGuiTheme.DANGER);
                 return true;
             }
-            boolean created = ConfigManager.createProfile(configName.toString());
+            boolean created = ConfigManager.createProfile(configName.value());
             setStatus(I18n.get(created ? "gui.config.status.created" : "gui.config.status.exists",
-                configName.toString()), created ? LinkGuiTheme.ACCENT : LinkGuiTheme.DANGER);
+                configName.value()), created ? LinkGuiTheme.ACCENT : LinkGuiTheme.DANGER);
             if (created) {
-                configName.setLength(0);
+                configName.clear();
             }
             playClick();
             return true;
@@ -2342,20 +2350,17 @@ public final class LinkGuiScreen extends Screen {
     @Override
     public boolean charTyped(CharInput input) {
         if (configInputFocused) {
-            if (input.isValidChar()) {
-                configName.append(input.asString());
+            if (configName.charTyped(input)) {
                 lastTyped = System.currentTimeMillis();
                 return true;
             }
             return false;
         }
-        if (sideInputFocused && input.isValidChar()) {
-            sideInput.append(input.asString());
+        if (sideInputFocused && sideInput.charTyped(input)) {
             lastTyped = System.currentTimeMillis();
             return true;
         }
-        if (searchFocused && input.isValidChar()) {
-            search.append(input.asString());
+        if (searchFocused && search.charTyped(input)) {
             lastTyped = System.currentTimeMillis();
             return true;
         }
@@ -2419,27 +2424,24 @@ public final class LinkGuiScreen extends Screen {
             }
             if (searchFocused) {
                 searchFocused = false;
-                search.setLength(0);
+                search.clear();
                 return true;
             }
             close();
             return true;
         }
 
-        if (sideInputFocused && input.key() == GLFW.GLFW_KEY_BACKSPACE && sideInput.length() > 0) {
-            sideInput.deleteCharAt(sideInput.length() - 1);
+        if (sideInputFocused && sideInput.keyPressed(input)) {
+            lastTyped = System.currentTimeMillis();
             return true;
         }
-        if (configInputFocused && input.key() == GLFW.GLFW_KEY_BACKSPACE && configName.length() > 0) {
-            configName.deleteCharAt(configName.length() - 1);
+        if (configInputFocused && configName.keyPressed(input)) {
+            lastTyped = System.currentTimeMillis();
             return true;
         }
-        if (searchFocused) {
-            if (input.key() == GLFW.GLFW_KEY_BACKSPACE && search.length() > 0) {
-                search.deleteCharAt(search.length() - 1);
-                lastTyped = System.currentTimeMillis();
-                return true;
-            }
+        if (searchFocused && search.keyPressed(input)) {
+            lastTyped = System.currentTimeMillis();
+            return true;
         }
 
         boolean ctrl = (input.modifiers() & GLFW.GLFW_MOD_CONTROL) != 0;
@@ -2475,7 +2477,7 @@ public final class LinkGuiScreen extends Screen {
             List<ModuleInfo> modules = ModuleRegistry.byCategory(category);
             focused = modules.isEmpty() ? null : modules.get(0);
         }
-        search.setLength(0);
+        search.clear();
         searchFocused = false;
         searchAll = false;
         scrollTarget = 0.0f;

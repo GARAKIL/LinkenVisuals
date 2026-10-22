@@ -91,7 +91,8 @@ public final class ClickGuiScreen extends Screen {
 
     private static Category selected = Category.VISUAL;
     private static ModuleInfo focused;
-    private static final StringBuilder search = new StringBuilder();
+    private static final dev.linkenvisuals.util.input.TextInput search =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(64);
     private static boolean searchOpen;
     private boolean closing;
     private long lastFrame = System.nanoTime();
@@ -474,7 +475,7 @@ public final class ClickGuiScreen extends Screen {
         RoundedRectPipeline.drawOutline(context, x, y, LIST_W, SEARCH_BAR_H,
             ColorMath.withAlpha(NeonEdge.cool(), Math.round(70 * openT)));
 
-        String query = search.toString();
+        String query = search.value();
         float textX = x + 13.0f;
         float textY = y + (SEARCH_BAR_H - 7.0f) * 0.5f;
 
@@ -484,7 +485,8 @@ public final class ClickGuiScreen extends Screen {
             MsdfText.draw(context, bold, query, textX, textY, 7.0f, ColorMath.withAlpha(0xFFFFFF, Math.round(240 * openT)));
         }
 
-        caretTarget = textX + MsdfText.width(bold, query, 7.0f) + 1.0f;
+        String beforeCaret = query.substring(0, Math.min(search.caret(), query.length()));
+        caretTarget = textX + MsdfText.width(bold, beforeCaret, 7.0f) + 1.0f;
         caretSpring.step(caretTarget, deltaSeconds);
         float caretX = (float) caretSpring.get();
 
@@ -1093,7 +1095,7 @@ public final class ClickGuiScreen extends Screen {
     }
 
     private List<ModuleInfo> visibleModules() {
-        String query = search.toString().trim().toLowerCase(Locale.ROOT);
+        String query = search.value().trim().toLowerCase(Locale.ROOT);
         List<ModuleInfo> result = new ArrayList<>();
         List<ModuleInfo> source = query.isEmpty() ? ModuleRegistry.byCategory(selected) : ModuleRegistry.all();
         for (ModuleInfo module : source) {
@@ -1123,7 +1125,7 @@ public final class ClickGuiScreen extends Screen {
                 selected = categories[i];
                 configPanel.resetInput();
                 scrollTarget = 0.0f;
-                search.setLength(0);
+                search.clear();
                 List<ModuleInfo> modules = ModuleRegistry.byCategory(selected);
                 focused = modules.isEmpty() ? null : modules.get(0);
                 return true;
@@ -1135,7 +1137,7 @@ public final class ClickGuiScreen extends Screen {
         if (Math.abs(mx - searchCx) <= RAIL_HIT * 0.5f && Math.abs(my - searchCy) <= RAIL_HIT * 0.5f) {
             searchOpen = !searchOpen;
             if (!searchOpen) {
-                search.setLength(0);
+                search.clear();
             }
             return true;
         }
@@ -1284,8 +1286,7 @@ public final class ClickGuiScreen extends Screen {
         if (selected == Category.CONFIG && configPanel.charTyped(input)) {
             return true;
         }
-        if (searchOpen && input.isValidChar()) {
-            search.append(input.asString());
+        if (searchOpen && search.charTyped(input)) {
             lastTyped = System.currentTimeMillis();
             return true;
         }
@@ -1318,14 +1319,13 @@ public final class ClickGuiScreen extends Screen {
             return true;
         }
         if (searchOpen) {
-            if (input.key() == GLFW.GLFW_KEY_BACKSPACE && search.length() > 0) {
-                search.deleteCharAt(search.length() - 1);
+            if (search.keyPressed(input)) {
                 lastTyped = System.currentTimeMillis();
                 return true;
             }
             if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
                 searchOpen = false;
-                search.setLength(0);
+                search.clear();
                 return true;
             }
         }

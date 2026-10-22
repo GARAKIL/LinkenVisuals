@@ -26,7 +26,13 @@ public final class ClassicGuiState {
 
     public static ClassicCategory selectedCategory = ClassicCategory.WORLD;
     public static String searchQuery = "";
+    public static final dev.linkenvisuals.util.input.TextInput searchInput =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(64);
     public static boolean searchActive = false;
+
+    public static void syncSearch() {
+        searchQuery = searchInput.value();
+    }
     public static final ScrollUtil scroll = new ScrollUtil();
 
     private ClassicGuiState() {
@@ -143,6 +149,7 @@ public final class ClassicGuiState {
 
     public static void resetTransientState() {
         searchQuery = "";
+        searchInput.clear();
         searchActive = false;
         for (ModuleInfo m : ModuleRegistry.all()) {
             m.cancelBinding();

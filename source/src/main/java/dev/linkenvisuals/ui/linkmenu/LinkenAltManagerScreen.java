@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.session.Session;
+import dev.linkenvisuals.util.input.TextInput;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -59,10 +60,11 @@ public final class LinkenAltManagerScreen extends Screen {
     private final List<LinkenMenuLayout.Rect> rowRects = new ArrayList<>();
 
     private StoredAccount selected;
-    private String query = "";
+    private final TextInput query = new TextInput().maxLength(32);
     private boolean searchFocused;
     private Modal modal = Modal.NONE;
-    private String draft = "";
+    private final TextInput draft = new TextInput().maxLength(16)
+        .filter(codepoint -> Character.isLetterOrDigit(codepoint) || codepoint == '_');
     private String modalError;
     private float scroll;
     private float scrollTarget;
@@ -108,7 +110,7 @@ public final class LinkenAltManagerScreen extends Screen {
 
     private void refresh() {
         visible.clear();
-        visible.addAll(AltAccountFilter.filter(AccountStorage.accounts(), query));
+        visible.addAll(AltAccountFilter.filter(AccountStorage.accounts(), query.value()));
         if (selected != null && AltAccountFilter.indexOf(visible, selected) < 0) {
             selected = visible.isEmpty() ? null : visible.get(0);
         }
@@ -160,7 +162,7 @@ public final class LinkenAltManagerScreen extends Screen {
     private void openModal(Modal type) {
         modal = type;
         modalError = null;
-        draft = "";
+        draft.clear();
         if (type == Modal.ADD) {
             searchFocused = false;
         }
@@ -173,7 +175,7 @@ public final class LinkenAltManagerScreen extends Screen {
 
     private void confirmModal() {
         if (modal == Modal.ADD) {
-            String name = draft.trim();
+            String name = draft.value().trim();
             if (!AccountStorage.isValidUsername(name)) {
                 modalError = "USERNAME MUST BE 3-16 CHARS (A-Z, 0-9, _).";
                 return;
@@ -239,7 +241,7 @@ public final class LinkenAltManagerScreen extends Screen {
             LinkenMenuLayout.MARGIN, 162.0f, 40.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
         String count = AccountStorage.accounts().size() == 1
             ? "1 SAVED ACCOUNT" : AccountStorage.accounts().size() + " SAVED ACCOUNTS";
-        if (!query.isBlank() && !AccountStorage.accounts().isEmpty()) {
+        if (!query.value().isBlank() && !AccountStorage.accounts().isEmpty()) {
             count += "  /  " + visible.size() + " MATCHING";
         }
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), count,
@@ -326,12 +328,14 @@ public final class LinkenAltManagerScreen extends Screen {
             searchFocused ? 1.3f : 1.0f,
             LinkenMenuChrome.rgba(searchFocused ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
                 searchFocused ? 170 : 24, fade), metrics.scale());
-        String shown = query.isBlank() ? "SEARCH ACCOUNTS..." : query;
+        String queryValue = query.value();
+        String shown = queryValue.isBlank() ? "SEARCH ACCOUNTS..." : queryValue;
         LinkenMenuChrome.drawText(context, LinkenFonts.mono(), shown, searchRect.x() + 16.0f,
             searchRect.y() + 15.0f, 9.5f,
-            LinkenMenuChrome.rgba(query.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
+            LinkenMenuChrome.rgba(queryValue.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
         if (searchFocused && (System.currentTimeMillis() / 500L) % 2L == 0L) {
-            float caretX = searchRect.x() + 16.0f + LinkenMenuChrome.textWidth(LinkenFonts.mono(), query, 9.5f);
+            String beforeCaret = queryValue.substring(0, Math.min(query.caret(), queryValue.length()));
+            float caretX = searchRect.x() + 16.0f + LinkenMenuChrome.textWidth(LinkenFonts.mono(), beforeCaret, 9.5f);
             context.fill(Math.round(caretX), Math.round(searchRect.y() + 14.0f),
                 Math.round(caretX + 1.0f), Math.round(searchRect.y() + 32.0f),
                 LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
@@ -431,13 +435,15 @@ public final class LinkenAltManagerScreen extends Screen {
             LinkenMenuChrome.roundedOutline(context, modalFieldRect.x(), modalFieldRect.y(),
                 modalFieldRect.width(), modalFieldRect.height(), 7.0f, 1.3f,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 170, fade), metrics.scale());
-            String shown = draft.isBlank() ? "USERNAME..." : draft;
+            String draftValue = draft.value();
+            String shown = draftValue.isBlank() ? "USERNAME..." : draftValue;
             LinkenMenuChrome.drawText(context, LinkenFonts.mono(), shown,
                 modalFieldRect.x() + 16.0f, modalFieldRect.y() + 18.0f, 10.0f,
-                LinkenMenuChrome.rgba(draft.isBlank() ? LinkenMenuChrome.MUTED4 : LinkenMenuChrome.TEXT2, fade));
+                LinkenMenuChrome.rgba(draftValue.isBlank() ? LinkenMenuChrome.MUTED4 : LinkenMenuChrome.TEXT2, fade));
             if ((System.currentTimeMillis() / 500L) % 2L == 0L) {
+                String beforeCaret = draftValue.substring(0, Math.min(draft.caret(), draftValue.length()));
                 float caretX = modalFieldRect.x() + 16.0f
-                    + LinkenMenuChrome.textWidth(LinkenFonts.mono(), draft, 10.0f);
+                    + LinkenMenuChrome.textWidth(LinkenFonts.mono(), beforeCaret, 10.0f);
                 context.fill(Math.round(caretX), Math.round(modalFieldRect.y() + 17.0f),
                     Math.round(caretX + 1.0f), Math.round(modalFieldRect.y() + 37.0f),
                     LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
@@ -598,28 +604,17 @@ public final class LinkenAltManagerScreen extends Screen {
     @Override
     public boolean charTyped(CharInput input) {
         if (modal == Modal.ADD) {
-            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-                return false;
-            }
-            String value = input.asString();
-            if (draft.length() + value.length() <= 16
-                && value.codePoints().allMatch(ch -> Character.isLetterOrDigit(ch) || ch == '_')) {
-                draft += value;
-            }
-            return true;
+            return draft.charTyped(input);
         }
         if (modal != Modal.NONE) {
             return true;
         }
         if (searchFocused) {
-            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-                return false;
-            }
-            if (query.length() < 32) {
-                query += input.asString();
+            boolean handled = query.charTyped(input);
+            if (handled) {
                 refresh();
             }
-            return true;
+            return handled;
         }
         return super.charTyped(input);
     }
@@ -628,16 +623,15 @@ public final class LinkenAltManagerScreen extends Screen {
     public boolean keyPressed(KeyInput input) {
         int key = input.key();
         if (modal == Modal.ADD) {
+            if (draft.keyPressed(input)) {
+                return true;
+            }
             if (key == GLFW.GLFW_KEY_ESCAPE) {
                 closeModal();
                 return true;
             }
             if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
                 confirmModal();
-                return true;
-            }
-            if (key == GLFW.GLFW_KEY_BACKSPACE && !draft.isEmpty()) {
-                draft = draft.substring(0, draft.offsetByCodePoints(draft.length(), -1));
                 return true;
             }
             return true;
@@ -654,9 +648,9 @@ public final class LinkenAltManagerScreen extends Screen {
             return true;
         }
         if (key == GLFW.GLFW_KEY_ESCAPE) {
-            if (searchFocused || !query.isBlank()) {
+            if (searchFocused || !query.value().isBlank()) {
                 searchFocused = false;
-                query = "";
+                query.clear();
                 refresh();
             } else {
                 close();
@@ -669,8 +663,7 @@ public final class LinkenAltManagerScreen extends Screen {
             }
             return true;
         }
-        if (key == GLFW.GLFW_KEY_BACKSPACE && searchFocused && !query.isEmpty()) {
-            query = query.substring(0, query.offsetByCodePoints(query.length(), -1));
+        if (searchFocused && query.keyPressed(input)) {
             refresh();
             return true;
         }

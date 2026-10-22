@@ -10,6 +10,7 @@ import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.util.ColorMath;
+import dev.linkenvisuals.util.input.TextInput;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Click;
@@ -98,7 +99,7 @@ public final class LinkenMultiplayerScreen extends Screen {
     private final List<LinkenMenuLayout.Rect> rowRects = new ArrayList<>();
 
     private int selected = -1;
-    private String query = "";
+    private final TextInput query = new TextInput().maxLength(128);
     private boolean searchFocused;
     private float scroll;
     private float scrollTarget;
@@ -112,8 +113,8 @@ public final class LinkenMultiplayerScreen extends Screen {
     private float parallaxY;
 
     private Modal modal = Modal.NONE;
-    private String nameInput = "";
-    private String addressInput = "";
+    private final TextInput nameInput = new TextInput().maxLength(40);
+    private final TextInput addressInput = new TextInput().maxLength(128);
     private int focusedField = -1;
     private String modalError;
     private int packPolicy = 1;
@@ -196,7 +197,7 @@ public final class LinkenMultiplayerScreen extends Screen {
 
     private void rebuildVisible() {
         visible.clear();
-        String needle = query.trim().toLowerCase(Locale.ROOT);
+        String needle = query.value().trim().toLowerCase(Locale.ROOT);
         for (ServerInfo info : servers) {
             if (needle.isEmpty() || matches(info, needle)) {
                 visible.add(info);
@@ -476,10 +477,12 @@ public final class LinkenMultiplayerScreen extends Screen {
                 I18n.get("linkenvisuals.multiplayer.search"), textX, sy + searchHeight * 0.5f,
                 12.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, 1.0f));
         } else {
-            LinkenMenuChrome.drawOn(context, LinkenFonts.body(), query, textX,
+            LinkenMenuChrome.drawOn(context, LinkenFonts.body(), query.value(), textX,
                 sy + searchHeight * 0.5f, 12.5f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
             if (searchFocused && (System.currentTimeMillis() / 500L) % 2L == 0L) {
-                float caretX = textX + LinkenMenuChrome.textWidth(LinkenFonts.body(), query, 12.5f) + 1.0f;
+                String beforeCaret = query.value().substring(0, Math.min(query.caret(), query.value().length()));
+                float caretX = textX
+                    + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 12.5f) + 1.0f;
                 context.fill(Math.round(caretX), Math.round(sy + 12.0f), Math.round(caretX + 1.0f),
                     Math.round(sy + 24.0f), LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT2, 1.0f));
             }
@@ -877,7 +880,8 @@ public final class LinkenMultiplayerScreen extends Screen {
     }
 
     private void drawField(DrawContext context, LinkenMenuLayout.Rect rect, String label,
-                           String value, boolean focused, float fade, float scale) {
+                           TextInput input, boolean focused, float fade, float scale) {
+        String value = input.value();
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), label, rect.x(), rect.y() - 17.0f,
             11.0f, LinkenMenuChrome.rgba(
                 focused ? LinkenMenuChrome.ACCENT : LinkenMenuChrome.MUTED3, fade));
@@ -894,8 +898,9 @@ public final class LinkenMultiplayerScreen extends Screen {
             12.5f, LinkenMenuChrome.rgba(value.isBlank() && !focused
                 ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
         if (focused && (System.currentTimeMillis() / 500L) % 2L == 0L) {
+            String beforeCaret = value.substring(0, Math.min(input.caret(), value.length()));
             float caretX = rect.x() + 13.0f
-                + LinkenMenuChrome.textWidth(LinkenFonts.body(), value, 12.5f);
+                + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 12.5f);
             context.fill(Math.round(caretX), Math.round(rect.y() + 12.0f),
                 Math.round(caretX + 1.5f), Math.round(rect.y() + 24.0f),
                 LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
@@ -1035,23 +1040,15 @@ public final class LinkenMultiplayerScreen extends Screen {
     @Override
     public boolean charTyped(CharInput input) {
         if (modal != Modal.NONE && focusedField >= 0) {
-            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-                return false;
-            }
-            String value = input.asString();
-            if (focusedField == 0) {
-                if (nameInput.length() < 40) {
-                    nameInput += value;
-                }
-            } else if (addressInput.length() < 128) {
-                addressInput += value;
-            }
-            return true;
+            TextInput target = focusedField == 0 ? nameInput : addressInput;
+            return target.charTyped(input);
         }
-        if (searchFocused && input.isValidChar() && !Character.isISOControl(input.codepoint())) {
-            query += input.asString();
-            rebuildVisible();
-            return true;
+        if (searchFocused) {
+            boolean handled = query.charTyped(input);
+            if (handled) {
+                rebuildVisible();
+            }
+            return handled;
         }
         return super.charTyped(input);
     }
@@ -1060,6 +1057,12 @@ public final class LinkenMultiplayerScreen extends Screen {
     public boolean keyPressed(KeyInput input) {
         int key = input.key();
         if (modal != Modal.NONE) {
+            if (focusedField >= 0) {
+                TextInput target = focusedField == 0 ? nameInput : addressInput;
+                if (target.keyPressed(input)) {
+                    return true;
+                }
+            }
             if (key == GLFW.GLFW_KEY_ESCAPE) {
                 playClick();
                 closeModal();
@@ -1076,15 +1079,6 @@ public final class LinkenMultiplayerScreen extends Screen {
                 }
                 return true;
             }
-            if (key == GLFW.GLFW_KEY_BACKSPACE && focusedField >= 0) {
-                if (focusedField == 0 && !nameInput.isEmpty()) {
-                    nameInput = nameInput.substring(0, nameInput.offsetByCodePoints(nameInput.length(), -1));
-                } else if (focusedField == 1 && !addressInput.isEmpty()) {
-                    addressInput = addressInput.substring(0,
-                        addressInput.offsetByCodePoints(addressInput.length(), -1));
-                }
-                return true;
-            }
             return true;
         }
         if (key == GLFW.GLFW_KEY_ESCAPE) {
@@ -1092,11 +1086,8 @@ public final class LinkenMultiplayerScreen extends Screen {
             return true;
         }
         if (searchFocused) {
-            if (key == GLFW.GLFW_KEY_BACKSPACE) {
-                if (!query.isEmpty()) {
-                    query = query.substring(0, query.offsetByCodePoints(query.length(), -1));
-                    rebuildVisible();
-                }
+            if (query.keyPressed(input)) {
+                rebuildVisible();
                 return true;
             }
             if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
@@ -1159,20 +1150,20 @@ public final class LinkenMultiplayerScreen extends Screen {
         modalError = null;
         focusedField = type == Modal.DIRECT ? 1 : 0;
         if (type == Modal.ADD) {
-            nameInput = "";
-            addressInput = "";
+            nameInput.clear();
+            addressInput.clear();
         } else if (type == Modal.EDIT && selected >= 0 && selected < visible.size()) {
             ServerInfo info = visible.get(selected);
-            nameInput = info.name == null ? "" : info.name;
-            addressInput = info.address == null ? "" : info.address;
+            nameInput.setValue(info.name == null ? "" : info.name);
+            addressInput.setValue(info.address == null ? "" : info.address);
             packPolicy = switch (info.getResourcePackPolicy()) {
                 case DISABLED -> 0;
                 case ENABLED -> 2;
                 default -> 1;
             };
         } else if (type == Modal.DIRECT) {
-            addressInput = "";
-            nameInput = "";
+            addressInput.clear();
+            nameInput.clear();
             packPolicy = 1;
         } else {
             packPolicy = 1;
@@ -1196,7 +1187,7 @@ public final class LinkenMultiplayerScreen extends Screen {
             }
             return;
         }
-        String address = addressInput.trim();
+        String address = addressInput.value().trim();
         if (address.isEmpty() || !ServerAddress.isValid(address)) {
             modalError = I18n.get("linkenvisuals.multiplayer.invalid_address");
             focusedField = 1;
@@ -1208,7 +1199,7 @@ public final class LinkenMultiplayerScreen extends Screen {
             ConnectScreen.connect(this, client, ServerAddress.parse(address), info, false, null);
             return;
         }
-        String name = nameInput.trim().isEmpty() ? address : nameInput.trim();
+        String name = nameInput.value().trim().isEmpty() ? address : nameInput.value().trim();
         if (modal == Modal.ADD && serverList != null) {
             ServerInfo info = new ServerInfo(name, address, ServerInfo.ServerType.OTHER);
             info.setResourcePackPolicy(policyFor(packPolicy));

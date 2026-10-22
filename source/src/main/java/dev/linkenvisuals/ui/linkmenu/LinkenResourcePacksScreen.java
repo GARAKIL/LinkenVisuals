@@ -59,7 +59,8 @@ public final class LinkenResourcePacksScreen extends Screen {
 
     private ResourcePackOrganizer organizer;
     private Pack pendingIncompatible;
-    private String query = "";
+    private final dev.linkenvisuals.util.input.TextInput query =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(40);
     private boolean searchFocused;
     private float scrollAvailable;
     private float scrollTargetAvailable;
@@ -109,7 +110,7 @@ public final class LinkenResourcePacksScreen extends Screen {
         if (organizer == null) {
             return;
         }
-        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String needle = query.value().trim().toLowerCase(Locale.ROOT);
         for (Pack pack : organizer.getDisabledPacks().toList()) {
             if (matches(pack)) {
                 available.add(pack);
@@ -131,7 +132,7 @@ public final class LinkenResourcePacksScreen extends Screen {
             pack.getDisplayName().getString(),
             pack.getDescription().getString(),
             pack.getName(),
-            query);
+            query.value());
     }
 
     private static float listHeight() {
@@ -473,10 +474,11 @@ public final class LinkenResourcePacksScreen extends Screen {
             searchFocused ? 1.3f : 1.0f,
             LinkenMenuChrome.rgba(searchFocused ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
                 searchFocused ? 170 : 24, fade), metrics.scale());
-        String shown = query.isBlank() ? "SEARCH PACKS..." : query;
+        String queryValue = query.value();
+        String shown = queryValue.isBlank() ? "SEARCH PACKS..." : queryValue;
         LinkenMenuChrome.drawText(context, LinkenFonts.mono(), shown, searchRect.x() + 14.0f,
             searchRect.y() + 13.0f, 9.0f,
-            LinkenMenuChrome.rgba(query.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
+            LinkenMenuChrome.rgba(queryValue.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
     }
 
     private void drawChip(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,
@@ -607,14 +609,11 @@ public final class LinkenResourcePacksScreen extends Screen {
     @Override
     public boolean charTyped(CharInput input) {
         if (searchFocused) {
-            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-                return false;
-            }
-            if (query.length() < 40) {
-                query += input.asString();
+            boolean handled = query.charTyped(input);
+            if (handled) {
                 refreshLists();
             }
-            return true;
+            return handled;
         }
         return super.charTyped(input);
     }
@@ -627,17 +626,16 @@ public final class LinkenResourcePacksScreen extends Screen {
                 pendingIncompatible = null;
                 return true;
             }
-            if (searchFocused || !query.isBlank()) {
+            if (searchFocused || !query.value().isBlank()) {
                 searchFocused = false;
-                query = "";
+                query.clear();
                 refreshLists();
             } else {
                 close();
             }
             return true;
         }
-        if (key == GLFW.GLFW_KEY_BACKSPACE && searchFocused && !query.isEmpty()) {
-            query = query.substring(0, query.offsetByCodePoints(query.length(), -1));
+        if (searchFocused && query.keyPressed(input)) {
             refreshLists();
             return true;
         }

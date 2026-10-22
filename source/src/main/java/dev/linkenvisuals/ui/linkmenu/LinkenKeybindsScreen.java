@@ -63,7 +63,8 @@ public final class LinkenKeybindsScreen extends Screen {
     private final Spring doneSpring = new Spring(0.0, 900.0, 50.0);
     private final Spring[] rowHover = new Spring[96];
 
-    private String query = "";
+    private final dev.linkenvisuals.util.input.TextInput query =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(40);
     private boolean searchFocused;
     private KeyBinding listening;
     private float scroll;
@@ -98,7 +99,7 @@ public final class LinkenKeybindsScreen extends Screen {
         if (client == null || client.options == null) {
             return;
         }
-        String needle = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
+        String needle = query.value().trim().toLowerCase(Locale.ROOT);
         Map<KeyBinding.Category, List<KeyBinding>> groups = new LinkedHashMap<>();
         for (KeyBinding binding : client.options.allKeys) {
             if (binding == null) {
@@ -270,10 +271,11 @@ public final class LinkenKeybindsScreen extends Screen {
             searchFocused ? 1.3f : 1.0f,
             LinkenMenuChrome.rgba(searchFocused ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
                 searchFocused ? 170 : 24, fade), metrics.scale());
-        String shown = query.isBlank() ? "SEARCH BINDS..." : query;
+        String queryValue = query.value();
+        String shown = queryValue.isBlank() ? "SEARCH BINDS..." : queryValue;
         LinkenMenuChrome.drawText(context, LinkenFonts.mono(), shown, searchRect.x() + 14.0f,
             searchRect.y() + 13.0f, 9.0f,
-            LinkenMenuChrome.rgba(query.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
+            LinkenMenuChrome.rgba(queryValue.isBlank() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT2, fade));
     }
 
     private void drawHeader(DrawContext context, LinkenMenuLayout.Rect rect, String label, float fade) {
@@ -458,17 +460,16 @@ public final class LinkenKeybindsScreen extends Screen {
             return true;
         }
         if (key == GLFW.GLFW_KEY_ESCAPE) {
-            if (searchFocused || !query.isBlank()) {
+            if (searchFocused || !query.value().isBlank()) {
                 searchFocused = false;
-                query = "";
+                query.clear();
                 refresh();
             } else {
                 close();
             }
             return true;
         }
-        if (key == GLFW.GLFW_KEY_BACKSPACE && searchFocused && !query.isEmpty()) {
-            query = query.substring(0, query.offsetByCodePoints(query.length(), -1));
+        if (searchFocused && query.keyPressed(input)) {
             refresh();
             return true;
         }
@@ -486,14 +487,11 @@ public final class LinkenKeybindsScreen extends Screen {
     @Override
     public boolean charTyped(CharInput input) {
         if (searchFocused && listening == null) {
-            if (!input.isValidChar() || Character.isISOControl(input.codepoint())) {
-                return false;
-            }
-            if (query.length() < 40) {
-                query += input.asString();
+            boolean handled = query.charTyped(input);
+            if (handled) {
                 refresh();
             }
-            return true;
+            return handled;
         }
         return super.charTyped(input);
     }

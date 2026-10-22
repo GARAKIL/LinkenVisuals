@@ -49,7 +49,10 @@ final class ConfigPanel {
     private GlyphAtlas bold;
     private Scrollbar scrollbar;
 
-    private static final StringBuilder nameInput = new StringBuilder();
+    private static final dev.linkenvisuals.util.input.TextInput nameInput =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(24)
+            .filter(codepoint -> Character.isLetterOrDigit(codepoint)
+                || codepoint == '_' || codepoint == '-' || codepoint == ' ');
     private static boolean inputFocused;
     private static float scrollTarget;
     private static String statusMessage = null;
@@ -117,11 +120,14 @@ final class ConfigPanel {
             MsdfText.draw(context, text, I18n.get("gui.config.input_placeholder"),
                 inputX + 8.0f, inputTextY, 6.6f, ColorMath.withAlpha(0x777E90, Math.round(180 * openT)));
         } else {
-            MsdfText.draw(context, bold, nameInput.toString(), inputX + 8.0f, inputTextY, 6.6f,
+            MsdfText.draw(context, bold, nameInput.value(), inputX + 8.0f, inputTextY, 6.6f,
                 ColorMath.withAlpha(0xFFFFFF, Math.round(230 * openT)));
         }
         if (inputFocused && (System.currentTimeMillis() % 1000L) < 500L) {
-            float curX = inputX + 8.0f + (nameInput.length() == 0 ? 0.0f : MsdfText.width(bold, nameInput.toString(), 6.6f) + 1.0f);
+            String beforeCaret = nameInput.value().substring(0,
+                Math.min(nameInput.caret(), nameInput.value().length()));
+            float curX = inputX + 8.0f
+                + (nameInput.length() == 0 ? 0.0f : MsdfText.width(bold, beforeCaret, 6.6f) + 1.0f);
             context.fill(Math.round(curX), Math.round(inputY + 5.0f), Math.round(curX + 1.0f), Math.round(inputY + inputH - 5.0f),
                 ColorMath.withAlpha(NeonEdge.cool(), Math.round(230 * openT)));
         }
@@ -446,25 +452,17 @@ final class ConfigPanel {
     }
 
     boolean charTyped(CharInput input) {
-        if (!inputFocused || !input.isValidChar()) {
+        if (!inputFocused) {
             return false;
         }
-        char c = input.asString().charAt(0);
-        if (Character.isLetterOrDigit(c) || c == '_' || c == '-' || c == ' ') {
-            if (nameInput.length() < 24) {
-                nameInput.append(c);
-                return true;
-            }
-        }
-        return false;
+        return nameInput.charTyped(input);
     }
 
     boolean keyPressed(KeyInput input) {
         if (!inputFocused) {
             return false;
         }
-        if (input.key() == GLFW.GLFW_KEY_BACKSPACE && nameInput.length() > 0) {
-            nameInput.deleteCharAt(nameInput.length() - 1);
+        if (nameInput.keyPressed(input)) {
             return true;
         }
         if (input.key() == GLFW.GLFW_KEY_ENTER || input.key() == GLFW.GLFW_KEY_KP_ENTER) {
@@ -485,20 +483,20 @@ final class ConfigPanel {
 
     void resetInput() {
         inputFocused = false;
-        nameInput.setLength(0);
+        nameInput.clear();
         listAge = 0.0;
         cardHover.clear();
     }
 
     private void createFromInput() {
-        String name = nameInput.toString().trim();
+        String name = nameInput.value().trim();
         if (!name.isEmpty()) {
             boolean ok = ConfigManager.createProfile(name);
             if (ok) {
                 setStatus(I18n.get("gui.config.status.created", name), 0x4ADE80);
                 playUiSound(LinkenVisuals.TOGGLE_ON_SOUND);
             }
-            nameInput.setLength(0);
+            nameInput.clear();
             inputFocused = false;
         }
     }

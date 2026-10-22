@@ -37,7 +37,8 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
 
     private final Screen parent;
     private WorldListWidget levelList;
-    private final StringBuilder search = new StringBuilder();
+    private final dev.linkenvisuals.util.input.TextInput search =
+        new dev.linkenvisuals.util.input.TextInput().maxLength(64);
     private boolean searchFocused;
     private long lastTyped;
     private float scroll;
@@ -60,7 +61,7 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
         if (levelList != null) {
             levelList.visible = false;
             levelList.load();
-            levelList.setSearch(search.toString());
+            levelList.setSearch(search.value());
         }
         // Keep the functional widgets alive for keyboard/double-click handling,
         // but never render their vanilla chrome.
@@ -104,13 +105,15 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
         LinkenMenuChrome.roundedOutline(context, searchHit.x(), searchHit.y(), searchHit.width(), searchHit.height(),
             8.0f, 1.0f, LinkenMenuChrome.rgba(searchFocused ? LinkenMenuChrome.ACCENT : 0xFFFFFF,
                 searchFocused ? 130 : (searchHover ? 50 : 24), 1.0f), metrics.scale());
-        String query = search.toString();
+        String query = search.value();
         LinkenMenuChrome.drawOn(context, LinkenFonts.body(),
             query.isEmpty() ? I18n.get("linkmenu.select.search") : query,
             searchHit.x() + 14.0f, searchHit.y() + 20.0f, 11.5f,
             LinkenMenuChrome.rgba(query.isEmpty() ? LinkenMenuChrome.MUTED3 : LinkenMenuChrome.TEXT, 1.0f));
         if (searchFocused) {
-            float caret = searchHit.x() + 14.0f + LinkenMenuChrome.textWidth(LinkenFonts.body(), query, 11.5f);
+            String beforeCaret = query.substring(0, Math.min(search.caret(), query.length()));
+            float caret = searchHit.x() + 14.0f
+                + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 11.5f);
             context.fill(Math.round(caret), Math.round(searchHit.y() + 11.0f),
                 Math.round(caret + 1.2f), Math.round(searchHit.bottom() - 11.0f),
                 LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 220, 1.0f));
@@ -364,11 +367,10 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
 
     @Override
     public boolean charTyped(CharInput input) {
-        if (searchFocused && input.isValidChar()) {
-            search.append(input.asString());
+        if (searchFocused && search.charTyped(input)) {
             lastTyped = Util.getMeasuringTimeMs();
             if (levelList != null) {
-                levelList.setSearch(search.toString());
+                levelList.setSearch(search.value());
             }
             return true;
         }
@@ -381,10 +383,9 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
             close();
             return true;
         }
-        if (searchFocused && input.key() == GLFW.GLFW_KEY_BACKSPACE && search.length() > 0) {
-            search.deleteCharAt(search.length() - 1);
+        if (searchFocused && search.keyPressed(input)) {
             if (levelList != null) {
-                levelList.setSearch(search.toString());
+                levelList.setSearch(search.value());
             }
             return true;
         }

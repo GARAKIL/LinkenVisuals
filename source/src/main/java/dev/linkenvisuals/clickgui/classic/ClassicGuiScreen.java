@@ -205,9 +205,14 @@ public class ClassicGuiScreen extends Screen {
 
         // Search active typing
         if (ClassicGuiState.searchActive) {
+            if (ClassicGuiState.searchInput.keyPressed(input)) {
+                ClassicGuiState.syncSearch();
+                return true;
+            }
             if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
                 if (!ClassicGuiState.searchQuery.isEmpty()) {
-                    ClassicGuiState.searchQuery = "";
+                    ClassicGuiState.searchInput.clear();
+                    ClassicGuiState.syncSearch();
                 } else {
                     ClassicGuiState.searchActive = false;
                 }
@@ -215,12 +220,6 @@ public class ClassicGuiScreen extends Screen {
             }
             if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
                 ClassicGuiState.searchActive = false;
-                return true;
-            }
-            if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
-                if (!ClassicGuiState.searchQuery.isEmpty()) {
-                    ClassicGuiState.searchQuery = ClassicGuiState.searchQuery.substring(0, ClassicGuiState.searchQuery.length() - 1);
-                }
                 return true;
             }
             return true;
@@ -276,8 +275,8 @@ public class ClassicGuiScreen extends Screen {
 
     @Override
     public boolean charTyped(CharInput input) {
-        if (ClassicGuiState.searchActive && input.isValidChar()) {
-            ClassicGuiState.searchQuery += input.asString();
+        if (ClassicGuiState.searchActive && ClassicGuiState.searchInput.charTyped(input)) {
+            ClassicGuiState.syncSearch();
             return true;
         }
         return super.charTyped(input);
