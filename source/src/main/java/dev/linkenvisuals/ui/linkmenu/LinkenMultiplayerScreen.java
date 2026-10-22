@@ -388,12 +388,37 @@ public final class LinkenMultiplayerScreen extends Screen {
             ColorMath.withAlpha(0x111A15, 230), ColorMath.withAlpha(0x050807, 230));
         RoundedRectPipeline.drawVerticalGradient(context, x, y, w, Math.min(240.0f, h), 12.0f * scale,
             ColorMath.withAlpha(LinkenMenuChrome.ACCENT, 18), ColorMath.withAlpha(LinkenMenuChrome.ACCENT, 0));
+        hatch(context, x, y, w, h, scale);
         context.fill(Math.round(x + 12.0f), Math.round(y + 1.0f),
             Math.round(x + w - 12.0f), Math.round(y + 2.0f),
             LinkenMenuChrome.rgba(0xFFFFFF, 13, 1.0f));
         RoundedRectPipeline.drawBorder(context, x, y, w, h, 12.0f * scale,
             1.0f * scale, 1.4f * scale, 1.4f * scale,
             LinkenMenuChrome.rgba(0xFFFFFF, 23, 1.0f));
+    }
+
+    /** Donor repeating-linear-gradient(-45deg, white 0.014, transparent 1px 10px). */
+    private void hatch(DrawContext context, float x, float y, float w, float h, float scale) {
+        int color = LinkenMenuChrome.rgba(0xFFFFFF, 4, 1.0f);
+        float step = 10.0f * 1.4142f;
+        var matrices = context.getMatrices();
+        for (float d = step; d < w + h; d += step) {
+            float x1 = x + Math.max(0.0f, d - h);
+            float y1 = y + Math.min(d, h);
+            float x2 = x + Math.min(d, w);
+            float y2 = y + Math.max(0.0f, d - w);
+            float length = (float) Math.hypot(x2 - x1, y2 - y1);
+            if (length <= 0.5f) {
+                continue;
+            }
+            float angle = (float) Math.atan2(y2 - y1, x2 - x1);
+            matrices.pushMatrix();
+            matrices.translate((x1 + x2) * 0.5f, (y1 + y2) * 0.5f);
+            matrices.rotate(angle);
+            RoundedRectPipeline.draw(context, -length * 0.5f, -0.5f * scale,
+                length, 1.0f * scale, 0.5f * scale, color);
+            matrices.popMatrix();
+        }
     }
 
     private void corners(DrawContext context, float x, float y, float w, float h, float scale) {
@@ -1237,6 +1262,7 @@ public final class LinkenMultiplayerScreen extends Screen {
         }
         try {
             NativeImage image = NativeImage.read(data);
+            roundIconCorners(image);
             Identifier id = LinkenVisuals.id("dynamic/server_icon_" + faviconSerial++);
             NativeImageBackedTexture texture = new NativeImageBackedTexture(id::toString, image);
             client.getTextureManager().registerTexture(id, texture);
@@ -1252,6 +1278,29 @@ public final class LinkenMultiplayerScreen extends Screen {
     /** Autotest hook: renders the donor Add Server form without mouse simulation. */
     public void openAddModalForTest() {
         openModal(Modal.ADD);
+    }
+
+    /** Donor favicons are drawn as 32×32 with a 6 px radius; mask the source once on upload. */
+    private static void roundIconCorners(NativeImage image) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+        float halfWidth = width * 0.5f;
+        float halfHeight = height * 0.5f;
+        float radius = Math.min(width, height) * 6.0f / 32.0f;
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                float dx = Math.abs(x + 0.5f - halfWidth) - halfWidth + radius;
+                float dy = Math.abs(y + 0.5f - halfHeight) - halfHeight + radius;
+                float distance = (float) (Math.hypot(Math.max(dx, 0.0f), Math.max(dy, 0.0f)))
+                    + Math.min(Math.max(dx, dy), 0.0f) - radius;
+                if (distance > 0.5f) {
+                    image.setColorArgb(x, y, image.getColorArgb(x, y) & 0x00FFFFFF);
+                }
+            }
+        }
     }
 
     // ------------------------------------------------------------------ donor row helpers

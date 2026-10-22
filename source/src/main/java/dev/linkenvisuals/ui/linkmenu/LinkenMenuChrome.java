@@ -302,8 +302,8 @@ public final class LinkenMenuChrome {
         drawSpaced(context, LinkenFonts.body(), now,
             card.x() + (card.width() - nowWidth) * 0.5f, labelY, 10.5f, 0.84f, rgba(MUTED2, fade));
 
-        roundedFill(context, card.x(), rowY, coverSize, coverSize, coverSize * 0.5f,
-            rgba(0x201A17, 255, fade), uiScale);
+        RoundedRectPipeline.drawVerticalGradient(context, card.x(), rowY, coverSize, coverSize,
+            coverSize * 0.5f * uiScale, rgba(0x37302A, 255, fade), rgba(0x12100E, 255, fade));
         boolean playing = present && track.playing();
         Identifier icon = playing ? MUSIC_PAUSE : MUSIC_PLAY;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, icon,
@@ -319,10 +319,10 @@ public final class LinkenMenuChrome {
             drawOn(context, LinkenFonts.heading(), title, textX, rowCenter, 13.0f,
                 rgba(TEXT, fade));
             float byX = textX + textWidth(LinkenFonts.heading(), title, 13.0f) + 4.0f;
-            float byWidth = textWidth(LinkenFonts.body(), "by ", 11.0f);
+            float byWidth = textWidth(LinkenFonts.headingLight(), "by ", 11.0f);
             String artist = ellipsize(LinkenFonts.heading(), track.artist(),
                 Math.max(0.0f, card.right() - byX - byWidth), 13.0f);
-            drawOn(context, LinkenFonts.body(), "by", byX, rowCenter + 1.0f, 11.0f,
+            drawOn(context, LinkenFonts.headingLight(), "by", byX, rowCenter + 2.0f, 11.0f,
                 rgba(MUTED2, fade));
             drawOn(context, LinkenFonts.heading(), artist, byX + byWidth, rowCenter, 13.0f,
                 rgba(TEXT, fade));
