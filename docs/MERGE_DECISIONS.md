@@ -857,3 +857,14 @@
 - **Сборка**: jar `linkenvisuals-1.0.116.jar` (10 745 004 байт, SHA-256 `AED88ACD4B4CB9975AF9FEDECEF85F084B99CCEF606BF7F4C1E4F523C3832DDB`).
 - **Commit**: `45e6086` `fix(splash): replace Mojang logo with LINKEN bootstrap splash (v1.0.116, D93)`.
 - **Остаток**: donor Lottie `welcome.json` (Skija) не портирован; первые ~0.2 с bootstrap без wordmark; F3+T reload — на human-проверку.
+
+## 2026-10-22 · D94 · Layout-aware text shortcuts — v1.0.117
+- **Проблема**: vanilla `AbstractInput.isSelectAll/isCopy/isPaste/isCut` и `TextFieldWidget.keyPressed` сравнивают `getKeycode()` с US-кодами 65/67/86/88. На AZERTY/QWERTZ/кириллице физическая клавиша и напечатанный символ расходятся, поэтому Ctrl+A/C/V/X/Z не срабатывали.
+- **LayoutKeys**: `matches(input, latin)` принимает (1) физический US-keycode, (2) `GLFW.glfwGetKeyName(key, scancode)` — напечатанный символ, (3) Cyrillic-алиасы `а→a, с→c, м→v, ч→x, я→z, н→y`; вызов GLFW защищён try/catch. Покрывает US/AZERTY/QWERTZ/русскую и украинскую раскладки.
+- **TextInput**: общий редактор (`util/input`) — caret/selection, Ctrl+A/C/V/X, Ctrl+Z/Y (+Shift+Z), Ctrl+Backspace/Delete, Left/Right/Home/End, Ctrl+Insert/Shift+Insert/Shift+Delete, undo/redo 64 шага, maxLength + codepoint filter. Вставка фильтруется по control-символам.
+- **TextFieldWidgetMixin**: `keyPressed` HEAD обрабатывает layout-aware шорткаты и отменяет vanilla-путь; `write`/`erase` HEAD снимают snapshot для undo. Покрывает все ванильные поля (чат, наковальня, creative search, адрес сервера).
+- **Custom screens**: LinkenMultiplayer (query/name/address), AltManager (query/draft), Language/Keybinds/ResourcePacks/SubSettings (query), SelectWorld (search), LinkGUI (search/configName/sideInput), ConfigPanel (nameInput), Beta/Classic search.
+- **Evidence**: **231 тест** (+8: `TextInputTest`, `LayoutKeysTest`), 0 fail; autotest 697/697; mixin apply/shader/sound ошибок нет.
+- **Сборка**: jar `linkenvisuals-1.0.117.jar` (10 754 036 байт, SHA-256 `A8A17B389F80560AB9513DEBE4C913FD08B61500D3E4A6954AACCB01F4AD67DF`).
+- **Commit**: `c72fd70` `feat(input): make text shortcuts layout-aware everywhere (v1.0.117, D94)`.
+- **Остаток**: visual selection в кастомных полях не рисуется; human-проверка RU/UA/AZERTY/QWERTZ.

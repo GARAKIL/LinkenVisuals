@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №48 — layout-aware text shortcuts, D94) — v1.0.117
+
+### Сделано
+1. **D94/v1.0.117** (`c72fd70`): новый `LayoutKeys` принимает **и физическую US-клавишу, и напечатанный символ** через `GLFW.glfwGetKeyName` + Cyrillic-алиасы (`а/с/м/ч/я/н` → `a/c/v/x/z/y`). Ctrl/Cmd-шорткаты работают на US, AZERTY, QWERTZ и кириллице.
+2. **`TextInput`**: общий редактор для кастомных полей — caret/selection, Ctrl+A/C/V/X, Ctrl+Z/Y (+Shift+Z), Ctrl+Backspace/Delete, Left/Right/Home/End, Ctrl+Insert/Shift+Insert/Shift+Delete, undo/redo (64 шага), maxLength/filter.
+3. **Vanilla `TextFieldWidget`**: mixin обрабатывает layout-aware Ctrl-шорткаты до vanilla, ведёт undo-историю на `write`/`erase`. Покрывает чат, наковальню, creative search, адрес сервера и все ванильные поля.
+4. **LINKEN/ClickGUI**: multiplayer, Alt Manager, Language, Keybinds, Resource Packs, SubSettings, Select World, LinkGUI search/config/side input, ConfigPanel, Beta/Classic search переведены на `TextInput`.
+5. **Проверки**: **231 тест** (8 новых), 0 падений/ошибок/скипов; clean build зелёный; autotest **697/697**, 0 fail/skip; mixin apply/shader/sound ошибок нет.
+6. **Сборка**: jar `linkenvisuals-1.0.117.jar` (10 754 036 байт, SHA-256 `A8A17B389F80560AB9513DEBE4C913FD08B61500D3E4A6954AACCB01F4AD67DF`).
+
+### Следующая задача
+- Human-проверка шорткатов на RU/UA/AZERTY/QWERTZ в чате, creative search, multiplayer Add/Edit, Alt Manager, LinkGUI.
+- Затем HUD: Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Selection в кастомных полях не подсвечивается (caret есть, visual selection — нет); функционально Ctrl+A/C/X работают.
+- Cyrillic-алиасы покрывают только шесть shortcut-букв; остальные раскладки — physical US + printed Latin.
+- Classic/Beta search синхронизируют `searchQuery` вручную; при новых полях использовать `TextInput`.
+- Полный 100% pixel parity не заявлен.
+
 ## Состояние на 2026-10-22 (чат №47 — LINKEN splash вместо Mojang, D93) — v1.0.116
 
 ### Сделано

@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.116 / D93
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.117 / D94
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.116**
-- Tests at handoff: **223 / 0 failures / 0 errors / 0 skipped**
+- Version at handoff: **1.0.117**
+- Tests at handoff: **231 / 0 failures / 0 errors / 0 skipped**
 - Autotest at handoff: **697/697**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.116.jar`
-- Size: **10 745 004 bytes**
-- SHA-256: `AED88ACD4B4CB9975AF9FEDECEF85F084B99CCEF606BF7F4C1E4F523C3832DDB`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D93.
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.117.jar`
+- Size: **10 754 036 bytes**
+- SHA-256: `A8A17B389F80560AB9513DEBE4C913FD08B61500D3E4A6954AACCB01F4AD67DF`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D94.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.116
+Get-Content source/gradle.properties   # mod_version=1.0.117
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #47, D93);
-- `docs/MERGE_DECISIONS.md` — D80–D93;
-- `docs/ROADMAP.md` — M8.10–M8.19;
-- `docs/PORT_STATUS.md` — M8.14–M8.19;
+- `docs/HANDOFF.md` — top section (chat #48, D94);
+- `docs/MERGE_DECISIONS.md` — D80–D94;
+- `docs/ROADMAP.md` — M8.10–M8.20;
+- `docs/PORT_STATUS.md` — M8.14–M8.20;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -80,6 +80,7 @@ Read first:
 - D91/v1.0.114: donor **icons2** atlas + `MENU_ICON_*` for main-menu globe/person/gear/power/Telegram/Discord/LV/code.
 - D92/v1.0.115: donor **media cover** gradient/artist baseline, server window **-45° hatching**, CPU-rounded **favicon** mask 6/32.
 - D93/v1.0.116: **LINKEN splash replaces the Mojang logo from the first frame**; vanilla-only bootstrap progress until shaders/atlases are ready, then full `linken.` scene.
+- D94/v1.0.117: **layout-aware text shortcuts** — `LayoutKeys` + `TextInput`; Ctrl+A/C/V/X/Z/Y, word deletion and caret movement in all vanilla fields and LINKEN/ClickGUI text fields.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -175,6 +176,9 @@ source/src/main/java/dev/linkenvisuals/
   render/Pipelines.java
   ui/linkmenu/LinkenMenuChrome.java
   ui/linkmenu/LinkenMenuLayout.java
+  util/input/LayoutKeys.java
+  util/input/TextInput.java
+  mixin/TextFieldWidgetMixin.java
   mixin/InGameHudMixin.java
   mixin/PlayerListHudMixin.java
   autotest/AutoTestDriver.java
@@ -200,6 +204,7 @@ source/src/test/java/dev/linkenvisuals/
 - **Server browser**: `LinkenMultiplayerScreen` mirrors donor 4b list geometry (1000×272, topbar 68/row 64/footer 76); Add/Edit/Direct/Delete use a 460 px donor-style modal with resource-pack policy; window hatching and CPU-rounded favicons. Backend pinned servers are not ported.
 - **Main-menu icons**: use `LinkenFonts.icons2()` / `MENU_ICON_*`; do not swap the global `ICON_*` constants used by ClickGUI and auxiliary screens.
 - **Splash**: `SplashOverlayMixin` cancels vanilla from frame 0 and drives the reload itself; bootstrap must use only vanilla `fill/fillGradient` (no text/custom shaders) until `Pipelines.resourcesReady()`. Donor Lottie `welcome.json` is not ported (Skija out of scope); a lightweight welcome alternative is optional.
+- **Text input**: never compare Ctrl shortcuts to raw US keycodes only; use `LayoutKeys.matches(input, letter)` or `TextInput`. Vanilla fields are covered by `TextFieldWidgetMixin`; custom fields must use `TextInput`.
 - **Custom scoreboard**: `ScoreboardHud`; vanilla sidebar cancelled while enabled.
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
@@ -208,7 +213,7 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 9. Definition of Done for the next task
 
-- `clean build` green, **223+ tests** (or more) with zero failures/errors/skips.
+- `clean build` green, **231+ tests** (or more) with zero failures/errors/skips.
 - No new shader/sound errors in hidden/runClient log.
 - Every visible control works; no fake controls.
 - Beta/Vanilla unchanged; Linken style lock preserved.
@@ -219,4 +224,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test`, then decide whether to add a lightweight **welcome** intro (the donor's handwritten Lottie is Skija-only and excluded) and finish the remaining menu hover/press/server-row pixel pass. After that move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud or the LINKEN splash.
+Read the docs and current code, run `test`, then perform the **human keyboard-layout acceptance** (RU/UA/AZERTY/QWERTZ: Ctrl+A/C/V/X/Z/Y in chat, creative search, multiplayer Add/Edit, Alt Manager, LinkGUI), fix any field-specific gaps, and then move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud, the LINKEN splash or the input shortcuts.

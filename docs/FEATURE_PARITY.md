@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.116**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.117**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -87,11 +87,14 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **223 tests / 0 failures / 0 errors / 0 skips**.
+- `clean build`: **231 tests / 0 failures / 0 errors / 0 skips**.
 - Hidden `runAutotest`: **697/697 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. A separate frame-capture 1280×720 confirms the LINKEN
   splash replaces the Mojang logo from the first frame.
+- Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
+  movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
+  QWERTZ acceptance remains a human check.
 - Screenshots at 1280×720 and 1920×1080 for title, LinkGUI, pinned cards,
   custom scoreboard and all eight HUD styles; TargetHUD/CoordinatesHud
   self-previews and the donor server browser + Add modal were captured at
