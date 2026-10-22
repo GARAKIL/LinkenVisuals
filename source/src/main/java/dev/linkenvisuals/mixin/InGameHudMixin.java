@@ -1,6 +1,7 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.hud.HudManager;
+import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
@@ -10,6 +11,7 @@ import dev.linkenvisuals.util.text.StreamerTextSanitizer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,6 +30,14 @@ public abstract class InGameHudMixin {
     @Inject(method = "render", at = @At("TAIL"))
     private void linkenvisuals$render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         HudManager.render(context);
+    }
+
+    @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$cancelVanillaScoreboard(DrawContext context, ScoreboardObjective objective,
+                                                       CallbackInfo ci) {
+        if (ModuleRegistry.customScoreboard() != null && ModuleRegistry.customScoreboard().value()) {
+            ci.cancel();
+        }
     }
 
     @Inject(method = "renderHotbar", at = @At("HEAD"), cancellable = true)

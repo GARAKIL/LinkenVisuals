@@ -77,12 +77,14 @@ public final class LinkGuiScreen extends Screen {
     private static float scrollTarget;
     private static float panelScrollTarget;
     private static float configScrollTarget;
+    private static float interfaceScrollTarget;
     private static boolean configInputFocused;
 
     private final Spring openSpring = new Spring(0.0, 900.0, 42.0);
     private final Spring scrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Spring panelScrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Spring configScrollSpring = new Spring(0.0, 1100.0, 60.0);
+    private final Spring interfaceScrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Map<ModuleInfo, Spring> cardHover = new HashMap<>();
     private final Spring closeHover = new Spring(0.0, 900.0, 50.0);
     private final LinkGuiCursorTrail cursorTrail = new LinkGuiCursorTrail();
@@ -115,6 +117,8 @@ public final class LinkGuiScreen extends Screen {
     private Rect closeHit;
     private final List<ThemeHit> themeHits = new ArrayList<>();
     private Rect searchHit;
+    private float interfaceContentHeight;
+    private float interfaceViewHeight;
     private Rect allHit;
     private Rect headerToggleHit;
     private Rect moduleBindHit;
@@ -1831,22 +1835,39 @@ public final class LinkGuiScreen extends Screen {
 
         interfaceHits.clear();
         ModuleInfo ui = clickGuiModule();
-        float rowY = interfaceY + 24.0f;
+        List<Setting> interfaceSettings = new ArrayList<>();
         if (ui != null) {
-            List<Setting> settings = new ArrayList<>(ui.leftSettings());
-            settings.addAll(ui.rightSettings());
-            settings.removeIf(setting -> "GUI Style".equalsIgnoreCase(setting.name()));
-            for (Setting setting : settings) {
-                float height = Math.min(rowHeight(setting), 64.0f);
-                if (rowY + height > panel.bottom() - 44.0f) {
-                    break;
-                }
-                Rect row = new Rect(px, rowY, cw, height);
+            interfaceSettings.addAll(ui.leftSettings());
+            interfaceSettings.addAll(ui.rightSettings());
+            interfaceSettings.removeIf(setting -> "GUI Style".equalsIgnoreCase(setting.name()));
+        }
+        float interfaceTop = interfaceY + 24.0f;
+        float interfaceBottom = panel.bottom() - 50.0f;
+        interfaceViewHeight = Math.max(1.0f, interfaceBottom - interfaceTop);
+        interfaceContentHeight = 0.0f;
+        for (Setting setting : interfaceSettings) {
+            interfaceContentHeight += Math.min(rowHeight(setting), 64.0f) + 6.0f;
+        }
+        interfaceScrollTarget = Math.max(0.0f, Math.min(interfaceScrollTarget,
+            Math.max(0.0f, interfaceContentHeight - interfaceViewHeight)));
+        interfaceScrollSpring.step(interfaceScrollTarget, 0.05f);
+        float interfaceScroll = (float) interfaceScrollSpring.get();
+
+        context.enableScissor(Math.round(px - 4.0f), Math.round(interfaceTop),
+            Math.round(px + cw + 4.0f), Math.round(interfaceBottom));
+        float rowY = interfaceTop - interfaceScroll;
+        for (Setting setting : interfaceSettings) {
+            float height = Math.min(rowHeight(setting), 64.0f);
+            Rect row = new Rect(px, rowY, cw, height);
+            if (row.bottom() >= interfaceTop - 6.0f && row.y() <= interfaceBottom + 6.0f) {
                 drawSetting(context, metrics, setting, row, mx, my, openT, 0.05f);
                 interfaceHits.add(new SettingHit(setting, row));
-                rowY += height + 6.0f;
             }
+            rowY += height + 6.0f;
         }
+        context.disableScissor();
+        scrollbar(context, metrics, panel.right() - 10.0f, interfaceTop, interfaceViewHeight,
+            interfaceContentHeight, interfaceScroll, openT);
 
         GlyphAtlas footerFont = LinkenFonts.bodyMedium();
         float footerY = panel.bottom() - 20.0f - 10.0f;
@@ -2295,6 +2316,12 @@ public final class LinkGuiScreen extends Screen {
             configScrollTarget -= (float) verticalAmount * 34.0f;
             configScrollTarget = Math.max(0.0f, Math.min(configScrollTarget,
                 Math.max(0.0f, configContentHeight - configView)));
+            return true;
+        }
+        if (metrics.theme().contains(mx, my) && themeOpen && sidePanel == SidePanel.NONE) {
+            interfaceScrollTarget -= (float) verticalAmount * 34.0f;
+            interfaceScrollTarget = Math.max(0.0f, Math.min(interfaceScrollTarget,
+                Math.max(0.0f, interfaceContentHeight - interfaceViewHeight)));
             return true;
         }
         if (metrics.profile().contains(mx, my)) {

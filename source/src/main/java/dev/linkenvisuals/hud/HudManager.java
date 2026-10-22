@@ -35,7 +35,8 @@ public final class HudManager {
 
     private static final List<HudElement> ELEMENTS = List.of(new Watermark(), new KeybindPanel(),
         new MediaPlayerHud(), new TotemCounterHud(), new UseTrackerHud(),
-        new PotionSlot(0), new PotionSlot(1), new PotionSlot(2), new PotionSlot(3), new PotionBlock());
+        new PotionSlot(0), new PotionSlot(1), new PotionSlot(2), new PotionSlot(3), new PotionBlock(),
+        new ScoreboardHud());
     private static final Spring gridReveal = new Spring(0.0, 700.0, 32.0);
     private static final Spring dragBlur = new Spring(0.0, 900.0, 40.0);
 
@@ -129,6 +130,8 @@ public final class HudManager {
             float height = element.height();
             float x = element.centerX(screenWidth) - width * 0.5f;
             float y = element.centerY(screenHeight) - height * 0.5f;
+            x = Math.max(0.0f, Math.min(x, Math.max(0.0f, screenWidth - width)));
+            y = Math.max(0.0f, Math.min(y, Math.max(0.0f, screenHeight - height)));
             element.render(context, x, y);
 
             if (editMode && element == dragging) {

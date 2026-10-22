@@ -88,6 +88,7 @@ public final class AutoTestDriver {
     private static int autoStartTicks;
     private static boolean autoStartDone;
     private static int quitTicks = -1;
+    private static int forceTabTicks;
 
     private static Path logFile;
     private static int logLineOffset = -1;
@@ -190,6 +191,12 @@ public final class AutoTestDriver {
     }
 
     private static void tick(MinecraftClient client) {
+        if (forceTabTicks > 0) {
+            forceTabTicks--;
+            if (client.options != null) {
+                client.options.playerListKey.setPressed(true);
+            }
+        }
         if (!running) {
             if (quitTicks > 0 && --quitTicks == 0) {
                 client.scheduleStop();
@@ -277,6 +284,31 @@ public final class AutoTestDriver {
         STEPS.clear();
 
         add("screenshot world", 2, () -> screenshot(client, "world"));
+        add("create test scoreboard", 10, () -> {
+            command(client, "scoreboard objectives remove lvtest");
+            command(client, "scoreboard objectives add lvtest dummy");
+            command(client, "scoreboard objectives setdisplay sidebar lvtest");
+            command(client, "scoreboard objectives setdisplay list lvtest");
+            command(client, "scoreboard players set Alpha lvtest 10");
+            command(client, "scoreboard players set Bravo lvtest 7");
+            ModuleRegistry.customScoreboard().setValue(true);
+        });
+        add("screenshot custom scoreboard", 10, () -> screenshot(client, "scoreboard"));
+        add("open custom tab", 2, () -> {
+            ModuleRegistry.customTab().setValue(true);
+            forceTabTicks = 40;
+            client.options.playerListKey.setPressed(true);
+        });
+        add("screenshot custom tab", 10, () -> screenshot(client, "tab"));
+        add("close custom tab", 2, () -> {
+            forceTabTicks = 0;
+            client.options.playerListKey.setPressed(false);
+            ModuleRegistry.customTab().setValue(false);
+        });
+        add("cleanup test scoreboard", 4, () -> {
+            ModuleRegistry.customScoreboard().setValue(false);
+            command(client, "scoreboard objectives remove lvtest");
+        });
         add("summon test mobs", 10, () -> summonMobs(client));
         add("check summoned mobs", 1, () -> {
             mobsSpawned = !taggedMobs(client).isEmpty();

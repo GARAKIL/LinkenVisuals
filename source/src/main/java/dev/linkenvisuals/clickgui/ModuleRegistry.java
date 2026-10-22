@@ -21,6 +21,14 @@ public final class ModuleRegistry {
 
     private static ModeSetting guiStyle;
     private static ModeSetting closeAnimation;
+    private static ModeSetting hudStyle;
+    private static ModeSetting hudShape;
+    private static BooleanSetting customScoreboard;
+    private static BooleanSetting customTab;
+    private static SliderSetting scoreboardRadius;
+    private static SliderSetting scoreboardOpacity;
+    private static SliderSetting tabOpacity;
+    private static ColorSetting tabColor;
 
     private static ModuleInfo shaderSky;
     private static ModeSetting skyMode;
@@ -170,6 +178,15 @@ public final class ModuleRegistry {
             }
         });
         closeAnimation = new ModeSetting("Close Animation", List.of("Shatter", "Zoom Out"), 0);
+        hudStyle = new ModeSetting("HUD Style", List.of("Card", "Minimal", "Neon", "Aurora",
+            "Glass", "Solid", "Gradient", "Outline"), 0);
+        hudShape = new ModeSetting("HUD Shape", List.of("Rounded", "Pill", "Sharp"), 0);
+        customScoreboard = new BooleanSetting("Custom Scoreboard", false);
+        scoreboardRadius = new SliderSetting("Scoreboard Radius", 0.0f, 18.0f, 0.5f, 9.0f, null);
+        scoreboardOpacity = new SliderSetting("Scoreboard Opacity", 0.0f, 100.0f, 1.0f, 80.0f, "%");
+        customTab = new BooleanSetting("Custom Tab", false);
+        tabOpacity = new SliderSetting("Tab Opacity", 0.0f, 100.0f, 1.0f, 80.0f, "%");
+        tabColor = new ColorSetting("Tab Colour", 0x0F1116);
         uiRadius = new SliderSetting("Corner Rounding", 0.0f, 10.0f, 1.0f, 5.0f, null);
         linkUiScale = new SliderSetting("Interface Scale", 0.75f, 1.5f, 0.05f, 1.0f, "x");
         linkUiTransparency = new SliderSetting("GUI Transparency", 30.0f, 100.0f, 1.0f, 100.0f, "%");
@@ -180,7 +197,9 @@ public final class ModuleRegistry {
         tintPotions = new BooleanSetting("Colour Potions", true);
         tintKeybinds = new BooleanSetting("Colour Keybinds", true);
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
-            List.of(guiStyle, linkUiScale, linkUiTransparency, linkCursorTracker, closeAnimation),
+            List.of(guiStyle, linkUiScale, linkUiTransparency, linkCursorTracker, closeAnimation,
+                hudStyle, hudShape, customScoreboard, scoreboardRadius, scoreboardOpacity,
+                customTab, tabColor, tabOpacity),
             List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
         clickGui.toggleSilently(true);
         clickGui.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
@@ -430,6 +449,38 @@ public final class ModuleRegistry {
 
     public static ColorSetting uiAccent() {
         return uiAccent;
+    }
+
+    public static ModeSetting hudStyle() {
+        return hudStyle;
+    }
+
+    public static ModeSetting hudShape() {
+        return hudShape;
+    }
+
+    public static BooleanSetting customScoreboard() {
+        return customScoreboard;
+    }
+
+    public static SliderSetting scoreboardRadius() {
+        return scoreboardRadius;
+    }
+
+    public static SliderSetting scoreboardOpacity() {
+        return scoreboardOpacity;
+    }
+
+    public static BooleanSetting customTab() {
+        return customTab;
+    }
+
+    public static ColorSetting tabColor() {
+        return tabColor;
+    }
+
+    public static SliderSetting tabOpacity() {
+        return tabOpacity;
     }
 
     public static float interfaceScale() {
