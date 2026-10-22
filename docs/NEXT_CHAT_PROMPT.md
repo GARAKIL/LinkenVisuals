@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.115 / D92
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.116 / D93
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.115**
+- Version at handoff: **1.0.116**
 - Tests at handoff: **223 / 0 failures / 0 errors / 0 skipped**
 - Autotest at handoff: **697/697**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.115.jar`
-- Size: **10 743 565 bytes**
-- SHA-256: `41553852CAF77D13BF3EE824890BB7C325D100815A696F8947BFCB46CEC35251`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D92.
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.116.jar`
+- Size: **10 745 004 bytes**
+- SHA-256: `AED88ACD4B4CB9975AF9FEDECEF85F084B99CCEF606BF7F4C1E4F523C3832DDB`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D93.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.115
+Get-Content source/gradle.properties   # mod_version=1.0.116
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #46, D92);
-- `docs/MERGE_DECISIONS.md` — D80–D92;
-- `docs/ROADMAP.md` — M8.10–M8.18c;
-- `docs/PORT_STATUS.md` — M8.14–M8.18c;
+- `docs/HANDOFF.md` — top section (chat #47, D93);
+- `docs/MERGE_DECISIONS.md` — D80–D93;
+- `docs/ROADMAP.md` — M8.10–M8.19;
+- `docs/PORT_STATUS.md` — M8.14–M8.19;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -79,6 +79,7 @@ Read first:
 - D90/v1.0.113: donor **secondary/social gradient** material, account-avatar gradient, lowercase RU meta, donor disclaimer line height; RU title/server/modal autotest.
 - D91/v1.0.114: donor **icons2** atlas + `MENU_ICON_*` for main-menu globe/person/gear/power/Telegram/Discord/LV/code.
 - D92/v1.0.115: donor **media cover** gradient/artist baseline, server window **-45° hatching**, CPU-rounded **favicon** mask 6/32.
+- D93/v1.0.116: **LINKEN splash replaces the Mojang logo from the first frame**; vanilla-only bootstrap progress until shaders/atlases are ready, then full `linken.` scene.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -198,6 +199,7 @@ source/src/test/java/dev/linkenvisuals/
 - **HUD animation**: `HudTween` is the shared time-based linear/ease-out helper; do not duplicate per-element tween classes.
 - **Server browser**: `LinkenMultiplayerScreen` mirrors donor 4b list geometry (1000×272, topbar 68/row 64/footer 76); Add/Edit/Direct/Delete use a 460 px donor-style modal with resource-pack policy; window hatching and CPU-rounded favicons. Backend pinned servers are not ported.
 - **Main-menu icons**: use `LinkenFonts.icons2()` / `MENU_ICON_*`; do not swap the global `ICON_*` constants used by ClickGUI and auxiliary screens.
+- **Splash**: `SplashOverlayMixin` cancels vanilla from frame 0 and drives the reload itself; bootstrap must use only vanilla `fill/fillGradient` (no text/custom shaders) until `Pipelines.resourcesReady()`. Donor Lottie `welcome.json` is not ported (Skija out of scope); a lightweight welcome alternative is optional.
 - **Custom scoreboard**: `ScoreboardHud`; vanilla sidebar cancelled while enabled.
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
@@ -217,4 +219,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test`, then continue the **pixel-diff pass on the menu**: compare `LinkenMainMenuScreen` and `LinkenMultiplayerScreen` against the donor 1280×720/1920×1080 screenshots, fix remaining hover/press/server-row differences, and only then move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud.
+Read the docs and current code, run `test`, then decide whether to add a lightweight **welcome** intro (the donor's handwritten Lottie is Skija-only and excluded) and finish the remaining menu hover/press/server-row pixel pass. After that move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud or the LINKEN splash.

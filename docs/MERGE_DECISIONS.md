@@ -847,3 +847,13 @@
 - **Сборка**: jar `linkenvisuals-1.0.115.jar` (10 743 565 байт, SHA-256 `41553852CAF77D13BF3EE824890BB7C325D100815A696F8947BFCB46CEC35251`).
 - **Commit**: `b984fd1` `fix(menu): match donor media cover, hatching and favicon mask (v1.0.115, D92)`.
 - **Остаток**: real server rows/favicon, title hover/press; donor pinned servers вне scope.
+
+## 2026-10-22 · D93 · LINKEN splash replaces the Mojang logo — v1.0.116
+- **Причина**: `SplashOverlayMixin` возвращал управление vanilla, пока `Pipelines.resourcesReady()` false, поэтому первый экран оставался стандартным Mojang splash. Пользователь видел его в LINKEN-стиле на 1.21.11.
+- **Фикс**: mixin теперь сразу cancels vanilla `render` и повторяет donor-логику reload: lerp progress, установка `reloadCompleteTime` через `reload.isComplete()/throwException()`, `exceptionHandler`, `setOverlay(null)` после fade+exit. `reloadStartTime` инициализируется вручную.
+- **Bootstrap**: `LinkenLoadingScreen.renderBootstrap` до готовности пайплайнов рисует только vanilla `fill/fillGradient`: gradient `#0A0E0C→#060908→#050706`, accent progress bar, 4 corner brackets. Текст в bootstrap не рисуется: `minecraft:core/rendertype_text` ещё не загружен (иначе `Couldn't find source`/`Couldn't compile`).
+- **Full splash**: после `Pipelines.resourcesReady()` тот же кадр рисует полный LINKEN scene (`linken.`, VISUALS, stage, progress, footer); Mojang logo не появляется.
+- **Evidence**: покадровый PrintWindow 1280×720 (frame 0 — тёмный LINKEN progress, frame 5 — полный splash, затем title); `latest.log` без shader-source/compile ошибок; **223 теста**, 697/697, 0 fail/skip.
+- **Сборка**: jar `linkenvisuals-1.0.116.jar` (10 745 004 байт, SHA-256 `AED88ACD4B4CB9975AF9FEDECEF85F084B99CCEF606BF7F4C1E4F523C3832DDB`).
+- **Commit**: `45e6086` `fix(splash): replace Mojang logo with LINKEN bootstrap splash (v1.0.116, D93)`.
+- **Остаток**: donor Lottie `welcome.json` (Skija) не портирован; первые ~0.2 с bootstrap без wordmark; F3+T reload — на human-проверку.

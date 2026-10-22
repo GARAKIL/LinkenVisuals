@@ -104,6 +104,7 @@
 - [x] **M8.18a — menu material/footer pixel pass**, v1.0.113, D90, commit `c1a9b7f`: donor secondary/social gradient, account-avatar gradient, RU lowercase meta, donor disclaimer line height; RU autotest title/server/modal screenshots; **223 теста**, 697/697.
 - [x] **M8.18b — donor icons2 main-menu icons**, v1.0.114, D91, commit `9883204`: donor icons2 atlas + MENU_ICON_* for globe/person/gear/power/TG/Discord/LV/code; RU title screenshot; **223 теста**, 697/697.
 - [x] **M8.18c — media/hatching/favicon pixel pass**, v1.0.115, D92, commit `b984fd1`: donor media-cover gradient + artist baseline, server window -45° hatching, CPU-rounded favicon 6/32; RU screenshots; **223 теста**, 697/697.
+- [x] **M8.19 — LINKEN splash replaces Mojang**, v1.0.116, D93, commit `45e6086`: mixin drives reload state, vanilla-only bootstrap progress until shaders ready, then full LINKEN splash; frame capture 1280×720; **223 теста**, 697/697.
 - [ ] **M8.17 — full donor visual parity remainder** — Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland HUD, CameraSettings/AspectRatio/CustomHitBox/Vitals/DamageParticles/HitRange/ItemRadius/NoRender/Optimization/Particles/Trajectories/KillStreak/ViewModel, human sound/visual acceptance, multiplayer custom-tab check.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

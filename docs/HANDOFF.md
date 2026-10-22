@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №47 — LINKEN splash вместо Mojang, D93) — v1.0.116
+
+### Сделано
+1. **D93/v1.0.116** (`45e6086`): `SplashOverlayMixin` теперь отменяет vanilla `SplashOverlay.render` с первого кадра и сам ведёт состояние reload (как donor): progress lerp, `reloadCompleteTime`, `exceptionHandler`, hand-off `setOverlay(null)`.
+2. **Bootstrap**: до готовности shaders/атласов рисуется `LinkenLoadingScreen.renderBootstrap` только на vanilla `fill/fillGradient` — тёмный фон, accent progress, уголки. Vanilla-текст в bootstrap **удалён**, потому что `minecraft:core/rendertype_text` ещё не загружен и давал `Couldn't find source`/`Couldn't compile`.
+3. **После readiness**: тот же overlay переключается на полный `LinkenLoadingScreen` (linken., VISUALS, стадии, прогресс, footer). Mojang-логотип больше не появляется в LINKEN-стиле.
+4. **Runtime-проверка**: покадровый capture 1280×720 — сначала тёмный LINKEN progress, затем полный splash `linken.`; main menu достигается, `Couldn't find source`/`Couldn't compile` — 0.
+5. **Проверки**: **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; autotest **697/697**, 0 fail/skip; новых ERROR/exception, shader/sound ошибок нет.
+6. **Сборка**: jar `linkenvisuals-1.0.116.jar` (10 745 004 байт, SHA-256 `AED88ACD4B4CB9975AF9FEDECEF85F084B99CCEF606BF7F4C1E4F523C3832DDB`).
+
+### Следующая задача
+- Handwritten Lottie `welcome.json` из donor **не портирован** (нужен Skija; вне текущего scope) — при желании заменить лёгкой welcome-анимацией на наших шрифтах.
+- Остаток title hover/press, real server rows/favicon; затем Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland HUD.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Первые ~0.2 с bootstrap показывает фон+progress без wordmark (vanilla font ещё не загружен); затем полный splash.
+- `SplashOverlayMixin` вручную завершает reload; F3+T/resource-pack reload проверен только логикой, не отдельным human-прогоном.
+- Donor Lottie welcome (рукописный «welcome») отсутствует; это осознанный остаток.
+- Полный 100% pixel parity не заявлен.
+
 ## Состояние на 2026-10-22 (чат №46 — media/hatching/favicon pixel pass, D92) — v1.0.115
 
 ### Сделано

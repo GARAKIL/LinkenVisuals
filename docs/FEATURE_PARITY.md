@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.115**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.116**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -17,7 +17,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | Area | State | Notes |
 |---|---|---|
 | Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing; D91 donor `icons2` main-menu icon set; D92 donor media-cover gradient/artist baseline. |
-| Splash/loading | ✅ ported | LINKEN scene + deterministic fallback to vanilla until shaders are ready. |
+| Splash/loading | ✅ ported | LINKEN scene replaces the Mojang splash immediately (D93); a vanilla-only bootstrap progress runs until shaders/atlases are ready, then the full `linken.` scene. Handwritten Lottie `welcome.json` is not ported (Skija out of scope). |
 | LinkGUI | ✅ ported | 1090×830 main window, 3×102 cards, dock, profile, theme/interface, search, configs, friends/waypoints, media strip, pinned cards. |
 | LinkGUI Interface settings | ✅ ported + scroll | Scale, transparency, cursor tracker, close animation, corner rounding, accent/tints, **HUD Style/Shape**, **custom scoreboard**, **custom tab**. The section is scrollable via mouse wheel. |
 | Pinned cards | ✅ ported | Left below Profile / right when Theme is closed; per-card toggle, unpin, settings, truncation marker. |
@@ -88,9 +88,10 @@ not silently faked; no dead controls are exposed for them.
 ## Verification used for this snapshot
 
 - `clean build`: **223 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest` (RU profile): **697/697 steps**, no new ERROR/exception,
-  no shader source errors, no unknown sound events; title screenshot includes the
-  donor `icons2` main-menu set.
+- Hidden `runAutotest`: **697/697 steps**, no new ERROR/exception, no shader
+  source errors, no unknown sound events; title screenshot includes the donor
+  `icons2` main-menu set. A separate frame-capture 1280×720 confirms the LINKEN
+  splash replaces the Mojang logo from the first frame.
 - Screenshots at 1280×720 and 1920×1080 for title, LinkGUI, pinned cards,
   custom scoreboard and all eight HUD styles; TargetHUD/CoordinatesHud
   self-previews and the donor server browser + Add modal were captured at
