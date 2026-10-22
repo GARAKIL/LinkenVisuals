@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.109**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.110**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -37,7 +37,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | TotemCounter / UseTracker | ✅ our equivalents |
 | PotionHud / status effects | ✅ `PotionSlot`/`PotionBlock` |
 | ScoreboardHud | ✅ **ported** (`ScoreboardHud`, vanilla sidebar cancelled while enabled) |
-| TargetHud | ❌ open |
+| TargetHud | ✅ **ported** (`TargetHud`, D87): donor 104×30 card + armour/offhand row, crosshair/aim-cone + LOS pick with 1 s hold, head/HP/absorption/durability/hit flash, `Target HUD` setting |
 | CoordinatesHud | ❌ open |
 | CooldownsHud | ❌ open |
 | ArmorHud / InventoryHud | ❌ open |
@@ -62,7 +62,7 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 
 ### Donor modules not ported (visual/client, still open)
 
-`TargetHud` HUD, `CoordinatesHud`, `CooldownsHud`, `ArmorHud`,
+`CoordinatesHud`, `CooldownsHud`, `ArmorHud`,
 `InventoryHud`, `HelperItemsHud`, `LowArmorNotificationsHud`,
 `DynamicIsland`, `CameraSettings`, `AspectRatio`, `CustomHitBox`,
 `CustomVitals`, `DamageParticles`, `FortniteDamage`, `HitRange`,
@@ -87,19 +87,20 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **218 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **678/678 steps**, no new ERROR/exception, no shader
+- `clean build`: **220 tests / 0 failures / 0 errors / 0 skips**.
+- Hidden `runAutotest`: **685/685 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events.
 - Screenshots at 1280×720 and 1920×1080 for title, LinkGUI, pinned cards,
-  custom scoreboard and all eight HUD styles; custom-tab path renders/injects
-  without mixin errors, but a singleplayer list does not show entries, so its
-  visual check needs a multiplayer server.
+  custom scoreboard and all eight HUD styles; the TargetHUD self-preview was
+  captured at 1920×1080. Custom-tab path renders/injects without mixin errors,
+  but a singleplayer list does not show entries, so its visual check needs a
+  multiplayer server.
 - Beta/Classic GUI shells were opened/closed by autotest; style lock remains.
 
 ## Bottom line
 
-The **LinkGUI + title + settings + HUD material/shape + pinned cards +
-custom scoreboard/tab** slice is now in place. Full donor parity is **not**
-closed: the remaining visual/HUD modules above and the excluded
+The **LinkGUI + title + settings + HUD material/shape + TargetHud + pinned
+cards + custom scoreboard/tab** slice is now in place. Full donor parity is
+**not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

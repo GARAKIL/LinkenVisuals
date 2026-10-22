@@ -786,3 +786,15 @@
 - **Сборка**: jar `linkenvisuals-1.0.109.jar` (10 682 349 байт, SHA-256 `AAEEAA5874602EEC1B533F936787F322E921F839B6660B91CEC0C31F03A6F31A`).
 - **Commit**: `376c532` `fix(hud): port donor border smoothness shader (v1.0.109, D86)`.
 - **Остаток**: HUD-элементы и visual-модули из `FEATURE_PARITY.md`; human sound/visual acceptance.
+
+## 2026-10-22 · D87 · Donor TargetHud — v1.0.110
+- **Геометрия**: `TargetHud` повторяет donor-карточку `104×30` (+`25 px` ряд offhand/брони): head `20`, padding/gap `4`, item cell `15`/gap `4`, name `7.6`, HP `6.6`, durability `4.6`, bar `2`; панель идёт через `HudSurface`/`HudStyle`, поэтому все 8 стилей, shape и border smoothness применяются без отдельных констант.
+- **Выбор цели**: crosshair-entity в радиусе `3.5`, затем aim-cone с расширением hitbox `0.75` и LOS-рейкастом; последняя цель удерживается `1000 мс`; отсекаются self, invisible/invisibility, friends (LinkGUI `friends`); в HUD edit-mode/чате рисуется self-preview.
+- **Рендер**: head skin (8/40 UV), name с streamer-санитизацией, `HP` в donor-формате (`0.1`/`K`/`M`), animated health/absorption rail, red hit flash при просадке HP, hurt-tint головы, offhand + helmet→boots, durability `%` с donor-порогами 25/50. Строки HP/имени, item-список и friends-список кэшируются, чтобы не аллоцировать каждый кадр.
+- **Настройка/интеграция**: `Target HUD` (`BooleanSetting`, default `true`) в Interface-группе `ModuleRegistry`, элемент первым в `HudManager.ELEMENTS`; drag/snap/edit-mode работают. `HudStyle.inset` сделан публичным + overload `(alpha, mix)` для donor-ячеек.
+- **Autotest**: 5 новых шагов (enable, open chat preview, check `TargetHud.lastRenderVisible()`, screenshot `target-hud.png`, close); self-preview показывает имя, `20.0 HP`, броню/проценты и бар. Итог **685/685**, 0 fail/skip, 1920×1080.
+- **Проверки**: **220 тестов, 0 падений/ошибок/скипов** (2 новых `TargetHudTest`); clean build зелёный; новых ERROR/exception, shader-source/compile ошибок и unknown sound events нет. В `latest.log` остаются только offline-auth/Realms ERROR dev-сессии.
+- **Сборка**: jar `linkenvisuals-1.0.110.jar` (10 694 415 байт, SHA-256 `4254909F27C39A3ACF4E808B31CD93B48F29BB5DB499117B39297E111935C9BF`).
+- **Commit**: `dc7abd0` `feat(hud): port donor TargetHud (v1.0.110, D87)`.
+- **Hidden-run lesson**: сворачивание dev-окна ставит singleplayer на паузу, и `AutoTestDriver.maybeAutoStart` не стартует (currentScreen != null). Для скрытого прогона: `pauseOnLostFocus:false` + вынести окно за пределы desktop через `SetWindowPos` без `SW_MINIMIZE`; после — восстановить `options.txt`.
+- **Остаток**: donor middle-click copy ника не портирован (нет видимого контрола и отдельного notify API); Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland и visual-модули — открыты.

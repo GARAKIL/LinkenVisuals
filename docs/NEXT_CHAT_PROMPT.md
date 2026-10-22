@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.109 / D86
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.110 / D87
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.109**
-- Tests at handoff: **218 / 0 failures / 0 errors / 0 skipped**
-- Autotest at handoff: **678/678**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.109.jar`
-- Size: **10 682 349 bytes**
-- SHA-256: `AAEEAA5874602EEC1B533F936787F322E921F839B6660B91CEC0C31F03A6F31A`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D86.
+- Version at handoff: **1.0.110**
+- Tests at handoff: **220 / 0 failures / 0 errors / 0 skipped**
+- Autotest at handoff: **685/685**, no new ERROR/exception
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.110.jar`
+- Size: **10 694 415 bytes**
+- SHA-256: `4254909F27C39A3ACF4E808B31CD93B48F29BB5DB499117B39297E111935C9BF`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D87.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.109
+Get-Content source/gradle.properties   # mod_version=1.0.110
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #40, D86);
-- `docs/MERGE_DECISIONS.md` — D80–D86;
-- `docs/ROADMAP.md` — M8.10–M8.17;
-- `docs/PORT_STATUS.md` — M8.14–M8.17;
+- `docs/HANDOFF.md` — top section (chat #41, D87);
+- `docs/MERGE_DECISIONS.md` — D80–D87;
+- `docs/ROADMAP.md` — M8.10–M8.17a;
+- `docs/PORT_STATUS.md` — M8.14–M8.17a;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -73,6 +73,7 @@ Read first:
 - D84/v1.0.107: donor **Minimal** HUD style exact.
 - D85/v1.0.108: **all 8 donor HUD styles** (Card, Minimal, Neon, Aurora, Glass, Solid, Gradient, Outline) with per-vertex rounded gradients.
 - D86/v1.0.109: donor **border smoothness** via `rounded_rect_border` pipeline (`POSITION_TEXTURE_COLOR_NORMAL`; thickness/internal/external through normals, radius through Position.z).
+- D87/v1.0.110: donor **TargetHud** — 104×30 card + armour/offhand row, crosshair/aim-cone + LOS target pick with 1 s hold, head/HP/absorption/durability/hit flash, `Target HUD` setting, `target-hud.png` autotest.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -83,7 +84,6 @@ Do not redo these from scratch. Use the docs and current code as the baseline.
 Use `docs/FEATURE_PARITY.md` as the source of truth. Recommended order:
 
 1. **HUD elements**, port donor behavior/geometry one by one:
-   - `TargetHud`
    - `CoordinatesHud`
    - `CooldownsHud`
    - `ArmorHud`
@@ -114,12 +114,12 @@ Use `docs/FEATURE_PARITY.md` as the source of truth. Recommended order:
 
 ```powershell
 cd source
-$env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot'
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat test --console=plain --no-daemon
 .\gradlew.bat clean build --console=plain --no-daemon
 ```
 
-Expected baseline: **218 tests, 0 failures/errors/skips**.
+Expected baseline: **220 tests, 0 failures/errors/skips**.
 
 Hidden/automated smoke test (requires explicit user permission):
 
@@ -130,7 +130,7 @@ Hidden/automated smoke test (requires explicit user permission):
 
 - Autotest opens both GUIs, LinkGUI, title, inventory, attacks mobs, sweeps every module/setting, takes screenshots and writes a report.
 - Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`.
-- Expected at handoff: **678/678**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events.
+- Expected at handoff: **685/685**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
 - Restore `run/options.txt` after the run.
 
 Jar check:
@@ -153,6 +153,7 @@ source/src/main/java/dev/linkenvisuals/
   hud/HudElement.java
   hud/HudStyle.java
   hud/HudSurface.java
+  hud/TargetHud.java
   hud/ScoreboardHud.java
   hud/Watermark.java
   hud/KeybindPanel.java
@@ -183,6 +184,7 @@ source/src/test/java/dev/linkenvisuals/
 - **Linken style lock**: `ModuleRegistry.isGuiStyleLocked`, `cycleGuiStyle`, `setGuiStyle`; `GUI Style` hidden in Linken Interface/pinned cards.
 - **Shader readiness**: `Pipelines.resourcesReady` set after `ResourceReloaderKeys.Client.SHADERS` + tick fallback; custom splash/loading/title gated.
 - **HUD style**: all variants use `HudStyle`; donor border smoothness uses `RoundedRectPipeline.drawBorder`.
+- **TargetHud**: `TargetHud` in `HudManager.ELEMENTS`; `ModuleRegistry.targetHud()` gates rendering, edit/chat shows self-preview; favours crosshair over aim-cone and holds the last target for 1 s.
 - **Custom scoreboard**: `ScoreboardHud`; vanilla sidebar cancelled while enabled.
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
@@ -191,7 +193,7 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 9. Definition of Done for the next task
 
-- `clean build` green, **218+ tests** (or more) with zero failures/errors/skips.
+- `clean build` green, **220+ tests** (or more) with zero failures/errors/skips.
 - No new shader/sound errors in hidden/runClient log.
 - Every visible control works; no fake controls.
 - Beta/Vanilla unchanged; Linken style lock preserved.
@@ -202,4 +204,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test`, then pick **TargetHud** as the first remaining HUD element. Implement it in our `HudElement` architecture using donor `TargetHud.java` as the behavioral reference, add it to `HudManager.ELEMENTS`, add an autotest screenshot/check, and keep the existing HUD style/border pipeline intact. Do not touch the already working title/LinkGUI/pinned/scoreboard/tab slices unless a test proves a regression.
+Read the docs and current code, run `test`, then pick **CoordinatesHud** as the next remaining HUD element. Implement it in our `HudElement` architecture using donor `CoordinatesHud.java` as the behavioral reference, add it to `HudManager.ELEMENTS`, add an autotest screenshot/check, and keep the existing HUD style/border pipeline intact. Do not touch the already working title/LinkGUI/pinned/scoreboard/tab/TargetHud slices unless a test proves a regression.

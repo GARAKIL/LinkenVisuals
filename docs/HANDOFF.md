@@ -2,6 +2,28 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №41 — donor TargetHud, D87) — v1.0.110
+
+### Сделано
+1. **D87/v1.0.110** (`dc7abd0`): портирован donor `TargetHud` в нашу `HudElement`-архитектуру. Карточка сохраняет donor-геометрию 104×30 (+25 px ряд offhand/брони), head 20, padding/gap 4, item cells 15/4, name 7.6, HP 6.6, % 4.6; панель — `HudSurface`/`HudStyle` (все 8 стилей и border smoothness работают).
+2. **Поведение**: цель под crosshair в радиусе 3.5 либо в aim-cone с hitbox margin 0.75 и LOS-рейкастом; удержание последней цели 1000 мс; фильтры invisibility и friends (LinkGUI friends); в edit-mode/чате — self-preview. HP/absorption с округлением 0.1 и donor-форматом K/M, animated health bar, hit flash, hurt-tint головы, durability %, streamer-санитизация имени, кэши строк/предметов/друзей.
+3. **Настройка**: `Target HUD` (BooleanSetting, default ON) в Interface-группе LinkGUI; элемент добавлен в `HudManager.ELEMENTS`, drag/snap/edit-mode работают. `HudStyle.inset` получил публичный overload для donor-ячеек.
+4. **Autotest**: добавлены 5 шагов (`enable target hud`, `open target hud preview`, `check target hud`, `screenshot target hud`, `close target hud preview`); снят `target-hud.png` с self-preview (имя, 20.0 HP, броня/проценты, бар).
+5. **Проверки**: **220 тестов, 0 падений/ошибок/скипов**; clean build зелёный; скрытый runAutotest **685/685**, 1920×1080, 0 fail/skip; новых ERROR/exception, `Couldn't find source`/`Couldn't compile`, unknown sound events — 0. `latest.log` содержит только прежние offline-auth/Realms ERROR.
+6. **Сборка**: jar `linkenvisuals-1.0.110.jar` (10 694 415 байт, SHA-256 `4254909F27C39A3ACF4E808B31CD93B48F29BB5DB499117B39297E111935C9BF`).
+
+### Следующая задача
+- `CoordinatesHud` — следующий HUD-элемент по donor `hud/impl/CoordinatesHud.java`, затем Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland.
+- Visual-модули из `FEATURE_PARITY.md`; human sound/visual acceptance; multiplayer Custom Tab.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- TargetHud проверен self-preview’ом в edit-mode; живая цель (другой игрок) и multiplayer-поведение — за человеком.
+- Donor middle-click copy ника не портирован (нет видимого контрола и отдельного notify API); friend-фильтр использует LinkGUI friends, не donor FriendManager.
+- Hidden-run: minimize ставит singleplayer на паузу, autostart не срабатывает; нужен `pauseOnLostFocus:false` + окно за пределами desktop (`SetWindowPos`, не `SW_MINIMIZE`), затем восстановить `options.txt`.
+- Высота карточки меняется при появлении/исчезновении брони; при первом кадре возможен сдвиг на половину ряда (25 px), далее стабильно.
+- Полный donor parity не закрыт; открытые пункты в `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-22 (чат №40 — donor border smoothness, D86) — v1.0.109
 
 ### Сделано
