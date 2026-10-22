@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №39 — all donor HUD styles, D85) — v1.0.108
+
+### Сделано
+1. **D85/v1.0.108** (`e5064b7`): все 8 donor HUD-стилей (Card, Minimal, Neon, Aurora, Glass, Solid, Gradient, Outline) переведены на donor-цвета/градиенты/радиусы/альфы. `RoundedRectPipeline` получил per-vertex vertical/horizontal gradients; Card/Minimal проверены crop’ами — HUD не пропадает.
+2. **Autotest**: 8 отдельных скриншотов `hud-*` с задержкой 10 тиков; прогон **678/678**, новых ERROR/exception нет.
+3. **Сборка**: **218 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.108.jar` (10 679 178 байт, SHA-256 `1A471D94BFE6AF27D8D55F0D7834FE988675F2974767AA58F70FA112940AB6F3`).
+
+### Следующая задача
+- Довести border smoothness до donor `drawBorder` (internal/external smoothness) — сейчас толщина/альфа совпадают, smoothness аппроксимирован.
+- Затем HUD-элементы: Target/Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland.
+- Human sound/visual acceptance, multiplayer Custom Tab.
+
+### Риски
+- Полный pixel-perfect border pass ещё не закрыт.
+- HUD Style применяется к `HudSurface`; часть внутренних радиусов элементов остаётся собственной.
+- Полный donor parity не заявлен; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-22 (чат №38 — donor HUD Minimal, D84) — v1.0.107
 
 ### Сделано

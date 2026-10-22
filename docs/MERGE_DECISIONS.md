@@ -767,3 +767,13 @@
 - **Сборка/тесты**: **218 тестов, 0 падений/ошибок/скипов**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.107.jar` (10 677 372 байта, SHA-256 `61313B44441B9B99B16DE5F8B839E3D0182E7C8CB58D44438ECBDFCC115634FA`).
 - **Commit**: `fbf91af` `feat(hud): match donor Minimal HUD style (v1.0.107, D84)`.
 - **Остаток**: остальные donor HUD/visual-модули и human acceptance — см. `FEATURE_PARITY.md`; полный parity не заявлен.
+
+## 2026-10-22 · D85 · All donor HUD style variants — v1.0.108
+- **Все 8 donor-вариантов** `LinkHudStyle` переведены на donor-геометрию/цвета: Card (shadow + двухслойный shade + aurora sheen + bottom shade + mixed border + top highlight), Minimal, Neon (outer/inner accent border, top sheen), Aurora (vertical gradient + sheen + rail), Glass (gradient + accent border), Solid (2.2 radius cap + accent border), Gradient (vertical gradient + horizontal primary→secondary stripe), Outline (corner brackets + border).
+- **`RoundedRectPipeline`** получил per-vertex `drawVerticalGradient`/`drawHorizontalGradient`; градиенты идут через тот же rounded-rect SDF-шейдер, а не через прямоугольный `fillGradient`.
+- **`Theme.hudTint`** по умолчанию возвращает primary accent; tint-тумблеры продолжают работать (off → white accent), не становятся мёртвыми.
+- **Autotest**: отдельные скриншоты всех 8 стилей (`hud-card`…`hud-outline`) с задержкой 10 тиков; проверены crop’ы Card/Minimal — Watermark/Hotbar видны, стили различимы. Прогон **678/678**, новых ERROR/exception нет.
+- **Ограничение**: donor `drawBorder` с internal/external smoothness аппроксимирован текущим rounded-outline шейдером (толщина/альфа совпадают, smoothness — нет). Это остаток для истинного pixel-perfect border pass.
+- **Сборка/тесты**: **218 тестов, 0 падений/ошибок/скипов**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.108.jar` (10 679 178 байт, SHA-256 `1A471D94BFE6AF27D8D55F0D7834FE988675F2974767AA58F70FA112940AB6F3`).
+- **Commit**: `e5064b7` `feat(hud): match all donor HUD style variants (v1.0.108, D85)`.
+- **Остаток**: border smoothness shader, HUD-элементы Target/Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland, human acceptance.
