@@ -838,3 +838,12 @@
 - **Сборка**: jar `linkenvisuals-1.0.114.jar` (10 742 664 байт, SHA-256 `66217AE9EDDBE0192925AB4854C6EB52626015B0B9AB555644D42D4C943B5543`).
 - **Commit**: `9883204` `feat(menu): port donor icons2 atlas for main menu (v1.0.114, D91)`.
 - **Остаток**: real server rows/favicon, title media/hover; остальные экраны — на `wtmico`/`iconsfa`.
+
+## 2026-10-22 · D92 · Media cover, window hatching, rounded favicon — v1.0.115
+- **Media**: cover переведён с flat `0x201A17` на donor vertical gradient `0x37302A → 0x12100E`; artist/`by` — `UNBOUNDED_L` 11, `by` на +2 px baseline; label/progress геометрия сохранена.
+- **Hatching**: в `LinkenMultiplayerScreen.windowMaterial` добавлена donor-штриховка `-45°`, 1 px, white 0.014, шаг `10*√2` design px; линии рисуются повёрнутыми rounded-rect квадами и не выходят за прямоугольник окна.
+- **Favicon**: при первом чтении PNG применяется CPU-маска со скруглением 6/32 (signed distance rounded-rect); прозрачные углы уходят в texture upload, поэтому favicon выглядит donor-rounded без нового shader/pipeline.
+- **Evidence**: RU title/server screenshots; **223 теста**, 697/697, 0 fail/skip, 0 новых ERROR/exception/shader/sound.
+- **Сборка**: jar `linkenvisuals-1.0.115.jar` (10 743 565 байт, SHA-256 `41553852CAF77D13BF3EE824890BB7C325D100815A696F8947BFCB46CEC35251`).
+- **Commit**: `b984fd1` `fix(menu): match donor media cover, hatching and favicon mask (v1.0.115, D92)`.
+- **Остаток**: real server rows/favicon, title hover/press; donor pinned servers вне scope.

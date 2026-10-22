@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.114**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.115**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -16,14 +16,14 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 
 | Area | State | Notes |
 |---|---|---|
-| Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing; D91 donor `icons2` main-menu icon set. |
+| Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing; D91 donor `icons2` main-menu icon set; D92 donor media-cover gradient/artist baseline. |
 | Splash/loading | ✅ ported | LINKEN scene + deterministic fallback to vanilla until shaders are ready. |
 | LinkGUI | ✅ ported | 1090×830 main window, 3×102 cards, dock, profile, theme/interface, search, configs, friends/waypoints, media strip, pinned cards. |
 | LinkGUI Interface settings | ✅ ported + scroll | Scale, transparency, cursor tracker, close animation, corner rounding, accent/tints, **HUD Style/Shape**, **custom scoreboard**, **custom tab**. The section is scrollable via mouse wheel. |
 | Pinned cards | ✅ ported | Left below Profile / right when Theme is closed; per-card toggle, unpin, settings, truncation marker. |
 | Style lock | ✅ preserved | Linken → Classic/Beta is blocked; `GUI Style` is hidden in Linken settings/pinned cards. |
 | Settings hub/subpages | ✅ ported | Language, keybinds, resource packs, skin, graphics, credits where applicable. |
-| Multiplayer / Alt Manager / Select World | ✅ ported | Donor server browser 4b: 1000×272 list window, selected/hover rows, favicon/letter tiles, players/ping, search/refresh, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice (D89). Backend pinned servers are not ported. Select-world uses vanilla `WorldListWidget` as backend. |
+| Multiplayer / Alt Manager / Select World | ✅ ported | Donor server browser 4b: 1000×272 list window, selected/hover rows, favicon/letter tiles, players/ping, search/refresh, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice (D89); D92 window hatching and CPU-rounded favicons. Backend pinned servers are not ported. Select-world uses vanilla `WorldListWidget` as backend. |
 | Pause menu | ✅ ported | Donor-style pause screen. |
 | Inventory / Create/Edit World / death | ⚪ vanilla by design | Donor also uses vanilla for these paths. |
 

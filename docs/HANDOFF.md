@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №46 — media/hatching/favicon pixel pass, D92) — v1.0.115
+
+### Сделано
+1. **D92/v1.0.115** (`b984fd1`): media-cover переведён на donor-градиент `0x37302A→0x12100E`; `by` рисуется `headingLight` 11 с +2 px baseline, как в donor.
+2. **Server window**: добавлена donor-штриховка `repeating-linear-gradient(-45deg, white 0.014, transparent 1px 10px)` — 1 px линии через повёрнутые rounded-rect квады, шаг 14.142 design px.
+3. **Favicon**: PNG декодируется один раз, CPU-маска скругляет углы (радиус 6/32) до upload; donor-подобный rounded favicon без отдельного шейдера.
+4. **Проверки**: RU title/server скриншоты; **697/697**, 0 fail/skip; **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; новых ERROR/exception, shader/sound ошибок нет.
+5. **Сборка**: jar `linkenvisuals-1.0.115.jar` (10 743 565 байт, SHA-256 `41553852CAF77D13BF3EE824890BB7C325D100815A696F8947BFCB46CEC35251`).
+
+### Следующая задача
+- Реальные server rows с MOTD/players/ping/favicon на пользовательском списке; hover/press title.
+- Затем Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland HUD.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Pinned-сервера донора отсутствуют (network out of scope).
+- Остальные LINKEN-экраны используют `wtmico`/`iconsfa`; main menu — `icons2`.
+- Профиль по умолчанию `language: en_us`; donor UI — RU. Autotest 1920×1061 из-за border окна.
+- Полный 100% pixel parity не заявлен.
+
 ## Состояние на 2026-10-22 (чат №45 — donor icons2 main-menu set, D91) — v1.0.114
 
 ### Сделано
