@@ -31,6 +31,64 @@ public final class LinkenLoadingScreen {
     private LinkenLoadingScreen() {
     }
 
+    /**
+     * First-frame bootstrap scene. This runs before the resource reload has
+     * produced our shaders/font atlases, so it deliberately uses only vanilla
+     * {@code fill}/{@code fillGradient} and the vanilla text renderer. Without
+     * it the initial Mojang splash would stay visible until resources load.
+     */
+    public static void renderBootstrap(DrawContext context, int screenWidth, int screenHeight,
+                                       float progress, float alpha, float exit,
+                                       String title, String subtitle) {
+        if (screenWidth <= 0 || screenHeight <= 0) {
+            return;
+        }
+        float fade = SplashProgress.clamp01(alpha);
+        if (fade <= 0.001f) {
+            return;
+        }
+        int a = Math.round(fade * 255.0f);
+        int top = (a << 24) | 0x0A0E0C;
+        int mid = (a << 24) | 0x060908;
+        int bottom = (a << 24) | 0x050706;
+        float slide = SplashProgress.smoothstep(exit) * screenHeight;
+        context.getMatrices().pushMatrix();
+        if (slide > 0.0f) {
+            context.getMatrices().translate(0.0f, -slide);
+        }
+
+        int split = Math.round(screenHeight * 0.55f);
+        context.fillGradient(0, 0, screenWidth, split, top, mid);
+        context.fillGradient(0, split, screenWidth, screenHeight, mid, bottom);
+
+        float k = Math.min(screenWidth / DESIGN_WIDTH, screenHeight / DESIGN_HEIGHT);
+        float trackWidth = Math.min(460.0f * k, screenWidth * 0.70f);
+        float trackX = screenWidth * 0.5f - trackWidth * 0.5f;
+        float trackY = screenHeight * 0.76f;
+        float trackHeight = Math.max(2.0f, 3.0f * k);
+        context.fill(Math.round(trackX), Math.round(trackY),
+            Math.round(trackX + trackWidth), Math.round(trackY + trackHeight),
+            (Math.round(a * 0.08f) << 24) | 0xFFFFFF);
+        float fill = SplashProgress.displayProgress(progress);
+        if (fill > 0.0f) {
+            context.fill(Math.round(trackX), Math.round(trackY),
+                Math.round(trackX + trackWidth * fill), Math.round(trackY + trackHeight),
+                (a << 24) | 0x7EDFB4);
+        }
+
+        int inset = Math.max(12, Math.round(24.0f * k));
+        int length = Math.max(10, Math.round(18.0f * k));
+        int corner = (Math.round(a * 0.35f) << 24) | 0x7EDFB4;
+        context.fill(inset, inset, inset + length, inset + 1, corner);
+        context.fill(inset, inset, inset + 1, inset + length, corner);
+        context.fill(screenWidth - inset - length, screenHeight - inset - 1,
+            screenWidth - inset, screenHeight - inset, corner);
+        context.fill(screenWidth - inset - 1, screenHeight - inset - length,
+            screenWidth - inset, screenHeight - inset, corner);
+
+        context.getMatrices().popMatrix();
+    }
+
     public static float scaleFor(int screenHeight) {
         return LinkenMenuLayout.scaleFor(screenHeight);
     }
