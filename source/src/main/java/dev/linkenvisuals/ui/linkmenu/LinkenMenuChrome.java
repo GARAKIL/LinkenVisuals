@@ -233,7 +233,8 @@ public final class LinkenMenuChrome {
 
     public static void drawSecondary(DrawContext context, float x, float y, float width, float height,
                                      float radius, float hover, boolean danger, float fade, float uiScale) {
-        roundedFill(context, x, y, width, height, radius, rgba(0x181E1B, 217, fade), uiScale);
+        RoundedRectPipeline.drawVerticalGradient(context, x, y, width, height, radius * uiScale,
+            rgba(0x181E1B, 217, fade), rgba(0x0F1311, 217, fade));
         context.fill(Math.round(x + radius), Math.round(y + 1.0f), Math.round(x + width - radius),
             Math.round(y + 2.0f), rgba(0xFFFFFF, 13, fade));
         int border = danger ? mix(0xFFFFFF, DANGER, hover * 0.8f) : 0xFFFFFF;

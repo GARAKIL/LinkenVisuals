@@ -38,7 +38,7 @@ public final class LinkenMenuLayout {
     public static final float MUSIC_HEIGHT = 86.0f;
 
     public static final float DISCLAIMER_SIZE = 11.0f;
-    public static final float DISCLAIMER_LINE_HEIGHT = 16.5f;
+    public static final float DISCLAIMER_LINE_HEIGHT = 21.0f;
     public static final float BOTTOM_MARGIN = 44.0f;
     public static final float SOCIAL_GAP_ABOVE_DISCLAIMER = 16.0f;
 

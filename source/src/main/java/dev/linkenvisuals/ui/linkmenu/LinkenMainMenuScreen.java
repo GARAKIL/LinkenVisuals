@@ -156,8 +156,10 @@ public final class LinkenMainMenuScreen extends Screen {
                                double deltaSeconds, float fade) {
         LinkenMenuLayout.Rect rect = metrics.account();
         float avatar = 38.0f;
-        LinkenMenuChrome.roundedFill(context, rect.x(), rect.y(), avatar, avatar, avatar * 0.5f,
-            LinkenMenuChrome.rgba(0x2A3830, 255, fade), metrics.scale());
+        dev.linkenvisuals.render.RoundedRectPipeline.drawVerticalGradient(context, rect.x(), rect.y(),
+            avatar, avatar, avatar * 0.5f * metrics.scale(),
+            LinkenMenuChrome.rgba(0x2A3830, 255, fade),
+            LinkenMenuChrome.rgba(0x101613, 255, fade));
 
         String nick = LinkenMenuChrome.username();
         String initial = nick.isEmpty() ? "?" : nick.substring(0, 1).toUpperCase();
