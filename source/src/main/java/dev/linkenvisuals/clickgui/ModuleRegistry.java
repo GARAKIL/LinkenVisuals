@@ -26,6 +26,7 @@ public final class ModuleRegistry {
     private static BooleanSetting customScoreboard;
     private static BooleanSetting customTab;
     private static BooleanSetting targetHud;
+    private static BooleanSetting coordinatesHud;
     private static SliderSetting scoreboardRadius;
     private static SliderSetting scoreboardOpacity;
     private static SliderSetting tabOpacity;
@@ -187,6 +188,7 @@ public final class ModuleRegistry {
         scoreboardOpacity = new SliderSetting("Scoreboard Opacity", 0.0f, 100.0f, 1.0f, 80.0f, "%");
         customTab = new BooleanSetting("Custom Tab", false);
         targetHud = new BooleanSetting("Target HUD", true);
+        coordinatesHud = new BooleanSetting("Coordinates HUD", false);
         tabOpacity = new SliderSetting("Tab Opacity", 0.0f, 100.0f, 1.0f, 80.0f, "%");
         tabColor = new ColorSetting("Tab Colour", 0x0F1116);
         uiRadius = new SliderSetting("Corner Rounding", 0.0f, 10.0f, 1.0f, 5.0f, null);
@@ -200,7 +202,7 @@ public final class ModuleRegistry {
         tintKeybinds = new BooleanSetting("Colour Keybinds", true);
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
             List.of(guiStyle, linkUiScale, linkUiTransparency, linkCursorTracker, closeAnimation,
-                hudStyle, hudShape, targetHud, customScoreboard, scoreboardRadius, scoreboardOpacity,
+                hudStyle, hudShape, targetHud, coordinatesHud, customScoreboard, scoreboardRadius, scoreboardOpacity,
                 customTab, tabColor, tabOpacity),
             List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
         clickGui.toggleSilently(true);
@@ -479,6 +481,10 @@ public final class ModuleRegistry {
 
     public static BooleanSetting targetHud() {
         return targetHud;
+    }
+
+    public static BooleanSetting coordinatesHud() {
+        return coordinatesHud;
     }
 
     public static ColorSetting tabColor() {

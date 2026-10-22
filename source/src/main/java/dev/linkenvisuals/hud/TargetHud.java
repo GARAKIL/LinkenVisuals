@@ -63,10 +63,10 @@ public final class TargetHud extends HudElement {
         EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
     };
 
-    private final Tween fade = new Tween(true);
-    private final Tween healthBar = new Tween(false);
-    private final Tween absorptionBar = new Tween(false);
-    private final Tween hurt = new Tween(true);
+    private final HudTween fade = new HudTween(true);
+    private final HudTween healthBar = new HudTween(false);
+    private final HudTween absorptionBar = new HudTween(false);
+    private final HudTween hurt = new HudTween(true);
     private final List<ItemStack> items = new ArrayList<>(5);
 
     private PlayerEntity lastTarget;
@@ -534,33 +534,4 @@ public final class TargetHud extends HudElement {
         return Math.round(value * 10.0f) / 10.0f;
     }
 
-    /** Time-based donor animation: linear for bars, ease-out-cubic for fades. */
-    private static final class Tween {
-        private final boolean easeOut;
-        private float value;
-        private float from;
-        private float target;
-        private long startedAt;
-        private long durationMs = 1L;
-        private boolean active;
-
-        private Tween(boolean easeOut) {
-            this.easeOut = easeOut;
-        }
-
-        private float value(float next, long duration) {
-            long now = System.nanoTime();
-            if (!active || next != target) {
-                from = value;
-                target = next;
-                startedAt = now;
-                durationMs = Math.max(1L, duration);
-                active = true;
-            }
-            float t = Math.min(1.0f, (now - startedAt) / (durationMs * 1_000_000.0f));
-            float eased = easeOut ? 1.0f - (1.0f - t) * (1.0f - t) * (1.0f - t) : t;
-            value = from + (target - from) * eased;
-            return value;
-        }
-    }
 }

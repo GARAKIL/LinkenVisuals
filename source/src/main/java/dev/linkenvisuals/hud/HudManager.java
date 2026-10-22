@@ -33,7 +33,8 @@ public final class HudManager {
     private static final float MENU_PAD = 4.0f;
     private static final float MENU_GAP = 6.0f;
 
-    private static final List<HudElement> ELEMENTS = List.of(new TargetHud(), new Watermark(), new KeybindPanel(),
+    private static final List<HudElement> ELEMENTS = List.of(new TargetHud(), new CoordinatesHud(),
+        new Watermark(), new KeybindPanel(),
         new MediaPlayerHud(), new TotemCounterHud(), new UseTrackerHud(),
         new PotionSlot(0), new PotionSlot(1), new PotionSlot(2), new PotionSlot(3), new PotionBlock(),
         new ScoreboardHud());

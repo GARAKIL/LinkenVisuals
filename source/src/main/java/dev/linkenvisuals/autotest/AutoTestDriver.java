@@ -13,6 +13,7 @@ import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.hud.CoordinatesHud;
 import dev.linkenvisuals.hud.TargetHud;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -307,6 +308,19 @@ public final class AutoTestDriver {
         });
         add("screenshot target hud", 1, () -> screenshot(client, "target-hud"));
         add("close target hud preview", 3, () -> client.setScreen(null));
+        add("enable coordinates hud", 1, () -> {
+            if (ModuleRegistry.coordinatesHud() != null) {
+                ModuleRegistry.coordinatesHud().setValue(true);
+            }
+        });
+        add("open coordinates hud preview", 3, () -> client.setScreen(new ChatScreen("", false)));
+        add("check coordinates hud", 5, () -> {
+            if (!CoordinatesHud.lastRenderVisible()) {
+                throw new IllegalStateException("CoordinatesHud не отрисовался в preview");
+            }
+        });
+        add("screenshot coordinates hud", 1, () -> screenshot(client, "coordinates-hud"));
+        add("close coordinates hud preview", 3, () -> client.setScreen(null));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");
@@ -493,8 +507,12 @@ public final class AutoTestDriver {
                 client.player.getBoundingBox().expand(32.0), entity -> true)
                 .forEach(entity -> KNOWN_ENTITY_IDS.add(entity.getId()));
         }
-        String[] offsets = {"~2 ~ ~", "~-2 ~ ~", "~ ~ ~2", "~ ~ ~-2"};
-        String[] types = {"minecraft:cow", "minecraft:cow", "minecraft:zombie", "minecraft:zombie"};
+        // Eight targets keep the four attack steps deterministic: a sweep or an
+        // early kill can remove one mob without starving the next attack step.
+        String[] offsets = {"~2 ~ ~", "~-2 ~ ~", "~ ~ ~2", "~ ~ ~-2",
+            "~4 ~ ~", "~-4 ~ ~", "~ ~ ~4", "~ ~ ~-4"};
+        String[] types = {"minecraft:cow", "minecraft:cow", "minecraft:zombie", "minecraft:zombie",
+            "minecraft:cow", "minecraft:cow", "minecraft:zombie", "minecraft:zombie"};
         for (int i = 0; i < types.length; i++) {
             command(client, "summon " + types[i] + " " + offsets[i]
                 + " {NoAI:1b,Silent:1b,Health:1.0f,PersistenceRequired:1b,Tags:[\"" + MOB_TAG + "\"]}");
