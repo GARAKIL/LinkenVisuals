@@ -7,7 +7,7 @@ public final class Theme {
     public static final int DEFAULT_SECONDARY = 0xC7B4FF;
 
     public static int hudTint(String element) {
-        return ModuleRegistry.tint(element) ? glassTint() : 0xFFFFFF;
+        return ModuleRegistry.tint(element) ? accent() : 0xFFFFFF;
     }
 
     public static int glassTint() {

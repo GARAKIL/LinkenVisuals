@@ -283,10 +283,15 @@ public final class AutoTestDriver {
     private static void buildPlan(MinecraftClient client) {
         STEPS.clear();
 
-        add("screenshot world", 2, () -> screenshot(client, "world"));
-        add("set minimal hud", 1, () -> ModuleRegistry.hudStyle().select(1));
-        add("screenshot minimal hud", 4, () -> screenshot(client, "hud-minimal"));
-        add("restore hud style", 1, () -> ModuleRegistry.hudStyle().select(0));
+        add("screenshot world", 10, () -> screenshot(client, "world"));
+        String[] hudStyles = {"card", "minimal", "neon", "aurora", "glass", "solid", "gradient", "outline"};
+        for (int i = 0; i < hudStyles.length; i++) {
+            int style = i;
+            String label = hudStyles[i];
+            add("set hud " + label, 10, () -> ModuleRegistry.hudStyle().select(style));
+            add("screenshot hud " + label, 10, () -> screenshot(client, "hud-" + label));
+        }
+        add("restore hud style", 10, () -> ModuleRegistry.hudStyle().select(0));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");

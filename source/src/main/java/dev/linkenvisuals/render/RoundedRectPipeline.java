@@ -63,7 +63,22 @@ public final class RoundedRectPipeline {
         quad(context, OUTLINE, x, y, width, height, radius, thickness, argb);
     }
 
+    public static void drawVerticalGradient(DrawContext context, float x, float y, float width, float height,
+                                             float radius, int top, int bottom) {
+        quad(context, FILL, x, y, width, height, radius, 0.0f, top, bottom, bottom, top);
+    }
+
+    public static void drawHorizontalGradient(DrawContext context, float x, float y, float width, float height,
+                                               float radius, int left, int right) {
+        quad(context, FILL, x, y, width, height, radius, 0.0f, left, left, right, right);
+    }
+
     private static void quad(DrawContext context, RenderPipeline pipeline, float x, float y, float width, float height, float radius, float thickness, int argb) {
+        quad(context, pipeline, x, y, width, height, radius, thickness, argb, argb, argb, argb);
+    }
+
+    private static void quad(DrawContext context, RenderPipeline pipeline, float x, float y, float width, float height,
+                             float radius, float thickness, int topLeft, int bottomLeft, int bottomRight, int topRight) {
         if (width <= 0.0f || height <= 0.0f) {
             return;
         }
@@ -93,10 +108,10 @@ public final class RoundedRectPipeline {
                 Vector2f p2 = pose.transformPosition(x + width, y + height, new Vector2f());
                 Vector2f p3 = pose.transformPosition(x + width, y, new Vector2f());
 
-                consumer.vertex(p0.x, p0.y, z).texture(0.0f, 0.0f).color(argb);
-                consumer.vertex(p1.x, p1.y, z).texture(0.0f, 1.0f).color(argb);
-                consumer.vertex(p2.x, p2.y, z).texture(1.0f, 1.0f).color(argb);
-                consumer.vertex(p3.x, p3.y, z).texture(1.0f, 0.0f).color(argb);
+                consumer.vertex(p0.x, p0.y, z).texture(0.0f, 0.0f).color(topLeft);
+                consumer.vertex(p1.x, p1.y, z).texture(0.0f, 1.0f).color(bottomLeft);
+                consumer.vertex(p2.x, p2.y, z).texture(1.0f, 1.0f).color(bottomRight);
+                consumer.vertex(p3.x, p3.y, z).texture(1.0f, 0.0f).color(topRight);
             }
 
             @Override
