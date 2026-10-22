@@ -2,6 +2,23 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №38 — donor HUD Minimal, D84) — v1.0.107
+
+### Сделано
+1. **D84/v1.0.107** (`fbf91af`): второй donor-стиль HUD **Minimal** приведён к 1:1-логике — low-alpha body `hudShade(0.02, 120α)`, radius cap 4, без border, вертикальный gradient rail 2.2 px primary→secondary с donor inset. Раньше был solid accent-bar + white outline.
+2. **Autotest**: добавлен шаг Minimal HUD + `hud-minimal.png`; прогон **664/664**, 1920×1080, новых ERROR/exception нет.
+3. **Сборка**: **218 тестов, 0 падений**; clean build зелёный; jar `linkenvisuals-1.0.107.jar` (10 677 372 байта, SHA-256 `61313B44441B9B99B16DE5F8B839E3D0182E7C8CB58D44438ECBDFCC115634FA`).
+
+### Следующая задача
+- Продолжать parity по `FEATURE_PARITY.md`: Target/Coordinates/Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland HUD, затем visual-модули.
+- Проверить Custom Tab на multiplayer; human sound/visual acceptance.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Minimal применён к `HudSurface`; отдельные внутренние радиусы HUD-элементов остаются собственными.
+- Полный donor parity не закрыт; открытые пункты перечислены в audit.
+- Custom Tab визуально не подтверждён в singleplayer.
+
 ## Состояние на 2026-10-22 (чат №37 — donor HUD parity, D83) — v1.0.106
 
 ### Сделано

@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.106**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.107**, 2026-10-22. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -44,7 +44,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | HelperItemsHud / LowArmorNotificationsHud | ❌ open |
 | DynamicIsland (full) | ❌ open |
 | Custom Hotbar | ✅ `HotbarHud` |
-| HUD Style (8 variants) | ✅ implemented centrally in `HudStyle` |
+| HUD Style (8 variants) | ✅ implemented centrally in `HudStyle`; **Minimal is donor 1:1 (D84)** |
 | HUD Shape (Rounded/Pill/Sharp) | ✅ implemented centrally in `HudStyle`; geometry test |
 | HUD element enable/disable list | ◐ our edit mode supports layout/drag; donor per-element toggles are not fully exposed |
 
@@ -88,12 +88,12 @@ not silently faked; no dead controls are exposed for them.
 ## Verification used for this snapshot
 
 - `clean build`: **218 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **661/661 steps**, no new ERROR/exception, no shader
+- Hidden `runAutotest`: **664/664 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events.
 - Screenshots at 1280×720 and 1920×1080 for title, LinkGUI, pinned cards,
-  custom scoreboard; custom-tab path renders/injects without mixin errors,
-  but a singleplayer list does not show entries, so its visual check needs a
-  multiplayer server.
+  custom scoreboard and HUD Minimal; custom-tab path renders/injects without
+  mixin errors, but a singleplayer list does not show entries, so its visual
+  check needs a multiplayer server.
 - Beta/Classic GUI shells were opened/closed by autotest; style lock remains.
 
 ## Bottom line

@@ -760,3 +760,10 @@
 - **Сборка/тесты**: **218 тестов, 0 падений/ошибок/скипов**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.106.jar` (10 676 970 байт, SHA-256 `92A68738DC89F5F38066B5F86D8FCD216EAA49670443D9ABD8B41008EC5A8A14`).
 - **Commit**: `7bfc584` `feat(hud): port donor HUD style, scoreboard and tab (v1.0.106, D83)`.
 - **Остаток**: отсутствующие donor HUD/visual-модули из `FEATURE_PARITY.md`, human sound/visual acceptance, multiplayer tab screenshot, финальный пиксельный diff.
+
+## 2026-10-22 · D84 · Donor HUD Minimal style 1:1 — v1.0.107
+- **Minimal** (второй вариант donor `LinkHudStyle.Variant`) приведён к donor-логике: body `hudShade(0.02, 120α)` (2% accent в background), radius cap **4 px**, без border; слева вертикальный gradient rail `2.2 px` от primary к secondary, inset `min(height×0.18, radius+1)`. Раньше был solid accent-bar с белой обводкой.
+- **Проверка**: autotest ставит HUD Style = Minimal, снимает `hud-minimal.png`, затем возвращает Card. Прогон **664/664**, новых ERROR/exception нет; скриншот 1920×1080 визуально подтверждает low-alpha body + тонкий gradient rail на Watermark/Hotbar.
+- **Сборка/тесты**: **218 тестов, 0 падений/ошибок/скипов**; `clean build --no-daemon` зелёный; jar `linkenvisuals-1.0.107.jar` (10 677 372 байта, SHA-256 `61313B44441B9B99B16DE5F8B839E3D0182E7C8CB58D44438ECBDFCC115634FA`).
+- **Commit**: `fbf91af` `feat(hud): match donor Minimal HUD style (v1.0.107, D84)`.
+- **Остаток**: остальные donor HUD/visual-модули и human acceptance — см. `FEATURE_PARITY.md`; полный parity не заявлен.
