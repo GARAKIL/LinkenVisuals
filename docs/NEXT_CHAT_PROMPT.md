@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.112 / D89
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.113 / D90
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.112**
+- Version at handoff: **1.0.113**
 - Tests at handoff: **223 / 0 failures / 0 errors / 0 skipped**
 - Autotest at handoff: **697/697**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.112.jar`
-- Size: **10 708 865 bytes**
-- SHA-256: `B3819CEA7FF717FA79A9C8B5022D743855B6DC1E9D447F4A41C3CAC6EDA91994`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D89.
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.113.jar`
+- Size: **10 708 899 bytes**
+- SHA-256: `ACF84E88C101F902A7F182177573D5DD8BDFDF6191EB212FA35CF0D304FFA03B`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D90.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.112
+Get-Content source/gradle.properties   # mod_version=1.0.113
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #43, D89);
-- `docs/MERGE_DECISIONS.md` — D80–D89;
-- `docs/ROADMAP.md` — M8.10–M8.18;
-- `docs/PORT_STATUS.md` — M8.14–M8.18;
+- `docs/HANDOFF.md` — top section (chat #44, D90);
+- `docs/MERGE_DECISIONS.md` — D80–D90;
+- `docs/ROADMAP.md` — M8.10–M8.18a;
+- `docs/PORT_STATUS.md` — M8.14–M8.18a;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -76,6 +76,7 @@ Read first:
 - D87/v1.0.110: donor **TargetHud** — 104×30 card + armour/offhand row, crosshair/aim-cone + LOS target pick with 1 s hold, head/HP/absorption/durability/hit flash, `Target HUD` setting, `target-hud.png` autotest.
 - D88/v1.0.111: donor **CoordinatesHud** — 17 px card, `iconsnew` compass, integer XYZ, two-decimal BPS, animated width/fade, `Coordinates HUD` setting (default off), `coordinates-hud.png` autotest; shared `HudTween`.
 - D89/v1.0.112: donor **server browser 4b** — 1000×272 list window, donor chrome, search/refresh, selected/hover rows, favicon/letter tiles, players/ping, smooth scroll, double-click join, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice; `multiplayer.png` + `multiplayer-add.png`.
+- D90/v1.0.113: donor **secondary/social gradient** material, account-avatar gradient, lowercase RU meta, donor disclaimer line height; RU title/server/modal autotest.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -211,4 +212,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test`, then continue the **pixel-diff pass on the menu**: compare `LinkenMainMenuScreen` and `LinkenMultiplayerScreen` against the donor 1280×720/1920×1080 screenshots, fix remaining text/icon/footer/server-row differences, and only then move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud.
+Read the docs and current code, run `test`, then continue the **pixel-diff pass on the menu**: compare `LinkenMainMenuScreen` and `LinkenMultiplayerScreen` against the donor 1280×720/1920×1080 screenshots, fix remaining icon/media/hover/server-row/favicon differences, and only then move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud.

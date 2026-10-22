@@ -2,6 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-22 (чат №44 — menu material/footer pixel pass, D90) — v1.0.113
+
+### Сделано
+1. **D90/v1.0.113** (`c1a9b7f`): secondary-кнопки и social-tiles переведены с плоской заливки на donor вертикальный градиент `0x181E1B→0x0F1311` (alpha 217), верхний highlight и border 23→61; account-avatar — donor-градиент `0x2A3830→0x101613`.
+2. **Footer**: RU meta-строка приведена к donor lowercase (`текущий аккаунт · лицензия`); `DISCLAIMER_LINE_HEIGHT` 16.5→21.0, из-за чего social-tiles/disclaimer встали на donor-уровень (проверено crop’ом 1920×1080).
+3. **Проверки**: RU-прогон (`lang:ru_ru`, hidden 1920×1080) — title/server/Add-modal скриншоты; **697/697**, 0 fail/skip; **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; новых ERROR/exception, shader/sound ошибок нет.
+4. **Сборка**: jar `linkenvisuals-1.0.113.jar` (10 708 899 байт, SHA-256 `ACF84E88C101F902A7F182177573D5DD8BDFDF6191EB212FA35CF0D304FFA03B`).
+
+### Следующая задача
+- Дальше pixel-diff title/menu: иконки, media-card, hover/press-анимации; затем реальные server rows/favicons.
+- После меню — Cooldowns/Armor/Inventory/HelperItems/LowArmor/DynamicIsland HUD.
+- Style/Editor в LINKEN Settings не добавлять; style lock сохранять.
+
+### Риски
+- Полный 100% pixel parity не заявлен: donor pinned-сервера отсутствуют (network out of scope), favicon без rounded-clip, hatching окна не портирован.
+- Текущий профиль `linkenvisuals_config.json` = `language: en_us`; donor UI хардкодит RU. Для сверки ставить RU.
+- Скриншоты autotest имеют высоту 1061 (window border), не 1080; fullscreen-сверка — за человеком.
+
 ## Состояние на 2026-10-22 (чат №43 — donor server browser, D89) — v1.0.112
 
 ### Сделано

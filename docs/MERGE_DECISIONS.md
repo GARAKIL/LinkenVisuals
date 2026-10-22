@@ -820,3 +820,12 @@
 - **Проверки**: **223 теста, 0 падений/ошибок/скипов**; clean build зелёный; jar `linkenvisuals-1.0.112.jar` (10 708 865 байт, SHA-256 `B3819CEA7FF717FA79A9C8B5022D743855B6DC1E9D447F4A41C3CAC6EDA91994`).
 - **Commit**: `05111f2` `feat(menu): match donor server browser layout (v1.0.112, D89)`.
 - **Остаток**: donor backend pinned servers (`UserSyncManager`) вне scope; favicon без rounded-clip; window hatching не портирован; title/menu text/icon pixel diff и реальные server rows/favicons — на следующую итерацию.
+
+## 2026-10-22 · D90 · Menu secondary material + footer pixel pass — v1.0.113
+- **Secondary material**: `LinkenMenuChrome.drawSecondary` переведён с плоской заливки `0x181E1B/217` на donor-градиент `0x181E1B/217 → 0x0F1311/217`, top highlight 13 и border 23→61. Social tiles используют тот же материал; кнопки main menu/server формы стали donor-градиентными.
+- **Account avatar**: main-menu аватар переведён на donor vertical gradient `0x2A3830 → 0x101613` (был flat); meta-строка RU — lowercase `текущий аккаунт · лицензия`.
+- **Footer geometry**: `DISCLAIMER_LINE_HEIGHT` 16.5→21.0; social tiles и disclaimer подняты/опущены на donor-уровень (crop 1920×1080: строки 998/1019 design, tiles ~930).
+- **Evidence**: RU autotest (lang:ru_ru) title screenshot + server browser + Add modal; **223 теста**, 697/697, 0 fail/skip, 0 новых ERROR/exception/shader/sound.
+- **Сборка**: jar `linkenvisuals-1.0.113.jar` (10 708 899 байт, SHA-256 `ACF84E88C101F902A7F182177573D5DD8BDFDF6191EB212FA35CF0D304FFA03B`).
+- **Commit**: `c1a9b7f` `fix(menu): match donor secondary material and footer spacing (v1.0.113, D90)`.
+- **Остаток**: полный pixel-diff icons/media/hover, real server rows/favicon; donor pinned servers вне scope.
