@@ -68,7 +68,7 @@ public final class LinkenMainMenuScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         long now = System.nanoTime();
-        if (client != null && client.getOverlay() != null) {
+        if ((client != null && client.getOverlay() != null) || !Pipelines.resourcesReady()) {
             // The initial resource reload still owns the screen. Drawing the
             // LINKEN menu behind the splash would lazily compile our shader
             // pipelines before their sources are available.

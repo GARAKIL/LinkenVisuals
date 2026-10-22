@@ -38,6 +38,11 @@ public abstract class SplashOverlayMixin {
         if (StyleManager.getStyle() != MenuStyle.LINKEN || !MainMenuConfig.get().customLoadingScreen) {
             return;
         }
+        if (!dev.linkenvisuals.render.Pipelines.resourcesReady()) {
+            // The initial resource reload is still loading the custom core
+            // shaders. Let vanilla draw the splash until they are available.
+            return;
+        }
         try {
             long now = Util.getMeasuringTimeMs();
             // SplashOverlay sets reloadStartTime in its own render method. We

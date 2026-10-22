@@ -15,6 +15,7 @@ import java.util.List;
 public final class Pipelines {
     private static final List<RenderPipeline> OWNED = new ArrayList<>();
     private static final Matrix4f IDENTITY = new Matrix4f();
+    private static volatile boolean resourcesReady;
     private static boolean warmed;
 
     private Pipelines() {
@@ -52,8 +53,21 @@ public final class Pipelines {
         pass.setUniform("DynamicTransforms", transforms);
     }
 
+    /**
+     * Called by the client reload listener once the initial shader sources are
+     * available. Drawing or precompiling before this point logs
+     * "Couldn't find source" for custom core shaders.
+     */
+    public static void markResourcesReady() {
+        resourcesReady = true;
+    }
+
+    public static boolean resourcesReady() {
+        return resourcesReady;
+    }
+
     public static void warmUp() {
-        if (warmed || RenderSystem.getDevice() == null) {
+        if (warmed || RenderSystem.getDevice() == null || !resourcesReady) {
             return;
         }
         warmed = true;

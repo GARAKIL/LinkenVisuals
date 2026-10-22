@@ -5,6 +5,9 @@ import dev.linkenvisuals.clickgui.ClickGuiScreen;
 import dev.linkenvisuals.clickgui.ModuleInfo;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.clickgui.classic.ClassicGuiScreen;
+import dev.linkenvisuals.clickgui.link.LinkGuiConfig;
+import dev.linkenvisuals.clickgui.link.LinkGuiScreen;
+import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
@@ -286,6 +289,26 @@ public final class AutoTestDriver {
         add("open ClickGUI", 13, () -> client.setScreen(new ClickGuiScreen()));
         add("screenshot ClickGUI", 1, () -> screenshot(client, "clickgui"));
         add("close ClickGUI", 4, () -> client.setScreen(null));
+
+        add("open LINKEN main menu", 13, () -> client.setScreen(new LinkenMainMenuScreen()));
+        add("screenshot LINKEN main menu", 1, () -> screenshot(client, "linken-mainmenu"));
+        add("close LINKEN main menu", 4, () -> client.setScreen(null));
+
+        boolean pinWasSet = LinkGuiConfig.pinned("ClickGUI");
+        add("pin link test", 1, () -> {
+            if (!pinWasSet) {
+                LinkGuiConfig.togglePin("ClickGUI");
+            }
+        });
+        add("open link ClickGUI", 13, () -> client.setScreen(new LinkGuiScreen()));
+        add("screenshot link ClickGUI", 1, () -> screenshot(client, "linkgui"));
+        add("screenshot pinned ClickGUI", 1, () -> screenshot(client, "linkgui-pinned"));
+        add("close link ClickGUI", 4, () -> client.setScreen(null));
+        add("unpin link test", 1, () -> {
+            if (!pinWasSet) {
+                LinkGuiConfig.togglePin("ClickGUI");
+            }
+        });
 
         add("open classic ClickGUI", 13, () -> client.setScreen(new ClassicGuiScreen()));
         add("close classic ClickGUI", 4, () -> client.setScreen(null));

@@ -34,10 +34,15 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
+import net.fabricmc.fabric.api.resource.v1.reloader.ResourceReloaderKeys;
+import net.fabricmc.fabric.api.resource.v1.reloader.SimpleResourceReloader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.ResourceReloader;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -79,6 +84,22 @@ public final class LinkenVisuals implements ClientModInitializer {
         Registry.register(Registries.SOUND_EVENT, TOGGLE_ON_SOUND_ID, TOGGLE_ON_SOUND);
         Registry.register(Registries.SOUND_EVENT, TOGGLE_OFF_SOUND_ID, TOGGLE_OFF_SOUND);
         dev.linkenvisuals.audio.LinkenSounds.register();
+        ResourceLoader resourceLoader = ResourceLoader.get(ResourceType.CLIENT_RESOURCES);
+        Identifier shaderReadyId = id("shader_resources");
+        resourceLoader.registerReloader(
+            shaderReadyId,
+            new SimpleResourceReloader<Void>() {
+                @Override
+                protected Void prepare(ResourceReloader.Store store) {
+                    return null;
+                }
+
+                @Override
+                protected void apply(Void prepared, ResourceReloader.Store store) {
+                    dev.linkenvisuals.render.Pipelines.markResourcesReady();
+                }
+            });
+        resourceLoader.addReloaderOrdering(ResourceReloaderKeys.Client.SHADERS, shaderReadyId);
         migrateLegacyPlayerData();
         AccountStorage.load();
         dev.linkenvisuals.macro.MacroManager.load();
@@ -227,6 +248,12 @@ public final class LinkenVisuals implements ClientModInitializer {
     }
 
     private static void onTick(MinecraftClient client) {
+        if (!dev.linkenvisuals.render.Pipelines.resourcesReady() && client.getOverlay() == null) {
+            // Splash/resource overlay is gone; shader sources are now available.
+            // Deferring this to the first tick avoids compiling custom core
+            // shaders while the initial resource reload is still running.
+            dev.linkenvisuals.render.Pipelines.markResourcesReady();
+        }
         while (clickGuiKey.wasPressed()) {
             if (client.currentScreen instanceof ClassicGuiScreen classic) {
                 classic.close();

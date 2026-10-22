@@ -108,6 +108,8 @@ public final class LinkGuiScreen extends Screen {
     private final List<CardHit> cardHits = new ArrayList<>();
     private final List<SettingHit> interfaceHits = new ArrayList<>();
     private final List<SettingHit> settingHits = new ArrayList<>();
+    private final List<SettingHit> pinnedSettingHits = new ArrayList<>();
+    private final List<PinHit> pinHits = new ArrayList<>();
     private final List<NavHit> navHits = new ArrayList<>();
     private final List<ConfigHit> configHits = new ArrayList<>();
     private Rect closeHit;
@@ -280,6 +282,7 @@ public final class LinkGuiScreen extends Screen {
         if (settingsOpen && focused != null) {
             drawSettingsPanel(context, metrics, mx, my, uiFade, deltaSeconds);
         }
+        drawPinnedCards(context, metrics, mx, my, uiFade, deltaSeconds);
         drawPopups(context, metrics, mx, my, uiFade);
         if (ModuleRegistry.cursorTracker()) {
             cursorTrail.update(mx, my);
@@ -1029,6 +1032,131 @@ public final class LinkGuiScreen extends Screen {
         }
         context.disableScissor();
         scrollbar(context, metrics, area.right() + 4.0f, area.y(), area.height(), contentHeight, scroll, openT);
+    }
+
+    /**
+     * Pinned modules are drawn as compact settings cards outside the main
+     * window, matching the donor {@code drawPinnedCard}. The left column starts
+     * below the profile card; the right column is available only when the Theme
+     * panel is closed, so the two never overlap.
+     */
+    private void drawPinnedCards(DrawContext context, Metrics metrics, float mx, float my,
+                                 float openT, float deltaSeconds) {
+        pinHits.clear();
+        pinnedSettingHits.clear();
+        if (sidePanel != SidePanel.NONE) {
+            return;
+        }
+        List<ModuleInfo> modules = new ArrayList<>();
+        for (String name : LinkGuiConfig.pins()) {
+            for (ModuleInfo module : ModuleRegistry.all()) {
+                if (module.name().equals(name)) {
+                    modules.add(module);
+                    break;
+                }
+            }
+        }
+        if (modules.isEmpty()) {
+            return;
+        }
+
+        final float bottomLimit = LinkGuiLayout.PINNED_BOTTOM;
+        final float gap = LinkGuiLayout.PINNED_GAP;
+        final float headerHeight = LinkGuiLayout.PINNED_HEADER;
+        float leftY = profileOpen ? metrics.profile().bottom() + 18.0f : metrics.profile().y();
+        float rightY = metrics.theme().y();
+        boolean leftColumn = true;
+
+        for (ModuleInfo module : modules) {
+            float width = LinkGuiLayout.PINNED_WIDTH;
+            float x = leftColumn ? metrics.profile().x() : metrics.theme().x();
+            float y = leftColumn ? leftY : rightY;
+            if ((!leftColumn && themeOpen) || y + 74.0f > bottomLimit) {
+                if (!leftColumn) {
+                    break;
+                }
+                leftColumn = false;
+                if (themeOpen) {
+                    break;
+                }
+                width = LinkGuiLayout.PINNED_WIDTH;
+                x = metrics.theme().x();
+                y = rightY;
+                if (y + 74.0f > bottomLimit) {
+                    break;
+                }
+            }
+
+            List<Setting> settings = new ArrayList<>(module.leftSettings());
+            settings.addAll(module.rightSettings());
+            if (ModuleRegistry.isGuiStyleLocked()) {
+                settings.removeIf(setting -> "GUI Style".equalsIgnoreCase(setting.name()));
+            }
+            float available = bottomLimit - y;
+            List<Setting> visible = new ArrayList<>();
+            float contentHeight = 0.0f;
+            for (Setting setting : settings) {
+                float h = rowHeight(setting);
+                if (headerHeight + 12.0f + contentHeight + h + 10.0f > available) {
+                    break;
+                }
+                visible.add(setting);
+                contentHeight += h + 6.0f;
+            }
+            boolean truncated = visible.size() < settings.size();
+            float cardHeight = Math.min(available, headerHeight + 12.0f + contentHeight
+                + (truncated ? 18.0f : 0.0f) + 8.0f);
+
+            LinkenMenuChrome.roundedFill(context, x, y, width, cardHeight, 10.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.PANEL, Math.round(242 * openT)), metrics.scale());
+            LinkenMenuChrome.roundedOutline(context, x, y, width, cardHeight, 10.0f, 1.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, Math.round(46 * openT)), metrics.scale());
+            LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(),
+                LinkenMenuChrome.ellipsize(LinkenFonts.bodyMedium(), module.name(), width - 94.0f, 13.0f),
+                x + 14.0f, y + 15.0f, 13.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
+
+            Rect unpin = new Rect(x + width - 34.0f, y + 12.0f, 22.0f, 22.0f);
+            Rect toggle = new Rect(unpin.x() - 42.0f, y + 14.0f, 32.0f, 18.0f);
+            drawSwitch(context, toggle.x(), toggle.y(), toggle.width(), toggle.height(),
+                module.enabled() ? 1.0f : 0.0f, openT, metrics.scale());
+            LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), "x",
+                unpin.x() + unpin.width() * 0.5f, unpin.y() + unpin.height() * 0.5f, 11.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
+            pinHits.add(new PinHit(module, toggle, unpin));
+
+            context.fill(Math.round(x + 12.0f), Math.round(y + 43.0f),
+                Math.round(x + width - 12.0f), Math.round(y + 44.0f),
+                LinkenMenuChrome.rgba(0xFFFFFF, Math.round(12 * openT)));
+
+            float rowY = y + headerHeight + 6.0f;
+            if (visible.isEmpty()) {
+                LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), "NO SETTINGS",
+                    x + width * 0.5f, rowY + 9.0f, 10.0f,
+                    LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
+            }
+            for (Setting setting : visible) {
+                float h = rowHeight(setting);
+                Rect row = new Rect(x + 12.0f, rowY, width - 24.0f, h);
+                drawSetting(context, metrics, setting, row, mx, my, openT, deltaSeconds);
+                pinnedSettingHits.add(new SettingHit(setting, row));
+                rowY += h + 6.0f;
+            }
+            if (truncated) {
+                LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), "...",
+                    x + width * 0.5f, rowY + 4.0f, 9.0f,
+                    LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
+            }
+
+            if (leftColumn) {
+                leftY = y + cardHeight + gap;
+                if (leftY + 74.0f > bottomLimit) {
+                    leftColumn = false;
+                }
+            } else {
+                rightY = y + cardHeight + gap;
+            }
+        }
     }
 
     private void drawBindRow(DrawContext context, Metrics metrics, Rect row, float mx, float my,
@@ -1909,6 +2037,25 @@ public final class LinkGuiScreen extends Screen {
             }
         }
 
+        for (PinHit hit : pinHits) {
+            if (hit.toggle.contains(mx, my)) {
+                hit.module.toggle();
+                playToggle(hit.module.enabled());
+                return true;
+            }
+            if (hit.unpin.contains(mx, my)) {
+                LinkGuiConfig.togglePin(hit.module.name());
+                playClick();
+                return true;
+            }
+        }
+        for (SettingHit hit : pinnedSettingHits) {
+            if (hit.bounds.contains(mx, my)) {
+                handleSettingClick(hit.setting, hit.bounds, mx, my, rightClick);
+                return true;
+            }
+        }
+
         if (mediaPrevHit != null && mediaPrevHit.contains(mx, my)) {
             LinkGuiMediaKeys.previous();
             playClick();
@@ -2335,6 +2482,9 @@ public final class LinkGuiScreen extends Screen {
     }
 
     private record SettingHit(Setting setting, Rect bounds) {
+    }
+
+    private record PinHit(ModuleInfo module, Rect toggle, Rect unpin) {
     }
 
     private record ConfigHit(String profile, Rect row, Rect load, Rect save, Rect delete) {

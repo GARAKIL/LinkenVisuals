@@ -146,6 +146,18 @@ class LinkGuiLayoutTest {
     }
 
     @Test
+    void pinnedCardsFitBelowProfileAndAboveDock() {
+        Metrics metrics = LinkGuiLayout.compute(1920, 1080);
+        float top = metrics.profile().bottom() + 18.0f;
+
+        assertEquals(330.0f, LinkGuiLayout.PINNED_WIDTH, 0.01f);
+        assertEquals(330.0f, metrics.profile().width(), 0.01f);
+        assertEquals(12.0f, LinkGuiLayout.PINNED_GAP, 0.01f);
+        assertTrue(top + LinkGuiLayout.PINNED_HEADER < LinkGuiLayout.PINNED_BOTTOM);
+        assertTrue(LinkGuiLayout.PINNED_BOTTOM <= metrics.nav().y());
+    }
+
+    @Test
     void narrowWindowKeepsTheFixedCanvasUsable() {
         Metrics metrics = LinkGuiLayout.compute(1024, 768);
         assertNotNull(metrics);

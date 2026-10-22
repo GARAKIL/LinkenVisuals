@@ -52,6 +52,9 @@ public final class LinkenLoadingScreen {
         if (screenWidth <= 0 || screenHeight <= 0) {
             return;
         }
+        if (!dev.linkenvisuals.render.Pipelines.resourcesReady()) {
+            return;
+        }
         float fade = SplashProgress.clamp01(alpha);
         if (fade <= 0.001f) {
             return;

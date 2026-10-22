@@ -32,6 +32,12 @@ public final class LinkGuiLayout {
     public static final float THEME_X = 1540.0f;
     public static final float THEME_Y = 90.0f;
 
+    /** Pinned module cards sit in the free column beside the main window. */
+    public static final float PINNED_WIDTH = 330.0f;
+    public static final float PINNED_GAP = 12.0f;
+    public static final float PINNED_HEADER = 46.0f;
+    public static final float PINNED_BOTTOM = 972.0f;
+
     public static final float CARD_HEIGHT = 102.0f;
     public static final float CARD_GAP = 12.0f;
     public static final int CARD_COLUMNS = 3;
