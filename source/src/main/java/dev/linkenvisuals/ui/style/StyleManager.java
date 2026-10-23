@@ -14,7 +14,7 @@ import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
  * Global coordinator for the active UI menu style across LinkenVisuals custom screens.
  */
 public final class StyleManager {
-    private static MenuStyle currentStyle = MenuStyle.VANILLA;
+    private static MenuStyle currentStyle = StyleFlavor.defaultMenuStyle();
 
     private StyleManager() {
     }
@@ -24,22 +24,19 @@ public final class StyleManager {
     }
 
     public static void setStyle(MenuStyle style) {
-        if (style != null && currentStyle != style) {
-            currentStyle = style;
-            applyStyle(style);
+        MenuStyle next = StyleFlavor.sanitizeMenuStyle(style);
+        if (currentStyle != next) {
+            currentStyle = next;
+            applyStyle(next);
         }
     }
 
     public static void setStyleSilently(MenuStyle style) {
-        if (style != null) {
-            currentStyle = style;
-        }
+        currentStyle = StyleFlavor.sanitizeMenuStyle(style);
     }
 
     public static void applyStyle(MenuStyle style) {
-        if (style == null) {
-            return;
-        }
+        style = StyleFlavor.sanitizeMenuStyle(style);
         if (StyleRouting.shouldApplyPreset(style)) {
             MainMenuConfig config = MainMenuConfig.get();
             config.applyPreset(style);

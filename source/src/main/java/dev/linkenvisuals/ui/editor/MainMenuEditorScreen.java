@@ -20,6 +20,7 @@ import dev.linkenvisuals.render.VanillaStylePipeline;
 import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.ui.style.MenuStyle;
+import dev.linkenvisuals.ui.style.StyleFlavor;
 import dev.linkenvisuals.ui.style.StyleManager;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -418,18 +419,15 @@ public final class MainMenuEditorScreen extends Screen {
         float btnH = 24.0f;
         float curX = barX + 8.0f;
 
-        // 1. Presets Selector: Beta, Vanilla & Linken
-        float betaW = 38.0f;
-        drawToolBtn(context, "Beta", curX, btnY, betaW, btnH, mouseX, mouseY, StyleManager.getStyle() == MenuStyle.BETA ? NeonEdge.cool() : 0xFF2C3242);
-        curX += betaW + 4.0f;
-
-        float vanW = 46.0f;
-        drawToolBtn(context, "Vanilla", curX, btnY, vanW, btnH, mouseX, mouseY, StyleManager.getStyle() == MenuStyle.VANILLA ? 0xFF55FF55 : 0xFF2C3242);
-        curX += vanW + 4.0f;
-
-        float linkW = 46.0f;
-        drawToolBtn(context, "Linken", curX, btnY, linkW, btnH, mouseX, mouseY, StyleManager.getStyle() == MenuStyle.LINKEN ? 0xFF7EDFB4 : 0xFF2C3242);
-        curX += linkW + 4.0f;
+        // 1. Presets selector: only this flavor's menu styles.
+        for (MenuStyle preset : StyleFlavor.menuStyleOptions()) {
+            float presetWidth = preset == MenuStyle.BETA ? 38.0f : 46.0f;
+            int activeColour = preset == MenuStyle.BETA ? NeonEdge.cool()
+                : preset == MenuStyle.VANILLA ? 0xFF55FF55 : 0xFF7EDFB4;
+            drawToolBtn(context, preset.displayName(), curX, btnY, presetWidth, btnH, mouseX, mouseY,
+                StyleManager.getStyle() == preset ? activeColour : 0xFF2C3242);
+            curX += presetWidth + 4.0f;
+        }
 
         if (isLinkenFixed()) {
             renderLinkenFixedNotice(context, barX, barW, barY + barH);
@@ -844,38 +842,25 @@ public final class MainMenuEditorScreen extends Screen {
         float btnH = 24.0f;
         float curX = barX + 8.0f;
 
-        // 1. Beta & Vanilla Presets
-        float betaW = 38.0f;
-        if (inRect(click.x(), click.y(), curX, btnY, betaW, btnH)) {
-            playClick();
-            config.applyPreset(MenuStyle.BETA);
-            StyleManager.setStyle(MenuStyle.BETA);
-            MainMenuConfig.save();
-            showToast("✓ Preset: Beta");
-            return true;
+        // 1. Presets selector: only this flavor's menu styles.
+        for (MenuStyle preset : StyleFlavor.menuStyleOptions()) {
+            float presetWidth = preset == MenuStyle.BETA ? 38.0f : 46.0f;
+            if (inRect(click.x(), click.y(), curX, btnY, presetWidth, btnH)) {
+                playClick();
+                if (preset == MenuStyle.LINKEN) {
+                    StyleManager.setStyle(preset);
+                    MainMenuConfig.save();
+                    showToast(I18n.get("editor.linken_fixed"));
+                } else {
+                    config.applyPreset(preset);
+                    StyleManager.setStyle(preset);
+                    MainMenuConfig.save();
+                    showToast("✓ Preset: " + preset.displayName());
+                }
+                return true;
+            }
+            curX += presetWidth + 4.0f;
         }
-        curX += betaW + 4.0f;
-
-        float vanW = 46.0f;
-        if (inRect(click.x(), click.y(), curX, btnY, vanW, btnH)) {
-            playClick();
-            config.applyPreset(MenuStyle.VANILLA);
-            StyleManager.setStyle(MenuStyle.VANILLA);
-            MainMenuConfig.save();
-            showToast("✓ Preset: Vanilla");
-            return true;
-        }
-        curX += vanW + 4.0f;
-
-        float linkW = 46.0f;
-        if (inRect(click.x(), click.y(), curX, btnY, linkW, btnH)) {
-            playClick();
-            StyleManager.setStyle(MenuStyle.LINKEN);
-            MainMenuConfig.save();
-            showToast(I18n.get("editor.linken_fixed"));
-            return true;
-        }
-        curX += linkW + 4.0f;
 
         // 2. Mode Toggle
         float modeW = 96.0f;

@@ -4,10 +4,12 @@ import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.KeybindSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
+import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.module.Module;
 
 import dev.linkenvisuals.ui.Theme;
+import dev.linkenvisuals.ui.style.StyleFlavor;
 import dev.linkenvisuals.ui.editor.MainMenuConfig;
 
 import java.util.ArrayList;
@@ -167,7 +169,7 @@ public final class ModuleRegistry {
     private static BooleanSetting linkCursorTracker;
 
     static {
-        guiStyle = new ModeSetting("GUI Style", List.of("Classic", "Beta", "Linken"), 0, style -> {
+        guiStyle = new ModeSetting("GUI Style", StyleFlavor.guiStyleOptions(), 0, style -> {
             net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
             if (mc == null || mc.currentScreen == null) {
                 return;
@@ -187,9 +189,8 @@ public final class ModuleRegistry {
             }
         });
         closeAnimation = new ModeSetting("Close Animation", List.of("Shatter", "Zoom Out"), 0);
-        hudStyle = new ModeSetting("HUD Style", List.of("Card", "Minimal", "Neon", "Aurora",
-            "Glass", "Solid", "Gradient", "Outline"), 0);
-        hudShape = new ModeSetting("HUD Shape", List.of("Rounded", "Pill", "Sharp"), 0);
+        hudStyle = new ModeSetting("HUD Style", StyleFlavor.hudStyleOptions(), 0);
+        hudShape = new ModeSetting("HUD Shape", StyleFlavor.hudShapeOptions(), 0);
         customScoreboard = new BooleanSetting("Custom Scoreboard", false);
         scoreboardRadius = new SliderSetting("Scoreboard Radius", 0.0f, 18.0f, 0.5f, 9.0f, null);
         scoreboardOpacity = new SliderSetting("Scoreboard Opacity", 0.0f, 100.0f, 1.0f, 80.0f, "%");
@@ -212,11 +213,17 @@ public final class ModuleRegistry {
         tintHotbar = new BooleanSetting("Colour Hotbar", true);
         tintPotions = new BooleanSetting("Colour Potions", true);
         tintKeybinds = new BooleanSetting("Colour Keybinds", true);
+        List<Setting> interfaceLeft = new ArrayList<>(List.of(
+            guiStyle, linkUiScale, linkUiTransparency, linkCursorTracker, closeAnimation));
+        if (!StyleFlavor.isHudStyleLocked()) {
+            interfaceLeft.add(hudStyle);
+            interfaceLeft.add(hudShape);
+        }
+        interfaceLeft.addAll(List.of(targetHud, coordinatesHud, cooldownsHud, armorHud, inventoryHud,
+            inventoryHotbar, lowArmorNotifications, customScoreboard, scoreboardRadius, scoreboardOpacity,
+            customTab, tabColor, tabOpacity));
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
-            List.of(guiStyle, linkUiScale, linkUiTransparency, linkCursorTracker, closeAnimation,
-                hudStyle, hudShape, targetHud, coordinatesHud, cooldownsHud, armorHud, inventoryHud,
-                inventoryHotbar, lowArmorNotifications, customScoreboard, scoreboardRadius, scoreboardOpacity,
-                customTab, tabColor, tabOpacity),
+            interfaceLeft,
             List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
         clickGui.toggleSilently(true);
         clickGui.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
@@ -971,9 +978,10 @@ public final class ModuleRegistry {
     /**
      * While the Linken shell is active the style is locked: the user must not
      * be able to fall back to Classic/Beta from the GUI or Ctrl+Left/Right.
+     * A single-style flavor (Linken-only or Strange-only) is locked too.
      */
     public static boolean isGuiStyleLocked() {
-        return isGuiStyleLocked(isLinkenGui() ? "Linken" : null);
+        return StyleFlavor.isGuiStyleLocked() || isLinkenGui();
     }
 
     /** Pure rule used by tests and callers that already have the style name. */
@@ -981,13 +989,16 @@ public final class ModuleRegistry {
         return style != null && "Linken".equalsIgnoreCase(style.trim());
     }
 
-    /** Ctrl+Left/Right cycle: Classic -> Beta -> Linken -> Classic. */
+    /** Ctrl+Left/Right cycles only the styles available in this flavor. */
     public static void cycleGuiStyle(int direction) {
         if (isGuiStyleLocked()) {
             return;
         }
-        List<String> styles = List.of("Classic", "Beta", "Linken");
-        String current = guiStyle == null ? "Classic" : guiStyle.value();
+        List<String> styles = StyleFlavor.guiStyleOptions();
+        if (styles.size() <= 1) {
+            return;
+        }
+        String current = guiStyle == null ? StyleFlavor.defaultGuiStyle() : guiStyle.value();
         int index = 0;
         for (int i = 0; i < styles.size(); i++) {
             if (styles.get(i).equalsIgnoreCase(current)) {
@@ -1000,12 +1011,23 @@ public final class ModuleRegistry {
     }
 
     public static void setGuiStyle(String style) {
-        if (isGuiStyleLocked() && style != null && !"Linken".equalsIgnoreCase(style)) {
+        if (!StyleFlavor.allowsGuiStyle(style) || guiStyle == null) {
             return;
         }
+        guiStyle.set(StyleFlavor.sanitizeGuiStyle(style));
+        ConfigManager.save();
+    }
+
+    /** Re-applies the compile-time family after a config load. */
+    public static void enforceFlavorStyles() {
         if (guiStyle != null) {
-            guiStyle.set(style);
-            ConfigManager.save();
+            guiStyle.set(StyleFlavor.sanitizeGuiStyle(guiStyle.value()));
+        }
+        if (hudStyle != null) {
+            hudStyle.set(StyleFlavor.sanitizeHudStyle(hudStyle.value()));
+        }
+        if (hudShape != null) {
+            hudShape.set(StyleFlavor.sanitizeHudShape(hudShape.value()));
         }
     }
 

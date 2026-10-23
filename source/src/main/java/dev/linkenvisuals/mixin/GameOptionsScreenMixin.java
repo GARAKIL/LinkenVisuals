@@ -3,8 +3,8 @@ package dev.linkenvisuals.mixin;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.ui.editor.MainMenuEditorScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
+import dev.linkenvisuals.ui.style.StyleFlavor;
 import dev.linkenvisuals.ui.style.StyleManager;
-import dev.linkenvisuals.ui.style.StyleRouting;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
@@ -39,38 +39,40 @@ public abstract class GameOptionsScreenMixin extends Screen {
         }
 
         ci.cancel();
-        this.layout.setFooterHeight(60);
+        this.layout.setFooterHeight(StyleFlavor.isMenuStyleLocked() ? 28 : 60);
 
         DirectionalLayoutWidget footerLayout = DirectionalLayoutWidget.vertical();
         footerLayout.spacing(4);
 
-        DirectionalLayoutWidget row1 = DirectionalLayoutWidget.horizontal();
-        row1.spacing(8);
+        // A single-family build has no style toggle and no cross-family editor.
+        if (!StyleFlavor.isMenuStyleLocked()) {
+            DirectionalLayoutWidget row1 = DirectionalLayoutWidget.horizontal();
+            row1.spacing(8);
 
-        // 1. Cycle UI style: Beta -> Vanilla -> Linken -> Beta.
-        // StyleManager owns the preset decision (LINKEN is fixed and keeps the editable config intact).
-        ButtonWidget toggleBtn = ButtonWidget.builder(linkenvisuals$getToggleMessage(), btn -> {
-            MenuStyle next = StyleRouting.nextStyle(StyleManager.getStyle());
-            StyleManager.setStyle(next);
-            btn.setMessage(linkenvisuals$getToggleMessage());
-        }).width(150).build();
-        toggleBtn.setTooltip(Tooltip.of(Text.literal(I18n.get("linkenvisuals.video.style_toggle_tooltip"))));
-        row1.add(toggleBtn);
+            // 1. Cycle only the menu styles available in this flavor.
+            ButtonWidget toggleBtn = ButtonWidget.builder(linkenvisuals$getToggleMessage(), btn -> {
+                MenuStyle next = StyleFlavor.nextMenuStyle(StyleManager.getStyle());
+                StyleManager.setStyle(next);
+                btn.setMessage(linkenvisuals$getToggleMessage());
+            }).width(150).build();
+            toggleBtn.setTooltip(Tooltip.of(Text.literal(I18n.get("linkenvisuals.video.style_toggle_tooltip"))));
+            row1.add(toggleBtn);
 
-        // 2. Menu Settings & Style Editor button (Bright Green)
-        ButtonWidget editorBtn = ButtonWidget.builder(
-                Text.literal("★ " + I18n.get("linkenvisuals.video.editor_btn")).formatted(Formatting.GREEN),
-                btn -> {
-                    MinecraftClient client = MinecraftClient.getInstance();
-                    if (client != null) {
-                        client.setScreen(new MainMenuEditorScreen(this, false));
+            // 2. Menu Settings & Style Editor button (Bright Green)
+            ButtonWidget editorBtn = ButtonWidget.builder(
+                    Text.literal("★ " + I18n.get("linkenvisuals.video.editor_btn")).formatted(Formatting.GREEN),
+                    btn -> {
+                        MinecraftClient client = MinecraftClient.getInstance();
+                        if (client != null) {
+                            client.setScreen(new MainMenuEditorScreen(this, false));
+                        }
                     }
-                }
-        ).width(150).build();
-        editorBtn.setTooltip(Tooltip.of(Text.literal(I18n.get("linkenvisuals.video.editor_tooltip"))));
-        row1.add(editorBtn);
+            ).width(150).build();
+            editorBtn.setTooltip(Tooltip.of(Text.literal(I18n.get("linkenvisuals.video.editor_tooltip"))));
+            row1.add(editorBtn);
 
-        footerLayout.add(row1, p -> p.alignHorizontalCenter());
+            footerLayout.add(row1, p -> p.alignHorizontalCenter());
+        }
 
         // 3. Centered Done button
         ButtonWidget doneBtn = ButtonWidget.builder(ScreenTexts.DONE, btn -> this.close()).width(200).build();

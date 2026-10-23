@@ -209,7 +209,8 @@ public final class ConfigManager {
             }
             if (root.has("menuStyle") && root.get("menuStyle").isJsonPrimitive()) {
                 dev.linkenvisuals.ui.style.StyleManager.setStyleSilently(
-                    dev.linkenvisuals.ui.style.MenuStyle.fromName(root.get("menuStyle").getAsString()));
+                    dev.linkenvisuals.ui.style.StyleFlavor.parseMenuStyle(
+                        root.get("menuStyle").getAsString()));
             }
             if (root.has("language") && root.get("language").isJsonPrimitive()) {
                 dev.linkenvisuals.i18n.I18n.setLanguageOverride(root.get("language").getAsString());

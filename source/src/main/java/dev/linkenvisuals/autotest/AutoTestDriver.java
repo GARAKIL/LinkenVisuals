@@ -309,7 +309,7 @@ public final class AutoTestDriver {
                 ModuleRegistry.targetHud().setValue(true);
             }
         });
-        add("open target hud preview", 3, () -> client.setScreen(new ChatScreen("", false)));
+        add("open target hud preview", 8, () -> client.setScreen(new ChatScreen("", false)));
         add("check target hud", 5, () -> {
             if (!TargetHud.lastRenderVisible()) {
                 throw new IllegalStateException("TargetHUD не отрисовался в preview");
@@ -322,8 +322,8 @@ public final class AutoTestDriver {
                 ModuleRegistry.coordinatesHud().setValue(true);
             }
         });
-        add("open coordinates hud preview", 3, () -> client.setScreen(new ChatScreen("", false)));
-        add("check coordinates hud", 5, () -> {
+        add("open coordinates hud preview", 10, () -> client.setScreen(new ChatScreen("", false)));
+        add("check coordinates hud", 1, () -> {
             if (!CoordinatesHud.lastRenderVisible()) {
                 throw new IllegalStateException("CoordinatesHud не отрисовался в preview");
             }
@@ -335,7 +335,7 @@ public final class AutoTestDriver {
                 ModuleRegistry.cooldownsHud().setValue(true);
             }
         });
-        add("open cooldowns hud preview", 3, () -> client.setScreen(new ChatScreen("", false)));
+        add("open cooldowns hud preview", 8, () -> client.setScreen(new ChatScreen("", false)));
         add("check cooldowns hud", 5, () -> {
             if (!CooldownsHud.lastRenderVisible()) {
                 throw new IllegalStateException("CooldownsHud не отрисовался в preview");
@@ -358,7 +358,7 @@ public final class AutoTestDriver {
                 ModuleRegistry.lowArmorNotifications().setValue(true);
             }
         });
-        add("open armor/inventory preview", 3, () -> {
+        add("open armor/inventory preview", 8, () -> {
             client.setScreen(null);
             HudManager.setEditing(true);
         });

@@ -106,6 +106,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         HandPose.load();
         dev.linkenvisuals.waypoint.WaypointStorage.load();
         ConfigManager.load();
+        ModuleRegistry.enforceFlavorStyles();
         dev.linkenvisuals.ui.editor.MainMenuConfig.load();
         ModuleRegistry.syncFromMenuConfig();
 
