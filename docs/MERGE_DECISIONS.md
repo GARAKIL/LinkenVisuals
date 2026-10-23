@@ -999,3 +999,12 @@
 - **Сборка**: `linkenvisuals-1.0.130.jar` (11 047 843 байта, SHA-256 `1FFE8177B1A4D5F2F454835A092AF4ECE86E0652AF4749D69B1F21464286968B`); `linkenvisuals-strange-1.0.130.jar` (11 047 838 байт, SHA-256 `2B8ADEDA0BD6C5E544BA463A3D6DA4F47F9650C4DA7FC0C1328B2A05EA14C11C`).
 - **Commit**: `8b0bc41` `fix(combat): use current attack charge for fake-player damage (v1.0.130, D106a)`.
 - **Остаток**: human-проверка полного и дробного charge/crit на dummy.
+
+## 2026-10-23 · D107 · CustomVitals + ArmorHud V2 (hotbar-anchored HUD) — v1.0.131
+- **CustomVitals**: `CustomVitalsModule` (`customvitals`, Visual, default OFF) — donor settings `Style` Segments/Stack/Bars, `Segments` 3–10 (8), `Armor Row` true. `CustomVitalsHud` рисует 182 px полосу над хотбаром: segmented HP/food, тонкий armor/air row, exp rail + level chip, mount HP/jump и damage-flash/ghost-HP. Stack/Bars — donor-альтернативы; цвета семантические, фон — `HudStyle.inset`, акцент — `Theme.accent`/`secondary`.
+- **Vanilla cancel**: `InGameHudMixin.renderStatusBars` и `renderMountHealth`, `ExperienceBarMixin` (`renderBar`/`renderAddons`), `JumpBarMixin` (`renderBar`/`renderAddons`) отменяют vanilla-слои только при `CustomVitalsHud.active()`. Все миксины в `linkenvisuals.mixins.json`; `MixinRegistrationTest` зелёный.
+- **Armor V2**: `Armor HUD Mode` (`V1`/`V2`) в Interface. V2 — две hotbar-relative группы 49 px (`V2_PADDING=6`, row 17, gap 3, side gap 6, offhand clearance 24, hotbar up 12); левая `[boots, leggings]`, правая `[chest, helmet]`; durability % справа. V1 не изменён. V2 не участвует в drag/snap, как donor fixed HUD.
+- **Проверки**: **284 теста** (+3 `CustomVitalsModuleTest`), 0 fail/error/skip; clean build и `-Pstrange`; autotest Linken **977/977**, Strange **967/967**, 0 fail/skip, 1920×1080; screenshots `custom-vitals`, `armor-hud-v2`; новых ERROR/exception/shader/sound нет.
+- **Сборка**: `linkenvisuals-1.0.131.jar` (11 061 584 байта, SHA-256 `E8864BE73A9E2E4975628B28D724B8F632E665C5D0B300FC9A47D3880ED14E64`); `linkenvisuals-strange-1.0.131.jar` (11 061 579 байт, SHA-256 `DD02DAC29461FB2F0480B63F09BC35C238A8E3510E35ED377B2A44321F78EE6F`).
+- **Commit**: `ecbbd64` `feat(hud): port CustomVitals and ArmorHud V2 (v1.0.131, D107)`.
+- **Остаток**: live acceptance hotbar/offhand/mount/air; pixel pass; ItemRadius/DamageParticles/FortniteDamage/SelfNametags; full Punchy.

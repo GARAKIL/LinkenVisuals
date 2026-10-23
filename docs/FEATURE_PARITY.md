@@ -46,8 +46,9 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | TargetHud | ✅ **ported** (`TargetHud`, D87): donor 104×30 card + armour/offhand row, crosshair/aim-cone + LOS pick with 1 s hold, head/HP/absorption/durability/hit flash, `Target HUD` setting |
 | CoordinatesHud | ✅ **ported** (`CoordinatesHud`, D88): 17 px card, `iconsnew` compass, integer XYZ, two-decimal BPS, animated width/fade, `Coordinates HUD` setting (default off) |
 | CooldownsHud | ✅ **ported** (`CooldownsHud`, `CooldownTracker`, D95): reflection over 1.21.11 cooldown entries + inventory fallback, preview, item/name/time rows |
-| ArmorHud / InventoryHud | ✅ **ported** D95: Armor V1 100×39 card with durability %; Inventory 27/36 slots with optional hotbar row. Armor V2 (hotbar-anchored) open |
+| ArmorHud / InventoryHud | ✅ **ported** D95 + D107: Armor V1 100×39 card with durability %; Armor V2 two hotbar-relative 49 px groups (boots/leggings left, chest/helmet right) selectable via `Armor HUD Mode`; Inventory 27/36 slots with optional hotbar row |
 | HelperItemsHud / LowArmorNotificationsHud | ✅ LowArmor D95 (50/25 thresholds, 3.5 s, preview, en/ru/uk); ⛔ HelperItems blocked on absent donor Ft/Hw/Rw helper modules |
+| CustomVitals | ✅ **ported** D107: hotbar-anchored 182 px bars, Segments/Stack/Bars, armor row, air, mount HP/jump, XP/level, damage flash; vanilla status/exp/jump layers cancelled |
 | DynamicIsland (full) | ⛔ intentionally not ported: donor hides it when Link style is active; `MediaPlayerHud` + `LyricsHud` cover media/lyrics |
 | Custom Hotbar | ✅ `HotbarHud` |
 | HUD Style (8 variants) | ✅ all donor variants ported (D85); donor border smoothness ported (D86) |
@@ -72,8 +73,8 @@ filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
-`HelperItemsHud` (blocked), `DynamicIsland`, `CustomVitals`,
-`DamageParticles`, `FortniteDamage`, `ItemRadius`,
+`HelperItemsHud` (blocked), `DynamicIsland`, `DamageParticles`,
+`FortniteDamage`, `ItemRadius`,
 `ViewModel` animated Punchy mode (the twelve manual donor
 offsets/scale settings are ported in D105; D106 adds only a lightweight
 Hand Motion subset),
@@ -102,8 +103,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **281 test / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **953/953**, Strange **943/943**, no new
+- `clean build`: **284 test / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **977/977**, Strange **967/967**, no new
   ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
@@ -120,8 +121,9 @@ not silently faked; no dead controls are exposed for them.
   `viewmodel` screenshot. D106 adds the first-open `welcome` scene, the
   compact donor `pause` panel (with real `GameMenuScreen` routing), the
   FakePlayer crit assertion and the `Better Animations -> Hand Motion`
-  Punchy-lite subset; see `VISUAL_AUDIT.md`. A separate frame-capture 1280×720
-  confirms the LINKEN splash replaces the Mojang logo from the first frame.
+  Punchy-lite subset; D107 adds hotbar-anchored `CustomVitals` and Armor V2
+  with `custom-vitals`/`armor-hud-v2` screenshots. A separate frame-capture
+  1280×720 confirms the LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
   QWERTZ acceptance remains a human check.
@@ -136,8 +138,9 @@ not silently faked; no dead controls are exposed for them.
 ## Bottom line
 
 The **LinkGUI + title + welcome + settings + HUD material/shape + TargetHud +
-CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab +
-HitRange + CustomHitBox + Optimization + Particles + Trajectories + KillStreak +
-ViewModel + compact LINKEN pause + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+CoordinatesHud + CustomVitals + Armor V2 + donor server browser + pinned cards +
+custom scoreboard/tab + HitRange + CustomHitBox + Optimization + Particles +
+Trajectories + KillStreak + ViewModel + compact LINKEN pause +
+Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

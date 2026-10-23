@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D107 — CustomVitals + Armor V2, hotbar-anchored HUD) — v1.0.131
+
+### Сделано
+1. **D107/v1.0.131** (`ecbbd64`): добавлен donor `CustomVitals` — `CustomVitalsModule` (Visual, default OFF) со стилями `Segments`/`Stack`/`Bars`, `Segments` 3–10, `Armor Row`. Рисуется hotbar-anchored полосой 182 px над хотбаром (`CustomVitalsHud`), заменяет vanilla health/food/armour/air/XP; в preview — при открытом чате/редакторе.
+2. **ArmorHud V2**: `Armor HUD Mode` `V1`/`V2` в Interface; V2 — две donor-группы 49 px по бокам хотбара (boots/leggings слева, chest/helmet справа), 17 px ячейки, durability %, preview; V1 сохранён.
+3. **Vanilla cancel**: `InGameHudMixin.renderStatusBars`/`renderMountHealth`, новые `ExperienceBarMixin`/`JumpBarMixin` отменяют vanilla-слои только при активном CustomVitals. Mixin-конфиг обновлён, `MixinRegistrationTest` зелёный.
+4. **Проверки**: **284 теста** (0 fail/error/skip; +3 `CustomVitalsModuleTest`); autotest Linken **977/977**, Strange **967/967**, 0 fail/skip, 1920×1080; screenshots `custom-vitals`, `armor-hud-v2`. Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+5. **Сборка**: `linkenvisuals-1.0.131.jar` — 11 061 584 байта, SHA-256 `E8864BE73A9E2E4975628B28D724B8F632E665C5D0B300FC9A47D3880ED14E64`; `linkenvisuals-strange-1.0.131.jar` — 11 061 579 байт, SHA-256 `DD02DAC29461FB2F0480B63F09BC35C238A8E3510E35ED377B2A44321F78EE6F`.
+
+### Следующая задача
+1. **ItemRadius** — donor 333 строки: ender eye/sugar circles, netherite scrap box, dried-kelp staircase, snowball projection, splash potion impact/proximity labels.
+2. **DamageParticles** / **FortniteDamage** — сначала проверить helper-классы; затем `SelfNametags` line-by-line и UI controls.
+3. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle) — полного Punchy по-прежнему нет.
+4. **Pixel GUI pass** 1280×720/1920×1080 и human acceptance.
+
+### Риски
+- CustomVitals/Armor V2 — fixed hotbar anchors, не `HudElement` drag/snap; это соответствует donor, но не редактируется как карточки.
+- `Armor HUD Mode` добавлен в Interface (Linken и Strange); V2 не тестировался на hotbar offhand clearance в живом бою.
+- Полный Punchy, Lottie и pixel parity остаются открытыми.
+
 ## Состояние на 2026-10-23 (D106a — fake-player attack charge) — v1.0.130
 
 ### Сделано

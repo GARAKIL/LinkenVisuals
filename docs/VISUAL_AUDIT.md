@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.130 / D106a** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.131 / D107** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -122,16 +122,29 @@ claim full Punchy parity.
 From `FEATURE_PARITY.md`, still open:
 `HelperItemsHud` (blocked on donor Ft/Hw/Rw helper modules),
 `DynamicIsland` (donor hides it for Link style; media covered),
-`ArmorHud` V2 (needs screen-anchored HUD layer),
-`CustomVitals`, `DamageParticles`, `FortniteDamage`, `ItemRadius`,
-full donor `UI` colour/fade/blur/BoostFPS controls, line-by-line
-`SelfNametags`, and full Punchy.
+`ItemRadius`, `DamageParticles`, `FortniteDamage`, line-by-line
+`SelfNametags`, full Punchy, and full `UI` colour/fade/blur/BoostFPS.
 
-## 7. Verification for D106
+## 6a. HUD D107 — CustomVitals + Armor V2 (fixed)
 
-- `test` / `clean build`: 281 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **953/953**, Strange **943/943**, 0 fail/skip, 1920×1080;
-  `welcome`, `pause` and the fake-player crit assertion are part of the plan.
+- **CustomVitals**: module with Segments/Stack/Bars, Segments 3–10,
+  Armor Row; 182 px hotbar-anchored bar above the hotbar with HP/food,
+  armor/air, XP/level, mount health/jump, damage flash/ghost HP.
+- **Vanilla layers**: `renderStatusBars`, `renderMountHealth`,
+  `ExperienceBar.renderBar/renderAddons` and `JumpBar.renderBar/renderAddons`
+  are cancelled only while CustomVitals is enabled.
+- **Armor V2**: two 49 px hotbar-relative groups (boots/leggings left,
+  chest/helmet right), durability percentages; `Armor HUD Mode` in Interface.
+- Screenshots `custom-vitals` and `armor-hud-v2` at 1920×1080.
+- Still manual: live mount/air/hotbar-offhand clearance, 1280×720 preview,
+  exact donor damage-flash timing.
+
+## 7. Verification for D101-D107
+
+- `test` / `clean build`: 284 tests, 0 failures/errors/skips in both flavors.
+- Autotest Linken **977/977**, Strange **967/967**, 0 fail/skip, 1920×1080;
+  `welcome`, `pause`, `custom-vitals`, `armor-hud-v2` and the fake-player crit
+  assertion are part of the plan.
   No new shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact

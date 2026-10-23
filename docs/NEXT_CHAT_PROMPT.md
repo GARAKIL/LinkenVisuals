@@ -6,12 +6,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.130**
-- Last code commit: `8b0bc41` `fix(combat): use current attack charge for fake-player damage (v1.0.130, D106a)`.
-- Tests: **281 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **953/953**, Strange **943/943** on 1.0.130, 0 fail/skip, 1920×1080.
+- Version: **1.0.131**
+- Last code commit: `ecbbd64` `feat(hud): port CustomVitals and ArmorHud V2 (v1.0.131, D107)`.
+- Tests: **284 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **977/977**, Strange **967/967**, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.130): `linkenvisuals-1.0.130.jar` 11 047 843 bytes / `1FFE8177B1A4D5F2F454835A092AF4ECE86E0652AF4749D69B1F21464286968B`; `linkenvisuals-strange-1.0.130.jar` 11 047 838 bytes / `2B8ADEDA0BD6C5E544BA463A3D6DA4F47F9650C4DA7FC0C1328B2A05EA14C11C`.
+- Jars (1.0.131): `linkenvisuals-1.0.131.jar` 11 061 584 bytes / `E8864BE73A9E2E4975628B28D724B8F632E665C5D0B300FC9A47D3880ED14E64`; `linkenvisuals-strange-1.0.131.jar` 11 061 579 bytes / `DD02DAC29461FB2F0480B63F09BC35C238A8E3510E35ED377B2A44321F78EE6F`.
 
 Clone/verify:
 
@@ -42,12 +42,11 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 
 ## 4. Next priority
 
-1. **Pixel GUI pass** at 1280×720 and 1920×1080 for title/welcome, LinkGUI, pause, multiplayer, Select World, Alt Manager, sub-settings. Compare with donor 1.21.4 screenshots; fix only proven differences. Do not guess fonts/metrics.
-2. **Screen-anchored HUD layer** to unblock `ArmorHud V2` (hotbar-relative) and donor `CustomVitals` (HP/food/XP above hotbar). Current `HudElement` is center/fraction based.
-3. If HUD layer is too large: `CustomVitals` as a direct `InGameHudMixin` overlay (donor `hud/CustomVitalsBar.java`) instead of a `HudElement`.
-4. **Punchy-lite expansion** if the user prioritizes animations: swim/climb/elytra/fall poses and item idle; full Punchy (181 classes/2.7 MB) is out of scope, do not pretend otherwise.
-5. Remaining modules: `ItemRadius`, `DamageParticles`, `FortniteDamage`, `SelfNametags` line-by-line, full `UI` colour/fade/blur/BoostFPS. `HelperItemsHud` stays blocked; `DynamicIsland` stays skipped for Link style.
-6. Human acceptance: live KillStreak 2-5, food/potions/left-hand ViewModel, crits on FakePlayer, RU/UA/AZERTY/QWERTZ, cooldown ticks, multiplayer custom tab, both flavor jars.
+1. **ItemRadius** — donor 333 lines: ender eye/sugar circles, netherite scrap box, dried-kelp staircase, snowball projection, splash-potion impact/proximity labels; use the proven world-render path.
+2. **DamageParticles** / **FortniteDamage** — inspect helper classes first; then `SelfNametags` line-by-line and UI controls.
+3. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains out of scope.
+4. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
+5. Remaining modules: `CustomVitals` and Armor V2 are now ported (D107); `HelperItemsHud` stays blocked, `DynamicIsland` stays skipped.
 
 ## 5. Architecture that must not break
 
