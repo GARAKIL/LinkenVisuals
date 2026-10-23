@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.135 / D111
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.136 / D112
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -6,12 +6,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.135**
-- Last code commit: `fa38938` `feat(ui): expose secondary colour, fade and blur (v1.0.135, D111)`.
-- Tests: **300 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Version: **1.0.136**
+- Last code commit: `26b843e` `feat(world): port ItemRadius splash proximity labels (v1.0.136, D112)`.
+- Tests: **301 / 0 failures / 0 errors / 0 skipped** in both flavors.
 - Autotest: Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.135): `linkenvisuals-1.0.135.jar` 11 111 719 bytes / `FC0CEC2721C1C5A5FF6048A21C3AC12C441BC3673560EA06B56457C85DBBA82B`; `linkenvisuals-strange-1.0.135.jar` 11 111 713 bytes / `04EE5DF0090B5FB4CAE4E50ECD1CF75D102F2B9D8A2D43F08C3C463392392C52`.
+- Jars (1.0.136): `linkenvisuals-1.0.136.jar` 11 114 360 bytes / `BE5548AC383B83A7FD87A7E89718D58579B423B17BAD732440E7461223617770`; `linkenvisuals-strange-1.0.136.jar` 11 114 354 bytes / `22E5E32CBEAA916D4092EA7DCF1F87B3488402E797ED03201EA819E2576438CB`.
 
 Clone/verify:
 
@@ -21,7 +21,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.135
+Get-Content source/gradle.properties   # mod_version=1.0.136
 ```
 
 ## 2. Donor
@@ -34,7 +34,7 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D111 (do not redo)
+## 3. Done in D105-D112 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
@@ -43,14 +43,15 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 - D109: donor `DamageParticles` (legacy/decorative impact, projectile trail, six modes) and `FortniteDamage` (floating crit/theme numbers, screen-space MSDF projection); `damage-number`/`damage-visuals` screenshots.
 - D110: donor `SelfNametags` toggle, wired to the StreamerMode sanitizer for the local player only; autotest asserts the `Hidden` self label.
 - D111: Interface Secondary Colour, Theme Fade, GUI Blur; fade-off collapses secondary to accent, no-blur LinkGUI/ClickGUI; `linkgui-noblur` screenshot.
+- D112: ItemRadius splash proximity `NN%` labels (donor 1−dist/radius formula) via screen-space MSDF; `ItemRadiusRulesTest`.
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
 1. **UI** remaining donor controls: Background Colour, Text Colour, BoostFPS; сверка с LinkGuiTheme/HudStyle.
-2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains out of scope.
+2. **Punchy-lite expansion** (climb/elytra/item idle); full Punchy remains out of scope.
 3. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
-4. `UI` palette/fade/blur subset ported (D111); `SelfNametags` (D110), `DamageParticles`/`FortniteDamage` (D109), `ItemRadius` (D108), donor `%` proximity labels open. `HelperItemsHud` blocked, `DynamicIsland` skipped.
+4. `ItemRadius` splash labels ported (D112); `UI` palette/fade/blur subset (D111); `SelfNametags` (D110), `DamageParticles`/`FortniteDamage` (D109). `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ## 5. Architecture that must not break
 

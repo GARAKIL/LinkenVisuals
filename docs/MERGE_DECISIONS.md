@@ -1017,7 +1017,7 @@
 - **Autotest**: Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip; screenshot `item-radius` (Ender Eye ring, pitch вниз). Новых ERROR/exception/shader/sound нет.
 - **Сборка**: `linkenvisuals-1.0.132.jar` (11 074 237 байт, SHA-256 `94F027953C620522080B7E66C848B1610005F6185679F06216B06C7D38D4765D`); `linkenvisuals-strange-1.0.132.jar` (11 074 232 байта, SHA-256 `420CA80F65E17570A9830E23721D6A5AF3D8C780C768EBCB7EA5820AC2ACACF1`).
 - **Commit**: `00a9a73` `feat(world): port donor item radius (v1.0.132, D108)`.
-- **Остаток**: donor `%` proximity labels (MSDF world text) не портированы; splash bossbar heuristic не нужен; human item-by-item check и pixel diff.
+- **Остаток**: donor `%` proximity labels (MSDF world text) портированы в D112 screen-space; splash bossbar heuristic не нужен; human item-by-item check и pixel diff.
 
 ## 2026-10-23 · D109 · DamageParticles + FortniteDamage — v1.0.133
 - **DamageParticles**: `DamageParticlesModule` (`damageparticles`, Visual, default OFF) — donor Color, Count 10–60 (30), Size 10–55 (30), Spawn On Attack/Throw, Mode Bloom/Star/Snow/Firefly/Dollar/Cube, Particle Size 0–1 (0.5). `DamageParticlesRenderer` на `END_MAIN`: legacy impact 30 частиц с bounce/friction/LOS и тремя слоями (firefly glow, core star/firefly, white sparkle), decorative burst 35 на удар и 4/тик на Arrow/Trident/EnderPearl, caps 420/480. Ambient `Particles` оставлен отдельным модулем, как у донора.
@@ -1044,3 +1044,11 @@
 - **Сборка**: `linkenvisuals-1.0.135.jar` (11 111 719 байт, SHA-256 `FC0CEC2721C1C5A5FF6048A21C3AC12C441BC3673560EA06B56457C85DBBA82B`); `linkenvisuals-strange-1.0.135.jar` (11 111 713 байт, SHA-256 `04EE5DF0090B5FB4CAE4E50ECD1CF75D102F2B9D8A2D43F08C3C463392392C52`).
 - **Commit**: `fa38938` `feat(ui): expose secondary colour, fade and blur (v1.0.135, D111)`.
 - **Остаток**: Background Colour/Text Colour/BoostFPS не выведены; donor offset-based fade упрощён; pixel diff/human acceptance.
+
+## 2026-10-23 · D112 · ItemRadius splash proximity labels — v1.0.136
+- **Что добавлено**: `ItemRadiusRenderer` запоминает `lastPotionImpact`/`lastPotionRadius` во время рендера splash-радиуса; `renderLabels(DrawContext)` из `HudManager` проецирует головы игроков через камеру и рисует `NN%` белым MSDF с чёрным outline. `ItemRadiusRules.proximityPercent` — donor-формула 1−dist/radius, 0 на краю.
+- **Отличие**: donor рисует world-space billboard; порт использует screen-space HUD projection (как FortniteDamage), поэтому цифры не зависят от глубины и остаются читаемыми.
+- **Тесты**: `ItemRadiusRulesTest` (1), всего **301 тест**, 0 fail/error/skip; autotest Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip. `lastLabelVisible` probe; отдельного multiplayer-сценария нет.
+- **Сборка**: `linkenvisuals-1.0.136.jar` (11 114 360 байт, SHA-256 `BE5548AC383B83A7FD87A7E89718D58579B423B17BAD732440E7461223617770`); `linkenvisuals-strange-1.0.136.jar` (11 114 354 байта, SHA-256 `22E5E32CBEAA916D4092EA7DCF1F87B3488402E797ED03201EA819E2576438CB`).
+- **Commit**: `26b843e` `feat(world): port ItemRadius splash proximity labels (v1.0.136, D112)`.
+- **Остаток**: live multiplayer/team check; pixel diff.

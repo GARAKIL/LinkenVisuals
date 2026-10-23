@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.135 / D111** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.136 / D112** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -149,8 +149,9 @@ From `FEATURE_PARITY.md`, still open:
 - **Splash Potion**: 200-step impact simulation (speed 0.5, pitch −20°,
   gravity 0.03, water/air drag, player velocity, block raycast), radius 1–30.
 - **Proximity colour**: magenta when another player is inside the circle/box.
-- **Open:** donor `%` labels over players in the splash radius (MSDF world
-  text) are not ported; only the colour reaction is.
+- **Splash labels (D112)**: `NN%` over each player inside the simulated splash
+  radius, donor `1 − dist/radius` formula, screen-space MSDF with black outline.
+  A live multiplayer case is still a human check.
 
 ## 6c. Combat D109 — DamageParticles + FortniteDamage (fixed)
 
@@ -185,9 +186,9 @@ From `FEATURE_PARITY.md`, still open:
 - **Open:** donor Background Colour, Text Colour and BoostFPS are not exposed;
   donor per-offset fade interpolation is simplified.
 
-## 7. Verification for D101-D111
+## 7. Verification for D101-D112
 
-- `test` / `clean build`: 300 tests, 0 failures/errors/skips in both flavors.
+- `test` / `clean build`: 301 tests, 0 failures/errors/skips in both flavors.
 - Autotest Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip, 1920×1080;
   `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius`,
   `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`

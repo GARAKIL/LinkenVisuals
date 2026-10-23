@@ -2,6 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D112 — ItemRadius proximity labels) — v1.0.136
+
+### Сделано
+1. **D112/v1.0.136**: закрыт donor-пробел `ItemRadius` — `NN%` над игроками в радиусе splash-зелья. `ItemRadiusRenderer` запоминает impact/radius при удерживании splash potion, `renderLabels(DrawContext)` проецирует головы игроков через камеру и рисует MSDF-текст с чёрным outline; формула `ItemRadiusRules.proximityPercent` (100% в центре, 0% на краю). Вызов — из `HudManager` рядом с FortniteDamage.
+2. **Проверки**: **301 тест** (+1 `ItemRadiusRulesTest`), 0 fail/error/skip; autotest Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip. Отдельного multiplayer-кейса с игроком в радиусе нет — добавлен `lastLabelVisible` probe и pure-тест формулы.
+3. **Commit**: `26b843e` `feat(world): port ItemRadius splash proximity labels (v1.0.136, D112)`.
+4. **Сборка**: `linkenvisuals-1.0.136.jar` — 11 114 360 байт, SHA-256 `BE5548AC383B83A7FD87A7E89718D58579B423B17BAD732440E7461223617770`; `linkenvisuals-strange-1.0.136.jar` — 11 114 354 байта, SHA-256 `22E5E32CBEAA916D4092EA7DCF1F87B3488402E797ED03201EA819E2576438CB`.
+
+### Следующая задача
+1. **UI background/text colours + BoostFPS** (остаток donor UI); BoostFPS у донора принудительно DEFAULT.
+2. **Punchy-lite expansion** (climb/elytra/item idle); full Punchy remains open.
+3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped.
+
+### Риски
+- Labels — screen-space HUD, не donor 3D world billboard; визуально цифры читаемы, но pixel-diff не закрыт.
+- Нет автоматического сценария с реальным вторым игроком в радиусе; проверена формула и probe, нужна live-проверка.
+
 ## Состояние на 2026-10-23 (D111 — UI palette/fade/blur) — v1.0.135
 
 ### Сделано
@@ -14,7 +32,7 @@
 1. **UI background/text colours + BoostFPS** (donor UI остаток); сверить `LinkGuiTheme`/`HudStyle`.
 2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
 3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
-4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped; `ItemRadius` proximity `%` labels open.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ### Риски
 - Donor `Theme Fade` интерполирует primary/secondary по offset; порт использует secondary как статический второй цвет и сворачивает его в accent при выключении. Это осознанное упрощение, pixel-diff не закрыт.
@@ -33,7 +51,7 @@
 1. **UI** donor controls: colour/fade/blur/BoostFPS; сверить donor `UI` и наши Interface/Theme/HudStyle.
 2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
 3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
-4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped; `ItemRadius` proximity `%` labels open.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ### Риски
 - `SelfNametags` зависит от `StreamerMode` и `Custom Name`; это donor-семантика, не баг. Без них модуль визуально ничего не меняет.
@@ -52,7 +70,7 @@
 1. **SelfNametags** line-by-line; full `UI` colour/fade/blur/BoostFPS.
 2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
 3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
-4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped; `ItemRadius` proximity `%` labels open.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ### Риски
 - FortniteDamage: donor 3D world billboard заменён screen-space проекцией; при серверной несинхронизации HP цифра может не появиться (donor имел то же ограничение).
@@ -75,7 +93,7 @@
 4. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
 
 ### Риски
-- `ItemRadius` proximity `%` labels (donor MSDF world text) пока не портированы; цветовая proximity-реакция работает.
+- `ItemRadius` proximity `%` labels портированы в D112 (screen-space MSDF); donor world-billboard pixel-diff остаётся открытым.
 - Dried-kelp wall — donor staircase geometry, но без точного texture/width pixel-diff.
 - Splash impact — donor heuristic without bossbar; human check required.
 
