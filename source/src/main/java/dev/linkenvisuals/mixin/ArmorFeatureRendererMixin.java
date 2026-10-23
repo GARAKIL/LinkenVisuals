@@ -1,6 +1,7 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.cosmetic.character.RudyCharacter;
+import dev.linkenvisuals.module.Modules;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.state.BipedEntityRenderState;
@@ -23,6 +24,11 @@ public abstract class ArmorFeatureRendererMixin {
     private void linkenvisuals$hideForRudy(MatrixStack matrices, OrderedRenderCommandQueue queue, int light,
                                            BipedEntityRenderState state, float limbAngle, float limbDistance,
                                            CallbackInfo ci) {
+        var noRender = Modules.noRender();
+        if (noRender != null && noRender.enabled() && noRender.armor.value()) {
+            ci.cancel();
+            return;
+        }
         if (RudyCharacter.active(state)) {
             ci.cancel();
         }

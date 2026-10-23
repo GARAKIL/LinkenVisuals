@@ -16,6 +16,7 @@ import dev.linkenvisuals.module.impl.ItemScrollerModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
+import dev.linkenvisuals.module.impl.NoRenderModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
@@ -60,6 +61,7 @@ public final class Modules {
     private static ElytraSwapModule elytraSwap;
     private static StreamerModeModule streamerMode;
     private static SoundsModule sounds;
+    private static NoRenderModule noRender;
 
     private Modules() {
     }
@@ -176,6 +178,10 @@ public final class Modules {
         return sounds;
     }
 
+    public static NoRenderModule noRender() {
+        return noRender;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -232,5 +238,7 @@ public final class Modules {
         register(streamerMode);
         sounds = new SoundsModule();
         register(sounds);
+        noRender = new NoRenderModule();
+        register(noRender);
     }
 }

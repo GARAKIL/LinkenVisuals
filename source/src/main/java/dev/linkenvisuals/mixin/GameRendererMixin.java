@@ -29,6 +29,22 @@ public abstract class GameRendererMixin {
     @Shadow
     public abstract Camera getCamera();
 
+    @Inject(method = "tiltViewWhenHurt", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$noHurtCamera(CallbackInfo ci) {
+        var noRender = Modules.noRender();
+        if (noRender != null && noRender.enabled() && noRender.hurtCamera.value()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "showFloatingItem", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$noTotemOverlay(CallbackInfo ci) {
+        var noRender = Modules.noRender();
+        if (noRender != null && noRender.enabled() && noRender.totem.value()) {
+            ci.cancel();
+        }
+    }
+
     @Inject(method = "renderHand", at = @At("HEAD"))
     private void linkenvisuals$beforeHands(float tickProgress, boolean sleeping,
                                             Matrix4f positionMatrix, CallbackInfo ci) {

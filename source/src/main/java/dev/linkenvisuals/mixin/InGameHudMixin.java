@@ -35,7 +35,12 @@ public abstract class InGameHudMixin {
     @Inject(method = "renderScoreboardSidebar(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/scoreboard/ScoreboardObjective;)V", at = @At("HEAD"), cancellable = true)
     private void linkenvisuals$cancelVanillaScoreboard(DrawContext context, ScoreboardObjective objective,
                                                        CallbackInfo ci) {
-        if (ModuleRegistry.customScoreboard() != null && ModuleRegistry.customScoreboard().value()) {
+        var noRender = Modules.noRender();
+        boolean hide = ModuleRegistry.customScoreboard() != null && ModuleRegistry.customScoreboard().value();
+        if (noRender != null && noRender.enabled() && noRender.scoreboard.value()) {
+            hide = true;
+        }
+        if (hide) {
             ci.cancel();
         }
     }

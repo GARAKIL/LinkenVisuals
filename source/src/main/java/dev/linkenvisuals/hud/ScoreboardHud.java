@@ -104,7 +104,9 @@ public final class ScoreboardHud extends HudElement {
     }
 
     private void refresh() {
-        if (ModuleRegistry.customScoreboard() == null || !ModuleRegistry.customScoreboard().value()) {
+        var noRender = dev.linkenvisuals.module.Modules.noRender();
+        if (ModuleRegistry.customScoreboard() == null || !ModuleRegistry.customScoreboard().value()
+            || (noRender != null && noRender.enabled() && noRender.scoreboard.value())) {
             data = Data.EMPTY;
             cachedWidth = 0.0f;
             cachedHeight = 0.0f;

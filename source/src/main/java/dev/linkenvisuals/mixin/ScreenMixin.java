@@ -2,6 +2,7 @@ package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.hands.HandEditor;
+import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.render.BackgroundPipeline;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.VanillaStylePipeline;
@@ -14,6 +15,7 @@ import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.screen.option.OptionsScreen;
 import net.minecraft.client.gui.screen.pack.PackScreen;
@@ -56,6 +58,12 @@ public abstract class ScreenMixin {
     private void linkenvisuals$customBackground(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         Screen screen = (Screen) (Object) this;
+        var noRender = Modules.noRender();
+        if (screen instanceof HandledScreen && noRender != null && noRender.enabled()
+            && noRender.inventoryBackground.value()) {
+            ci.cancel();
+            return;
+        }
 
         if (StyleRouting.usesVanillaChrome(dev.linkenvisuals.ui.style.StyleManager.getStyle())) {
             if (screen instanceof GameMenuScreen) {
