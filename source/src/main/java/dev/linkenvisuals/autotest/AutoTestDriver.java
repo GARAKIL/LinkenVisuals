@@ -24,6 +24,7 @@ import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
 import dev.linkenvisuals.render.ParticlesRenderer;
+import dev.linkenvisuals.render.TrajectoriesRenderer;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -35,6 +36,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.ScreenshotRecorder;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
@@ -114,6 +117,8 @@ public final class AutoTestDriver {
     private static boolean mobsSpawned;
     private static boolean blockPlaced;
     private static String blockCoords;
+    private static ItemStack trajectoryReturnStack = ItemStack.EMPTY;
+    private static boolean trajectoryBlockOverlay = true;
 
     private AutoTestDriver() {
     }
@@ -555,6 +560,45 @@ public final class AutoTestDriver {
             if (client.player != null) {
                 client.player.setPitch(returnPitch);
                 client.player.setYaw(returnYaw);
+            }
+        });
+
+        add("enable trajectories", 1, () -> {
+            if (Modules.trajectories() != null) {
+                Modules.trajectories().info().toggleSilently(true);
+            }
+        });
+        add("give trajectory pearl", 1, () -> {
+            if (client.player != null) {
+                trajectoryReturnStack = client.player.getMainHandStack().copy();
+                client.player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.ENDER_PEARL));
+                client.player.setPitch(55.0f);
+            }
+            if (Modules.blockOverlay() != null) {
+                trajectoryBlockOverlay = Modules.blockOverlay().enabled();
+                Modules.blockOverlay().info().toggleSilently(false);
+            }
+        });
+        add("wait trajectory", 8, () -> {
+        });
+        add("check trajectory render", 1, () -> {
+            if (!TrajectoriesRenderer.lastRenderVisible()) {
+                throw new IllegalStateException("Trajectories did not render");
+            }
+        });
+        add("screenshot trajectory", 1, () -> screenshot(client, "trajectories"));
+        add("restore trajectory hand", 1, () -> {
+            if (client.player != null) {
+                client.player.setStackInHand(Hand.MAIN_HAND, trajectoryReturnStack);
+                client.player.setPitch(returnPitch);
+            }
+            if (Modules.blockOverlay() != null) {
+                Modules.blockOverlay().info().toggleSilently(trajectoryBlockOverlay);
+            }
+        });
+        add("disable trajectories", 1, () -> {
+            if (Modules.trajectories() != null) {
+                Modules.trajectories().info().toggleSilently(false);
             }
         });
 

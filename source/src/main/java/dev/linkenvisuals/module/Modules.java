@@ -23,6 +23,7 @@ import dev.linkenvisuals.module.impl.OptimizationModule;
 import dev.linkenvisuals.module.impl.ParticlesModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
+import dev.linkenvisuals.module.impl.TrajectoriesModule;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
 import dev.linkenvisuals.module.impl.TargetEspModule;
 import dev.linkenvisuals.module.impl.TimeChangerModule;
@@ -70,6 +71,7 @@ public final class Modules {
     private static CustomHitBoxModule customHitBox;
     private static OptimizationModule optimization;
     private static ParticlesModule particles;
+    private static TrajectoriesModule trajectories;
 
     private Modules() {
     }
@@ -206,6 +208,10 @@ public final class Modules {
         return particles;
     }
 
+    public static TrajectoriesModule trajectories() {
+        return trajectories;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -272,5 +278,7 @@ public final class Modules {
         register(optimization);
         particles = new ParticlesModule();
         register(particles);
+        trajectories = new TrajectoriesModule();
+        register(trajectories);
     }
 }
