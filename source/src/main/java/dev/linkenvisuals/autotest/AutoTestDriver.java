@@ -13,7 +13,12 @@ import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.ModeSetting;
 import dev.linkenvisuals.clickgui.setting.Setting;
 import dev.linkenvisuals.clickgui.setting.SliderSetting;
+import dev.linkenvisuals.hud.ArmorHud;
+import dev.linkenvisuals.hud.CooldownsHud;
 import dev.linkenvisuals.hud.CoordinatesHud;
+import dev.linkenvisuals.hud.InventoryHud;
+import dev.linkenvisuals.hud.LowArmorNotificationsHud;
+import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.hud.TargetHud;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -322,6 +327,57 @@ public final class AutoTestDriver {
         });
         add("screenshot coordinates hud", 1, () -> screenshot(client, "coordinates-hud"));
         add("close coordinates hud preview", 3, () -> client.setScreen(null));
+        add("enable cooldowns hud", 1, () -> {
+            if (ModuleRegistry.cooldownsHud() != null) {
+                ModuleRegistry.cooldownsHud().setValue(true);
+            }
+        });
+        add("open cooldowns hud preview", 3, () -> client.setScreen(new ChatScreen("", false)));
+        add("check cooldowns hud", 5, () -> {
+            if (!CooldownsHud.lastRenderVisible()) {
+                throw new IllegalStateException("CooldownsHud не отрисовался в preview");
+            }
+        });
+        add("screenshot cooldowns hud", 1, () -> screenshot(client, "cooldowns-hud"));
+        add("close cooldowns hud preview", 3, () -> client.setScreen(null));
+        add("enable armor hud", 1, () -> {
+            if (ModuleRegistry.armorHud() != null) {
+                ModuleRegistry.armorHud().setValue(true);
+            }
+        });
+        add("enable inventory hud", 1, () -> {
+            if (ModuleRegistry.inventoryHud() != null) {
+                ModuleRegistry.inventoryHud().setValue(true);
+            }
+        });
+        add("enable low armor notifications", 1, () -> {
+            if (ModuleRegistry.lowArmorNotifications() != null) {
+                ModuleRegistry.lowArmorNotifications().setValue(true);
+            }
+        });
+        add("open armor/inventory preview", 3, () -> {
+            client.setScreen(null);
+            HudManager.setEditing(true);
+        });
+        add("check armor hud", 5, () -> {
+            if (!ArmorHud.lastRenderVisible()) {
+                throw new IllegalStateException("ArmorHud не отрисовался в preview");
+            }
+        });
+        add("check inventory hud", 2, () -> {
+            if (!InventoryHud.lastRenderVisible()) {
+                throw new IllegalStateException("InventoryHud не отрисовался в preview");
+            }
+        });
+        add("check low armor hud", 2, () -> {
+            if (!LowArmorNotificationsHud.lastRenderVisible()) {
+                throw new IllegalStateException("LowArmorNotificationsHud не отрисовался в preview");
+            }
+        });
+        add("screenshot armor hud", 1, () -> screenshot(client, "armor-hud"));
+        add("screenshot inventory hud", 1, () -> screenshot(client, "inventory-hud"));
+        add("screenshot low armor hud", 1, () -> screenshot(client, "low-armor-hud"));
+        add("close armor/inventory preview", 3, () -> HudManager.setEditing(false));
         add("open linken multiplayer", 5, () -> client.setScreen(new LinkenMultiplayerScreen(null)));
         add("screenshot linken multiplayer", 2, () -> screenshot(client, "multiplayer"));
         add("open multiplayer add modal", 2, () -> {

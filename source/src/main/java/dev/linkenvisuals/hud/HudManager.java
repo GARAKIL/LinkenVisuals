@@ -34,10 +34,11 @@ public final class HudManager {
     private static final float MENU_GAP = 6.0f;
 
     private static final List<HudElement> ELEMENTS = List.of(new TargetHud(), new CoordinatesHud(),
+        new CooldownsHud(), new ArmorHud(), new InventoryHud(),
         new Watermark(), new KeybindPanel(),
         new MediaPlayerHud(), new TotemCounterHud(), new UseTrackerHud(),
         new PotionSlot(0), new PotionSlot(1), new PotionSlot(2), new PotionSlot(3), new PotionBlock(),
-        new ScoreboardHud());
+        new ScoreboardHud(), new LowArmorNotificationsHud());
     private static final Spring gridReveal = new Spring(0.0, 700.0, 32.0);
     private static final Spring dragBlur = new Spring(0.0, 900.0, 40.0);
 
