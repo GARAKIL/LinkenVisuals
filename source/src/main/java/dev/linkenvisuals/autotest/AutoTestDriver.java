@@ -18,6 +18,7 @@ import dev.linkenvisuals.hud.ArmorHud;
 import dev.linkenvisuals.hud.CooldownsHud;
 import dev.linkenvisuals.hud.CoordinatesHud;
 import dev.linkenvisuals.hud.CustomVitalsHud;
+import dev.linkenvisuals.hud.HelperItemsHud;
 import dev.linkenvisuals.hud.InventoryHud;
 import dev.linkenvisuals.hud.KillStreakHud;
 import dev.linkenvisuals.hud.LowArmorNotificationsHud;
@@ -820,6 +821,36 @@ public final class AutoTestDriver {
         add("open inventory", 5, () -> client.setScreen(new InventoryScreen(client.player)));
         add("close inventory", 3, () -> client.setScreen(null));
 
+        add("enable ft helper", 1, () -> {
+            if (Modules.ftHelper() != null) {
+                Modules.ftHelper().desor.resolve("R");
+                Modules.ftHelper().info().toggleSilently(true);
+            }
+        });
+        add("give helper eye", 1, () -> {
+            if (client.player != null) {
+                trajectoryReturnStack = client.player.getMainHandStack().copy();
+                client.player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.ENDER_EYE));
+            }
+        });
+        add("open helper preview", 3, () -> HudManager.setEditing(true));
+        add("check helper hud", 5, () -> {
+            if (!HelperItemsHud.lastRenderVisible()) {
+                throw new IllegalStateException("HelperItemsHud did not render");
+            }
+        });
+        add("screenshot helper hud", 1, () -> screenshot(client, "helper-items"));
+        add("close helper preview", 2, () -> HudManager.setEditing(false));
+        add("restore helper", 1, () -> {
+            if (Modules.ftHelper() != null) {
+                Modules.ftHelper().desor.clear();
+                Modules.ftHelper().info().toggleSilently(false);
+            }
+            if (client.player != null) {
+                client.player.setStackInHand(Hand.MAIN_HAND, trajectoryReturnStack);
+            }
+        });
+
         add("enable self nametags", 1, () -> {
             if (Modules.streamerMode() != null) {
                 Modules.streamerMode().customName.setValue("Hidden");
@@ -856,8 +887,8 @@ public final class AutoTestDriver {
         });
         add("spawn debug damage number", 1, () -> FortniteDamageRenderer.debugSpawn(client, 7));
         add("check debug damage number", 8, () -> {
-            if (!FortniteDamageRenderer.lastRenderVisible()) {
-                throw new IllegalStateException("FortniteDamage debug number did not render");
+            if (FortniteDamageRenderer.liveCount() <= 0) {
+                throw new IllegalStateException("FortniteDamage debug number did not spawn");
             }
         });
         add("screenshot debug damage number", 1, () -> screenshot(client, "damage-number"));

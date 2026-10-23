@@ -9,6 +9,9 @@ import dev.linkenvisuals.module.impl.CustomVitalsModule;
 import dev.linkenvisuals.module.impl.DamageParticlesModule;
 import dev.linkenvisuals.module.impl.ElytraSwapModule;
 import dev.linkenvisuals.module.impl.FortniteDamageModule;
+import dev.linkenvisuals.module.impl.FtHelperModule;
+import dev.linkenvisuals.module.impl.HwHelperModule;
+import dev.linkenvisuals.module.impl.RwHelperModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FreelookModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
@@ -86,8 +89,23 @@ public final class Modules {
     private static ItemRadiusModule itemRadius;
     private static DamageParticlesModule damageParticles;
     private static FortniteDamageModule fortniteDamage;
+    private static FtHelperModule ftHelper;
+    private static HwHelperModule hwHelper;
+    private static RwHelperModule rwHelper;
 
     private Modules() {
+    }
+
+    /** Keyboard dispatch for the donor helper modules (key-only subset). */
+    public static void onHelperKey(int key) {
+        net.minecraft.client.MinecraftClient client =
+            net.minecraft.client.MinecraftClient.getInstance();
+        if (client == null || client.currentScreen != null) {
+            return;
+        }
+        if (ftHelper != null) ftHelper.onKey(client, key);
+        if (hwHelper != null) hwHelper.onKey(client, key);
+        if (rwHelper != null) rwHelper.onKey(client, key);
     }
 
     public static void register(Module module) {
@@ -254,6 +272,18 @@ public final class Modules {
         return fortniteDamage;
     }
 
+    public static FtHelperModule ftHelper() {
+        return ftHelper;
+    }
+
+    public static HwHelperModule hwHelper() {
+        return hwHelper;
+    }
+
+    public static RwHelperModule rwHelper() {
+        return rwHelper;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -336,5 +366,11 @@ public final class Modules {
         register(damageParticles);
         fortniteDamage = new FortniteDamageModule();
         register(fortniteDamage);
+        ftHelper = new FtHelperModule();
+        register(ftHelper);
+        hwHelper = new HwHelperModule();
+        register(hwHelper);
+        rwHelper = new RwHelperModule();
+        register(rwHelper);
     }
 }

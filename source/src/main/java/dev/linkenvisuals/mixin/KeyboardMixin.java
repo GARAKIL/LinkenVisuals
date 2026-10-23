@@ -2,6 +2,7 @@ package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.macro.MacroManager;
+import dev.linkenvisuals.module.Modules;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.input.KeyInput;
 import org.lwjgl.glfw.GLFW;
@@ -17,6 +18,7 @@ public abstract class KeyboardMixin {
         if (action == GLFW.GLFW_PRESS) {
             MacroManager.onKeyPressed(input.key());
             ModuleRegistry.onKeyPressed(input.key());
+            Modules.onHelperKey(input.key());
         }
     }
 }

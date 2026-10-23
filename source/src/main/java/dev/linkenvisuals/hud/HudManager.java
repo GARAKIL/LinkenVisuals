@@ -38,7 +38,8 @@ public final class HudManager {
         new Watermark(), new KeybindPanel(),
         new MediaPlayerHud(), new TotemCounterHud(), new UseTrackerHud(),
         new PotionSlot(0), new PotionSlot(1), new PotionSlot(2), new PotionSlot(3), new PotionBlock(),
-        new ScoreboardHud(), new LowArmorNotificationsHud(), new KillStreakHud());
+        new ScoreboardHud(), new LowArmorNotificationsHud(), new KillStreakHud(),
+        new HelperItemsHud());
     private static final Spring gridReveal = new Spring(0.0, 700.0, 32.0);
     private static final Spring dragBlur = new Spring(0.0, 900.0, 40.0);
 
