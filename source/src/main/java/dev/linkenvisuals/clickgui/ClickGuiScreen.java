@@ -41,6 +41,16 @@ import java.util.Locale;
 import java.util.Map;
 
 public final class ClickGuiScreen extends Screen {
+    @Override
+    public void renderBackground(net.minecraft.client.gui.DrawContext context, int mouseX,
+                                 int mouseY, float delta) {
+        if (ModuleRegistry.interfaceBlur()) {
+            super.renderBackground(context, mouseX, mouseY, delta);
+        } else {
+            context.fill(0, 0, width, height, ColorMath.withAlpha(0x000000, 150));
+        }
+    }
+
     private static final Identifier LOGO = LinkenVisuals.id("textures/gui/ico_logo.png");
     private static final Identifier SEARCH_ICON = LinkenVisuals.id("textures/gui/ico_search.png");
 

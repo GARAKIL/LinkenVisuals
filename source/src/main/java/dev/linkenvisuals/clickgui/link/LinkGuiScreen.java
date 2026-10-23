@@ -8,6 +8,7 @@ import dev.linkenvisuals.clickgui.ConfigManager;
 import dev.linkenvisuals.clickgui.KeyNames;
 import dev.linkenvisuals.clickgui.ModuleInfo;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
+import dev.linkenvisuals.util.ColorMath;
 import dev.linkenvisuals.clickgui.link.LinkGuiLayout.Metrics;
 import dev.linkenvisuals.clickgui.link.LinkGuiLayout.Rect;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
@@ -65,6 +66,16 @@ import java.util.function.Supplier;
  * shells, so modules and configs stay in sync.
  */
 public final class LinkGuiScreen extends Screen {
+    @Override
+    public void renderBackground(net.minecraft.client.gui.DrawContext context, int mouseX,
+                                 int mouseY, float delta) {
+        if (ModuleRegistry.interfaceBlur()) {
+            super.renderBackground(context, mouseX, mouseY, delta);
+        } else {
+            context.fill(0, 0, width, height, ColorMath.withAlpha(0x000000, 150));
+        }
+    }
+
     private static final Identifier BACKGROUND = LinkenVisuals.id("textures/linkmenu/bg-tower.png");
     private static final float BACKGROUND_WIDTH = 1270.0f;
     private static final float BACKGROUND_HEIGHT = 999.0f;
@@ -304,10 +315,12 @@ public final class LinkGuiScreen extends Screen {
 
     private void drawBackdrop(DrawContext context, Metrics metrics, float openT) {
         if (client != null && client.world != null) {
-            try {
-                context.applyBlur();
-            } catch (RuntimeException unavailable) {
-                LinkenVisuals.LOGGER.debug("LINKEN ClickGUI blur unavailable: {}", unavailable.getMessage());
+            if (ModuleRegistry.interfaceBlur()) {
+                try {
+                    context.applyBlur();
+                } catch (RuntimeException unavailable) {
+                    LinkenVisuals.LOGGER.debug("LINKEN ClickGUI blur unavailable: {}", unavailable.getMessage());
+                }
             }
             context.fill(0, 0, width, height,
                 LinkenMenuChrome.rgba(LinkGuiTheme.isLight() ? 0xE9EDF2 : 0x050706,

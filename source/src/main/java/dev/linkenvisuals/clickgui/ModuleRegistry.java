@@ -107,6 +107,9 @@ public final class ModuleRegistry {
 
     private static SliderSetting uiRadius;
     private static ColorSetting uiAccent;
+    private static ColorSetting uiSecondary;
+    private static BooleanSetting themeFade;
+    private static BooleanSetting guiBlur;
     private static ColorSetting skyColor;
     private static ModuleInfo mediaPlayer;
     private static ModuleInfo betterAnimations;
@@ -214,6 +217,9 @@ public final class ModuleRegistry {
         linkUiTransparency = new SliderSetting("GUI Transparency", 30.0f, 100.0f, 1.0f, 100.0f, "%");
         linkCursorTracker = new BooleanSetting("Cursor Tracker", true);
         uiAccent = new ColorSetting("Accent Colour", Theme.DEFAULT_ACCENT);
+        uiSecondary = new ColorSetting("Secondary Colour", Theme.DEFAULT_SECONDARY);
+        themeFade = new BooleanSetting("Theme Fade", true);
+        guiBlur = new BooleanSetting("GUI Blur", true);
         tintWatermark = new BooleanSetting("Colour Watermark", true);
         tintHotbar = new BooleanSetting("Colour Hotbar", true);
         tintPotions = new BooleanSetting("Colour Potions", true);
@@ -229,7 +235,8 @@ public final class ModuleRegistry {
             scoreboardRadius, scoreboardOpacity, customTab, tabColor, tabOpacity));
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
             interfaceLeft,
-            List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
+            List.of(uiRadius, uiAccent, uiSecondary, themeFade, guiBlur,
+                tintWatermark, tintHotbar, tintPotions, tintKeybinds));
         clickGui.toggleSilently(true);
         clickGui.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
         MODULES.add(clickGui);
@@ -485,6 +492,26 @@ public final class ModuleRegistry {
 
     public static ColorSetting uiAccent() {
         return uiAccent;
+    }
+
+    public static ColorSetting uiSecondary() {
+        return uiSecondary;
+    }
+
+    public static boolean themeFade() {
+        return themeFade == null || themeFade.value();
+    }
+
+    public static BooleanSetting themeFadeSetting() {
+        return themeFade;
+    }
+
+    public static boolean interfaceBlur() {
+        return guiBlur == null || guiBlur.value();
+    }
+
+    public static BooleanSetting guiBlurSetting() {
+        return guiBlur;
     }
 
     public static ModeSetting hudStyle() {

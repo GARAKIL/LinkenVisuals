@@ -1,6 +1,7 @@
 package dev.linkenvisuals.ui;
 
 import dev.linkenvisuals.clickgui.ModuleRegistry;
+import dev.linkenvisuals.clickgui.setting.ColorSetting;
 
 public final class Theme {
     public static final int DEFAULT_ACCENT = 0xAFC6FF;
@@ -33,6 +34,13 @@ public final class Theme {
     }
 
     public static int secondary() {
+        ColorSetting configured = ModuleRegistry.uiSecondary();
+        if (!ModuleRegistry.themeFade()) {
+            return accent();
+        }
+        if (configured != null) {
+            return usable(configured.rgb());
+        }
         float[] hsv = rgbToHsv(accent());
         return hsvToRgb(hsv[0] + 0.075f, Math.min(1.0f, hsv[1] * 0.92f), Math.min(1.0f, hsv[2] * 1.02f));
     }

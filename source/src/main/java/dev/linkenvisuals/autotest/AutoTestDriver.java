@@ -23,6 +23,7 @@ import dev.linkenvisuals.hud.LowArmorNotificationsHud;
 import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.hud.TargetHud;
 import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.module.impl.KillStreakModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.ViewModelModule;
@@ -766,6 +767,26 @@ public final class AutoTestDriver {
         add("screenshot link ClickGUI", 1, () -> screenshot(client, "linkgui"));
         add("screenshot pinned ClickGUI", 1, () -> screenshot(client, "linkgui-pinned"));
         add("close link ClickGUI", 4, () -> client.setScreen(null));
+        add("set UI palette", 1, () -> {
+            ModuleRegistry.uiAccent().set(0xFF3366);
+            ModuleRegistry.uiSecondary().set(0x33FF88);
+            ModuleRegistry.themeFadeSetting().setValue(false);
+            ModuleRegistry.guiBlurSetting().setValue(false);
+        });
+        add("check UI palette", 1, () -> {
+            if (Theme.secondary() != Theme.accent()) {
+                throw new IllegalStateException("Theme Fade off must collapse the secondary colour");
+            }
+        });
+        add("open no-blur LinkGUI", 8, () -> client.setScreen(new LinkGuiScreen()));
+        add("screenshot no-blur LinkGUI", 1, () -> screenshot(client, "linkgui-noblur"));
+        add("close no-blur LinkGUI", 3, () -> client.setScreen(null));
+        add("restore UI palette", 1, () -> {
+            ModuleRegistry.uiAccent().set(Theme.DEFAULT_ACCENT);
+            ModuleRegistry.uiSecondary().set(Theme.DEFAULT_SECONDARY);
+            ModuleRegistry.themeFadeSetting().setValue(true);
+            ModuleRegistry.guiBlurSetting().setValue(true);
+        });
         add("unpin link test", 1, () -> {
             if (!pinWasSet) {
                 LinkGuiConfig.togglePin("ClickGUI");
