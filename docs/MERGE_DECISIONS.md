@@ -787,6 +787,15 @@
 - **Commit**: `376c532` `fix(hud): port donor border smoothness shader (v1.0.109, D86)`.
 - **Остаток**: HUD-элементы и visual-модули из `FEATURE_PARITY.md`; human sound/visual acceptance.
 
+## 2026-10-23 · D96 · Donor Aspect Ratio module — v1.0.119
+- **Aspect Ratio**: добавлен donor `Aspect Ratio` module (Visual/World, default OFF) с `SliderSetting` 0.1–5.0, default 1.75. `GameRendererMixin.getBasicProjectionMatrix` на RETURN заменяет горизонтальный projection-член через `m00 = m11 / ratio`, сохраняя FOV/near/far и вертикальную геометрию.
+- **ProjectionMath**: чистая матричная функция `withAspect` + `ProjectionMathTest` (валидный ratio, non-finite/≤0.01/null, сохранение m11/m22/m32). Это исключает Minecraft-зависимость из теста.
+- **CameraSettings**: отдельный donor-модуль не добавлял — smooth-F5 уже покрыт `Better Animations` → `Animations.perspective` (`Camera (F5)`). Дублирующий модуль создал бы два конфликтующих контрола; отмечено в `FEATURE_PARITY.md`.
+- **Проверки**: **239 тестов, 0 падений/ошибок/скипов**; скрытый autotest **730/730**, 1920×1080; новых ERROR/exception, shader-source и unknown-sound-event ошибок нет.
+- **Сборка**: jar `linkenvisuals-1.0.119.jar` (10 780 793 байта, SHA-256 `DA38FA327C6D7EC6186F8D508D2C496862987AABFAB7970942CA28D6501E6E71`).
+- **Commit**: `9849613` `feat(render): port donor aspect ratio module (v1.0.119, D96)`.
+- **Остаток**: CameraSettings закрыт существующим Better Animations; далее CustomHitBox/HitRange/NoRender/Optimization/Particles/Trajectories/KillStreak/ViewModel и HUD-остатки из `FEATURE_PARITY.md`.
+
 ## 2026-10-22 · D87 · Donor TargetHud — v1.0.110
 - **Геометрия**: `TargetHud` повторяет donor-карточку `104×30` (+`25 px` ряд offhand/брони): head `20`, padding/gap `4`, item cell `15`/gap `4`, name `7.6`, HP `6.6`, durability `4.6`, bar `2`; панель идёт через `HudSurface`/`HudStyle`, поэтому все 8 стилей, shape и border smoothness применяются без отдельных констант.
 - **Выбор цели**: crosshair-entity в радиусе `3.5`, затем aim-cone с расширением hitbox `0.75` и LOS-рейкастом; последняя цель удерживается `1000 мс`; отсекаются self, invisible/invisibility, friends (LinkGUI `friends`); в HUD edit-mode/чате рисуется self-preview.

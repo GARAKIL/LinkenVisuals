@@ -107,6 +107,7 @@
 - [x] **M8.19 — LINKEN splash replaces Mojang**, v1.0.116, D93, commit `45e6086`: mixin drives reload state, vanilla-only bootstrap progress until shaders ready, then full LINKEN splash; frame capture 1280×720; **223 теста**, 697/697.
 - [x] **M8.20 — layout-aware text shortcuts**, v1.0.117, D94, commit `c72fd70`: `LayoutKeys` + `TextInput`, Ctrl+A/C/V/X/Z/Y and word/caret shortcuts in all vanilla fields and LINKEN/ClickGUI text fields; **231 тест**, 697/697.
 - [x] **M8.21 — HUD batch Cooldowns/Armor/Inventory/LowArmor**, v1.0.118, D95, commit `ed4d241`: reflective 1.21.11 cooldown reader, armor card V1, 27/36-slot inventory, low-armor notifications, 5 Interface settings; **237 тестов**, 723/723.
+- [x] **M8.22 — donor Aspect Ratio**, v1.0.119, D96, commit `9849613`: Visual/World module, projection `m00 = m11 / ratio`, `ProjectionMathTest`; CameraSettings covered by Better Animations; **239 тестов**, 730/730.
 - [ ] **M8.17 — full donor visual parity remainder** — HelperItems/DynamicIsland (blocked/neutralized by Link style), Armor V2, CameraSettings/AspectRatio/CustomHitBox/Vitals/DamageParticles/HitRange/ItemRadius/NoRender/Optimization/Particles/Trajectories/KillStreak/ViewModel, human sound/visual acceptance, multiplayer custom-tab check.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

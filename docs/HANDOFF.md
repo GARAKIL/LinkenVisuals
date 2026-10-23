@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №50 — donor Aspect Ratio, D96) — v1.0.119
+
+### Сделано
+1. **D96/v1.0.119** (`9849613`): donor `Aspect Ratio` module (Visual/World, default OFF), slider 0.1–5.0 default 1.75; `GameRendererMixin.getBasicProjectionMatrix` заменяет `m00 = m11 / ratio`.
+2. **ProjectionMath**: чистая функция + `ProjectionMathTest`; проверены invalid/null и сохранение вертикальных членов.
+3. **CameraSettings**: не дублировал — smooth-F5 уже покрыт `Better Animations`/`Animations.perspective`.
+4. **Проверки**: **239 тестов, 0 падений**; скрытый autotest **730/730**, 1920×1080, ошибок нет.
+5. **Сборка**: jar `linkenvisuals-1.0.119.jar` (10 780 793 байта, SHA-256 `DA38FA327C6D7EC6186F8D508D2C496862987AABFAB7970942CA28D6501E6E71`).
+
+### Следующая задача
+- Visual: CustomHitBox, HitRange, NoRender, Optimization, Particles, Trajectories, KillStreak, ViewModel/Hands.
+- HUD: HelperItems (blocked без donor helper-модулей), DynamicIsland (donor скрывает в Link), Armor V2.
+- Human: cooldown ticks, RU/UA/AZERTY/QWERTZ, low-armor, multiplayer tab, pixel diff.
+
+### Риски
+- Aspect Ratio меняет только projection matrix; UI/HUD не масштабируются — как в donor.
+- CameraSettings покрыт существующей анимацией, не отдельным модулем.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №49 — HUD batch: Cooldowns/Armor/Inventory/LowArmor, D95) — v1.0.118
 
 ### Сделано
