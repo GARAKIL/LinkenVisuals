@@ -6,7 +6,9 @@ import dev.linkenvisuals.module.impl.ChatHelperModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.CustomHitBoxModule;
 import dev.linkenvisuals.module.impl.CustomVitalsModule;
+import dev.linkenvisuals.module.impl.DamageParticlesModule;
 import dev.linkenvisuals.module.impl.ElytraSwapModule;
+import dev.linkenvisuals.module.impl.FortniteDamageModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FreelookModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
@@ -80,6 +82,8 @@ public final class Modules {
     private static ViewModelModule viewModel;
     private static CustomVitalsModule customVitals;
     private static ItemRadiusModule itemRadius;
+    private static DamageParticlesModule damageParticles;
+    private static FortniteDamageModule fortniteDamage;
 
     private Modules() {
     }
@@ -236,6 +240,14 @@ public final class Modules {
         return itemRadius;
     }
 
+    public static DamageParticlesModule damageParticles() {
+        return damageParticles;
+    }
+
+    public static FortniteDamageModule fortniteDamage() {
+        return fortniteDamage;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -312,5 +324,9 @@ public final class Modules {
         register(customVitals);
         itemRadius = new ItemRadiusModule();
         register(itemRadius);
+        damageParticles = new DamageParticlesModule();
+        register(damageParticles);
+        fortniteDamage = new FortniteDamageModule();
+        register(fortniteDamage);
     }
 }

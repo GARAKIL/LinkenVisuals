@@ -19,6 +19,8 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.mixin.FogRendererAccessor;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.render.BlockOverlayRenderer;
+import dev.linkenvisuals.render.DamageParticlesRenderer;
+import dev.linkenvisuals.render.FortniteDamageRenderer;
 import dev.linkenvisuals.render.JumpCirclesRenderer;
 import dev.linkenvisuals.render.ItemRadiusRenderer;
 import dev.linkenvisuals.render.MotionBlurRenderer;
@@ -135,6 +137,8 @@ public final class LinkenVisuals implements ClientModInitializer {
             dev.linkenvisuals.render.ParticlesRenderer.clear();
             dev.linkenvisuals.render.TrajectoriesRenderer.clear();
             ItemRadiusRenderer.clear();
+            DamageParticlesRenderer.clear();
+            FortniteDamageRenderer.clear();
             PetRig.clear();
             // Free fullscreen VRAM: every post pipeline holds its own scene-size
             // buffers (Ambience x4, Rain, Kill, Bubble, Filter, Hands x4, HUD glass).
@@ -182,6 +186,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.ParticlesRenderer::render);
         WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.TrajectoriesRenderer::render);
         WorldRenderEvents.END_MAIN.register(ItemRadiusRenderer::render);
+        WorldRenderEvents.END_MAIN.register(DamageParticlesRenderer::render);
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         dev.linkenvisuals.command.WaypointCommand.register();
         dev.linkenvisuals.autotest.AutoTestDriver.register();
@@ -290,6 +295,8 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.render.TrailsRenderer.tick();
         dev.linkenvisuals.render.JumpCirclesRenderer.tick();
         dev.linkenvisuals.render.ParticlesRenderer.tick();
+        DamageParticlesRenderer.tick();
+        FortniteDamageRenderer.tick();
         tickZoom(client);
         tickFreelook(client);
         dev.linkenvisuals.module.impl.TimeChangerModule.tick();

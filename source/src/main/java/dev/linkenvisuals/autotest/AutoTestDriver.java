@@ -29,6 +29,8 @@ import dev.linkenvisuals.module.impl.ViewModelModule;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
+import dev.linkenvisuals.render.DamageParticlesRenderer;
+import dev.linkenvisuals.render.FortniteDamageRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
 import dev.linkenvisuals.render.ItemRadiusRenderer;
 import dev.linkenvisuals.render.ParticlesRenderer;
@@ -776,15 +778,56 @@ public final class AutoTestDriver {
         add("open inventory", 5, () -> client.setScreen(new InventoryScreen(client.player)));
         add("close inventory", 3, () -> client.setScreen(null));
 
+        add("enable damage visuals", 1, () -> {
+            if (Modules.damageParticles() != null) {
+                Modules.damageParticles().info().toggleSilently(true);
+            }
+            if (Modules.fortniteDamage() != null) {
+                Modules.fortniteDamage().info().toggleSilently(true);
+                Modules.fortniteDamage().size.setValue(0.08f);
+            }
+        });
+        add("spawn debug damage number", 1, () -> FortniteDamageRenderer.debugSpawn(client, 7));
+        add("check debug damage number", 2, () -> {
+            if (!FortniteDamageRenderer.lastRenderVisible()) {
+                throw new IllegalStateException("FortniteDamage debug number did not render");
+            }
+        });
+        add("screenshot debug damage number", 1, () -> screenshot(client, "damage-number"));
+        add("restore damage number size", 1, () -> {
+            if (Modules.fortniteDamage() != null) {
+                Modules.fortniteDamage().size.setValue(0.032f);
+            }
+        });
         for (int i = 0; i < 4; i++) {
             add("attack mob " + (i + 1), 3, () -> attackNearest(client));
         }
+        add("check damage visuals", 2, () -> {
+            if (!mobsSpawned) {
+                throw new SkipStep("no summoned mobs for damage visuals");
+            }
+            if (DamageParticlesRenderer.liveCount() <= 0) {
+                throw new IllegalStateException("DamageParticles did not spawn");
+            }
+            if (FortniteDamageRenderer.liveCount() <= 0) {
+                throw new IllegalStateException("FortniteDamage did not spawn a number");
+            }
+        });
+        add("screenshot damage visuals", 1, () -> screenshot(client, "damage-visuals"));
         add("check kill streak tracking", 10, () -> {
             if (!mobsSpawned) {
                 throw new SkipStep("no summoned mobs for KillStreak");
             }
             if (KillStreakModule.streak() < 1) {
                 throw new IllegalStateException("KillStreak did not count a kill");
+            }
+        });
+        add("disable damage visuals", 1, () -> {
+            if (Modules.damageParticles() != null) {
+                Modules.damageParticles().info().toggleSilently(false);
+            }
+            if (Modules.fortniteDamage() != null) {
+                Modules.fortniteDamage().info().toggleSilently(false);
             }
         });
 

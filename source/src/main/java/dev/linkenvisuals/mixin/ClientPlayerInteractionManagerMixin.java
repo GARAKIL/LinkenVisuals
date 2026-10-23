@@ -36,7 +36,10 @@ public abstract class ClientPlayerInteractionManagerMixin {
             return;
         }
 
-        HitSoundModule.tryPlay(client, HitSoundModule.isCrit(player, target));
+        boolean crit = HitSoundModule.isCrit(player, target);
+        HitSoundModule.tryPlay(client, crit);
+        dev.linkenvisuals.render.DamageParticlesRenderer.onAttack(target);
+        dev.linkenvisuals.render.FortniteDamageRenderer.onAttack(target, crit);
         if (target instanceof LivingEntity living) {
             SoundsModule.noteHit(living);
             KillStreakModule.noteHit(living);

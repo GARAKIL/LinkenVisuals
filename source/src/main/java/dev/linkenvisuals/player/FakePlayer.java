@@ -184,6 +184,8 @@ public final class FakePlayer {
         TargetMarks.noteHit(dummy);
         KillEffects.watch(dummy);
         HitEffects.add(dummy, crit ? 1.35f : 1.0f, lastImpact);
+        dev.linkenvisuals.render.DamageParticlesRenderer.onAttack(dummy);
+        dev.linkenvisuals.render.FortniteDamageRenderer.onAttack(dummy, crit);
 
         if ("Invincible".equals(ModuleRegistry.fakeMode().current())) {
             health = maxHealth();
