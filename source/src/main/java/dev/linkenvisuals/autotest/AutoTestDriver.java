@@ -20,6 +20,9 @@ import dev.linkenvisuals.hud.InventoryHud;
 import dev.linkenvisuals.hud.LowArmorNotificationsHud;
 import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.hud.TargetHud;
+import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.render.CustomHitBoxRenderer;
+import dev.linkenvisuals.render.HitRangeRenderer;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -421,6 +424,84 @@ public final class AutoTestDriver {
             }
         });
 
+        add("enable hit range", 1, () -> {
+            if (ModuleRegistry.module("hitrange") != null) {
+                ModuleRegistry.module("hitrange").info().toggleSilently(true);
+            }
+        });
+        add("enable custom hitbox", 1, () -> {
+            if (ModuleRegistry.module("customhitbox") != null) {
+                ModuleRegistry.module("customhitbox").info().toggleSilently(true);
+            }
+        });
+        add("look forward for hit range", 2, () -> {
+            if (client.player != null) {
+                // The ring lies at the player's feet; a steep down-pitch pushes it
+                // above the viewport, so keep the horizon in frame.
+                client.player.setPitch(28.0f);
+            }
+        });
+        add("check hit range render", 3, () -> {
+            if (!HitRangeRenderer.lastRenderVisible()) {
+                throw new IllegalStateException("HitRange did not render");
+            }
+        });
+        add("screenshot hit range", 1, () -> screenshot(client, "hitrange"));
+        add("harden custom hitbox preview", 1, () -> {
+            if (Modules.customHitBox() != null) {
+                Modules.customHitBox().fillAlpha.setValue(180.0f);
+                Modules.customHitBox().lineWidth.setValue(3.0f);
+            }
+        });
+        add("summon hitbox preview cow", 2, () -> {
+            if (!commandsWorked || client.player == null) {
+                return;
+            }
+            Vec3d spawn = hitboxPreviewFeet(client.player);
+            command(client, String.format(Locale.ROOT,
+                "summon minecraft:cow %.2f %.2f %.2f "
+                    + "{NoAI:1b,NoGravity:1b,Silent:1b,Health:1.0f,PersistenceRequired:1b,"
+                    + "Tags:[\"lvt\",\"lvbox\"]}",
+                spawn.x, spawn.y, spawn.z));
+        });
+        add("look at hitbox preview cow", 2, () -> {
+            if (client.player == null) {
+                return;
+            }
+            lookAt(client.player, hitboxPreviewFeet(client.player).add(0.0, 0.7, 0.0));
+        });
+        add("check custom hitbox render", 3, () -> {
+            if (!mobsSpawned) {
+                throw new SkipStep("no summoned mobs for CustomHitBox");
+            }
+            if (!CustomHitBoxRenderer.lastRenderVisible()) {
+                throw new IllegalStateException("CustomHitBox did not render");
+            }
+        });
+        add("screenshot custom hitbox", 1, () -> screenshot(client, "custom-hitbox"));
+        add("restore custom hitbox preview", 1, () -> {
+            if (Modules.customHitBox() != null) {
+                Modules.customHitBox().fillAlpha.setValue(90.0f);
+                Modules.customHitBox().lineWidth.setValue(1.5f);
+            }
+        });
+        add("restore hit range view", 2, () -> {
+            if (client.player != null) {
+                client.player.setPitch(returnPitch);
+                client.player.setYaw(returnYaw);
+            }
+        });
+        add("disable hit range", 1, () -> {
+            if (ModuleRegistry.module("hitrange") != null) {
+                ModuleRegistry.module("hitrange").info().toggleSilently(false);
+            }
+        });
+        add("disable custom hitbox", 1, () -> {
+            if (ModuleRegistry.module("customhitbox") != null) {
+                ModuleRegistry.module("customhitbox").info().toggleSilently(false);
+            }
+        });
+
         add("open ClickGUI", 13, () -> client.setScreen(new ClickGuiScreen()));
         add("screenshot ClickGUI", 1, () -> screenshot(client, "clickgui"));
         add("close ClickGUI", 4, () -> client.setScreen(null));
@@ -606,6 +687,12 @@ public final class AutoTestDriver {
         }
         client.interactionManager.interactItem(client.player, Hand.MAIN_HAND);
         client.player.swingHand(Hand.MAIN_HAND);
+    }
+
+    /** Three blocks forward and high enough to clear the spawn ridge. */
+    private static Vec3d hitboxPreviewFeet(ClientPlayerEntity player) {
+        double yaw = Math.toRadians(player.getYaw());
+        return player.getEntityPos().add(-Math.sin(yaw) * 3.0, 3.0, Math.cos(yaw) * 3.0);
     }
 
     private static void lookAt(ClientPlayerEntity player, Vec3d target) {

@@ -125,6 +125,8 @@ public final class LinkenVisuals implements ClientModInitializer {
             TargetMarks.clear();
             KillEffects.clear();
             FakePlayer.clear();
+            dev.linkenvisuals.render.HitRangeRenderer.clear();
+            dev.linkenvisuals.render.CustomHitBoxRenderer.clear();
             PetRig.clear();
             // Free fullscreen VRAM: every post pipeline holds its own scene-size
             // buffers (Ambience x4, Rain, Kill, Bubble, Filter, Hands x4, HUD glass).
@@ -167,6 +169,8 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(MotionBlurRenderer::onEndMain);
         WorldRenderEvents.END_MAIN.register(TrailsRenderer::render);
         WorldRenderEvents.END_MAIN.register(JumpCirclesRenderer::render);
+        WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.HitRangeRenderer::render);
+        WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.CustomHitBoxRenderer::render);
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         Modules.init();
         dev.linkenvisuals.command.WaypointCommand.register();

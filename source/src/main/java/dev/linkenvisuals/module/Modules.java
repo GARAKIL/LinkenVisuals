@@ -4,12 +4,14 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.impl.BlockOverlayModule;
 import dev.linkenvisuals.module.impl.ChatHelperModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
+import dev.linkenvisuals.module.impl.CustomHitBoxModule;
 import dev.linkenvisuals.module.impl.ElytraSwapModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FreelookModule;
 import dev.linkenvisuals.module.impl.FullbrightModule;
 import dev.linkenvisuals.module.impl.HandSwapModule;
 import dev.linkenvisuals.module.impl.HitColorModule;
+import dev.linkenvisuals.module.impl.HitRangeModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.ItemPhysicsModule;
 import dev.linkenvisuals.module.impl.ItemScrollerModule;
@@ -62,6 +64,8 @@ public final class Modules {
     private static StreamerModeModule streamerMode;
     private static SoundsModule sounds;
     private static NoRenderModule noRender;
+    private static HitRangeModule hitRange;
+    private static CustomHitBoxModule customHitBox;
 
     private Modules() {
     }
@@ -182,6 +186,14 @@ public final class Modules {
         return noRender;
     }
 
+    public static HitRangeModule hitRange() {
+        return hitRange;
+    }
+
+    public static CustomHitBoxModule customHitBox() {
+        return customHitBox;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -240,5 +252,9 @@ public final class Modules {
         register(sounds);
         noRender = new NoRenderModule();
         register(noRender);
+        hitRange = new HitRangeModule();
+        register(hitRange);
+        customHitBox = new CustomHitBoxModule();
+        register(customHitBox);
     }
 }

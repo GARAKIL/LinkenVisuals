@@ -49,6 +49,20 @@ public final class BlockOverlayPipelines {
             .withCull(false)
             .build());
 
+    /**
+     * HitRange with its donor "Depth Test" switch off. A separate pipeline
+     * keeps the world pass free of global depth-state mutations.
+     */
+    public static final RenderPipeline FLAT_NO_DEPTH = Pipelines.register(
+        RenderPipeline.builder(RenderPipelines.POSITION_COLOR_SNIPPET)
+            .withLocation(LinkenVisuals.id("pipeline/hit_range_no_depth"))
+            .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.TRIANGLES)
+            .withBlend(BlendFunction.TRANSLUCENT)
+            .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+            .withDepthWrite(false)
+            .withCull(false)
+            .build());
+
     static {
         for (BlockOverlayModule.FillMode mode : BlockOverlayModule.FillMode.values()) {
             String name = mode.shaderName();
