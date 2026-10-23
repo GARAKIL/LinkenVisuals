@@ -128,6 +128,10 @@ public final class HudManager {
             if (isPotionElement(element) && !dev.linkenvisuals.ui.editor.MainMenuConfig.get().customStatusEffects) {
                 continue;
             }
+            if (element instanceof ArmorHud armor && armor.v2()) {
+                element.render(context, 0.0f, 0.0f);
+                continue;
+            }
             float width = element.width();
             float height = element.height();
             float x = element.centerX(screenWidth) - width * 0.5f;
@@ -147,6 +151,7 @@ public final class HudManager {
         if (dev.linkenvisuals.ui.editor.MainMenuConfig.get().customHotbar) {
             HotbarHud.render(context);
         }
+        CustomVitalsHud.render(context);
         NotificationManager.render(context);
 
         if (editMode && menuOpen) {
@@ -281,6 +286,9 @@ public final class HudManager {
     private static HudElement findElementAt(float mouseX, float mouseY, int screenWidth, int screenHeight) {
         for (int i = ELEMENTS.size() - 1; i >= 0; i--) {
             HudElement element = ELEMENTS.get(i);
+            if (element instanceof ArmorHud armor && armor.v2()) {
+                continue;
+            }
             float halfW = element.width() * 0.5f;
             float halfH = element.height() * 0.5f;
             float cx = element.centerX(screenWidth);

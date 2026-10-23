@@ -27,11 +27,19 @@ public final class ArmorHud extends HudElement {
     private static final float CELL = 17.0f;
     private static final float GAP = 4.0f;
     private static final float PERCENT_SIZE = 5.6f;
+    private static final float V2_GROUP_WIDTH = 49.0f;
+    private static final float V2_PADDING = 6.0f;
+    private static final float V2_ROW_HEIGHT = 17.0f;
+    private static final float V2_ROW_GAP = 3.0f;
+    private static final float V2_HOTBAR_UP = 12.0f;
+    private static final float V2_SIDE_GAP = 6.0f;
+    private static final float V2_OFFHAND_CLEARANCE = 24.0f;
     private static final float WIDTH = PADDING * 2.0f + SLOT * 4.0f + GAP * 3.0f;
     private static final float HEIGHT = PADDING * 2.0f + SLOT + 8.0f;
 
     private final HudTween fade = new HudTween(true);
     private static boolean lastRenderVisible;
+    private static boolean lastV2Visible;
 
     public ArmorHud() {
         super("armorhud", 0.18f, 0.8f);
@@ -39,6 +47,10 @@ public final class ArmorHud extends HudElement {
 
     public static boolean lastRenderVisible() {
         return lastRenderVisible;
+    }
+
+    public static boolean lastV2Visible() {
+        return lastV2Visible;
     }
 
     @Override
@@ -54,6 +66,7 @@ public final class ArmorHud extends HudElement {
     @Override
     public void render(DrawContext context, float x, float y) {
         lastRenderVisible = false;
+        lastV2Visible = false;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) {
             return;
@@ -70,7 +83,7 @@ public final class ArmorHud extends HudElement {
                 break;
             }
         }
-        if (empty && !editing) {
+        if (empty && !editing && !v2()) {
             fade.value(0.0f, 200L);
             return;
         }
@@ -80,6 +93,12 @@ public final class ArmorHud extends HudElement {
         }
         float fa = Math.max(0.0f, Math.min(1.0f, alpha));
         int globalAlpha = Math.round(255.0f * fa);
+        if (v2()) {
+            renderV2(context, player, editing, fa, globalAlpha);
+            lastRenderVisible = true;
+            lastV2Visible = true;
+            return;
+        }
         HudSurface.panel(context, id(), x, y, WIDTH, HEIGHT, fa);
 
         GlyphAtlas font = Fonts.titleFont();
@@ -106,6 +125,55 @@ public final class ArmorHud extends HudElement {
             }
         }
         lastRenderVisible = true;
+    }
+
+    /** Donor V2: two hotbar-relative groups, independent of the drag fraction. */
+    static boolean v2() {
+        return ModuleRegistry.armorHudMode() != null
+            && "V2".equalsIgnoreCase(ModuleRegistry.armorHudMode().current());
+    }
+
+    private void renderV2(DrawContext context, PlayerEntity player, boolean editing,
+                          float alpha, int globalAlpha) {
+        int screenWidth = context.getScaledWindowWidth();
+        int screenHeight = context.getScaledWindowHeight();
+        float hotbarX = screenWidth * 0.5f - 91.0f;
+        float hotbarRight = hotbarX + 182.0f;
+        float hotbarCenterY = screenHeight - 11.0f - V2_HOTBAR_UP;
+        float panelHeight = V2_PADDING * 2.0f + V2_ROW_HEIGHT * 2.0f + V2_ROW_GAP;
+        float baseY = hotbarCenterY - panelHeight * 0.5f;
+        float leftAnchor = hotbarX - V2_SIDE_GAP - V2_OFFHAND_CLEARANCE;
+        float leftX = leftAnchor - V2_GROUP_WIDTH;
+        float rightX = hotbarRight + V2_SIDE_GAP;
+
+        drawV2Group(context, player, editing, leftX, baseY, alpha, globalAlpha, new int[]{3, 2});
+        drawV2Group(context, player, editing, rightX, baseY, alpha, globalAlpha, new int[]{1, 0});
+    }
+
+    private void drawV2Group(DrawContext context, PlayerEntity player, boolean editing,
+                             float x, float y, float alpha, int globalAlpha, int[] armorSlots) {
+        float panelHeight = V2_PADDING * 2.0f + V2_ROW_HEIGHT * 2.0f + V2_ROW_GAP;
+        HudSurface.panel(context, id(), x, y, V2_GROUP_WIDTH, panelHeight, alpha);
+        for (int row = 0; row < 2; row++) {
+            int armorSlot = armorSlots[row];
+            ItemStack stack = editing ? previewStack(armorSlot, true) : armorStack(player, armorSlot);
+            float cellX = x + V2_PADDING;
+            float cellY = y + V2_PADDING + row * (V2_ROW_HEIGHT + V2_ROW_GAP);
+            RoundedRectPipeline.draw(context, cellX, cellY, V2_ROW_HEIGHT, V2_ROW_HEIGHT, 5.0f,
+                HudStyle.inset(235));
+            if (stack == null || stack.isEmpty()) {
+                continue;
+            }
+            drawItem(context, stack, cellX, cellY, alpha);
+            int percent = durabilityPercent(stack);
+            if (percent < 0) {
+                continue;
+            }
+            String label = percent + "%";
+            MsdfText.drawRight(context, Fonts.titleFont(), label,
+                x + V2_GROUP_WIDTH - V2_PADDING, cellY + 4.8f, 6.0f,
+                durabilityColor(percent, globalAlpha));
+        }
     }
 
     static ItemStack armorStack(PlayerEntity player, int index) {

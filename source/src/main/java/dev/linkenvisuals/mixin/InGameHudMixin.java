@@ -1,6 +1,7 @@
 package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.hud.HudManager;
+import dev.linkenvisuals.hud.CustomVitalsHud;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.CrosshairModule;
@@ -41,6 +42,20 @@ public abstract class InGameHudMixin {
             hide = true;
         }
         if (hide) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "renderStatusBars", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$cancelVanillaStatusBars(DrawContext context, CallbackInfo ci) {
+        if (CustomVitalsHud.active()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "renderMountHealth", at = @At("HEAD"), cancellable = true)
+    private void linkenvisuals$cancelVanillaMountHealth(DrawContext context, CallbackInfo ci) {
+        if (CustomVitalsHud.active()) {
             ci.cancel();
         }
     }

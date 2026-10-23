@@ -16,6 +16,7 @@ import dev.linkenvisuals.clickgui.setting.SliderSetting;
 import dev.linkenvisuals.hud.ArmorHud;
 import dev.linkenvisuals.hud.CooldownsHud;
 import dev.linkenvisuals.hud.CoordinatesHud;
+import dev.linkenvisuals.hud.CustomVitalsHud;
 import dev.linkenvisuals.hud.InventoryHud;
 import dev.linkenvisuals.hud.KillStreakHud;
 import dev.linkenvisuals.hud.LowArmorNotificationsHud;
@@ -390,10 +391,44 @@ public final class AutoTestDriver {
                 throw new IllegalStateException("LowArmorNotificationsHud не отрисовался в preview");
             }
         });
+        add("switch armor to v2", 2, () -> {
+            if (ModuleRegistry.armorHudMode() != null) {
+                ModuleRegistry.armorHudMode().select(1);
+            }
+        });
+        add("check armor v2", 3, () -> {
+            if (!ArmorHud.lastV2Visible()) {
+                throw new IllegalStateException("ArmorHud V2 не отрисовался в preview");
+            }
+        });
+        add("screenshot armor hud v2", 1, () -> screenshot(client, "armor-hud-v2"));
+        add("restore armor v1", 1, () -> {
+            if (ModuleRegistry.armorHudMode() != null) {
+                ModuleRegistry.armorHudMode().select(0);
+            }
+        });
         add("screenshot armor hud", 1, () -> screenshot(client, "armor-hud"));
         add("screenshot inventory hud", 1, () -> screenshot(client, "inventory-hud"));
         add("screenshot low armor hud", 1, () -> screenshot(client, "low-armor-hud"));
         add("close armor/inventory preview", 3, () -> HudManager.setEditing(false));
+        add("enable custom vitals", 1, () -> {
+            if (Modules.customVitals() != null) {
+                Modules.customVitals().info().toggleSilently(true);
+            }
+        });
+        add("open custom vitals preview", 8, () -> client.setScreen(new ChatScreen("", false)));
+        add("check custom vitals", 5, () -> {
+            if (!CustomVitalsHud.lastRenderVisible()) {
+                throw new IllegalStateException("CustomVitalsHud did not render");
+            }
+        });
+        add("screenshot custom vitals", 1, () -> screenshot(client, "custom-vitals"));
+        add("close custom vitals preview", 2, () -> client.setScreen(null));
+        add("disable custom vitals", 1, () -> {
+            if (Modules.customVitals() != null) {
+                Modules.customVitals().info().toggleSilently(false);
+            }
+        });
         add("open linken multiplayer", 5, () -> client.setScreen(new LinkenMultiplayerScreen(null)));
         add("screenshot linken multiplayer", 2, () -> screenshot(client, "multiplayer"));
         add("open multiplayer add modal", 2, () -> {

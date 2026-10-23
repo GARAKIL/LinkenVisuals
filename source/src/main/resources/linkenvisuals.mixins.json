@@ -32,6 +32,8 @@
     "HeldItemRendererMixin",
     "BossBarHudMixin",
     "InGameOverlayRendererMixin",
+    "ExperienceBarMixin",
+    "JumpBarMixin",
     "ParticleManagerMixin",
     "OptimizationEntityCullMixin",
     "OptimizationOptionsMixin",

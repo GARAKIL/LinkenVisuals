@@ -5,6 +5,7 @@ import dev.linkenvisuals.module.impl.BlockOverlayModule;
 import dev.linkenvisuals.module.impl.ChatHelperModule;
 import dev.linkenvisuals.module.impl.CrosshairModule;
 import dev.linkenvisuals.module.impl.CustomHitBoxModule;
+import dev.linkenvisuals.module.impl.CustomVitalsModule;
 import dev.linkenvisuals.module.impl.ElytraSwapModule;
 import dev.linkenvisuals.module.impl.FastExpModule;
 import dev.linkenvisuals.module.impl.FreelookModule;
@@ -76,6 +77,7 @@ public final class Modules {
     private static TrajectoriesModule trajectories;
     private static KillStreakModule killStreak;
     private static ViewModelModule viewModel;
+    private static CustomVitalsModule customVitals;
 
     private Modules() {
     }
@@ -224,6 +226,10 @@ public final class Modules {
         return viewModel;
     }
 
+    public static CustomVitalsModule customVitals() {
+        return customVitals;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -296,5 +302,7 @@ public final class Modules {
         register(killStreak);
         viewModel = new ViewModelModule();
         register(viewModel);
+        customVitals = new CustomVitalsModule();
+        register(customVitals);
     }
 }

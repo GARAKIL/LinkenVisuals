@@ -31,6 +31,7 @@ public final class ModuleRegistry {
     private static BooleanSetting coordinatesHud;
     private static BooleanSetting cooldownsHud;
     private static BooleanSetting armorHud;
+    private static ModeSetting armorHudMode;
     private static BooleanSetting inventoryHud;
     private static BooleanSetting inventoryHotbar;
     private static BooleanSetting lowArmorNotifications;
@@ -201,6 +202,7 @@ public final class ModuleRegistry {
         coordinatesHud = new BooleanSetting("Coordinates HUD", false);
         cooldownsHud = new BooleanSetting("Cooldowns HUD", true);
         armorHud = new BooleanSetting("Armor HUD", true);
+        armorHudMode = new ModeSetting("Armor HUD Mode", List.of("V1", "V2"), 0);
         inventoryHud = new BooleanSetting("Inventory HUD", false);
         inventoryHotbar = new BooleanSetting("Inventory Hotbar", false);
         lowArmorNotifications = new BooleanSetting("Low Armor Notifications", true);
@@ -222,9 +224,9 @@ public final class ModuleRegistry {
             interfaceLeft.add(hudStyle);
             interfaceLeft.add(hudShape);
         }
-        interfaceLeft.addAll(List.of(targetHud, coordinatesHud, cooldownsHud, armorHud, inventoryHud,
-            inventoryHotbar, lowArmorNotifications, killStreakHud, customScoreboard, scoreboardRadius,
-            scoreboardOpacity, customTab, tabColor, tabOpacity));
+        interfaceLeft.addAll(List.of(targetHud, coordinatesHud, cooldownsHud, armorHud, armorHudMode,
+            inventoryHud, inventoryHotbar, lowArmorNotifications, killStreakHud, customScoreboard,
+            scoreboardRadius, scoreboardOpacity, customTab, tabColor, tabOpacity));
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
             interfaceLeft,
             List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
@@ -523,6 +525,10 @@ public final class ModuleRegistry {
 
     public static BooleanSetting armorHud() {
         return armorHud;
+    }
+
+    public static ModeSetting armorHudMode() {
+        return armorHudMode;
     }
 
     public static BooleanSetting inventoryHud() {
