@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.121 / D98
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.122 / D99
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.121**
-- Tests at handoff: **249 / 0 failures / 0 errors / 0 skipped**
+- Version at handoff: **1.0.122**
+- Tests at handoff: **250 / 0 failures / 0 errors / 0 skipped**
 - Autotest at handoff: **799/799**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.121.jar`
-- Size: **10 805 529 bytes**
-- SHA-256: `CAC73CD84DD5B6F00E5A76899B0EB8D634E983D5FA2854463BCD4DE66C40B9F1`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D98.
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.122.jar`
+- Size: **10 805 739 bytes**
+- SHA-256: `F1BFDBE9C4652017A2DE563CBE0B670C6CA560C4F95D015698A57809F5F4890A`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D99.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.121
+Get-Content source/gradle.properties   # mod_version=1.0.122
 ```
 
 ## 2. Donor
@@ -85,6 +85,7 @@ Read first:
 - D96/v1.0.119: **Aspect Ratio** - Visual/World module, projection `m00 = m11 / ratio`, `ProjectionMathTest`; CameraSettings is covered by Better Animations (`Camera (F5)`).
 - D97/v1.0.120: **NoRender** - 8 donor switches (hurt camera, fire, totem, scoreboard, bossbar, particles, armor, inventory background); mixins and autotest sweep.
 - D98/v1.0.121: **HitRange + CustomHitBox** - triangle-list ring at `END_MAIN` (3.32 radius, 72 sides, donor thickness/rotation/depth, red near visible players) and entity boxes (128-block cap, frustum + 120 ms LOS cache, fill/outline, self/items toggles); geometry tests and clean `hitrange`/`custom-hitbox` screenshots.
+- D99/v1.0.122: **NoRender mixin registration fix** - BossBar/Fire/Particle mixins were missing from the config; `ParticleManager.addToBatch` and `renderFireOverlay` signatures corrected for 1.21.11; `MixinRegistrationTest` added; remap warning gone.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -128,7 +129,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat clean build --console=plain --no-daemon
 ```
 
-Expected baseline: **249 tests, 0 failures/errors/skips**.
+Expected baseline: **250 tests, 0 failures/errors/skips**.
 
 Hidden/automated smoke test (requires explicit user permission):
 
@@ -207,6 +208,7 @@ source/src/test/java/dev/linkenvisuals/
   hud/HudStyleTest.java
   render/HitRangeGeometryTest.java
   render/CustomHitBoxGeometryTest.java
+  mixin/MixinRegistrationTest.java
   audio/SoundAssetsTest.java
 ```
 
@@ -227,13 +229,14 @@ source/src/test/java/dev/linkenvisuals/
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **HitRange (D98)**: triangle-list ribbon at `END_MAIN` via `BlockOverlayPipelines.FLAT`; 72 sides, 3.32 radius, donor thickness/rotation/depth. Never use GL lines; `FLAT_NO_DEPTH` is the separate no-depth variant.
 - **CustomHitBox (D98)**: donor entity set (all alive except XP orbs; items behind toggle), 128-block cap, frustum + 120 ms LOS cache, 36 fill/144 outline vertices per entity. Keep fill/outline in one flat pass.
+- **Mixin config**: every `*Mixin.java` under `dev/linkenvisuals/mixin` must be listed in `linkenvisuals.mixins.json`; `MixinRegistrationTest` enforces this. Do not target removed 1.21.11 names such as `ParticleManager.renderParticles`; use `addToBatch`.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
 - **Media strip** reads `MediaWatcher`, not the title music track; title track belongs to `LinkenMenuMusic`.
 - **Close overlay** donor is a no-op; do not invent a new behavior.
 
 ## 9. Definition of Done for the next task
 
-- `clean build` green, **249+ tests** (or more) with zero failures/errors/skips.
+- `clean build` green, **250+ tests** (or more) with zero failures/errors/skips.
 - No new shader/sound errors in hidden/runClient log.
 - Every visible control works; no fake controls.
 - Beta/Vanilla unchanged; Linken style lock preserved.

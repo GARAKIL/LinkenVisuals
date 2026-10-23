@@ -905,3 +905,13 @@
 - **Сборка**: jar `linkenvisuals-1.0.121.jar` (10 805 529 байт, SHA-256 `CAC73CD84DD5B6F00E5A76899B0EB8D634E983D5FA2854463BCD4DE66C40B9F1`).
 - **Commit**: `acd46e7` `feat(render): port donor HitRange and CustomHitBox (v1.0.121, D98)`.
 - **Остаток**: красное состояние HitRange требует второго игрока; LOS/self/items CustomHitBox и красный цвет — human-проверка. Дальше Optimization/Particles/Trajectories/KillStreak/ViewModel и HUD-остатки.
+
+## 2026-10-23 · D99 · NoRender mixin registration fix — v1.0.122
+- **Проблема**: аудит D98 показал, что `BossBarHudMixin`, `InGameOverlayRendererMixin` и `ParticleManagerMixin` отсутствовали в `linkenvisuals.mixins.json`. Три из восьми NoRender-переключателей (Boss Bar, Fire, Particles) не применялись, то есть были мёртвыми контролами; при этом clean build писал remap-warning `renderParticles`.
+- **ParticleManager**: в 1.21.11 `ParticleManager` больше не имеет `renderParticles`; видимый проход — `addToBatch(SubmittableBatch, Frustum, Camera, float)`. Миксин переведён на `@Inject(method="addToBatch", at=@At("HEAD"), cancellable=true)` и отменяет весь vanilla-particle batch при включённом toggle.
+- **Fire**: сигнатура обновлена на `renderFireOverlay(MatrixStack, VertexConsumerProvider, Sprite)`; это private static donor-метод 1.21.11. Отменяется только fire-слой. `BossBarHudMixin.render(DrawContext)` не менялся — ему не хватало только регистрации.
+- **Регрессия**: `MixinRegistrationTest` читает конфиг и проверяет, что каждый `*Mixin.java` из `dev/linkenvisuals/mixin` присутствует в `client`/`server`/`mixins`; тест падал бы на исходном D97-состоянии.
+- **Evidence**: **250 тестов**, 0 fail; clean build без remap-warning; скрытый autotest **799/799**, 0 fail/skip, 1920×1080; mixin apply/injection и новых ERROR/exception нет; только offline-auth/Realms.
+- **Сборка**: jar `linkenvisuals-1.0.122.jar` (10 805 739 байт, SHA-256 `F1BFDBE9C4652017A2DE563CBE0B670C6CA560C4F95D015698A57809F5F4890A`).
+- **Commit**: `ed53c0a` `fix(render): register NoRender bossbar/fire/particle mixins (v1.0.122, D99)`.
+- **Остаток**: живой прогон с боссом/огнём/частицами — human; кастомные world-render эффекты NoRender particles не скрывает (как donor).

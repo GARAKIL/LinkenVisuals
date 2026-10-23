@@ -2,6 +2,28 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №53 — NoRender mixin registration fix, D99) — v1.0.122
+
+### Сделано
+1. **D99/v1.0.122** (`ed53c0a`): при аудите D98 обнаружено, что `BossBarHudMixin`, `InGameOverlayRendererMixin` и `ParticleManagerMixin` **не были зарегистрированы** в `linkenvisuals.mixins.json` — Boss Bar, Fire и Particles у NoRender были мёртвыми контролами. Все три добавлены в `client`.
+2. **ParticleManagerMixin**: в 1.21.11 метода `renderParticles` больше нет; target исправлен на `addToBatch(SubmittableBatch, Frustum, Camera, float)` с `@At("HEAD")` cancel. Clean build больше не выдаёт remap-warning.
+3. **InGameOverlayRendererMixin**: сигнатура исправлена на donor-метод `renderFireOverlay(MatrixStack, VertexConsumerProvider, Sprite)`; отменяется только fire-слой, underwater/in-wall остаются vanilla. `BossBarHudMixin.render(DrawContext)` уже совпадал.
+4. **Регрессия**: `MixinRegistrationTest` читает `linkenvisuals.mixins.json` и требует, чтобы каждый `*Mixin.java` из `dev/linkenvisuals/mixin` был в `client`/`server`/`mixins`. Это ловит именно D97-класс ошибок.
+5. **Проверки**: **250 тестов, 0 падений/ошибок/скипов**; clean build зелёный, remap-warning `renderParticles` исчез; скрытый autotest **799/799**, 0 fail/skip, 1920×1080; mixin apply/injection ошибок и новых ERROR/exception нет (только прежние offline-auth/Realms).
+6. **Сборка**: jar `linkenvisuals-1.0.122.jar` (10 805 739 байт, SHA-256 `F1BFDBE9C4652017A2DE563CBE0B670C6CA560C4F95D015698A57809F5F4890A`).
+
+### Следующая задача
+1. **Optimization** — donor Tier Low/Medium/Ultra, entity culling, render-distance cap, particle distance culling, transparency/cloud logic; только поведение, работающее на 1.21.11.
+2. Затем Particles / Trajectories / visual KillStreak / full ViewModel/Hands.
+3. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2.
+4. Human: живой bossbar/fire/particles-прогон NoRender, красное состояние HitRange, LOS/self/items CustomHitBox, cooldown-тики, раскладки, multiplayer custom tab, pixel diff.
+
+### Риски
+- NoRender Particles отменяет весь vanilla `addToBatch`; кастомные world-render эффекты мода не затрагиваются.
+- Fire-миксин отменяет только fire overlay; underwater/in-wall overlays не скрываются.
+- Bossbar/fire/particles проверены apply-загрузкой и autotest-свипом настроек, но без отдельной боевой сцены с боссом/огнём/частицами — это human-проверка.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №52 — donor HitRange + CustomHitBox, D98) — v1.0.121
 
 ### Сделано

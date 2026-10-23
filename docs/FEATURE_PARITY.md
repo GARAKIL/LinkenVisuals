@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.121**, 2026-10-23. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.122**, 2026-10-23. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -71,7 +71,8 @@ NameTags is not a line-by-line port), full `UI` colour/fade/blur/BoostFPS
 controls.
 
 Covered: `CameraSettings` is implemented by `Better Animations` →
-`Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 (8 donor switches);
+`Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 and its
+bossbar/fire/particle mixins were registered in D99 (8 donor switches, all applied);
 `HitRange` and `CustomHitBox` are ported in D98 (world-render triangle/box passes, geometry tests).
 
 ### Intentionally excluded donor modules
@@ -90,11 +91,13 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **249 tests / 0 failures / 0 errors / 0 skips**.
+- `clean build`: **250 tests / 0 failures / 0 errors / 0 skips**.
 - Hidden `runAutotest`: **799/799 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
-  screenshots at 1920×1080. A separate frame-capture 1280×720 confirms the
+  screenshots at 1920×1080. D99 fixed and registered the bossbar/fire/particle
+  NoRender mixins; `MixinRegistrationTest` now guards the mixin config.
+  A separate frame-capture 1280×720 confirms the
   LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/

@@ -110,6 +110,7 @@
 - [x] **M8.22 — donor Aspect Ratio**, v1.0.119, D96, commit `9849613`: Visual/World module, projection `m00 = m11 / ratio`, `ProjectionMathTest`; CameraSettings covered by Better Animations; **239 тестов**, 730/730.
 - [x] **M8.23 — donor NoRender switches**, v1.0.120, D97, commit `5a6b48d`: 8 donor toggles + mixins for hurt camera/fire/totem/scoreboard/bossbar/particles/armor/inventory background; **240 тестов**, 749/749.
 - [x] **M8.24 — donor HitRange + CustomHitBox**, v1.0.121, D98, commit `acd46e7`: triangle-list HitRange ring at `END_MAIN` (3.32 radius, 72 sides, donor settings, red near visible players, optional no-depth pipeline) and CustomHitBox (128 blocks, frustum + 120 ms LOS cache, fill/outline, self/items toggles); **249 тестов**, 799/799, clean `hitrange`/`custom-hitbox` screenshots.
+- [x] **M8.23a — NoRender mixin registration fix**, v1.0.122, D99, commit `ed53c0a`: registered BossBar/Fire/Particle mixins; fixed 1.21.11 `ParticleManager.addToBatch` and `renderFireOverlay` signatures; `MixinRegistrationTest`; **250 тестов**, 799/799; remap warning gone.
 - [ ] **M8.17 — full donor visual parity remainder** — HelperItems/DynamicIsland (blocked/neutralized by Link style), Armor V2, Vitals/DamageParticles/ItemRadius/Optimization/Particles/Trajectories/KillStreak/ViewModel, human sound/visual acceptance, multiplayer custom-tab check.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.
