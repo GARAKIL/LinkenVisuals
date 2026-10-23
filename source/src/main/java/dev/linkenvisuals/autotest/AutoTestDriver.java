@@ -23,6 +23,7 @@ import dev.linkenvisuals.hud.TargetHud;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
+import dev.linkenvisuals.render.ParticlesRenderer;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -499,6 +500,61 @@ public final class AutoTestDriver {
         add("disable custom hitbox", 1, () -> {
             if (ModuleRegistry.module("customhitbox") != null) {
                 ModuleRegistry.module("customhitbox").info().toggleSilently(false);
+            }
+        });
+
+        add("enable particles", 1, () -> {
+            if (Modules.particles() != null) {
+                Modules.particles().info().toggleSilently(true);
+            }
+        });
+        add("look forward for particles", 2, () -> {
+            if (client.player != null) {
+                client.player.setPitch(18.0f);
+            }
+        });
+        add("enlarge particles preview", 1, () -> {
+            if (Modules.particles() != null) {
+                Modules.particles().particleSize.setValue(1.2f);
+                Modules.particles().maxParticles.setValue(800.0f);
+            }
+        });
+        add("wait particles", 40, () -> {
+        });
+        add("check particles", 2, () -> {
+            if (ParticlesRenderer.liveCount() == 0) {
+                throw new IllegalStateException("Particles did not spawn");
+            }
+            if (!ParticlesRenderer.lastRenderVisible()) {
+                throw new IllegalStateException("Particles did not render");
+            }
+        });
+        add("screenshot particles", 1, () -> screenshot(client, "particles"));
+        add("switch particles to cube", 1, () -> {
+            if (Modules.particles() != null) {
+                Modules.particles().mode.select(5);
+            }
+        });
+        add("wait cube particles", 20, () -> {
+        });
+        add("screenshot cube particles", 1, () -> screenshot(client, "particles-cube"));
+        add("restore particles preview", 1, () -> {
+            if (Modules.particles() != null) {
+                Modules.particles().mode.select(0);
+                Modules.particles().particleSize.setValue(0.25f);
+                Modules.particles().maxParticles.setValue(600.0f);
+            }
+        });
+        add("disable particles", 1, () -> {
+            if (Modules.particles() != null) {
+                Modules.particles().info().toggleSilently(false);
+            }
+            ParticlesRenderer.clear();
+        });
+        add("restore particle view", 2, () -> {
+            if (client.player != null) {
+                client.player.setPitch(returnPitch);
+                client.player.setYaw(returnYaw);
             }
         });
 

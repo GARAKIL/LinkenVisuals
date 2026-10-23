@@ -20,6 +20,7 @@ import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.NoRenderModule;
 import dev.linkenvisuals.module.impl.OptimizationModule;
+import dev.linkenvisuals.module.impl.ParticlesModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
@@ -68,6 +69,7 @@ public final class Modules {
     private static HitRangeModule hitRange;
     private static CustomHitBoxModule customHitBox;
     private static OptimizationModule optimization;
+    private static ParticlesModule particles;
 
     private Modules() {
     }
@@ -200,6 +202,10 @@ public final class Modules {
         return optimization;
     }
 
+    public static ParticlesModule particles() {
+        return particles;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -264,5 +270,7 @@ public final class Modules {
         register(customHitBox);
         optimization = new OptimizationModule();
         register(optimization);
+        particles = new ParticlesModule();
+        register(particles);
     }
 }

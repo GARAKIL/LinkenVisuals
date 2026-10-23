@@ -128,6 +128,7 @@ public final class LinkenVisuals implements ClientModInitializer {
             FakePlayer.clear();
             dev.linkenvisuals.render.HitRangeRenderer.clear();
             dev.linkenvisuals.render.CustomHitBoxRenderer.clear();
+            dev.linkenvisuals.render.ParticlesRenderer.clear();
             PetRig.clear();
             // Free fullscreen VRAM: every post pipeline holds its own scene-size
             // buffers (Ambience x4, Rain, Kill, Bubble, Filter, Hands x4, HUD glass).
@@ -172,6 +173,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(JumpCirclesRenderer::render);
         WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.HitRangeRenderer::render);
         WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.CustomHitBoxRenderer::render);
+        WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.ParticlesRenderer::render);
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         Modules.init();
         dev.linkenvisuals.command.WaypointCommand.register();
@@ -280,6 +282,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         FakePlayer.tick(client);
         dev.linkenvisuals.render.TrailsRenderer.tick();
         dev.linkenvisuals.render.JumpCirclesRenderer.tick();
+        dev.linkenvisuals.render.ParticlesRenderer.tick();
         tickZoom(client);
         tickFreelook(client);
         dev.linkenvisuals.module.impl.TimeChangerModule.tick();

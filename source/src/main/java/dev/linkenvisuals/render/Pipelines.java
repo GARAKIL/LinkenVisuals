@@ -80,6 +80,7 @@ public final class Pipelines {
         MotionBlurPipeline.init();
         TrailsRenderer.init();
         JumpCirclesRenderer.init();
+        ParticlesPipelines.init();
         WaypointsRenderer.init();
         ColorFieldPipeline.init();
         DownsamplePipeline.init();
