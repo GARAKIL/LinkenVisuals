@@ -106,6 +106,8 @@ public final class ModuleRegistry {
     private static ColorSetting skyColor;
     private static ModuleInfo mediaPlayer;
     private static ModuleInfo betterAnimations;
+    private static ModuleInfo aspectRatio;
+    private static SliderSetting aspectRatioValue;
     private static BooleanSetting animChat;
     private static BooleanSetting animTab;
     private static BooleanSetting animInventory;
@@ -301,6 +303,12 @@ public final class ModuleRegistry {
         betterAnimations.toggleSilently(true);
         betterAnimations.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
         MODULES.add(betterAnimations);
+
+        aspectRatioValue = new SliderSetting("Aspect Ratio", 0.1f, 5.0f, 0.05f, 1.75f, null);
+        aspectRatio = new ModuleInfo("Aspect Ratio", "forces a custom projection aspect", Category.VISUAL,
+            List.of(aspectRatioValue), List.of());
+        aspectRatio.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.WORLD);
+        MODULES.add(aspectRatio);
 
         cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb"), 1);
         cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape"), 1);
@@ -576,6 +584,14 @@ public final class ModuleRegistry {
 
     public static ModuleInfo betterAnimations() {
         return betterAnimations;
+    }
+
+    public static ModuleInfo aspectRatio() {
+        return aspectRatio;
+    }
+
+    public static SliderSetting aspectRatioValue() {
+        return aspectRatioValue;
     }
 
     public static boolean animate(String element) {

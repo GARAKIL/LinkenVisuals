@@ -2,6 +2,8 @@ package dev.linkenvisuals.mixin;
 
 import dev.linkenvisuals.hands.HandEditor;
 import dev.linkenvisuals.hands.HandOutline;
+import dev.linkenvisuals.clickgui.ModuleRegistry;
+import dev.linkenvisuals.render.ProjectionMath;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.ZoomModule;
 import net.minecraft.client.render.Camera;
@@ -40,6 +42,19 @@ public abstract class GameRendererMixin {
     @Inject(method = "renderWorld", at = @At("TAIL"))
     private void linkenvisuals$afterHands(CallbackInfo ci) {
         HandOutline.composite();
+    }
+
+    @Inject(method = "getBasicProjectionMatrix", at = @At("RETURN"), cancellable = true)
+    private void linkenvisuals$aspectRatio(float fov, CallbackInfoReturnable<Matrix4f> cir) {
+        var module = ModuleRegistry.aspectRatio();
+        if (module == null || !module.enabled()) {
+            return;
+        }
+        var setting = ModuleRegistry.aspectRatioValue();
+        if (setting == null) {
+            return;
+        }
+        cir.setReturnValue(ProjectionMath.withAspect(cir.getReturnValue(), setting.value()));
     }
 
     @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
