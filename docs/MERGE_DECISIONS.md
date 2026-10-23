@@ -1008,3 +1008,13 @@
 - **Сборка**: `linkenvisuals-1.0.131.jar` (11 061 584 байта, SHA-256 `E8864BE73A9E2E4975628B28D724B8F632E665C5D0B300FC9A47D3880ED14E64`); `linkenvisuals-strange-1.0.131.jar` (11 061 579 байт, SHA-256 `DD02DAC29461FB2F0480B63F09BC35C238A8E3510E35ED377B2A44321F78EE6F`).
 - **Commit**: `ecbbd64` `feat(hud): port CustomVitals and ArmorHud V2 (v1.0.131, D107)`.
 - **Остаток**: live acceptance hotbar/offhand/mount/air; pixel pass; ItemRadius/DamageParticles/FortniteDamage/SelfNametags; full Punchy.
+
+## 2026-10-23 · D108 · Donor ItemRadius — v1.0.132
+- **Модуль**: `ItemRadiusModule` (`itemradius`, Visual, default OFF) — donor `Ender Eye`, `Sugar`, `Netherite Scrap` + `Dragon Trap`, `Dried Kelp`, `Snowball`, `Explosive Potion`, per-item colours, `Potion Radius` 1–30 (4), `Proximity Colour` (magenta). All visible controls work; no fake items.
+- **Рендер**: `ItemRadiusRenderer` на `END_MAIN` через `BlockOverlayPipelines.FLAT_NO_DEPTH` (donor depthTest=false); кольца — `HitRangeGeometry.appendBand` 96 сегментов, box — `CustomHitBoxGeometry.appendOutline` (8 px), dried-kelp wall — `ItemRadiusGeometry` thick-line quads (12 вершин/линия), камера-relative. Никаких raw GL/глобальных RenderSystem-мутаций.
+- **Поведение**: Ender Eye/Sugar radius 14 на ногах; netherite box 2.5/3.5 от центра блока; dried kelp — 5×2×5 под/над головой при pitch ±45° или donor-лесенка 5×4 вбок; snowball projection radius 12; splash potion — 200-step impact simulation (speed 0.5, pitch −20°, gravity 0.03, drag 0.8 water/0.99 air, player velocity, block raycast) с кэшем на тик/yaw/pitch; proximity-цвет при игроке в радиусе.
+- **Тесты**: `ItemRadiusModuleTest` (3) + `ItemRadiusGeometryTest` (2), всего **289 тестов**, 0 fail/error/skip.
+- **Autotest**: Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip; screenshot `item-radius` (Ender Eye ring, pitch вниз). Новых ERROR/exception/shader/sound нет.
+- **Сборка**: `linkenvisuals-1.0.132.jar` (11 074 237 байт, SHA-256 `94F027953C620522080B7E66C848B1610005F6185679F06216B06C7D38D4765D`); `linkenvisuals-strange-1.0.132.jar` (11 074 232 байта, SHA-256 `420CA80F65E17570A9830E23721D6A5AF3D8C780C768EBCB7EA5820AC2ACACF1`).
+- **Commit**: `00a9a73` `feat(world): port donor item radius (v1.0.132, D108)`.
+- **Остаток**: donor `%` proximity labels (MSDF world text) не портированы; splash bossbar heuristic не нужен; human item-by-item check и pixel diff.

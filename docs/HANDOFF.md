@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D108 — ItemRadius) — v1.0.132
+
+### Сделано
+1. **D108/v1.0.132**: donor `ItemRadius` — `ItemRadiusModule` (Visual, default OFF): Ender Eye/Sugar (14), Netherite Scrap box 2.5/3.5 (`Dragon Trap`), Dried Kelp (плита/стена), Snowball (12), Splash Potion (radius 1–30, default 4), `Proximity Colour` (magenta), individual item colours.
+2. **Геометрия**: `END_MAIN` + `BlockOverlayPipelines.FLAT_NO_DEPTH` (donor line depth=false); кольца — `HitRangeGeometry` ribbon 96 сегментов, боксы — `CustomHitBoxGeometry`, стены/лесенка — `ItemRadiusGeometry` thick-line quads. Симуляция splash-зелья: 200 шагов, speed 0.5, pitch −20°, gravity 0.03, drag 0.8/0.99, player velocity, raycast; кэш на тик/yaw/pitch.
+3. **Проверки**: **289 тестов** (+3 `ItemRadiusModuleTest`, +2 `ItemRadiusGeometryTest`), 0 fail/error/skip; autotest Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip, 1920×1080; screenshot `item-radius` (Ender Eye ring, pitch вниз). Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+4. **Commit**: `00a9a73` `feat(world): port donor item radius (v1.0.132, D108)`.
+5. **Сборка**: `linkenvisuals-1.0.132.jar` — 11 074 237 байт, SHA-256 `94F027953C620522080B7E66C848B1610005F6185679F06216B06C7D38D4765D`; `linkenvisuals-strange-1.0.132.jar` — 11 074 232 байта, SHA-256 `420CA80F65E17570A9830E23721D6A5AF3D8C780C768EBCB7EA5820AC2ACACF1`.
+
+### Следующая задача
+1. **DamageParticles** / **FortniteDamage** — donor particle features + damage numbers.
+2. **SelfNametags** line-by-line; full `UI` colour/fade/blur/BoostFPS.
+3. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
+4. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
+
+### Риски
+- `ItemRadius` proximity `%` labels (donor MSDF world text) пока не портированы; цветовая proximity-реакция работает.
+- Dried-kelp wall — donor staircase geometry, но без точного texture/width pixel-diff.
+- Splash impact — donor heuristic without bossbar; human check required.
+
 ## Состояние на 2026-10-23 (D107 — CustomVitals + Armor V2, hotbar-anchored HUD) — v1.0.131
 
 ### Сделано

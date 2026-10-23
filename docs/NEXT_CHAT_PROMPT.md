@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.129 / D106
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.132 / D108
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -6,12 +6,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.131**
-- Last code commit: `ecbbd64` `feat(hud): port CustomVitals and ArmorHud V2 (v1.0.131, D107)`.
-- Tests: **284 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **977/977**, Strange **967/967**, 0 fail/skip, 1920×1080.
+- Version: **1.0.132**
+- Last code commit: `00a9a73` `feat(world): port donor item radius (v1.0.132, D108)`.
+- Tests: **289 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.131): `linkenvisuals-1.0.131.jar` 11 061 584 bytes / `E8864BE73A9E2E4975628B28D724B8F632E665C5D0B300FC9A47D3880ED14E64`; `linkenvisuals-strange-1.0.131.jar` 11 061 579 bytes / `DD02DAC29461FB2F0480B63F09BC35C238A8E3510E35ED377B2A44321F78EE6F`.
+- Jars (1.0.132): `linkenvisuals-1.0.132.jar` 11 074 237 bytes / `94F027953C620522080B7E66C848B1610005F6185679F06216B06C7D38D4765D`; `linkenvisuals-strange-1.0.132.jar` 11 074 232 bytes / `420CA80F65E17570A9830E23721D6A5AF3D8C780C768EBCB7EA5820AC2ACACF1`.
 
 Clone/verify:
 
@@ -21,7 +21,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.129
+Get-Content source/gradle.properties   # mod_version=1.0.132
 ```
 
 ## 2. Donor
@@ -34,19 +34,21 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D106 (do not redo)
+## 3. Done in D105-D108 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
+- D107: hotbar-anchored `CustomVitals` (Segments/Stack/Bars, armour/air/mount/XP, damage flash) with vanilla status/exp/jump cancellation, and Armor V2 two hotbar-relative groups.
+- D108: donor `ItemRadius` (Ender Eye/Sugar circles, netherite box, dried-kelp staircase, snowball projection, splash-potion impact, proximity colour) on `FLAT_NO_DEPTH`; donor `%` proximity labels remain open.
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **ItemRadius** — donor 333 lines: ender eye/sugar circles, netherite scrap box, dried-kelp staircase, snowball projection, splash-potion impact/proximity labels; use the proven world-render path.
-2. **DamageParticles** / **FortniteDamage** — inspect helper classes first; then `SelfNametags` line-by-line and UI controls.
+1. **DamageParticles** / **FortniteDamage** — inspect helper classes, then port particle features and damage numbers.
+2. **SelfNametags** line-by-line; full `UI` colour/fade/blur/BoostFPS.
 3. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains out of scope.
 4. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
-5. Remaining modules: `CustomVitals` and Armor V2 are now ported (D107); `HelperItemsHud` stays blocked, `DynamicIsland` stays skipped.
+5. `ItemRadius` now ported (D108); donor `%` proximity labels remain open. `CustomVitals`/Armor V2 ported (D107); `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ## 5. Architecture that must not break
 

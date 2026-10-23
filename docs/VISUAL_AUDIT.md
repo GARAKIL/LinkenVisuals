@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.131 / D107** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.132 / D108** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -139,12 +139,25 @@ From `FEATURE_PARITY.md`, still open:
 - Still manual: live mount/air/hotbar-offhand clearance, 1280×720 preview,
   exact donor damage-flash timing.
 
-## 7. Verification for D101-D107
+## 6b. World D108 — ItemRadius (fixed, proximity labels open)
 
-- `test` / `clean build`: 284 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **977/977**, Strange **967/967**, 0 fail/skip, 1920×1080;
-  `welcome`, `pause`, `custom-vitals`, `armor-hud-v2` and the fake-player crit
-  assertion are part of the plan.
+- **Ender Eye/Sugar**: radius-14 ring at the player's feet.
+- **Netherite Scrap**: 5×5×5 box (7×7×7 with Dragon Trap).
+- **Dried Kelp**: 5×2×5 plate under/above the player when looking steeply
+  up/down, donor staircase wall (5 long, 4 high) when looking sideways.
+- **Snowball**: projected terrain center, radius 12.
+- **Splash Potion**: 200-step impact simulation (speed 0.5, pitch −20°,
+  gravity 0.03, water/air drag, player velocity, block raycast), radius 1–30.
+- **Proximity colour**: magenta when another player is inside the circle/box.
+- **Open:** donor `%` labels over players in the splash radius (MSDF world
+  text) are not ported; only the colour reaction is.
+
+## 7. Verification for D101-D108
+
+- `test` / `clean build`: 289 tests, 0 failures/errors/skips in both flavors.
+- Autotest Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip, 1920×1080;
+  `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius` and the
+  fake-player crit assertion are part of the plan.
   No new shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact
