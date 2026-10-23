@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.123 / D100
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.124 / D101
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.123**
-- Tests at handoff: **253 / 0 failures / 0 errors / 0 skipped** in both flavors
-- Autotest at handoff: Linken **797/797**, Strange **787/787**, no new ERROR/exception
+- Version at handoff: **1.0.124**
+- Tests at handoff: **257 / 0 failures / 0 errors / 0 skipped** in both flavors
+- Autotest at handoff: Linken **805/805**, Strange **795/795**, no new ERROR/exception
 - Jars at handoff:
-  - `source/build/libs/linkenvisuals-1.0.123.jar` — **10 812 034 bytes**, SHA-256 `B5F5EC47870E9B7E7418D10BFB5810CA1CA9065ABBF664D409375A34D6A2D7BD`
-  - `source/build/libs/linkenvisuals-strange-1.0.123.jar` — **10 812 031 bytes**, SHA-256 `E220F083045F7BF99AAD82E42CCA99FDD94CE8649B8917DE5B31E2EDFE64F4FF`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D100.
+  - `source/build/libs/linkenvisuals-1.0.124.jar` — **10 823 585 bytes**, SHA-256 `65FEFE683ECC7924E2A3B5E00C7DFF2398192BD53626E181758214AB3108ACEE`
+  - `source/build/libs/linkenvisuals-strange-1.0.124.jar` — **10 823 582 bytes**, SHA-256 `355CCB64BBBF0D31B9EDB52D8FE0C625E507B8EA804640C32F0D84F4231BCE88`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D101.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.123
+Get-Content source/gradle.properties   # mod_version=1.0.124
 ```
 
 ## 2. Donor
@@ -87,6 +87,7 @@ Read first:
 - D98/v1.0.121: **HitRange + CustomHitBox** - triangle-list ring at `END_MAIN` (3.32 radius, 72 sides, donor thickness/rotation/depth, red near visible players) and entity boxes (128-block cap, frustum + 120 ms LOS cache, fill/outline, self/items toggles); geometry tests and clean `hitrange`/`custom-hitbox` screenshots.
 - D99/v1.0.122: **NoRender mixin registration fix** - BossBar/Fire/Particle mixins were missing from the config; `ParticleManager.addToBatch` and `renderFireOverlay` signatures corrected for 1.21.11; `MixinRegistrationTest` added; remap warning gone.
 - D100/v1.0.123: **compile-time Strange/Linken flavors** - `build` is Linken-only; `build -Pstrange` is Strange-only (Vanilla/Beta menu default Vanilla, Classic/Beta GUI default Classic, legacy Strange HUD). `BuildFlavor` + `StyleFlavor`; saved configs and editor/hotkeys cannot cross families.
+- D101/v1.0.124: **Optimization** - Tier Low/Medium/Ultra, `Entity Culling` with donor DDA OcclusionCuller, render-distance cap 12/8, particle radius 48/32/22, Ultra cloud culling; four registered mixins; 257 tests, Linken 805/805, Strange 795/795.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -106,7 +107,7 @@ Use `docs/FEATURE_PARITY.md` as the source of truth. Recommended order:
    Add each new element to `HudManager.ELEMENTS`, preserve edit-mode drag/snap, add a working enable/disable setting, and an autotest screenshot/behavior step. Keep default positions non-overlapping at GUI scale 3.
 
 2. **Remaining visual modules** from `FEATURE_PARITY.md`:
-   - `Optimization`, `Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands. `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` are ported in D96/D97; `HitRange`/`CustomHitBox` are ported in D98.
+   - `Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands. `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` are ported in D96/D97; `HitRange`/`CustomHitBox` in D98; `Optimization` in D101.
    - For new world modules, follow the proven `END_MAIN` + `BlockOverlayPipelines.FLAT` path, byte-packed `POSITION_COLOR`, and validate with a hidden 1920×1080 screenshot before committing.
    - Do not add dead settings for modules that have no backend.
    - Port only donor client/visual behavior; leave server helpers/network/crashers out.
@@ -130,7 +131,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat clean build --console=plain --no-daemon
 ```
 
-Expected baseline: **253 tests, 0 failures/errors/skips** in both flavors. Build both:
+Expected baseline: **257 tests, 0 failures/errors/skips** in both flavors. Build both:
 `.\gradlew.bat clean build` and `.\gradlew.bat build -Pstrange`.
 
 Hidden/automated smoke test (requires explicit user permission):
@@ -142,7 +143,7 @@ Hidden/automated smoke test (requires explicit user permission):
 
 - Autotest opens both GUIs, LinkGUI, title, inventory, attacks mobs, sweeps every module/setting, takes screenshots and writes a report.
 - Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`.
-- Expected at handoff: Linken **797/797**, Strange **787/787**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
+- Expected at handoff: Linken **805/805**, Strange **795/795**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
 - Restore `run/options.txt` after the run.
 
 Jar check:
@@ -192,6 +193,9 @@ source/src/main/java/dev/linkenvisuals/
   render/CustomHitBoxRules.java
   module/impl/HitRangeModule.java
   module/impl/CustomHitBoxModule.java
+  module/impl/OptimizationModule.java
+  util/optimization/OcclusionCuller.java
+  util/optimization/OptimizationRules.java
   ui/style/StyleFlavor.java
   ui/style/StyleManager.java
   ui/linkmenu/LinkenMenuChrome.java
@@ -214,6 +218,7 @@ source/src/test/java/dev/linkenvisuals/
   render/CustomHitBoxGeometryTest.java
   mixin/MixinRegistrationTest.java
   ui/style/StyleFlavorTest.java
+  util/optimization/OptimizationRulesTest.java
   audio/SoundAssetsTest.java
 ```
 
@@ -235,6 +240,7 @@ source/src/test/java/dev/linkenvisuals/
 - **Custom tab**: `PlayerListHudMixin`; multiplayer-only visual acceptance.
 - **HitRange (D98)**: triangle-list ribbon at `END_MAIN` via `BlockOverlayPipelines.FLAT`; 72 sides, 3.32 radius, donor thickness/rotation/depth. Never use GL lines; `FLAT_NO_DEPTH` is the separate no-depth variant.
 - **CustomHitBox (D98)**: donor entity set (all alive except XP orbs; items behind toggle), 128-block cap, frustum + 120 ms LOS cache, 36 fill/144 outline vertices per entity. Keep fill/outline in one flat pass.
+- **Optimization (D101)**: Tier Low/Medium/Ultra; entity culling goes through `OcclusionCuller` from `EntityRenderManager.shouldRender`; render cap 12/8 from `GameOptions.getClampedViewDistance`; particle radius 48/32/22 from `ParticleManager.addParticle(Particle)`; clouds cancel only on Ultra. Do not expose `Limit Render Distance` at Low or donor fast-transparency (removed 1.21.11 getter).
 - **Mixin config**: every `*Mixin.java` under `dev/linkenvisuals/mixin` must be listed in `linkenvisuals.mixins.json`; `MixinRegistrationTest` enforces this. Do not target removed 1.21.11 names such as `ParticleManager.renderParticles`; use `addToBatch`.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
 - **Media strip** reads `MediaWatcher`, not the title music track; title track belongs to `LinkenMenuMusic`.
@@ -242,7 +248,7 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 9. Definition of Done for the next task
 
-- Both `clean build` and `build -Pstrange` green, **253+ tests** (or more) with zero failures/errors/skips.
+- Both `clean build` and `build -Pstrange` green, **257+ tests** (or more) with zero failures/errors/skips.
 - No new shader/sound errors in hidden/runClient log.
 - Every visible control works; no fake controls.
 - Beta/Vanilla behavior unchanged within their flavor; compile-time family lock preserved (no Linken controls in Strange and vice versa).
@@ -253,4 +259,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test` in both flavors, then continue with the **remaining visual modules** in `FEATURE_PARITY.md` (`Optimization`, `Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands). `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` are ported in D96/D97; `HitRange`/`CustomHitBox` are ported in D98; the compile-time Strange/Linken flavor lock is D100. Do not add dead settings; skip `HelperItemsHud` until its donor helper modules exist, and do not add `DynamicIsland` because Link style hides it. Keep HUD drag/snap/edit-mode and the existing style/border pipeline; do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud/Cooldowns/Armor/Inventory/LowArmor/HitRange/CustomHitBox, the LINKEN splash or the input shortcuts. Live acceptance still needs a real run of **both** jars, RU/UA/AZERTY/QWERTZ, a real multiplayer tab/cooldown run, the HitRange red state with a second player, and CustomHitBox LOS/self/items toggles.
+Read the docs and current code, run `test` in both flavors, then continue with the **remaining visual modules** in `FEATURE_PARITY.md` (`Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands). `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` are ported in D96/D97; `HitRange`/`CustomHitBox` in D98; the compile-time Strange/Linken flavor lock is D100; `Optimization` is D101. Do not add dead settings; skip `HelperItemsHud` until its donor helper modules exist, and do not add `DynamicIsland` because Link style hides it. Keep HUD drag/snap/edit-mode and the existing style/border pipeline; do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud/Cooldowns/Armor/Inventory/LowArmor/HitRange/CustomHitBox/Optimization, the LINKEN splash or the input shortcuts. Live acceptance still needs a real run of **both** jars, RU/UA/AZERTY/QWERTZ, a real multiplayer tab/cooldown run, the HitRange red state with a second player, CustomHitBox LOS/self/items toggles, and in-world Optimization culling.

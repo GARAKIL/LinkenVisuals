@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №55 — donor Optimization, D101) — v1.0.124
+
+### Сделано
+1. **D101/v1.0.124** (`520bc13`): donor `Optimization` (Visual/World, default OFF) — Tier `Low`/`Medium`/`Ultra`, `Entity Culling`, render-distance cap `0/12/8`, particle cull radius `48/32/22` блоков, cloud culling на Ultra. `Limit Render Distance` и donor `fast transparency` не выставлены как мёртвые контролы: cap является частью tier-поведения, transparency-путь 1.21.4 больше не существует.
+2. **OcclusionCuller**: порт donor DDA-рейкаста по центру + 8 углам hitbox, per-tier ray budget `16/24/32`, TTL hidden `150/120/90` мс и visible `450/350/250` мс, кэш по entity id, очистка при смене мира и 5-секундный sweep.
+3. **Mixins**: `EntityRenderManager.shouldRender` (`@ModifyReturnValue`), `GameOptions.getClampedViewDistance`, `ParticleManager.addParticle(Particle)`, `WorldRenderer.render` (beginFrame) + `renderClouds` (Ultra cancel). Все четыре зарегистрированы в `linkenvisuals.mixins.json`; `MixinRegistrationTest` зелёный.
+4. **Проверки**: **257 тестов** в обеих flavor-сборках (0 fail/error/skip; +4 `OptimizationRulesTest`). Autotest: Linken **805/805**, Strange **795/795**, 1920×1080, 0 fail/skip; mixin apply/injection ошибок нет, новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+5. **Сборка**: `linkenvisuals-1.0.124.jar` — 10 823 585 байт, SHA-256 `65FEFE683ECC7924E2A3B5E00C7DFF2398192BD53626E181758214AB3108ACEE`; `linkenvisuals-strange-1.0.124.jar` — 10 823 582 байта, SHA-256 `355CCB64BBBF0D31B9EDB52D8FE0C625E507B8EA804640C32F0D84F4231BCE88`.
+
+### Следующая задача
+1. **Particles** — donor module + particle renderers, по одному слою; не смешивать с NoRender/Optimization culling.
+2. Затем **Trajectories**, visual **KillStreak**, full **ViewModel/Hands**.
+3. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2.
+4. Human: проверить Optimization в реальном мире (сущности за стенами, render-distance cap, частицы, облака Ultra), оба flavor-jar, cooldown-тики, раскладки, multiplayer custom tab.
+
+### Риски
+- Entity culling donor-поведением скрывает сущности за непрозрачными блоками; glowing entities и игрок исключены. Визуальная приёмка — за человеком.
+- Render-distance cap при Medium/Ultra применяется всегда (donor-toggle `Limit Render Distance` убран, чтобы не было контрола без эффекта на Low).
+- Transparency-путь 1.21.4 не портирован: в 1.21.11 `MinecraftClient.isFabulousGraphicsOrBetter` отсутствует; мёртвую настройку не добавляли.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №54 — compile-time Strange/Linken flavors, D100) — v1.0.123
 
 ### Сделано

@@ -926,3 +926,13 @@
 - **Сборка**: `linkenvisuals-1.0.123.jar` (10 812 034 байта, SHA-256 `B5F5EC47870E9B7E7418D10BFB5810CA1CA9065ABBF664D409375A34D6A2D7BD`); `linkenvisuals-strange-1.0.123.jar` (10 812 031 байт, SHA-256 `E220F083045F7BF99AAD82E42CCA99FDD94CE8649B8917DE5B31E2EDFE64F4FF`).
 - **Commit**: `10606a2` `feat(build): add compile-time StrangeVisuals flavor (v1.0.123, D100)`.
 - **Остаток**: Strange HUD — восстановленный legacy-слой, не 100% pixel parity с оригиналом; human-приёмка обоих jar; Optimization/Particles/Trajectories/KillStreak/ViewModel.
+
+## 2026-10-23 · D101 · Donor Optimization — v1.0.124
+- **Optimization**: портирован безопасный 1.21.11-подмножество donor `Optimization` (Visual/World, default OFF): Tier `Low/Medium/Ultra`, `Entity Culling`, render-distance cap `0/12/8`, particle radius `48/32/22` блоков, cloud culling на Ultra. `Limit Render Distance` не выставлен отдельным контролом (на Low он был бы мёртвым); donor `fast transparency` не портирован, потому что `MinecraftClient.isFabulousGraphicsOrBetter` в 1.21.11 отсутствует.
+- **OcclusionCuller**: DDA-рейкаст из камеры к центру и 8 углам `Box.expand(0.1)`, исключения для player/glowing/крупных сущностей, per-tier budget `16/24/32`, hidden TTL `150/120/90 мс`, visible `450/350/250 мс`, кэш entity id, сброс при смене мира, sweep раз в 5 с.
+- **Mixins**: `OptimizationEntityCullMixin` → `EntityRenderManager.shouldRender` (`@ModifyReturnValue`); `OptimizationOptionsMixin` → `GameOptions.getClampedViewDistance`; `OptimizationParticleMixin` → `ParticleManager.addParticle(Particle)`; `OptimizationWorldRendererMixin` → `WorldRenderer.render` HEAD (`beginFrame`) и `renderClouds` HEAD cancel. Все зарегистрированы в `linkenvisuals.mixins.json`.
+- **Тесты**: `OptimizationRulesTest` (4) — tier mapping, caps, particle squared distances, Ultra-only clouds. Всего **257 тестов** в обеих flavor-сборках, 0 fail/error/skip.
+- **Evidence**: Linken autotest **805/805**, Strange **795/795**, 0 fail/skip, 1920×1080; mixin apply/injection ошибок нет; новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+- **Сборка**: `linkenvisuals-1.0.124.jar` (10 823 585 байт, SHA-256 `65FEFE683ECC7924E2A3B5E00C7DFF2398192BD53626E181758214AB3108ACEE`); `linkenvisuals-strange-1.0.124.jar` (10 823 582 байта, SHA-256 `355CCB64BBBF0D31B9EDB52D8FE0C625E507B8EA804640C32F0D84F4231BCE88`).
+- **Commit**: `520bc13` `feat(render): port donor optimization culling (v1.0.124, D101)`.
+- **Остаток**: human visual acceptance (сущности за стенами, cap, particles, clouds); Particles/Trajectories/KillStreak/ViewModel; HUD-остатки.
