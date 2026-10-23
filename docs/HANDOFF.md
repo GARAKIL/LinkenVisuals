@@ -2,6 +2,28 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №56 — donor Particles, D102) — v1.0.125
+
+### Сделано
+1. **D102/v1.0.125** (`0d2d350`): donor `Particles` (Visual/World, default OFF) — 5 texture-режимов (`Bloom`, `Star`, `Snow`, `Firefly`, `Dollar`) + `Cube` wireframe; `Max Particles`, `Size`, `Color`, `Mode`, `Cube Glow`, `Cube Glow Size`, `Cube Rotate Speed`.
+2. **Ассеты**: из donor скопированы `star/snow/firefly/dollar.png` в `textures/particles/`; Bloom использует существующий донорский `textures/esp/ghost_bloom.png` (SHA-256 совпадает с donor `client/xuynya/ghost_bloom.png`).
+3. **Рендер**: billboard-квады через `POSITION_TEXTURE_COLOR`/`ParticlesPipelines.BILLBOARD` и `END_MAIN`; для raw-pass используются **TRIANGLES** (6 вершин на частицу), не QUADS — первый вариант с QUADS давал длинные артефактные линии. Cube-режим — 12 толстых рёбер двумя перекрещенными квадами на `BlockOverlayPipelines.FLAT`, glow-куб отдельным проходом.
+4. **Поведение**: donor spawn rate 42/s, радиус 18, life 50–150 тиков, скорость/DRAG 0.99, лимит 36 спавнов/тик; LOS по центру/углам через `ParticleVisibilityHelper` с кэшем 2 тика; frustum, удаление за 60 блоками/из блоков/из игрока.
+5. **Проверки**: **261 тест** в обеих flavor-сборках (0 fail/error/skip; +4 `ParticlesRulesTest`). Autotest: Linken **847/847**, Strange **837/837**, 1920×1080, 0 fail/skip; screenshot `particles` (billboard) и `particles-cube` (wireframe+glow) чистые. Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+6. **Сборка**: `linkenvisuals-1.0.125.jar` — 11 005 507 байт, SHA-256 `7783DFDC314435E038ABCD52AD1BC179BBAC6BABE1C32858988D52E20C13855F`; `linkenvisuals-strange-1.0.125.jar` — 11 005 504 байта, SHA-256 `8071B3D52B43724D3EBA5F390107E616952A903B1E1AE4DF9AB9B2A160F830D4`.
+
+### Следующая задача
+1. **Trajectories** — donor projectile trajectories; отдельный world-render путь + настройки + тест/скриншот.
+2. Затем visual **KillStreak**, full **ViewModel/Hands**.
+3. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2.
+4. Human: проверить все 6 режимов Particles в живом мире, LOS/кубы/масштаб частиц, оба flavor-jar, cooldown-тики, раскладки, multiplayer custom tab.
+
+### Риски
+- Cube-настройки видны во всех режимах (в donor они скрывались предикатом); они работают только при `Mode=Cube`, это осознанное ограничение текущего setting-UI.
+- Billboard preview использует временно увеличенный `Size` (1.2) и `Max Particles` (800), затем возвращает 0.25/600.
+- Частицы рисуются только при открытом мире и не затрагивают NoRender/Optimization particle culling (наши custom renderers).
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №55 — donor Optimization, D101) — v1.0.124
 
 ### Сделано

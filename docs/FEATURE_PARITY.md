@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.124**, 2026-10-23. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.125**, 2026-10-23. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -64,14 +64,14 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 SelfNametags), `KillEffects`, `Hands`/`HandPose`, `Shader Sky` (donor
 SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `StreamerMode`, `TotemTracker`, `UseTracker`, `Waypoints`, `ElytraSwap`,
-`HandSwap`, `Sounds`, `HitRange`, `CustomHitBox`, `Optimization`,
+`HandSwap`, `Sounds`, `HitRange`, `CustomHitBox`, `Optimization`, `Particles`,
 cosmetics/pets subset, filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
 `HelperItemsHud` (blocked), `DynamicIsland`, `CustomVitals`,
 `DamageParticles`, `FortniteDamage`, `ItemRadius`,
-`Particles`, `Trajectories`, `KillStreak` (visual module; sound streak is
+`Trajectories`, `KillStreak` (visual module; sound streak is
 implemented), `ViewModel` (only HandPose subset), `SelfNametags` (our
 NameTags is not a line-by-line port), full `UI` colour/fade/blur/BoostFPS
 controls.
@@ -97,8 +97,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **257 tests / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **805/805**, Strange **795/795**, no new
+- `clean build`: **261 tests / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **847/847**, Strange **837/837**, no new
   ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
@@ -107,7 +107,8 @@ not silently faked; no dead controls are exposed for them.
   adds the compile-time flavor lock; the Strange run shows the vanilla
   `STRANGE VISUALS` title and legacy HUD, while the Linken run keeps the
   Linken menu/HUD. D101 ports Optimization; all four culling mixins apply in
-  both hidden runs. A separate frame-capture 1280×720 confirms the
+  both hidden runs. D102 adds textured particle billboards and Cube wireframe
+  screenshots with clean geometry. A separate frame-capture 1280×720 confirms the
   LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
@@ -124,6 +125,6 @@ not silently faked; no dead controls are exposed for them.
 
 The **LinkGUI + title + settings + HUD material/shape + TargetHud +
 CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab +
-HitRange + CustomHitBox + Optimization + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+HitRange + CustomHitBox + Optimization + Particles + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

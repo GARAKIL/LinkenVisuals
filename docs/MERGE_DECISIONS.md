@@ -936,3 +936,14 @@
 - **Сборка**: `linkenvisuals-1.0.124.jar` (10 823 585 байт, SHA-256 `65FEFE683ECC7924E2A3B5E00C7DFF2398192BD53626E181758214AB3108ACEE`); `linkenvisuals-strange-1.0.124.jar` (10 823 582 байта, SHA-256 `355CCB64BBBF0D31B9EDB52D8FE0C625E507B8EA804640C32F0D84F4231BCE88`).
 - **Commit**: `520bc13` `feat(render): port donor optimization culling (v1.0.124, D101)`.
 - **Остаток**: human visual acceptance (сущности за стенами, cap, particles, clouds); Particles/Trajectories/KillStreak/ViewModel; HUD-остатки.
+
+## 2026-10-23 · D102 · Donor Particles — v1.0.125
+- **Режимы**: donor `Particles` (Visual/World, default OFF) — `Bloom`, `Star`, `Snow`, `Firefly`, `Dollar` и `Cube`; настройки `Max Particles` 0–15000 (600), `Size` 0.04–2.5 (0.25), `Color`, `Mode`, `Cube Glow`, `Cube Glow Size` 0.5–4 (2), `Cube Rotate Speed` 0.5–6 (2).
+- **Ассеты**: `star/snow/firefly/dollar.png` скопированы в `textures/particles/`; Bloom — существующий `textures/esp/ghost_bloom.png`, хэш совпадает с donor `client/xuynya/ghost_bloom.png`.
+- **Рендер**: billboard-квады на `END_MAIN` через `ParticlesPipelines.BILLBOARD` (`POSITION_TEXTURE_COLOR`, TRIANGLES, 6 вершин на частицу). Первый вариант с `DrawMode.QUADS` в raw vertex-pass дал длинные артефактные линии — больше не использовать. Cube — 12 толстых рёбер двумя перекрещенными квадами на `BlockOverlayPipelines.FLAT`, glow-куб с alpha 0.32.
+- **Поведение**: donor spawn 42/s, spawn radius 18, life 50–150 тиков, speed 1.0, DRAG 0.99, 36 спавнов/тик; LOS `ParticleVisibilityHelper` (точные VoxelShape-пересечения, leaves/fences/walls) с кэшем 2 тика; frustum; удаление за 60 блоков, из блоков и из игрока.
+- **Тесты**: `ParticlesRulesTest` (4) — accumulator/rate, alpha/life, billboard size floor, cube half-size. Всего **261 тест** в обеих сборках, 0 fail/error/skip.
+- **Evidence**: Linken autotest **847/847**, Strange **837/837**, 0 fail/skip, 1920×1080; `particles` billboard и `particles-cube` wireframe screenshots чистые (без линий/артефактов); новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+- **Сборка**: `linkenvisuals-1.0.125.jar` (11 005 507 байт, SHA-256 `7783DFDC314435E038ABCD52AD1BC179BBAC6BABE1C32858988D52E20C13855F`); `linkenvisuals-strange-1.0.125.jar` (11 005 504 байта, SHA-256 `8071B3D52B43724D3EBA5F390107E616952A903B1E1AE4DF9AB9B2A160F830D4`).
+- **Commit**: `0d2d350` `feat(render): port donor ambient particles (v1.0.125, D102)`.
+- **Остаток**: Cube-настройки видны во всех режимах (setting-UI не умеет predicate visibility); живая приёмка 6 режимов; Trajectories/KillStreak/ViewModel.
