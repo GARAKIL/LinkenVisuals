@@ -23,6 +23,7 @@
 - **Hand Outlines**: Depth-buffer delta extraction creating crisp first-person silhouettes (`Line`, `Glow`, `Aura`, `Energy`).
 - **Motion & Smoke Trails**: Temporal frame retention for fluid smoke and speed trails trailing your weapon or hands.
 - **Hand Editor**: Interactive offsets, rotation, and scaling for mainhand and offhand items.
+- **View Model**: Donor numeric main/off-hand X/Y/Z offsets and per-axis scale, applied independently on top of the hand editor.
 
 ### 🦜 Cosmetics, Pets & Waypoints
 - **11 Roaming Pet Skins**: Bat, Parrot, Raven, Fairy, Bee, Vex, Fox, Pig, Frog, Pufferfish, and Slime — client-side mobs that fly, walk, or float around you, with radius, lift, speed, size, alpha, glow, and glow-colour controls.

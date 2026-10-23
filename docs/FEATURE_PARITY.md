@@ -61,7 +61,8 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 `BlockOverlay`, `Crosshair`, `Fullbright`, `JumpCircles`, `MotionBlur`,
 `TargetEsp`, `TimeChanger`, `Trails`, `Zoom`, `Freelook`, `HitColor`,
 `HitSound`, `SwingAnimation`, `ItemPhysics`, `NameTags` (donor
-SelfNametags), `KillEffects`, `Hands`/`HandPose`, `Shader Sky` (donor
+SelfNametags), `KillEffects`, `Hands`/`HandPose`, `ViewModel` (manual
+offsets/scale, D105), `Shader Sky` (donor
 SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `StreamerMode`, `TotemTracker`, `UseTracker`, `Waypoints`, `ElytraSwap`,
 `HandSwap`, `Sounds`, `HitRange`, `CustomHitBox`, `Optimization`, `Particles`,
@@ -72,7 +73,9 @@ filters/ambience subset.
 
 `HelperItemsHud` (blocked), `DynamicIsland`, `CustomVitals`,
 `DamageParticles`, `FortniteDamage`, `ItemRadius`,
-`ViewModel` (only HandPose subset), `SelfNametags` (our
+`ViewModel` animated Punchy mode (the twelve manual donor
+offsets/scale settings are ported in D105),
+`SelfNametags` (our
 NameTags is not a line-by-line port), full `UI` colour/fade/blur/BoostFPS
 controls.
 
@@ -97,8 +100,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **265 tests / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **881/881**, Strange **871/871**, no new
+- `clean build`: **270 tests / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **938/938**, Strange **928/928**, no new
   ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
@@ -110,7 +113,9 @@ not silently faked; no dead controls are exposed for them.
   both hidden runs. D102 adds textured particle billboards and Cube wireframe
   screenshots with clean geometry. D103 adds a clean procedural trajectory
   marker screenshot. D104 adds the KillStreak card preview and a real
-  post-attack streak assertion. A separate frame-capture 1280×720 confirms the
+  post-attack streak assertion. D105 adds the twelve donor ViewModel offsets
+  on top of HandPose, a live `lastAppliedVisible()` assertion and the
+  `viewmodel` screenshot. A separate frame-capture 1280×720 confirms the
   LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
@@ -127,6 +132,7 @@ not silently faked; no dead controls are exposed for them.
 
 The **LinkGUI + title + settings + HUD material/shape + TargetHud +
 CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab +
-HitRange + CustomHitBox + Optimization + Particles + Trajectories + KillStreak + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+HitRange + CustomHitBox + Optimization + Particles + Trajectories + KillStreak +
+ViewModel + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

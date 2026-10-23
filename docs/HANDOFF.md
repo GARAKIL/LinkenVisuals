@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №59 — donor ViewModel, D105) — v1.0.128
+
+### Сделано
+1. **D105/v1.0.128** (`aa6e107`): donor `ViewModel` — `ViewModelModule` (`viewmodel`, Visual, default OFF) с 12 настройками: `Main/Off X/Y/Z Offset` (−2…2, шаг 0.05, 0) и `Main/Off X/Y/Z Scale` (0…3, шаг 0.05, 1). Донорский `Animated`/Punchy-режим не выставлен (Punchy не портирован; мёртвый тумблер запрещён).
+2. **Применение**: `HeldItemRendererMixin` инжектит `renderFirstPersonItem` на `INVOKE renderItem(LivingEntity, ItemStack, ItemDisplayContext, MatrixStack, OrderedRenderCommandQueue, I)`, `require=2` — donor-порядок поверх vanilla equip/swing и `HandPose`, до item-display transform. При активном `HandEditor` дельта отключается, чтобы принятые drag-хэндлы не расходились.
+3. **Правила**: main-hand X инвертируется, off-hand X — нет, left-handed X зеркалится; при еде/зельях X/Z-смещения обнуляются, Y и scale остаются. Чистая `Transform.resolve` покрыта тестами.
+4. **Конфиг-фикс**: `Modules.init()` перенесён до `ConfigManager.load()` — object-модули D95–D105 раньше регистрировались после загрузки профиля, поэтому их `enabled`/настройки не восстанавливались. Теперь сохраняются/загружаются все object-модули; legacy ModuleInfo-путь не менялся.
+5. **Проверки**: **270 тестов** в обеих flavor-сборках (0 fail/error/skip; +5 `ViewModelModuleTest`). Autotest: Linken **938/938**, Strange **928/928**, 0 fail/skip, 1920×1080; новый `viewmodel` screenshot и проверка `lastAppliedVisible()` после реального кадра. Новых ERROR/exception/shader/sound нет; в Strange-логе 3 строки — только прежние offline-auth/Realms.
+6. **Сборка**: `linkenvisuals-1.0.128.jar` — 11 034 570 байт, SHA-256 `37E19B641CBFD7F488D92874CDE596B34054A472C86170A9BB92C28F50FCE710`; `linkenvisuals-strange-1.0.128.jar` — 11 034 567 байт, SHA-256 `4277ED2DA154083FB40C12AD4985DA91ED3083A6ADBF4B3A8F2C1D3673216173`.
+
+### Следующая задача
+1. **Screen-anchored HUD слой** — разблокирует `ArmorHud V2` (hotbar-relative) и donor `CustomVitals` (полосы HP/голода/опыта над хотбаром). Сейчас `HudElement` center/fraction-based; нужен слой screen/hotbar-anchored без поломки drag/snap.
+2. Если слой слишком велик — `CustomVitals` как прямой `InGameHudMixin`-overlay (donor `CustomVitalsBar`), без `HudManager`-элемента; затем `ItemRadius` (world-render круг/бокс/лесенка, donor 333 строки) или `DamageParticles`.
+3. Human: живая еда/зелья и left-hand для ViewModel, числовые настройки vs HandEditor, оба flavor-jar, cooldown-тики, multiplayer custom tab.
+
+### Риски
+- `ViewModel` и `HandEditor` — два независимых слоя; при одновременном включении дельта применяется поверх HandPose, а в editor-режиме скрыта. Это осознанно, но требует human-проверки.
+- `Modules.init()` до `ConfigManager.load()` впервые включает persistence для всех object-модулей D95–D105; старые профили теперь могут восстановить их state. Это исправление, но при жалобах смотреть порядок загрузки.
+- Donor `Animated`/Punchy не портирован; parity `ViewModel` не полный.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №58 — visual KillStreak, D104) — v1.0.127
 
 ### Сделано
