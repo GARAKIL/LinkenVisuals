@@ -211,9 +211,7 @@ public final class FakePlayer {
     private static float damageOf(MinecraftClient client, boolean crit) {
         float base = (float) client.player.getAttributeValue(
             net.minecraft.entity.attribute.EntityAttributes.ATTACK_DAMAGE);
-
-        float perTick = Math.max(0.0001f, client.player.getAttackCooldownProgressPerTick());
-        float charge = Math.min(1.0f, sinceHit() * 20.0f / perTick);
+        float charge = Math.max(0.0f, Math.min(1.0f, client.player.getAttackCooldownProgress(0.5f)));
         return damageFor(base, charge, crit);
     }
 
