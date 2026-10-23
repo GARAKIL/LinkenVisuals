@@ -978,3 +978,16 @@
 - **Сборка**: `linkenvisuals-1.0.128.jar` (11 034 570 байт, SHA-256 `37E19B641CBFD7F488D92874CDE596B34054A472C86170A9BB92C28F50FCE710`); `linkenvisuals-strange-1.0.128.jar` (11 034 567 байт, SHA-256 `4277ED2DA154083FB40C12AD4985DA91ED3083A6ADBF4B3A8F2C1D3673216173`).
 - **Commit**: `aa6e107` `feat(hands): port donor ViewModel offsets (v1.0.128, D105)`.
 - **Остаток**: donor `Animated`/Punchy; числовые настройки не дублируют свободный HandEditor; human-проверка на живом предмете/еде/left-hand.
+
+## 2026-10-23 · D106 · Audit fixes: FakePlayer crits, Welcome, compact ESC, Hand Motion — v1.0.129
+- **Аудит**: новый `docs/VISUAL_AUDIT.md` фиксирует сравнение с donor 1.21.4 и разделяет «исправлено»/«открыто». Причины: fake-player crits теряли vanilla-гейт и 1.5× урон; welcome-Lottie не портирован; ESC был широким hub-экраном; donor-инстанс использует Punchy, которого в порте нет.
+- **FakePlayer**: `HitSoundModule.isCrit` = vanilla-правила (`cooldown > 0.9`, fall, airborne, no water/climb/blind/vehicle/sprint). `FakePlayer.hit` считает crit один раз, применяет `1.5×` к charge-кривой, передаёт crit в HitSound и эффект, выставляет `lastCrit`. Fake-ветки больше не играют второй non-crit звук. Чистые тесты: `FakePlayerTest`, `HitSoundModuleTest`; autotest реально бьёт dummy crit-путём.
+- **Welcome**: первый `LinkenMainMenuScreen` показывает процедурную сцену (wordmark, `Welcome back, <nick>`, glow, progress rail, click/key skip), музыка стартует после неё; `welcomePlayed` — один раз на процесс. Lottie/Skija не портирован; сцена не 1:1 donor `welcome.json`.
+- **ESC**: `LinkenPauseScreen` переписан с 1040 px hub на donor-панель 440 px: topbar 56, row 44, gap 8, 2-column tiles, divider, Save/Quit; `pause.*` en/ru/uk; `icons2`; hover/open spring; X/ESC. Autotest проверяет route `GameMenuScreen -> LinkenPauseScreen`, снимает `pause`.
+- **Анимации**: в `Better Animations` добавлен `Hand Motion` (default true, `ModuleRegistry.animateHand()`); `HandMotion` даёт walk bob, sprint sway, воду, падение и small attack recoil на donor-анкере `renderItem`, поверх HandPose/ViewModel, не в HandEditor. Это Punchy-lite; полный Punchy (181 класс/2.7 MB) не портирован. Тест `HandMotionTest`.
+- **GUI fix**: account-row иконка `icons2` перенесена в donor `tx`, текст в `tx+10` — больше не перекрывает `Current account · Licensed`.
+- **Тесты**: **281 тест** в обеих flavor-сборках (0 fail/error/skip; +4 `HandMotionTest`, +3 `HitSoundModuleTest`, +4 `FakePlayerTest`; от 270 до 281).
+- **Autotest**: Linken **953/953**, Strange **943/943**, 0 fail/skip, 1920×1080; screenshots `welcome`, `pause`, `linken-mainmenu`; crit-assertion проходит. Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+- **Сборка**: `linkenvisuals-1.0.129.jar` (11 047 876 байт, SHA-256 `6EFF4F8A7713D4EDB98FC7BF36D023EE7A6A956BD7389F063ABC2FC818D95FBC`); `linkenvisuals-strange-1.0.129.jar` (11 047 871 байт, SHA-256 `8D03660CC18CF4E38E1E97F3A00CB718CC6D8907D9183AD3A9048AA705216063`).
+- **Commit**: `385fa23` `fix(ui): audit fixes for crits, welcome, ESC and hand motion (v1.0.129, D106)`.
+- **Остаток**: полный Punchy, точный Lottie, pixel-diff GUI 1280/1920, screen-anchored HUD, ItemRadius/DamageParticles/FortniteDamage/SelfNametags/UI controls.

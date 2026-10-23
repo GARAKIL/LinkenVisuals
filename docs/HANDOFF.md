@@ -2,6 +2,31 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №60 — audit fixes: crits/Welcome/ESC/animations, D106) — v1.0.129
+
+### Сделано
+1. **D106/v1.0.129** (`385fa23`): детальный аудит `docs/VISUAL_AUDIT.md`; исправлены четыре замечания пользователя.
+2. **FakePlayer crits**: `HitSoundModule.isCrit` теперь повторяет vanilla-гейт (full charge >0.9, fall, airborne, no water/climb/blind/vehicle/sprint); `FakePlayer.hit` считает crit один раз, применяет 1.5× урон, crit-звук/эффект и `lastCrit`; убраны двойные hit-звуки из mixin-путей. Тесты `FakePlayerTest` + `HitSoundModuleTest`; autotest реально бьёт dummy с crit-путём.
+3. **Welcome**: `LinkenMainMenuScreen` получил первый welcome-экран (wordmark, `Welcome back, <nick>`, accent glow, progress rail, skip по клику/клавише, музыка после него). Lottie/Skija не портирован; сцена процедурная в том же визуальном языке. Autotest: `welcome` + `linken-mainmenu`.
+4. **ESC**: `LinkenPauseScreen` переписан с широкого 1040 px hub на donor-панель 440 px (topbar 56, rows 44, gap 8, 2 колонки, divider, Save/Quit), локализован (`pause.*` en/ru/uk), иконки `icons2`, hover/open анимации, закрытие X/ESC. Autotest проверяет реальный route `GameMenuScreen -> LinkenPauseScreen` и снимает `pause`.
+5. **Анимации**: в `Better Animations` добавлен `Hand Motion` (default true) — walk bob, sprint sway, вода, падение и лёгкий attack-recoil на donor-анкере `renderItem`; это Punchy-lite, не полный Punchy. Тест `HandMotionTest`.
+6. **GUI fix**: в account-row иконка `icons2` больше не перекрывает `Current account · Licensed` (donor-координаты `tx` / `tx+10`).
+7. **Проверки**: **281 тест** в обеих flavor-сборках (0 fail/error/skip). Autotest: Linken **953/953**, Strange **943/943**, 0 fail/skip, 1920×1080; screenshots `welcome`, `pause`, `linken-mainmenu`; новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+8. **Сборка**: `linkenvisuals-1.0.129.jar` — 11 047 876 байт, SHA-256 `6EFF4F8A7713D4EDB98FC7BF36D023EE7A6A956BD7389F063ABC2FC818D95FBC`; `linkenvisuals-strange-1.0.129.jar` — 11 047 871 байт, SHA-256 `8D03660CC18CF4E38E1E97F3A00CB718CC6D8907D9183AD3A9048AA705216063`.
+
+### Следующая задача
+1. **Пиксельный GUI-пасс**: 1280×720 и 1920×1080 для title, LinkGUI, pause, multiplayer, Select World, Alt Manager и sub-settings; исправить оставшиеся отличия от donor.
+2. **Screen-anchored HUD layer**: разблокирует `ArmorHud V2` и donor `CustomVitals`; текущий `HudElement` center/fraction-based.
+3. **Punchy-lite expansion**: swim/climb/elytra/fall poses и item-specific idle, если пользователь хочет ближе к donor Punchy. Полный Punchy (181 класс/2.7 MB) не портирован.
+4. **Остальные модули**: `ItemRadius`, `DamageParticles`, `FortniteDamage`, `SelfNametags` line-by-line, full UI colour/fade/blur/BoostFPS.
+
+### Риски
+- Welcome — процедурная сцена, не 1:1 Lottie (`welcome.json` 493 кадра/60 fps, Skija).
+- HandMotion — только видимый subset; полный Punchy и его item-анимации отсутствуют.
+- Pause соответствует donor-геометрии, но pixel-parity не доказан; 1280×720 требует ручной проверки.
+- GUI-пасс не закрыт: остаются мелкие отличия шрифтов/хверов/экранов.
+- Полный parity не закрыт; см. `VISUAL_AUDIT.md` и `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №59 — donor ViewModel, D105) — v1.0.128
 
 ### Сделано

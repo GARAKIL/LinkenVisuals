@@ -1,19 +1,17 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.128 / D105
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.129 / D106
 
-You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve accepted visual/audio/HUD decisions, and finish with green builds, tests, autotest, docs, commit/push and a Russian report.
+You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
 ## 1. Repository
 
-- Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
+- Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.128**
-- Last code commit: `aa6e107` `feat(hands): port donor ViewModel offsets (v1.0.128, D105)`
-- Latest docs commit: check `git log -1` after clone; it records D105.
-- Tests: **270 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **938/938**, Strange **928/928**, 0 fail/skip, 1920×1080. Strange log has 3 pre-existing offline-auth/Realms ERROR lines; no mod/shader/sound errors.
-- Jars (not committed; rebuild locally):
-  - `source/build/libs/linkenvisuals-1.0.128.jar` - 11 034 570 bytes, SHA-256 `37E19B641CBFD7F488D92874CDE596B34054A472C86170A9BB92C28F50FCE710`
-  - `source/build/libs/linkenvisuals-strange-1.0.128.jar` - 11 034 567 bytes, SHA-256 `4277ED2DA154083FB40C12AD4985DA91ED3083A6ADBF4B3A8F2C1D3673216173`
+- Version: **1.0.129**
+- Last code commit: `385fa23` `fix(ui): audit fixes for crits, welcome, ESC and hand motion (v1.0.129, D106)`.
+- Tests: **281 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **953/953**, Strange **943/943**, 0 fail/skip, 1920×1080.
+- Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
+- Jars: rebuild locally; sizes/SHA-256 in `docs/HANDOFF.md` top section.
 
 Clone/verify:
 
@@ -23,73 +21,64 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.128
+Get-Content source/gradle.properties   # mod_version=1.0.129
 ```
 
 ## 2. Donor
 
-Donor is **READ-ONLY**. On this machine the full decompiled donor is:
+READ-ONLY full donor on this machine:
 
-`C:\Users\gameg\Desktop\визуалы` (package `ru.method.linkenvisuals`)
+`C:\Users\gameg\Desktop\визуалы` (`ru.method.linkenvisuals`)
 
-The historical path `C:\StrangeVisuals\donor2\visualy` does not exist here. If the desktop path is missing on a new machine, ask the user; never invent assets, dimensions or behavior.
+Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the desktop path is missing; never invent assets/dimensions/behavior.
 
-The actually used LINKEN GUI is the monolithic `screen/linkgui/LinkGuiScreen.java`. Do not use `screen/linkgui/windows/*` as a reference.
+The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105 (do not redo)
+## 3. Done in D105-D106 (do not redo)
 
-- `ViewModelModule` (`viewmodel`, Visual, default OFF) ports the donor manual ViewModel: `Main/Off X/Y/Z Offset` (-2..2, step 0.05, 0) and `Main/Off X/Y/Z Scale` (0..3, step 0.05, 1).
-- `HeldItemRendererMixin` applies the delta at the donor anchor: `renderFirstPersonItem` -> `INVOKE renderItem(LivingEntity, ItemStack, ItemDisplayContext, MatrixStack, OrderedRenderCommandQueue, I)`, `require = 2` (normal + use-action). It runs after vanilla equip/swing and after `HandPose`, before the item-display transform.
-- Donor sign rules: main-hand X inverted, off-hand X not, left-handed mirror; while eating/drinking X/Z offsets are dropped, Y and scale remain. HandEditor active -> ViewModel delta is skipped so accepted drag handles stay accurate.
-- `Modules.init()` moved before `ConfigManager.load()`: object modules (D95-D105) now persist enabled state/settings. This also fixes the latent persistence bug for earlier object modules.
-- `ViewModelModuleTest` (5) covers neutral defaults, main/off signs, left-hand mirror, consumable suppression, diagnostics.
-- Autotest adds enable/pose/wait/check/screenshot/restore and asserts `ViewModelModule.lastAppliedVisible()` after a real first-person frame.
-- The donor `Animated`/Punchy mode is **not** ported (Punchy absent); no dead toggle is exposed.
+- D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
+- D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
+- `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
-## 4. Next task priority
+## 4. Next priority
 
-1. **Screen-anchored HUD layer** - unblocks two explicit open items:
-   - `ArmorHud` V2 (hotbar-relative two groups);
-   - donor `CustomVitals` (HP/food/XP bars above the hotbar, donor `hud/CustomVitalsBar.java`, 246 lines, styles Bars/Stack/Segments, armor row, air, mount, poison/wither/hunger).
-   Current `HudElement` is center/fraction-based. Add a screen/hotbar-anchored layer without breaking `HudManager` drag/snap/edit-mode or the 8 `HudStyle` variants.
-2. If that layer is too large for one slice, implement `CustomVitals` as a direct `InGameHudMixin` overlay (donor order: before DrawContext flush), not as a `HudElement`; add a real setting and autotest screenshot. Do not add an empty HUD element for it.
-3. Then `ItemRadius` (donor 333 lines: ender eye/sugar circles, netherite scrap box, dried-kelp staircase wall, snowball projection, splash-potion impact simulation, proximity color/percent labels) or `DamageParticles` (legacy impact + decorative feature; inspect its helper classes first).
-4. Remaining open parity: `FortniteDamage`, `SelfNametags` line-by-line, full UI colour/fade/blur/BoostFPS. `HelperItemsHud` stays blocked until donor `FtHelper/HwHelper/RwHelper` exist. `DynamicIsland` stays skipped because Link style hides it and media is covered.
-5. Human acceptance items from D104 still stand: live KillStreak 2-5 kills, RU/UA/AZERTY/QWERTZ, live cooldown ticks, low-armor in combat, multiplayer custom tab, both flavor jars, ViewModel with food/potions/left hand.
+1. **Pixel GUI pass** at 1280×720 and 1920×1080 for title/welcome, LinkGUI, pause, multiplayer, Select World, Alt Manager, sub-settings. Compare with donor 1.21.4 screenshots; fix only proven differences. Do not guess fonts/metrics.
+2. **Screen-anchored HUD layer** to unblock `ArmorHud V2` (hotbar-relative) and donor `CustomVitals` (HP/food/XP above hotbar). Current `HudElement` is center/fraction based.
+3. If HUD layer is too large: `CustomVitals` as a direct `InGameHudMixin` overlay (donor `hud/CustomVitalsBar.java`) instead of a `HudElement`.
+4. **Punchy-lite expansion** if the user prioritizes animations: swim/climb/elytra/fall poses and item idle; full Punchy (181 classes/2.7 MB) is out of scope, do not pretend otherwise.
+5. Remaining modules: `ItemRadius`, `DamageParticles`, `FortniteDamage`, `SelfNametags` line-by-line, full `UI` colour/fade/blur/BoostFPS. `HelperItemsHud` stays blocked; `DynamicIsland` stays skipped for Link style.
+6. Human acceptance: live KillStreak 2-5, food/potions/left-hand ViewModel, crits on FakePlayer, RU/UA/AZERTY/QWERTZ, cooldown ticks, multiplayer custom tab, both flavor jars.
 
 ## 5. Architecture that must not break
 
-- HUD: `hud/HudElement.java` (center/fraction), `hud/HudManager.java` (`ELEMENTS`, drag/snap/edit-mode), `hud/HudStyle.java`/`HudSurface.java` (8 donor styles/3 shapes), `hud/HudLayoutStorage.java`, `hud/HudTween.java`. New HUD element -> `HudManager.ELEMENTS`, real `BooleanSetting` in Interface, preview/check/screenshot, default position non-overlapping at GUI scale 3.
-- World render: `END_MAIN` + `BlockOverlayPipelines.FLAT` / `FLAT_NO_DEPTH`, byte-packed `POSITION_COLOR`; do not leave RenderSystem state/transforms damaged; validate with a hidden 1920×1080 screenshot.
-- Mixins: every `*Mixin.java` must be listed in `linkenvisuals.mixins.json`; `MixinRegistrationTest` enforces it. No removed 1.21.11 names (`ParticleManager.renderParticles`).
-- Flavors: default build = Linken-only; `-Pstrange` = Strange-only. `StyleFlavor` owns allowed styles; configs are sanitized. Never add cross-family style buttons.
-- Linken style lock and absence of Style/Editor buttons in LINKEN Settings must stay.
-- New visible strings go to en/ru/uk; `LangParityTest` must stay green. Module/setting labels use the existing raw-English convention; do not add half-localized controls.
-- No Lombok, donor Module/Setting, legacy Render2D/WindowGuiRender, raw GL, Lottie welcome, network/UserSyncManager, cosmetics catalog, crashers, Discord RPC, IAS. No empty catches/TODO/FIXME/System.out.
-- Every visible control must work. No dead controls.
+- HUD: `HudElement` (center/fraction), `HudManager` (`ELEMENTS`, drag/snap/edit-mode), `HudStyle`/`HudSurface` (8 styles/3 shapes), `HudLayoutStorage`, `HudTween`. New HUD element -> `HudManager.ELEMENTS`, real Interface `BooleanSetting`, preview/check/screenshot, non-overlapping default at GUI scale 3.
+- Render: world passes on `END_MAIN` via `BlockOverlayPipelines.FLAT`/`FLAT_NO_DEPTH`, byte-packed `POSITION_COLOR`; never leave RenderSystem state/transforms damaged; hidden 1920×1080 screenshot required.
+- Mixins: each `*Mixin.java` must be in `linkenvisuals.mixins.json`; `MixinRegistrationTest` enforces. Do not target removed 1.21.11 names.
+- Flavors: default = Linken-only; `-Pstrange` = Strange-only. `StyleFlavor` is the single source. No cross-family style controls. Linken style lock and no Style/Editor buttons in LINKEN Settings.
+- i18n: new visible strings in en/ru/uk; `LangParityTest` green. Existing module/setting labels are raw English.
+- No Lombok, donor Module/Setting, legacy Render2D/WindowGuiRender, raw GL, Lottie/Skija, network/UserSyncManager, cosmetics catalog, crashers, Discord RPC, IAS. No empty catch/TODO/FIXME/System.out. No dead controls.
 
-## 6. Build and verification
+## 6. Build/run
 
 ```powershell
 cd source
-$env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'   # local JDK 21
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat test --console=plain --no-daemon
 .\gradlew.bat clean build --console=plain --no-daemon
-
 .\gradlew.bat test -Pstrange --console=plain --no-daemon
 .\gradlew.bat build -Pstrange --console=plain --no-daemon
 ```
 
-Expected baseline: **270+ tests**, 0 failures/errors/skips in both flavors.
+Expected: 281+ tests, 0 fail/error/skip each.
 
-Hidden autotest (requires explicit user permission):
+Hidden autotest (explicit permission only):
 
 ```powershell
 .\gradlew.bat runAutotest -PautotestWorld=AutoTestWorld -PautotestQuit --console=plain --no-daemon
 .\gradlew.bat runAutotest -Pstrange -PautotestWorld=AutoTestWorld -PautotestQuit --console=plain --no-daemon
 ```
 
-**Options workaround (important):** a full `run/options.txt` with `key_key.*` lines currently trips `OptionsKeyLwjgl3Fix` (NumberFormatException on e.g. `key.keyboard.g`), the game drops the file and resets `pauseOnLostFocus` to true. Before a hidden run, replace `run/options.txt` with the minimal file below; after the run restore the original. This is a dev-run/options issue, not a mod mixin issue.
+**Options workaround:** full `run/options.txt` with `key_key.*` currently trips `OptionsKeyLwjgl3Fix` and resets focus pause. Before a hidden run use:
 
 ```text
 version:4671
@@ -104,7 +93,7 @@ skipMultiplayerWarning:true
 tutorialStep:none
 ```
 
-Run the game minimized (or on a separate Windows desktop); do not leave it on the active desktop. Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`. Expected only offline-auth/Realms errors; no `Couldn't find source`/`Couldn't compile`, no mixin apply/injection errors, no unknown sound events.
+Restore the original `options.txt` afterwards. Run minimized or on a separate desktop; never leave the game on the active desktop. Expected log: only offline-auth/Realms; no shader-source/compile, mixin apply/injection, or unknown sound events.
 
 Jar hashes:
 
@@ -117,43 +106,44 @@ Get-ChildItem build\libs\linkenvisuals-*.jar |
 
 ```text
 source/src/main/java/dev/linkenvisuals/
-  module/impl/ViewModelModule.java      # D105 12 donor sliders + resolve/apply
-  mixin/HeldItemRendererMixin.java      # HandPose HEAD + ViewModel renderItem anchor
-  module/Modules.java                   # viewModel() accessor
-  LinkenVisuals.java                    # Modules.init() before ConfigManager.load()
-  autotest/AutoTestDriver.java          # viewmodel steps + screenshot
-  hud/HudManager.java, HudElement.java, HudStyle.java, HudSurface.java
-  hud/ArmorHud.java, CooldownsHud.java, InventoryHud.java
-  hud/CustomVitals*                     # does not exist yet; donor is hud/CustomVitalsBar.java
-  render/Pipelines.java, BlockOverlayPipelines.java
-  module/impl/ItemRadiusModule.java     # does not exist yet
-  util/optimization/*, util/particles/*, util/trajectories/*
+  player/FakePlayer.java                 # crit detection/damage/lastCrit
+  module/impl/HitSoundModule.java        # vanilla crit gate + critTrace
+  ui/linkmenu/LinkenMainMenuScreen.java  # welcome intro, account row, menu
+  ui/linkmenu/LinkenPauseScreen.java     # compact donor ESC panel
+  ui/linkmenu/LinkenMenuChrome.java      # shared chrome/icons
+  hands/HandMotion.java                  # Punchy-lite hand motion
+  hands/HandPose.java, HandEditor.java   # accepted free-form hand editor
+  mixin/HeldItemRendererMixin.java       # HandPose + ViewModel + HandMotion anchors
+  clickgui/ModuleRegistry.java           # Better Animations settings, HUD/i18n gates
+  module/impl/ViewModelModule.java       # 12 donor manual settings
+  hud/*                                  # HUD layer
+  autotest/AutoTestDriver.java           # welcome/pause/crit steps
 source/src/test/java/dev/linkenvisuals/
+  player/FakePlayerTest.java
+  module/impl/HitSoundModuleTest.java
+  hands/HandMotionTest.java
   module/impl/ViewModelModuleTest.java
-  hud/*Test.java, render/*GeometryTest.java, MixinRegistrationTest.java
+  ...
 ```
 
 ## 8. Known traps
 
-- Do not re-add the full `run/options.txt` key lines before a hidden run; use the minimal file above.
-- ViewModel must stay at the `renderItem` anchor; moving it to HEAD changes axes relative to vanilla equip/swing.
-- Do not apply ViewModel while `HandEditor.active()`; otherwise drag handles no longer match the rendered hand.
-- Object modules are now registered before config load. Do not move `Modules.init()` back after `ConfigManager.load()`, or their state stops persisting again.
-- `HandPose` persists separately in `linkenvisuals_hands.json`; ViewModel persists in the normal module profile. Do not merge the stores without a migration.
-- Particles billboards: raw pass only `DrawMode.TRIANGLES` (6 vertices), never `QUADS`.
-- Trajectory marker is procedural; do not restore donor `hit.png` raw sampling.
+- `HandMotion` and `ViewModel` both anchor at `renderFirstPersonItem -> INVOKE renderItem`; do not move them to HEAD, and skip both while `HandEditor.active()`.
+- FakePlayer crit must use the same gate for damage/sound/particles; don't force crit in production, only via the test overload.
+- `LinkenPauseScreen` must only replace `GameMenuScreen` in the Linken style. Strange/Vanilla must keep the vanilla pause.
+- `LinkenFonts.icons2()` glyphs are `MENU_ICON_*` (A-H), not legacy `ICON_*` (P/Q/...).
+- Welcome is procedural, not donor Lottie; full Punchy is not ported.
 - HUD defaults must not overlap at GUI scale 3; add autotest preview/check/screenshot.
-- Beta/Vanilla behavior and the compile-time family lock must not change.
+- Do not commit `build/`, `run/`, jars, logs, screenshots or temp files.
 
 ## 9. Definition of Done
 
-- Both `clean build` and `build -Pstrange` green, 270+ tests, 0 fail/error/skip.
-- Hidden autotest in both flavors with no new mod/shader/sound/mixin errors (only offline-auth/Realms).
-- New functionality really works; no dead controls.
-- New strings in en/ru/uk; `LangParityTest` green.
-- Jar path/size/SHA-256 recalculated locally; Russian report with visual/log evidence and manual checks.
+- Both builds green, 281+ tests, 0 fail/error/skip.
+- Both hidden autotests green, no new mod/shader/sound/mixin errors (only offline-auth/Realms).
+- No dead controls; new strings en/ru/uk; `LangParityTest` green.
+- Jars path/size/SHA-256 recalculated; Russian report with visual/log evidence and manual list.
 - Code commit (+1 patch) then docs commit, `git fetch` before commit, push to main without force.
 
 ## 10. First action
 
-Read `docs/HANDOFF.md` top, `docs/MERGE_DECISIONS.md` D95-D105, `docs/FEATURE_PARITY.md`, then inspect donor `hud/CustomVitalsBar.java` and `modules/impl/render/CustomVitals.java`. Decide whether to add the screen-anchored HUD layer (preferred, also unblocks Armor V2) or implement CustomVitals as a direct InGameHud overlay. Run baseline tests in both flavors before editing. Do not add dead settings.
+Read `docs/HANDOFF.md` top, `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` D105-D106, `docs/FEATURE_PARITY.md`. Run baseline tests in both flavors. Then start with the pixel GUI pass or the screen-anchored HUD layer; choose the one with the clearest donor evidence and do not add fake controls.
