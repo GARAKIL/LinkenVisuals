@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.136 / D112** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-24 · Target build: **v1.0.137 / D113** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -186,14 +186,23 @@ From `FEATURE_PARITY.md`, still open:
 - **Open:** donor Background Colour, Text Colour and BoostFPS are not exposed;
   donor per-offset fade interpolation is simplified.
 
-## 7. Verification for D101-D112
+## 6f. UI D113 — custom background/text colours
+
+- **Custom Theme Colours** master + `Background Colour` / `Text Colour`.
+- LinkGUI panel/row/field/text/backdrop are recoloured; `HudStyle.base()` uses
+  the custom background for HUD panels.
+- Screenshot `linkgui-custom-colours` at 1920×1080.
+- **Open:** BoostFPS is not exposed because donor `getBoostFpsMode()` always
+  returns DEFAULT; semantic HUD colours (health/armour) keep their own colours.
+
+## 7. Verification for D101-D113
 
 - `test` / `clean build`: 301 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip, 1920×1080;
+- Autotest Linken **1120/1120**, Strange **1110/1110**, 0 fail/skip, 1920×1080;
   `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius`,
-  `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`
-  and the fake-player crit assertion are part of the plan. No new
-  shader/mixin/sound errors; only offline-auth/Realms.
+  `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`,
+  `check custom UI colours` and the fake-player crit assertion are part of the
+  plan. No new shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact
   440 px panel with `icons2` glyphs and the `PAUSED` title.

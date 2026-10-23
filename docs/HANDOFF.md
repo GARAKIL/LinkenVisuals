@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-24 (D113 — UI background/text colours) — v1.0.137
+
+### Сделано
+1. **D113/v1.0.137**: Interface получил `Custom Theme Colours`, `Background Colour`, `Text Colour`. При включении `LinkGuiTheme` перекрашивает panel/row/field/text/backdrop от заданного background и text; `HudStyle.base()` использует `LinkGuiTheme.hudBase()` (кастомный background влияет на HUD-панели). Цвета применяются сразу, без перезапуска.
+2. **Проверки**: **301 тест**, 0 fail/error/skip; autotest Linken **1120/1120**, Strange **1110/1110**, 0 fail/skip; шаг `check custom UI colours` + screenshot `linkgui-custom-colours`. Новых ERROR/exception/shader/sound нет.
+3. **Commit**: `29ac193` `feat(ui): add custom background and text colours (v1.0.137, D113)`.
+4. **Сборка**: `linkenvisuals-1.0.137.jar` — 11 115 791 байт, SHA-256 `B2BA90210F3FEE21147A302A838444001FE4063075AB12CCB39A52C9D4D501BF`; `linkenvisuals-strange-1.0.137.jar` — 11 115 780 байт, SHA-256 `7D53F4FC6CC2A97761C05EE4C3E24F7DB4C9B538216B2ADCB2D6C76DCAB57533`.
+
+### Следующая задача
+1. **HelperItemsHud + Ft/Hw/Rw helper modules** (закрыть blocked HUD).
+2. **Punchy**: 181 класс / 62 261 строка; нужен отдельный этап, текущий HandMotion — только видимый subset.
+3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
+4. `DynamicIsland` остаётся skipped (donor сам скрывает его в Link style); `BoostFPS` у донора принудительно DEFAULT.
+
+### Риски
+- `Text Colour` применяется к LinkGUI-тексту/темам; HUD-текст с семантическими цветами (health/armor) сохраняет свои цвета.
+- Кастомный background влияет на HUD base, но не на все hardcoded акценты; pixel-diff открыт.
+- `BoostFPS` не выведен, потому что donor `getBoostFpsMode()` всегда возвращает DEFAULT.
+
 ## Состояние на 2026-10-23 (D112 — ItemRadius proximity labels) — v1.0.136
 
 ### Сделано

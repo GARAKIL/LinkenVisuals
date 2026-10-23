@@ -125,6 +125,7 @@
 - [x] **M8.35 — donor SelfNametags**, v1.0.134, D110: donor self-label toggle wired to StreamerMode sanitizer for the local player only; `check self nametag` autotest; **300 тестов**, Linken 1093/1093, Strange 1083/1083.
 - [x] **M8.36 — UI palette/fade/blur**, v1.0.135, D111: Secondary Colour, Theme Fade, GUI Blur in Interface; fade-off collapse and real no-blur LinkGUI/ClickGUI; `linkgui-noblur` screenshot; **300 тестов**, Linken 1106/1106, Strange 1096/1096.
 - [x] **M8.37 — ItemRadius splash proximity labels**, v1.0.136, D112: `NN%` over players inside the simulated splash radius, donor 1−dist/radius formula, screen-space MSDF; **301 тест**, Linken 1106/1106, Strange 1096/1096.
-- [ ] **M8.17 — full donor visual parity remainder** — HelperItems/DynamicIsland (blocked/neutralized by Link style), ViewModel Animated, full Punchy, remaining UI background/text/BoostFPS, pixel GUI pass, human sound/visual acceptance, multiplayer custom-tab check.
+- [x] **M8.38 — UI background/text colours**, v1.0.137, D113: Custom Theme Colours master, Background/Text colours, LinkGUI palette + HUD base; `linkgui-custom-colours` screenshot; **301 тест**, Linken 1120/1120, Strange 1110/1110.
+- [ ] **M8.17 — full donor visual parity remainder** — HelperItems/DynamicIsland (blocked/neutralized by Link style), ViewModel Animated, full Punchy, BoostFPS, pixel GUI pass, human sound/visual acceptance, multiplayer custom-tab check.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

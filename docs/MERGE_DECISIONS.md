@@ -1052,3 +1052,11 @@
 - **Сборка**: `linkenvisuals-1.0.136.jar` (11 114 360 байт, SHA-256 `BE5548AC383B83A7FD87A7E89718D58579B423B17BAD732440E7461223617770`); `linkenvisuals-strange-1.0.136.jar` (11 114 354 байта, SHA-256 `22E5E32CBEAA916D4092EA7DCF1F87B3488402E797ED03201EA819E2576438CB`).
 - **Commit**: `26b843e` `feat(world): port ItemRadius splash proximity labels (v1.0.136, D112)`.
 - **Остаток**: live multiplayer/team check; pixel diff.
+
+## 2026-10-24 · D113 · UI background/text colours — v1.0.137
+- **Interface**: `Custom Theme Colours` (master), `Background Colour`, `Text Colour`. `LinkGuiTheme.refreshCustom()` перекрашивает PANEL/ROW/FIELD/TEXT/BACKDROP; `hudBase()` отдаёт кастомный background в `HudStyle`, поэтому HUD-панели тоже меняются.
+- **Применение**: master callback вызывает `LinkGuiTheme.apply(preset)`; `LinkGuiScreen.drawBackdrop`/`ClickGuiScreen.renderBackground` дополнительно вызывают `refreshCustom()` каждый кадр, чтобы color picker работал без перезапуска.
+- **Проверки**: **301 тест**, 0 fail/error/skip; autotest Linken **1120/1120**, Strange **1110/1110**, `check custom UI colours` + `linkgui-custom-colours` screenshot. Новых ERROR/exception/shader/sound нет.
+- **Сборка**: `linkenvisuals-1.0.137.jar` (11 115 791 байт, SHA-256 `B2BA90210F3FEE21147A302A838444001FE4063075AB12CCB39A52C9D4D501BF`); `linkenvisuals-strange-1.0.137.jar` (11 115 780 байт, SHA-256 `7D53F4FC6CC2A97761C05EE4C3E24F7DB4C9B538216B2ADCB2D6C76DCAB57533`).
+- **Commit**: `29ac193` `feat(ui): add custom background and text colours (v1.0.137, D113)`.
+- **Остаток**: BoostFPS (donor force DEFAULT), semantic HUD colours, pixel diff.
