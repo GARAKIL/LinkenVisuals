@@ -2,6 +2,16 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D106a — fake-player attack charge) — v1.0.130
+
+### Сделано
+1. **D106a/v1.0.130** (`8b0bc41`): `FakePlayer.damageOf` теперь берёт текущий `getAttackCooldownProgress(0.5f)`, а не время с предыдущего удара; раньше первый удар после `hitAt` всегда считался почти нулевым charge и наносил только 20% урона. Теперь полный charge-logic + 1.5× crit работают на первом и последующих ударах.
+2. **Проверки**: **281 тест**, clean build и `-Pstrange` зелёные; autotest Linken **953/953** (1.0.130), Strange **943/943** (1.0.129; D106a не меняет UI/шаги), 0 fail/skip.
+3. **Сборка**: `linkenvisuals-1.0.130.jar` — 11 047 843 байта, SHA-256 `1FFE8177B1A4D5F2F454835A092AF4ECE86E0652AF4749D69B1F21464286968B`; `linkenvisuals-strange-1.0.130.jar` — 11 047 838 байт, SHA-256 `2B8ADEDA0BD6C5E544BA463A3D6DA4F47F9650C4DA7FC0C1328B2A05EA14C11C`.
+
+### Следующая задача
+См. D106 ниже: pixel GUI pass, screen-anchored HUD, Punchy-lite expansion.
+
 ## Состояние на 2026-10-23 (чат №60 — audit fixes: crits/Welcome/ESC/animations, D106) — v1.0.129
 
 ### Сделано

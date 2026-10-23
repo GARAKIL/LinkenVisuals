@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.129 / D106** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.130 / D106a** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -23,6 +23,8 @@
   crit sound/particle path.
 - `ClientPlayerInteractionManagerMixin` plays the hit sound only after the
   fake-player branch (no duplicate sound).
+- **D106a:** damage uses the current `getAttackCooldownProgress(0.5f)` instead
+  of `sinceHit`, so the first full-charge hit no longer deals only 20%.
 - Pure tests: `FakePlayerTest` (damage curve) and `HitSoundModuleTest`
   (crit rules).
 
