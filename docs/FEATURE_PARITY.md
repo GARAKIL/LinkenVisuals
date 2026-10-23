@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.119**, 2026-10-23. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.120**, 2026-10-23. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -65,14 +65,14 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `CooldownsHud` (D95), `ArmorHud` (D95, V1), `InventoryHud` (D95),
 `LowArmorNotificationsHud` (D95), `HelperItemsHud` (blocked),
 `DynamicIsland`, `CustomHitBox`, `CustomVitals`, `DamageParticles`,
-`FortniteDamage`, `HitRange`, `ItemRadius`, `NoRender`, `Optimization`,
+`FortniteDamage`, `HitRange`, `ItemRadius`, `Optimization`,
 `Particles`, `Trajectories`, `KillStreak` (visual module; sound streak is
 implemented), `ViewModel` (only HandPose subset), `SelfNametags` (our
 NameTags is not a line-by-line port), full `UI` colour/fade/blur/BoostFPS
 controls.
 
 Covered: `CameraSettings` is implemented by `Better Animations` →
-`Animations.perspective`; `AspectRatio` is ported in D96.
+`Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 (8 donor switches).
 
 ### Intentionally excluded donor modules
 
@@ -90,8 +90,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **239 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **730/730 steps**, no new ERROR/exception, no shader
+- `clean build`: **240 tests / 0 failures / 0 errors / 0 skips**.
+- Hidden `runAutotest`: **749/749 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. A separate frame-capture 1280×720 confirms the LINKEN
   splash replaces the Mojang logo from the first frame.

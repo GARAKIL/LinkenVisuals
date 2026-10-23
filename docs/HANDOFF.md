@@ -2,6 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №51 — donor NoRender, D97) — v1.0.120
+
+### Сделано
+1. **D97/v1.0.120** (`5a6b48d`): donor `NoRender` module (Visual/World, default OFF) — Hurt Camera, Fire, Totem Pop, Scoreboard, Boss Bar, Particles, Armor, Inventory Background.
+2. **Mixins**: hurt camera/totem, fire overlay, bossbar, particle render, armor layers, vanilla sidebar, HandledScreen background; `ScoreboardHud` скрывается при NoRender scoreboard.
+3. **Проверки**: **240 тестов, 0 падений**; скрытый autotest **749/749**, 1920×1080, ошибок нет.
+4. **Сборка**: jar `linkenvisuals-1.0.120.jar` (10 785 684 байта, SHA-256 `48CC40CE7C19456A4C10D9E18E243AFFC855EF50F234CE0BC9BB32ED29B056DC`).
+
+### Следующая задача
+- HitRange (renderer не принят из-за артефактов), CustomHitBox, Optimization, Particles, Trajectories, visual KillStreak, full ViewModel/Hands.
+- HUD: HelperItems (blocked), DynamicIsland (donor скрывает в Link), Armor V2.
+- Human: cooldown ticks, RU/UA/AZERTY/QWERTZ, low-armor, multiplayer tab, pixel diff.
+
+### Риски
+- NoRender armor скрывает все armor-слои, включая Rudy-исключение (как donor-toggle).
+- Particles скрывает только vanilla `ParticleManager`, не наши custom renderers.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №50 — donor Aspect Ratio, D96) — v1.0.119
 
 ### Сделано

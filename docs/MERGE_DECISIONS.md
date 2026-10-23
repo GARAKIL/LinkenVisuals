@@ -796,6 +796,14 @@
 - **Commit**: `9849613` `feat(render): port donor aspect ratio module (v1.0.119, D96)`.
 - **Остаток**: CameraSettings закрыт существующим Better Animations; далее CustomHitBox/HitRange/NoRender/Optimization/Particles/Trajectories/KillStreak/ViewModel и HUD-остатки из `FEATURE_PARITY.md`.
 
+## 2026-10-23 · D97 · Donor NoRender switches — v1.0.120
+- **NoRender**: портированы 8 donor-переключателей: hurt camera, fire, totem pop, scoreboard, boss bar, particles, armor, inventory background. Модуль Visual/World, default OFF; настройки с donor-defaults.
+- **Mixins**: `GameRendererMixin` — `tiltViewWhenHurt`/`showFloatingItem`; новый `InGameOverlayRendererMixin` — fire; `BossBarHudMixin` — bossbar; `ParticleManagerMixin` — `renderParticles`; `ArmorFeatureRendererMixin` — все armor-слои; `InGameHudMixin` — vanilla sidebar; `ScreenMixin` — `HandledScreen` background. `ScoreboardHud` также скрывается при NoRender scoreboard.
+- **Проверки**: **240 тестов, 0 падений/ошибок/скипов**; скрытый autotest **749/749**, 1920×1080; новых ERROR/exception, shader-source и unknown-sound-event ошибок нет. Модуль/настройки прогоняются autotest-свипом.
+- **Сборка**: jar `linkenvisuals-1.0.120.jar` (10 785 684 байта, SHA-256 `48CC40CE7C19456A4C10D9E18E243AFFC855EF50F234CE0BC9BB32ED29B056DC`).
+- **Commit**: `5a6b48d` `feat(render): port donor no-render switches (v1.0.120, D97)`.
+- **Остаток**: HitRange (renderer не принят), CustomHitBox, Optimization, Particles, Trajectories, visual KillStreak, full ViewModel/Hands; HUD-остатки и human acceptance.
+
 ## 2026-10-22 · D87 · Donor TargetHud — v1.0.110
 - **Геометрия**: `TargetHud` повторяет donor-карточку `104×30` (+`25 px` ряд offhand/брони): head `20`, padding/gap `4`, item cell `15`/gap `4`, name `7.6`, HP `6.6`, durability `4.6`, bar `2`; панель идёт через `HudSurface`/`HudStyle`, поэтому все 8 стилей, shape и border smoothness применяются без отдельных констант.
 - **Выбор цели**: crosshair-entity в радиусе `3.5`, затем aim-cone с расширением hitbox `0.75` и LOS-рейкастом; последняя цель удерживается `1000 мс`; отсекаются self, invisible/invisibility, friends (LinkGUI `friends`); в HUD edit-mode/чате рисуется self-preview.
