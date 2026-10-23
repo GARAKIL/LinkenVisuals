@@ -89,5 +89,5 @@
 - **M8.37 — ItemRadius splash proximity labels — ✅ v1.0.136, D112.** `NN%` over players inside the simulated splash radius, donor formula, screen-space MSDF; **301 тест**, Linken 1106/1106, Strange 1096/1096.
 - **M8.38 — UI background/text colours — ✅ v1.0.137, D113.** Custom Theme Colours master, Background/Text colours, LinkGUI palette + HUD base; **301 тест**, Linken 1120/1120, Strange 1110/1110, `linkgui-custom-colours` screenshot. BoostFPS open.
 - **M8.39 — HelperItemsHud + Ft/Hw/Rw — ✅ v1.0.138, D114.** Helper hotbar-selection modules, key dispatch, 18 px item/key HUD with preview; **304 теста**, Linken 1136/1136, Strange 1126/1126, `helper-items` screenshot. Mouse bindings open.
-- **M8.17 — full donor visual parity — ⛔ открыто.** DynamicIsland, ViewModel Animated, full Punchy, BoostFPS, helper mouse bindings, pixel GUI pass; human sound/visual acceptance; multiplayer custom-tab.
+- **M8.17 — full donor visual parity — ⛔ открыто.** DynamicIsland, BoostFPS, helper mouse bindings; human sound/visual acceptance; multiplayer custom-tab. **Punchy/ViewModel Animated исключены пользователем (2026-10-24), HandMotion — финальный subset.**
 - M1-fallback'и закрыты: Multiplayer и Settings теперь LINKEN; Alt Manager остаётся нашим существующим экраном (IAS донора не портируется); unported-экраны используют vanilla chrome через `StyleRouting.usesVanillaChrome`.

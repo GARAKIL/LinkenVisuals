@@ -1067,4 +1067,9 @@
 - **Проверки**: `HelperModulesTest` (3), всего **304 теста**, 0 fail/error/skip; autotest Linken **1136/1136**, Strange **1126/1126**, `check helper hud` + `helper-items` screenshot.
 - **Сборка**: `linkenvisuals-1.0.138.jar` (11 129 420 байт, SHA-256 `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`); `linkenvisuals-strange-1.0.138.jar` (11 129 420 байт, SHA-256 `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`).
 - **Commit**: `c1c2a14` `feat(hud): port HelperItemsHud and Ft/Hw/Rw helpers (v1.0.138, D114)`.
-- **Остаток**: mouse bindings (key-only), Punchy, DynamicIsland, pixel diff.
+- **Остаток**: mouse bindings (key-only), DynamicIsland, pixel diff.
+
+## 2026-10-24 · Scope decision · Punchy excluded
+- **Решение пользователя**: полный **Punchy** (181 класс / 62 261 строка) и Punchy-зависимый `ViewModel Animated` **не портируем**. Это не open item и не «следующий этап».
+- **Принятая замена**: `HandMotion` (walk/sprint/water/fall/attack) остаётся финальным subset; `ViewModel` manual offsets (D105) сохраняются.
+- **Следствие**: `FEATURE_PARITY.md`, `ROADMAP.md`, `PORT_STATUS.md`, `NEXT_CHAT_PROMPT.md`, `VISUAL_AUDIT.md` не должны числить Punchy среди незакрытых задач. Упоминания Punchy в исторических D-записях остаются как история.

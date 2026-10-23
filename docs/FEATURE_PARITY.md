@@ -68,7 +68,7 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `StreamerMode`, `TotemTracker`, `UseTracker`, `Waypoints`, `ElytraSwap`,
 `HandSwap`, `Sounds`, `HitRange`, `CustomHitBox`, `Optimization`, `Particles`,
 `Trajectories`, `KillStreak` (visual card D104), `ViewModel` manual offsets
-(D105), `Hand Motion` Punchy-lite subset (D106), `CustomVitals`/Armor V2 (D107),
+(D105), `HandMotion` final subset (D106), `CustomVitals`/Armor V2 (D107),
 `ItemRadius` (D108; splash proximity labels D112), `DamageParticles`/`FortniteDamage` (D109),
 `SelfNametags` toggle (D110), Interface palette/fade/blur/background/text (D111/D113),
 `HelperItemsHud`/Ft/Hw/Rw helpers (D114), cosmetics/pets subset,
@@ -76,10 +76,14 @@ filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
-`DynamicIsland`,
-`ViewModel` animated Punchy mode (the twelve manual donor
-offsets/scale settings are ported in D105; D106 adds only a lightweight
-Hand Motion subset), remaining `UI` BoostFPS control.
+`DynamicIsland`, remaining `UI` BoostFPS control.
+
+### Excluded by scope (not open items)
+
+Full **Punchy** (181 classes / 62 261 lines) and Punchy-dependent
+`ViewModel Animated` are explicitly excluded by the user (2026-10-24).
+`HandMotion` is the final accepted subset; manual `ViewModel` offsets remain
+ported in D105.
 
 Covered: `CameraSettings` is implemented by `Better Animations` →
 `Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 and its

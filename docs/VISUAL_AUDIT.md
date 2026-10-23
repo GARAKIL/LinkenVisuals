@@ -89,9 +89,10 @@ custom walk, fall arm animation). Our port intentionally did not copy its
   skipped while HandEditor is active.
 - Pure tests in `HandMotionTest`.
 
-**Open:** full Punchy item animation set (bedrock item models, third-person
-animations, per-item clips, swim/elytra/crawl poses) is not ported. Do not
-claim full Punchy parity.
+**Excluded by scope (2026-10-24):** full Punchy item animation set (bedrock
+item models, third-person animations, per-item clips, swim/elytra/crawl poses)
+is not ported. `HandMotion` is the final accepted subset; Punchy is not an
+open task.
 
 ## 5. GUI / main menu small differences
 
@@ -120,10 +121,10 @@ claim full Punchy parity.
 ## 6. Other explicit parity gaps
 
 From `FEATURE_PARITY.md`, still open:
-`HelperItemsHud` (blocked on donor Ft/Hw/Rw helper modules),
 `DynamicIsland` (donor hides it for Link style; media covered),
-`ItemRadius`, `DamageParticles`, `FortniteDamage`, line-by-line
-`SelfNametags`, full Punchy, and full `UI` colour/fade/blur/BoostFPS.
+helper mouse bindings, and BoostFPS (donor force DEFAULT).
+**Punchy and Punchy-dependent ViewModel Animated are excluded by user
+(2026-10-24); HandMotion is final.**
 
 ## 6a. HUD D107 — CustomVitals + Armor V2 (fixed)
 
@@ -203,7 +204,8 @@ From `FEATURE_PARITY.md`, still open:
 - Screenshot `helper-items` at 1920×1080 and 1280×720.
 - 1280×720 autotest: Linken **1136/1136**; LinkGUI/custom-vitals/helper-items
   layouts fit at that resolution.
-- **Open:** mouse bindings, Punchy engine, DynamicIsland, human pixel acceptance.
+- **Open:** mouse bindings, DynamicIsland, human pixel acceptance.
+- **Punchy is out of scope** (user decision 2026-10-24); HandMotion is final.
 
 ## 7. Verification for D101-D114
 

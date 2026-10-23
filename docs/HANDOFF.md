@@ -1,6 +1,8 @@
 # HANDOFF — эстафета между чатами
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
+>
+> **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
 ## Состояние на 2026-10-24 (D114 — HelperItemsHud + Ft/Hw/Rw) — v1.0.138
 
@@ -11,15 +13,14 @@
 4. **Сборка**: `linkenvisuals-1.0.138.jar` — 11 129 420 байт, SHA-256 `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`; `linkenvisuals-strange-1.0.138.jar` — 11 129 420 байт, SHA-256 `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`.
 
 ### Следующая задача
-1. **Punchy** (181 класс / 62 261 строка) — отдельный этап; текущий HandMotion только видимый subset.
-2. **DynamicIsland** (1496 + 1043 строк helper) — donor сам скрывает его в Link style, но для 100% нужен порт.
-3. **Mouse-бинды helper-модулей** (сейчас key-only; donor поддерживает ЛКМ/ПКМ).
-4. **Pixel GUI pass** 1280×720/1920×1080; human acceptance; BoostFPS donor-DEFAULT.
+1. **DynamicIsland** (1496 + 1043 строк helper) — donor сам скрывает его в Link style; порт нужен только для полного vanilla/Strange-паритета.
+2. **Mouse-бинды helper-модулей** (сейчас key-only; donor поддерживает ЛКМ/ПКМ).
+3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance; BoostFPS donor-DEFAULT.
 
 ### Риски
 - HelperItemsHud — key-only; mouse bindings donor не портированы.
 - `HelperItemsHud` показывает только реально найденные hotbar-предметы; preview показывает samples.
-- `DynamicIsland`/Punchy остаются крупными незакрытыми блоками, 100% пока не достигнуто.
+- `DynamicIsland` остаётся крупным незакрытым блоком; **Punchy исключён из scope** и не считается остатком.
 
 ## Состояние на 2026-10-24 (D113 — UI background/text colours) — v1.0.137
 
