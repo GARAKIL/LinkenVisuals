@@ -32,7 +32,7 @@
 
 ### Следующая задача
 1. **HelperItemsHud + Ft/Hw/Rw helper modules** (закрыть blocked HUD).
-2. **Punchy**: 181 класс / 62 261 строка; нужен отдельный этап, текущий HandMotion — только видимый subset.
+2. **Punchy исключён из scope** (2026-10-24); `HandMotion` — финальный subset, не open item.
 3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
 4. `DynamicIsland` остаётся skipped (donor сам скрывает его в Link style); `BoostFPS` у донора принудительно DEFAULT.
 
@@ -51,7 +51,7 @@
 
 ### Следующая задача
 1. **UI background/text colours + BoostFPS** (остаток donor UI); BoostFPS у донора принудительно DEFAULT.
-2. **Punchy-lite expansion** (climb/elytra/item idle); full Punchy remains open.
+2. **Punchy-lite expansion не планируется**: Punchy исключён из scope; HandMotion финальный.
 3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
 4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
