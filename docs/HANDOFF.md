@@ -2,6 +2,29 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №54 — compile-time Strange/Linken flavors, D100) — v1.0.123
+
+### Сделано
+1. **D100/v1.0.123**: добавлен compile-time flavor. Обычная сборка (`.\gradlew.bat build`) — **только Linken**: Linken main menu, Link GUI, 8 Linken HUD styles/3 shapes; Classic/Beta/Vanilla стили недоступны. Сборка `.\gradlew.bat build -Pstrange` — **только StrangeVisuals**: Vanilla/Beta menu (default Vanilla), Classic/Beta ClickGUI (default Classic), legacy Strange HUD; Linken-стиль недоступен.
+2. **BuildFlavor**: `build.gradle` генерирует `dev.linkenvisuals.BuildFlavor` (`NAME`, `STRANGE`) в `build/generated/sources/buildFlavor/java`; jar-имена `linkenvisuals-1.0.123.jar` и `linkenvisuals-strange-1.0.123.jar`. Флаг также принимает `-Pstrange=true`; `-Pstrange=false` = обычная сборка.
+3. **StyleFlavor**: единая таблица разрешённых GUI/menu/HUD-стилей. `ModuleRegistry.guiStyle/hudStyle/hudShape` строятся из неё; `setGuiStyle`, `cycleGuiStyle`, `StyleManager.setStyle/setStyleSilently`, загрузка `menuStyle` из конфига и кнопки редактора меню проходят sanitize. Сохранённый конфиг другого семейства при загрузке молча заменяется default-стилем этого jar.
+4. **Strange HUD**: `HudStyle.Variant.LEGACY` восстанавливает pre-D83 `HudSurface` (glass + body `0x0E0F14` + NeonEdge). В Strange build `HudStyle.variant()` всегда LEGACY, `shape()` всегда ROUNDED; `HUD Style`/`HUD Shape` не выводятся в ClickGUI (нет мёртвых контролов).
+5. **UI**: в Linken build кнопки style-toggle и menu editor в Video Settings скрыты; в Strange build они показываются, editor рисует только Beta/Vanilla. `TitleScreen` в Strange default — ванильный с edition-текстом `STRANGE VISUALS`; в Linken — LinkenMainMenuScreen.
+6. **Проверки**: **253 теста** в каждой сборке (0 fail/error/skip; +3 `StyleFlavorTest`). Скрытые прогоны: Linken **797/797**, `Active Style: Linken`; Strange **787/787**, `Active Style: Vanilla`; 1920×1080, 0 fail/skip. Новых ERROR/exception/shader/sound нет, только прежние offline-auth/Realms.
+7. **Сборка**: `linkenvisuals-1.0.123.jar` — 10 812 034 байта, SHA-256 `B5F5EC47870E9B7E7418D10BFB5810CA1CA9065ABBF664D409375A34D6A2D7BD`; `linkenvisuals-strange-1.0.123.jar` — 10 812 031 байт, SHA-256 `E220F083045F7BF99AAD82E42CCA99FDD94CE8649B8917DE5B31E2EDFE64F4FF`.
+
+### Следующая задача
+1. **Optimization** — donor Tier Low/Medium/Ultra, entity culling, render-distance cap, particle distance culling, transparency/cloud logic; только поведение, работающее на 1.21.11.
+2. Затем Particles / Trajectories / visual KillStreak / full ViewModel/Hands.
+3. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2.
+4. Human: проверить оба jar в реальном запуске (Linken-стиль и Strange Vanilla/Classic/legacy HUD), переключение конфигов между flavor, живые cooldown-тики, раскладки, multiplayer custom tab, pixel diff.
+
+### Риски
+- Strange HUD — восстановленный pre-D83 glass/neon слой; визуальная приёмка выполнена скриншотами 1920×1080, но пиксельный diff с оригинальным StrangeVisuals не заявлен.
+- Strange build разрешает Beta как второй menu-стиль и Beta как второй ClickGUI; Linken полностью заблокирован. Если нужен строго один Vanilla/Classic, это отдельное решение.
+- Оба jar имеют один mod id (`linkenvisuals`); одновременно в mods их ставить нельзя.
+- Полный donor parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №53 — NoRender mixin registration fix, D99) — v1.0.122
 
 ### Сделано

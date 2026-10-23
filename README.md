@@ -38,7 +38,7 @@
 
 ### 🖥️ 100% Custom UI Suite, Menu Editor & Presets
 - **Interactive Main Menu Editor**: Full in-game visual editor (accessible via Settings -> Style tab). Drag and drop buttons, scale elements with mouse wheel or resize handles, customize background photos (PNG/JPG), and toggle custom GLSL shader overlays.
-- **3 Visual Styles**: Switch in Settings -> Video between **`Beta`** (flagship dark-slate frosted glass), **`Vanilla`** (authentic enhanced Minecraft chrome), and **`Linken`** (fixed editorial main menu with tower artwork, Golos/Unbounded typography, and a live media card). Linken currently covers the main menu; splash/loading/connect, Link GUI, pause/settings, and the Linken multiplayer browser follow in later phases.
+- **Compile-time style families**: The default jar is **Linken-only** (Linken main menu, Link GUI, Linken HUD styles). Build with `gradlew build -Pstrange` for the **StrangeVisuals-only** jar (`linkenvisuals-strange-<version>.jar`): Vanilla/Beta menu, Classic/Beta ClickGUI, and the legacy Strange HUD. The other family is not selectable at runtime.
 - **Custom Background Photos & Shader Overlays**: Drop your wallpaper into `.minecraft/linkenvisuals/background.png` or pick a custom image path, with live dimming and shaders (Bloom Pulse, Starfield particles, Radial waves, Film grain).
 - **Custom Main Menu**: Fully styled interactive dashboard with user skin rendering, spring-physics hover animations, and direct Mod Menu integration.
 - **Custom Multiplayer Browser**: Asynchronous server list with live pinging, latency indicators, MOTD rendering, smooth scrolling, and inline modals for Direct Connect and Add/Edit Server.
@@ -58,6 +58,16 @@
 - **Mod Menu Integration**: Seamless button integrated into both the custom title screen and system settings.
 
 ---
+
+## 🛠️ Build flavors
+
+```powershell
+cd source
+.\gradlew.bat build                 # Linken-only jar: build/libs/linkenvisuals-<version>.jar
+.\gradlew.bat build -Pstrange       # Strange-only jar: build/libs/linkenvisuals-strange-<version>.jar
+```
+
+The flavor is compiled in; it cannot be changed from settings, configs or hotkeys. The default build exposes **Linken** menu/GUI/HUD only. `-Pstrange` exposes **StrangeVisuals**: Vanilla/Beta menu, Classic/Beta ClickGUI and the legacy Strange HUD, with no Linken style switch.
 
 ## ⌨️ Controls & Keybindings
 

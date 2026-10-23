@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.122**, 2026-10-23. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.123**, 2026-10-23. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -11,6 +11,12 @@ following donor subsystems are intentionally outside the port (D6, D19, D52
 and the original master prompt): network/`UserSyncManager`, Crasher, Discord
 RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 `WindowGuiRender`/`Render2D`/raw GL, and the Lottie welcome screen.
+
+## Build flavors
+
+- **Default build**: Linken-only — Linken main menu, Link GUI, all 8 Linken HUD styles.
+- **`-Pstrange`**: StrangeVisuals-only — Vanilla/Beta menu (default Vanilla), Classic/Beta ClickGUI (default Classic), legacy Strange HUD.
+- Both are compile-time locks: saved configs, hotkeys and editor buttons cannot enable the other family. See `StyleFlavor` / `BuildFlavor`.
 
 ## Screens and UI
 
@@ -91,13 +97,16 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **250 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **799/799 steps**, no new ERROR/exception, no shader
+- `clean build`: **253 tests / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **797/797**, Strange **787/787**, no new
+  ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
   screenshots at 1920×1080. D99 fixed and registered the bossbar/fire/particle
-  NoRender mixins; `MixinRegistrationTest` now guards the mixin config.
-  A separate frame-capture 1280×720 confirms the
+  NoRender mixins; `MixinRegistrationTest` now guards the mixin config. D100
+  adds the compile-time flavor lock; the Strange run shows the vanilla
+  `STRANGE VISUALS` title and legacy HUD, while the Linken run keeps the
+  Linken menu/HUD. A separate frame-capture 1280×720 confirms the
   LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
@@ -114,6 +123,6 @@ not silently faked; no dead controls are exposed for them.
 
 The **LinkGUI + title + settings + HUD material/shape + TargetHud +
 CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab +
-HitRange + CustomHitBox** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+HitRange + CustomHitBox + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

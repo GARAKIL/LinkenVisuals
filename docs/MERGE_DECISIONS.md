@@ -915,3 +915,14 @@
 - **Сборка**: jar `linkenvisuals-1.0.122.jar` (10 805 739 байт, SHA-256 `F1BFDBE9C4652017A2DE563CBE0B670C6CA560C4F95D015698A57809F5F4890A`).
 - **Commit**: `ed53c0a` `fix(render): register NoRender bossbar/fire/particle mixins (v1.0.122, D99)`.
 - **Остаток**: живой прогон с боссом/огнём/частицами — human; кастомные world-render эффекты NoRender particles не скрывает (как donor).
+
+## 2026-10-23 · D100 · Compile-time Strange/Linken flavors — v1.0.123
+- **Flavor**: обычная сборка — только Linken (Linken main menu, Link GUI, 8 HUD styles, 3 shapes); `.\gradlew.bat build -Pstrange` — только StrangeVisuals (Vanilla/Beta menu default Vanilla, Classic/Beta ClickGUI default Classic, legacy Strange HUD). Флаг `-Pstrange=false` возвращает Linken. Семейства не смешиваются в одном jar.
+- **BuildFlavor**: Gradle-задача `generateBuildFlavor` пишет `dev.linkenvisuals.BuildFlavor` (`NAME`, `STRANGE`) в `build/generated/sources/buildFlavor/java`; `compileJava` зависит от неё. Jar-имена: `linkenvisuals-<ver>.jar` / `linkenvisuals-strange-<ver>.jar`.
+- **StyleFlavor**: таблица `Rules` для GUI/menu/HUD/shape. Linken: `[Linken]`, `[LINKEN]`, 8 HUD styles, 3 shapes. Strange: `[Classic,Beta]` default Classic, `[BETA,VANILLA]` default Vanilla, `[Strange]`, `[Rounded]`. `ModuleRegistry` строит ModeSetting-опции из неё; `setGuiStyle/cycleGuiStyle`, `StyleManager`, ConfigManager-загрузка и editor-кнопки проходят sanitize, поэтому сохранённый Linken-конфиг в Strange jar даёт Vanilla/Classic/legacy, и наоборот.
+- **HUD**: `HudStyle.Variant.LEGACY` восстанавливает pre-D83 `HudSurface` (glass + `0x0E0F14` + NeonEdge); в Strange build variant/shape принудительно LEGACY/ROUNDED, а `HUD Style`/`HUD Shape` не выводятся в ClickGUI. Linken build сохраняет все 8 donor styles.
+- **UI**: в Linken build Video Settings не показывает style-toggle и menu editor; в Strange показывает, editor рисует только Beta/Vanilla. Strange default title — vanilla с edition-текстом `STRANGE VISUALS`; Linken default — `LinkenMainMenuScreen`.
+- **Evidence**: **253 теста** в обеих сборках (0 fail/error/skip, +3 `StyleFlavorTest`); Linken autotest **797/797**, Strange **787/787**, 0 fail/skip, 1920×1080; логи `Active Style: Linken` / `Active Style: Vanilla`; новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+- **Сборка**: `linkenvisuals-1.0.123.jar` (10 812 034 байта, SHA-256 `B5F5EC47870E9B7E7418D10BFB5810CA1CA9065ABBF664D409375A34D6A2D7BD`); `linkenvisuals-strange-1.0.123.jar` (10 812 031 байт, SHA-256 `E220F083045F7BF99AAD82E42CCA99FDD94CE8649B8917DE5B31E2EDFE64F4FF`).
+- **Commit**: `10606a2` `feat(build): add compile-time StrangeVisuals flavor (v1.0.123, D100)`.
+- **Остаток**: Strange HUD — восстановленный legacy-слой, не 100% pixel parity с оригиналом; human-приёмка обоих jar; Optimization/Particles/Trajectories/KillStreak/ViewModel.
