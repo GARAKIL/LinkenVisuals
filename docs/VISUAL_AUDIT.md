@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.132 / D108** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.133 / D109** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -152,13 +152,25 @@ From `FEATURE_PARITY.md`, still open:
 - **Open:** donor `%` labels over players in the splash radius (MSDF world
   text) are not ported; only the colour reaction is.
 
-## 7. Verification for D101-D108
+## 6c. Combat D109 — DamageParticles + FortniteDamage (fixed)
 
-- `test` / `clean build`: 289 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip, 1920×1080;
-  `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius` and the
-  fake-player crit assertion are part of the plan.
-  No new shader/mixin/sound errors; only offline-auth/Realms.
+- **DamageParticles**: legacy impact burst (30, 2.1–2.8 s, bounce/friction/LOS,
+  glow/core/sparkle layers) plus decorative attack burst (35) and projectile
+  trail (4 per moving arrow/trident/ender pearl), six donor modes.
+- **FortniteDamage**: HP-difference sampling up to 750 ms, kill estimate from
+  attack damage, 850 ms lifetime, 0.42 rise, crit #FCFE3C, theme/custom colour.
+- **Difference:** the donor 3D billboard is replaced by a camera-projected
+  screen-space MSDF pass, so digits stay readable and ignore terrain depth.
+- **Open:** exact donor 3D billboard parity, server HP-sync limitation, pixel
+  diff/human acceptance.
+
+## 7. Verification for D101-D109
+
+- `test` / `clean build`: 299 tests, 0 failures/errors/skips in both flavors.
+- Autotest Linken **1087/1087**, Strange **1077/1077**, 0 fail/skip, 1920×1080;
+  `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius`,
+  `damage-number`, `damage-visuals` and the fake-player crit assertion are part
+  of the plan. No new shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact
   440 px panel with `icons2` glyphs and the `PAUSED` title.

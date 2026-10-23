@@ -69,12 +69,12 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `HandSwap`, `Sounds`, `HitRange`, `CustomHitBox`, `Optimization`, `Particles`,
 `Trajectories`, `KillStreak` (visual card D104), `ViewModel` manual offsets
 (D105), `Hand Motion` Punchy-lite subset (D106), `CustomVitals`/Armor V2 (D107),
-`ItemRadius` (D108), cosmetics/pets subset, filters/ambience subset.
+`ItemRadius` (D108), `DamageParticles`/`FortniteDamage` (D109),
+cosmetics/pets subset, filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
-`HelperItemsHud` (blocked), `DynamicIsland`, `DamageParticles`,
-`FortniteDamage`,
+`HelperItemsHud` (blocked), `DynamicIsland`,
 `ViewModel` animated Punchy mode (the twelve manual donor
 offsets/scale settings are ported in D105; D106 adds only a lightweight
 Hand Motion subset),
@@ -103,8 +103,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **289 test / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **1028/1028**, Strange **1018/1018**, no new
+- `clean build`: **299 test / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **1087/1087**, Strange **1077/1077**, no new
   ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
@@ -123,8 +123,9 @@ not silently faked; no dead controls are exposed for them.
   FakePlayer crit assertion and the `Better Animations -> Hand Motion`
   Punchy-lite subset; D107 adds hotbar-anchored `CustomVitals` and Armor V2
   with `custom-vitals`/`armor-hud-v2` screenshots; D108 adds donor `ItemRadius`
-  with the `item-radius` screenshot. A separate frame-capture 1280×720
-  confirms the LINKEN splash replaces the Mojang logo from the first frame.
+  with the `item-radius` screenshot; D109 adds `DamageParticles`/`FortniteDamage`
+  with `damage-number`/`damage-visuals` screenshots. A separate frame-capture
+  1280×720 confirms the LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
   QWERTZ acceptance remains a human check.
@@ -142,6 +143,6 @@ The **LinkGUI + title + welcome + settings + HUD material/shape + TargetHud +
 CoordinatesHud + CustomVitals + Armor V2 + donor server browser + pinned cards +
 custom scoreboard/tab + HitRange + CustomHitBox + Optimization + Particles +
 Trajectories + KillStreak + ViewModel + compact LINKEN pause + CustomVitals/Armor V2 +
-ItemRadius + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+ItemRadius + DamageParticles/FortniteDamage + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

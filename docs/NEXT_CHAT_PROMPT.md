@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.132 / D108
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.133 / D109
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -6,12 +6,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.132**
-- Last code commit: `00a9a73` `feat(world): port donor item radius (v1.0.132, D108)`.
-- Tests: **289 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **1028/1028**, Strange **1018/1018**, 0 fail/skip, 1920×1080.
+- Version: **1.0.133**
+- Last code commit: `a9a99be` `feat(visuals): port DamageParticles and FortniteDamage (v1.0.133, D109)`.
+- Tests: **299 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **1087/1087**, Strange **1077/1077**, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.132): `linkenvisuals-1.0.132.jar` 11 074 237 bytes / `94F027953C620522080B7E66C848B1610005F6185679F06216B06C7D38D4765D`; `linkenvisuals-strange-1.0.132.jar` 11 074 232 bytes / `420CA80F65E17570A9830E23721D6A5AF3D8C780C768EBCB7EA5820AC2ACACF1`.
+- Jars (1.0.133): `linkenvisuals-1.0.133.jar` 11 108 168 bytes / `74AEB58B362FACAEBAA0DFEA5395D7D8FCF7C481D1B19FC66802DAE1AD82473E`; `linkenvisuals-strange-1.0.133.jar` 11 108 167 bytes / `A31C091673036A2ED815C8AB0F03FF3A1D1A8ABDD3C5B4F409A1F86E3089362B`.
 
 Clone/verify:
 
@@ -21,7 +21,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.132
+Get-Content source/gradle.properties   # mod_version=1.0.133
 ```
 
 ## 2. Donor
@@ -34,21 +34,21 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D108 (do not redo)
+## 3. Done in D105-D109 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
 - D107: hotbar-anchored `CustomVitals` (Segments/Stack/Bars, armour/air/mount/XP, damage flash) with vanilla status/exp/jump cancellation, and Armor V2 two hotbar-relative groups.
 - D108: donor `ItemRadius` (Ender Eye/Sugar circles, netherite box, dried-kelp staircase, snowball projection, splash-potion impact, proximity colour) on `FLAT_NO_DEPTH`; donor `%` proximity labels remain open.
+- D109: donor `DamageParticles` (legacy/decorative impact, projectile trail, six modes) and `FortniteDamage` (floating crit/theme numbers, screen-space MSDF projection); `damage-number`/`damage-visuals` screenshots.
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **DamageParticles** / **FortniteDamage** — inspect helper classes, then port particle features and damage numbers.
-2. **SelfNametags** line-by-line; full `UI` colour/fade/blur/BoostFPS.
-3. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains out of scope.
-4. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
-5. `ItemRadius` now ported (D108); donor `%` proximity labels remain open. `CustomVitals`/Armor V2 ported (D107); `HelperItemsHud` blocked, `DynamicIsland` skipped.
+1. **SelfNametags** line-by-line; full `UI` colour/fade/blur/BoostFPS.
+2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains out of scope.
+3. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
+4. `DamageParticles`/`FortniteDamage` now ported (D109); `ItemRadius` ported (D108), donor `%` proximity labels remain open. `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ## 5. Architecture that must not break
 

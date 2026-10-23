@@ -1018,3 +1018,13 @@
 - **Сборка**: `linkenvisuals-1.0.132.jar` (11 074 237 байт, SHA-256 `94F027953C620522080B7E66C848B1610005F6185679F06216B06C7D38D4765D`); `linkenvisuals-strange-1.0.132.jar` (11 074 232 байта, SHA-256 `420CA80F65E17570A9830E23721D6A5AF3D8C780C768EBCB7EA5820AC2ACACF1`).
 - **Commit**: `00a9a73` `feat(world): port donor item radius (v1.0.132, D108)`.
 - **Остаток**: donor `%` proximity labels (MSDF world text) не портированы; splash bossbar heuristic не нужен; human item-by-item check и pixel diff.
+
+## 2026-10-23 · D109 · DamageParticles + FortniteDamage — v1.0.133
+- **DamageParticles**: `DamageParticlesModule` (`damageparticles`, Visual, default OFF) — donor Color, Count 10–60 (30), Size 10–55 (30), Spawn On Attack/Throw, Mode Bloom/Star/Snow/Firefly/Dollar/Cube, Particle Size 0–1 (0.5). `DamageParticlesRenderer` на `END_MAIN`: legacy impact 30 частиц с bounce/friction/LOS и тремя слоями (firefly glow, core star/firefly, white sparkle), decorative burst 35 на удар и 4/тик на Arrow/Trident/EnderPearl, caps 420/480. Ambient `Particles` оставлен отдельным модулем, как у донора.
+- **FortniteDamage**: `FortniteDamageModule` (`fortnitedamage`, Visual, default OFF) — Style Fortnite, Size 0.012–0.08 (0.032), Lifetime 300–1800 (850 мс), Rise 0–1.5 (0.42), Theme Color false, Color white, Crit Color true. `FortniteDamageRenderer` хранит pending hit до 750 мс, сравнивает HP+absorption, при килле оценивает attack damage, рисует MSDF-цифры с 8 outline-смещениями; крит #FCFE3C.
+- **Отличие**: donor строит 3D world-space billboard; порт проецирует точку через `Camera` и рисует проверенным GUI MSDF pipeline. Это сохраняет читаемость/цвета и убирает зависимость от world-text pipeline; поведение «сквозь стены» сохранено.
+- **Тесты**: `DamageParticlesRulesTest` (4), `FortniteDamageRulesTest` (3), `DamageVisualModulesTest` (3), всего **299 тестов**, 0 fail/error/skip.
+- **Autotest**: Linken **1087/1087**, Strange **1077/1077**, 0 fail/skip; `damage-number` (debug) и `damage-visuals` (real hit). Новых ERROR/exception/shader/sound нет.
+- **Сборка**: `linkenvisuals-1.0.133.jar` (11 108 168 байт, SHA-256 `74AEB58B362FACAEBAA0DFEA5395D7D8FCF7C481D1B19FC66802DAE1AD82473E`); `linkenvisuals-strange-1.0.133.jar` (11 108 167 байт, SHA-256 `A31C091673036A2ED815C8AB0F03FF3A1D1A8ABDD3C5B4F409A1F86E3089362B`).
+- **Commit**: `a9a99be` `feat(visuals): port DamageParticles and FortniteDamage (v1.0.133, D109)`.
+- **Остаток**: donor-точный 3D-билборд не воспроизведён; server HP sync limitation; pixel diff/human acceptance.

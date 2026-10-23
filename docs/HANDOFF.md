@@ -2,6 +2,26 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D109 — DamageParticles + FortniteDamage) — v1.0.133
+
+### Сделано
+1. **D109/v1.0.133**: donor `DamageParticles` — `DamageParticlesModule` (Visual, default OFF): Color, Count 10–60 (30), Size 10–55 (30), Spawn On Attack/Throw, Mode Bloom/Star/Snow/Firefly/Dollar/Cube, Particle Size 0–1 (0.5). `DamageParticlesRenderer` на `END_MAIN`: legacy impact 30 частиц (2.1–2.8 с, bounce/friction/LOS, 3 слоя glow/core/sparkle) + decorative burst 35 на удар и 4/тик на стрелы/тризубцы/эндер-перлы (2 с, caps 420/480).
+2. **FortniteDamage**: `FortniteDamageModule` (Visual, default OFF): Style Fortnite, Size 0.012–0.08 (0.032), Lifetime 300–1800 (850 мс), Rise 0–1.5 (0.42), Theme Color, Color, Crit Color. `FortniteDamageRenderer` ждёт изменение HP до 750 мс, при килле оценивает attack damage, рисует MSDF-цифры с 8-контурным outline; крит — #FCFE3C. Для стабильности используется **screen-space проекция через камеру и проверенный GUI MSDF pipeline**, а не отдельный world-text pipeline.
+3. **Проверки**: **299 тестов** (+4 `DamageParticlesRulesTest`, +3 `FortniteDamageRulesTest`, +3 `DamageVisualModulesTest`), 0 fail/error/skip; autotest Linken **1087/1087**, Strange **1077/1077**, 0 fail/skip, 1920×1080; screenshots `damage-number` (debug probe) и `damage-visuals` (реальный удар). Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+4. **Commit**: `a9a99be` `feat(visuals): port DamageParticles and FortniteDamage (v1.0.133, D109)`.
+5. **Сборка**: `linkenvisuals-1.0.133.jar` — 11 108 168 байт, SHA-256 `74AEB58B362FACAEBAA0DFEA5395D7D8FCF7C481D1B19FC66802DAE1AD82473E`; `linkenvisuals-strange-1.0.133.jar` — 11 108 167 байт, SHA-256 `A31C091673036A2ED815C8AB0F03FF3A1D1A8ABDD3C5B4F409A1F86E3089362B`.
+
+### Следующая задача
+1. **SelfNametags** line-by-line; full `UI` colour/fade/blur/BoostFPS.
+2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
+3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped; `ItemRadius` proximity `%` labels open.
+
+### Риски
+- FortniteDamage: donor 3D world billboard заменён screen-space проекцией; при серверной несинхронизации HP цифра может не появиться (donor имел то же ограничение).
+- DamageParticles: donor-текстуры/3 слоя воспроизведены, но без точного pixel-diff; ambient `Particles` (чёрные квадраты) — отдельный существующий модуль.
+- `FortniteDamage.Style` содержит единственный donor-вариант Fortnite.
+
 ## Состояние на 2026-10-23 (D108 — ItemRadius) — v1.0.132
 
 ### Сделано
