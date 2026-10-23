@@ -23,6 +23,7 @@ import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.hud.TargetHud;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.KillStreakModule;
+import dev.linkenvisuals.module.impl.ViewModelModule;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
 import dev.linkenvisuals.render.ParticlesRenderer;
@@ -602,6 +603,55 @@ public final class AutoTestDriver {
             if (Modules.trajectories() != null) {
                 Modules.trajectories().info().toggleSilently(false);
             }
+        });
+
+        add("enable view model", 1, () -> {
+            if (Modules.viewModel() != null) {
+                Modules.viewModel().info().toggleSilently(true);
+            }
+            ViewModelModule.resetDiagnostics();
+        });
+        add("pose view model", 2, () -> {
+            if (Modules.viewModel() != null) {
+                ViewModelModule vm = Modules.viewModel();
+                vm.mainX.setValue(0.35f);
+                vm.mainY.setValue(-0.05f);
+                vm.mainZ.setValue(0.2f);
+                vm.mainScaleX.setValue(0.8f);
+                vm.mainScaleY.setValue(0.8f);
+                vm.mainScaleZ.setValue(0.8f);
+            }
+        });
+        add("wait view model", 6, () -> {
+        });
+        add("check view model", 2, () -> {
+            ViewModelModule vm = Modules.viewModel();
+            if (vm == null || !vm.enabled()) {
+                throw new IllegalStateException("ViewModel module is not enabled");
+            }
+            if (!ViewModelModule.lastAppliedVisible()) {
+                throw new IllegalStateException("ViewModel transform was not applied in first person");
+            }
+        });
+        add("screenshot view model", 1, () -> screenshot(client, "viewmodel"));
+        add("restore view model", 1, () -> {
+            ViewModelModule vm = Modules.viewModel();
+            if (vm != null) {
+                vm.mainX.setValue(0.0f);
+                vm.mainY.setValue(0.0f);
+                vm.mainZ.setValue(0.0f);
+                vm.mainScaleX.setValue(1.0f);
+                vm.mainScaleY.setValue(1.0f);
+                vm.mainScaleZ.setValue(1.0f);
+                vm.offX.setValue(0.0f);
+                vm.offY.setValue(0.0f);
+                vm.offZ.setValue(0.0f);
+                vm.offScaleX.setValue(1.0f);
+                vm.offScaleY.setValue(1.0f);
+                vm.offScaleZ.setValue(1.0f);
+                vm.info().toggleSilently(false);
+            }
+            ViewModelModule.resetDiagnostics();
         });
 
         add("enable killstreak hud", 1, () -> {

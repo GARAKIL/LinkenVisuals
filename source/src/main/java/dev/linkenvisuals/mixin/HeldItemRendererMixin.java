@@ -5,6 +5,7 @@ import dev.linkenvisuals.hands.HandEditor;
 import dev.linkenvisuals.hands.HandPose;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
+import dev.linkenvisuals.module.impl.ViewModelModule;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -95,6 +96,32 @@ public abstract class HeldItemRendererMixin {
                 ci.cancel();
             }
         }
+    }
+
+    /**
+     * Donor ViewModel anchors at the {@code renderItem} call, after the vanilla
+     * equip/swing transform. Applying the delta here (instead of at HEAD) keeps
+     * the donor offset/scale axes and the accepted {@link HandPose} transform
+     * independent. The same callback covers the normal and the use-action call.
+     */
+    @Inject(method = "renderFirstPersonItem",
+        at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/render/item/HeldItemRenderer;renderItem("
+                + "Lnet/minecraft/entity/LivingEntity;"
+                + "Lnet/minecraft/item/ItemStack;"
+                + "Lnet/minecraft/item/ItemDisplayContext;"
+                + "Lnet/minecraft/client/util/math/MatrixStack;"
+                + "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;I)V"),
+        require = 2)
+    private void linkenvisuals$applyViewModel(AbstractClientPlayerEntity player, float tickProgress,
+                                               float pitch, Hand hand, float swingProgress,
+                                               ItemStack stack, float equipProgress, MatrixStack matrices,
+                                               OrderedRenderCommandQueue queue, int light, CallbackInfo ci) {
+        ViewModelModule module = Modules.viewModel();
+        if (module == null || !module.enabled() || HandEditor.active()) {
+            return;
+        }
+        module.apply(matrices, player, hand, stack);
     }
 
     @Inject(method = "swingArm", at = @At("RETURN"))

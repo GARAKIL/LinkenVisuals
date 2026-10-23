@@ -104,6 +104,9 @@ public final class LinkenVisuals implements ClientModInitializer {
         AccountStorage.load();
         dev.linkenvisuals.macro.MacroManager.load();
         HandPose.load();
+        // Object modules must exist before config restore, otherwise their
+        // enabled state/settings are skipped by ConfigJson.apply().
+        Modules.init();
         dev.linkenvisuals.waypoint.WaypointStorage.load();
         ConfigManager.load();
         ModuleRegistry.enforceFlavorStyles();
@@ -177,7 +180,6 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.ParticlesRenderer::render);
         WorldRenderEvents.END_MAIN.register(dev.linkenvisuals.render.TrajectoriesRenderer::render);
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
-        Modules.init();
         dev.linkenvisuals.command.WaypointCommand.register();
         dev.linkenvisuals.autotest.AutoTestDriver.register();
         dev.linkenvisuals.autotest.AutoTestCommand.register();

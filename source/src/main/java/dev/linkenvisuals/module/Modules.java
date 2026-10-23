@@ -32,6 +32,7 @@ import dev.linkenvisuals.module.impl.TotemCounterModule;
 import dev.linkenvisuals.module.impl.TotemTrackerModule;
 import dev.linkenvisuals.module.impl.TrailsModule;
 import dev.linkenvisuals.module.impl.UseTrackerModule;
+import dev.linkenvisuals.module.impl.ViewModelModule;
 import dev.linkenvisuals.module.impl.WaypointsModule;
 import dev.linkenvisuals.module.impl.ZoomModule;
 
@@ -74,6 +75,7 @@ public final class Modules {
     private static ParticlesModule particles;
     private static TrajectoriesModule trajectories;
     private static KillStreakModule killStreak;
+    private static ViewModelModule viewModel;
 
     private Modules() {
     }
@@ -218,6 +220,10 @@ public final class Modules {
         return killStreak;
     }
 
+    public static ViewModelModule viewModel() {
+        return viewModel;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -288,5 +294,7 @@ public final class Modules {
         register(trajectories);
         killStreak = new KillStreakModule();
         register(killStreak);
+        viewModel = new ViewModelModule();
+        register(viewModel);
     }
 }
