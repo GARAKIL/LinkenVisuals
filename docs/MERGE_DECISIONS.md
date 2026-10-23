@@ -868,3 +868,14 @@
 - **Сборка**: jar `linkenvisuals-1.0.117.jar` (10 754 036 байт, SHA-256 `A8A17B389F80560AB9513DEBE4C913FD08B61500D3E4A6954AACCB01F4AD67DF`).
 - **Commit**: `c72fd70` `feat(input): make text shortcuts layout-aware everywhere (v1.0.117, D94)`.
 - **Остаток**: visual selection в кастомных полях не рисуется; human-проверка RU/UA/AZERTY/QWERTZ.
+
+## 2026-10-23 · D95 · HUD batch: Cooldowns/Armor/Inventory/LowArmor — v1.0.118
+- **Cooldowns**: `CooldownsHud` — donor-список с заголовком/иконкой, item/name/time; `CooldownTracker` читает 1.21.11 `ItemCooldownManager` (`Identifier → Entry(startTick,endTick)`) reflection’ом + record-accessors, fallback — inventory scan; preview Ender Pearl/Chorus Fruit/Golden Apple в edit-mode; время `ceil(ticks/20)` в `m:ss`, цвета progress/remaining.
+- **Armor V1**: donor-карточка 100×39, 4 inset-ячейки 17 px, процент прочности под слотом, preview железного набора; V2 (hotbar-anchored две группы) не выставлен, пока HUD-слой не умеет screen-anchored элементы.
+- **Inventory**: 27 main-слотов, `Inventory Hotbar` добавляет 4-й ряд + разделитель, item scale 0.9 + stack overlay.
+- **LowArmor**: пороги 50/25, максимум 4 сообщения, 3.5 s, fade, preview; строки en/ru/uk; `ArmorHud.durabilityPercent` — общий источник.
+- **Интеграция**: 5 BooleanSetting в Interface-группе (`Cooldowns HUD`, `Armor HUD`, `Inventory HUD`, `Inventory Hotbar`, `Low Armor Notifications`); все элементы в `HudManager.ELEMENTS`, drag/snap/edit-mode.
+- **Evidence**: **237 тестов** (+6), 0 fail; autotest **723/723**, 0 fail/skip; 1920×1080; скриншоты `cooldowns-hud`, `armor-hud`, `inventory-hud`, `low-armor-hud`; новых ERROR/exception/shader/sound нет.
+- **Сборка**: jar `linkenvisuals-1.0.118.jar` (10 779 551 байт, SHA-256 `F6A2482C353617B652864409E8FE1B1A43207A135A889C467391154F1E0CA1F5`).
+- **Commit**: `ed4d241` `feat(hud): port Cooldowns/Armor/Inventory/LowArmor (v1.0.118, D95)`.
+- **Остаток**: HelperItemsHud — нет donor `FtHelper/HwHelper/RwHelper` модулей; DynamicIsland скрыт donor’ом в Link style (медиа уже в MediaPlayerHud/LyricsHud); Armor V2 — screen-anchored слой; live cooldown-тики и раскладки — human.

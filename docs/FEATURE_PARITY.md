@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.117**, 2026-10-22. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.118**, 2026-10-23. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -39,10 +39,10 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | ScoreboardHud | ✅ **ported** (`ScoreboardHud`, vanilla sidebar cancelled while enabled) |
 | TargetHud | ✅ **ported** (`TargetHud`, D87): donor 104×30 card + armour/offhand row, crosshair/aim-cone + LOS pick with 1 s hold, head/HP/absorption/durability/hit flash, `Target HUD` setting |
 | CoordinatesHud | ✅ **ported** (`CoordinatesHud`, D88): 17 px card, `iconsnew` compass, integer XYZ, two-decimal BPS, animated width/fade, `Coordinates HUD` setting (default off) |
-| CooldownsHud | ❌ open |
-| ArmorHud / InventoryHud | ❌ open |
-| HelperItemsHud / LowArmorNotificationsHud | ❌ open |
-| DynamicIsland (full) | ❌ open |
+| CooldownsHud | ✅ **ported** (`CooldownsHud`, `CooldownTracker`, D95): reflection over 1.21.11 cooldown entries + inventory fallback, preview, item/name/time rows |
+| ArmorHud / InventoryHud | ✅ **ported** D95: Armor V1 100×39 card with durability %; Inventory 27/36 slots with optional hotbar row. Armor V2 (hotbar-anchored) open |
+| HelperItemsHud / LowArmorNotificationsHud | ✅ LowArmor D95 (50/25 thresholds, 3.5 s, preview, en/ru/uk); ⛔ HelperItems blocked on absent donor Ft/Hw/Rw helper modules |
+| DynamicIsland (full) | ⛔ intentionally not ported: donor hides it when Link style is active; `MediaPlayerHud` + `LyricsHud` cover media/lyrics |
 | Custom Hotbar | ✅ `HotbarHud` |
 | HUD Style (8 variants) | ✅ all donor variants ported (D85); donor border smoothness ported (D86) |
 | HUD Shape (Rounded/Pill/Sharp) | ✅ implemented centrally in `HudStyle`; geometry test |
@@ -62,8 +62,8 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 
 ### Donor modules not ported (visual/client, still open)
 
-`CooldownsHud`, `ArmorHud`,
-`InventoryHud`, `HelperItemsHud`, `LowArmorNotificationsHud`,
+`CooldownsHud` (D95), `ArmorHud` (D95, V1), `InventoryHud` (D95),
+`LowArmorNotificationsHud` (D95), `HelperItemsHud` (blocked),
 `DynamicIsland`, `CameraSettings`, `AspectRatio`, `CustomHitBox`,
 `CustomVitals`, `DamageParticles`, `FortniteDamage`, `HitRange`,
 `ItemRadius`, `NoRender`, `Optimization`, `Particles`, `Trajectories`,
@@ -87,8 +87,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **231 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **697/697 steps**, no new ERROR/exception, no shader
+- `clean build`: **237 tests / 0 failures / 0 errors / 0 skips**.
+- Hidden `runAutotest`: **723/723 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. A separate frame-capture 1280×720 confirms the LINKEN
   splash replaces the Mojang logo from the first frame.

@@ -2,6 +2,30 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №49 — HUD batch: Cooldowns/Armor/Inventory/LowArmor, D95) — v1.0.118
+
+### Сделано
+1. **D95/v1.0.118** (`ed4d241`): **`CooldownsHud`** — donor-список кулдаунов: заголовок + иконка, строки item/name/time, preview трёх предметов в edit-mode, цвета по progress/remaining. **`CooldownTracker`** читает 1.21.11 `ItemCooldownManager` (`Identifier → Entry(startTick,endTick)`) через reflection + record-accessors, при недоступности — скан main/offhand inventory; время округляется вверх до секунд.
+2. **`ArmorHud` (V1)**: donor-карточка 100×39, четыре inset-ячейки 17 px, иконка + процент прочности под слотом, preview железного набора в edit-mode. Режим donor V2 (две группы у хотбара) **не выставлен**: текущий HUD-слой не умеет screen-anchored элементы.
+3. **`InventoryHud`**: 3 ряда main inventory (27 слотов), опция `Inventory Hotbar` добавляет 4-й ряд и разделитель; слоты inset, item scale 0.9 + stack overlay.
+4. **`LowArmorNotificationsHud`**: пороги 50%/25%, до 4 сообщений, 3.5 s, fade, preview в edit-mode; строки en/ru/uk, интеграция с `ArmorHud.durabilityPercent`.
+5. **Настройки ClickGUI Interface**: `Cooldowns HUD` (true), `Armor HUD` (true), `Inventory HUD` (false), `Inventory Hotbar` (false), `Low Armor Notifications` (true). Все элементы в `HudManager.ELEMENTS` — drag/snap/edit-mode работают.
+6. **Проверки**: **237 тестов** (+6: `CooldownsHudTest`, `ArmorHudTest`, `InventoryHudTest`, `LowArmorNotificationsHudTest`), 0 падений/ошибок/скипов; clean build зелёный; autotest **723/723**, 0 fail/skip; новых ERROR/exception/shader/sound ошибок нет.
+7. **Сборка**: jar `linkenvisuals-1.0.118.jar` (10 779 551 байт, SHA-256 `F6A2482C353617B652864409E8FE1B1A43207A135A889C467391154F1E0CA1F5`).
+
+### Следующая задача
+1. **HelperItemsHud** — заблокирован: donor-модули `FtHelper/HwHelper/RwHelper` с их bind-настройками в порт не входят; делать HUD без реального источника данных нельзя. Вариант: сначала портировать helper-модули, затем HUD.
+2. **DynamicIsland** — donor сам скрывает остров при `LinkHudStyle.active()`; в нашем style-lock он невидим, медиа уже покрыто `MediaPlayerHud`, lyrics — `LyricsHud`. Отдельный элемент не добавлять без смены style-lock.
+3. **Armor V2** — только после screen-anchored HUD-слоя (hotbar-relative текущий `HudElement` не поддерживает).
+4. Дальше visual-модули: `CameraSettings`, `AspectRatio`, `CustomHitBox`, `CustomVitals`, `DamageParticles`, `FortniteDamage`, `HitRange`, `ItemRadius`, `NoRender`, `Optimization`, `Particles`, `Trajectories`, `KillStreak`, full `ViewModel`/Hands.
+5. Human-проверка: low-armor notifications в бою, реальные cooldown-тики (не только preview), раскладки RU/UA/AZERTY/QWERTZ.
+
+### Риски
+- Reflection-путь `CooldownTracker` проверен в autotest только без активных кулдаунов (preview/fallback); живой cooldown — human-проверка.
+- `Inventory HUD` большой (192×72) и на GUI scale 3 занимает заметную часть справа; default off, двигается/масштабируется стилем.
+- `LowArmorNotifications` работает только пока включён HUD-элемент; сообщения не дублируются при повторном входе в мир.
+- Полный 100% pixel parity не заявлен.
+
 ## Состояние на 2026-10-22 (чат №48 — layout-aware text shortcuts, D94) — v1.0.117
 
 ### Сделано

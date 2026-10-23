@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.117 / D94
+﻿# MASTER PROMPT — LinkenVisuals: continue from v1.0.118 / D95
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.117**
-- Tests at handoff: **231 / 0 failures / 0 errors / 0 skipped**
-- Autotest at handoff: **697/697**, no new ERROR/exception
-- Jar at handoff: `source/build/libs/linkenvisuals-1.0.117.jar`
-- Size: **10 754 036 bytes**
-- SHA-256: `A8A17B389F80560AB9513DEBE4C913FD08B61500D3E4A6954AACCB01F4AD67DF`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D94.
+- Version at handoff: **1.0.118**
+- Tests at handoff: **237 / 0 failures / 0 errors / 0 skipped**
+- Autotest at handoff: **723/723**, no new ERROR/exception
+- Jar at handoff: `source/build/libs/linkenvisuals-1.0.118.jar`
+- Size: **10 779 551 bytes**
+- SHA-256: `F6A2482C353617B652864409E8FE1B1A43207A135A889C467391154F1E0CA1F5`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D95.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.117
+Get-Content source/gradle.properties   # mod_version=1.0.118
 ```
 
 ## 2. Donor
@@ -43,10 +43,10 @@ Do **not** use `screen/linkgui/windows/*` as the reference; those classes are un
 
 Read first:
 
-- `docs/HANDOFF.md` — top section (chat #48, D94);
-- `docs/MERGE_DECISIONS.md` — D80–D94;
-- `docs/ROADMAP.md` — M8.10–M8.20;
-- `docs/PORT_STATUS.md` — M8.14–M8.20;
+- `docs/HANDOFF.md` — top section (chat #49, D95);
+- `docs/MERGE_DECISIONS.md` — D80–D95;
+- `docs/ROADMAP.md` — M8.10–M8.21;
+- `docs/PORT_STATUS.md` — M8.14–M8.21;
 - `docs/FEATURE_PARITY.md` — explicit ported/open/excluded matrix.
 
 ## 3. Hard requirements
@@ -81,6 +81,7 @@ Read first:
 - D92/v1.0.115: donor **media cover** gradient/artist baseline, server window **-45° hatching**, CPU-rounded **favicon** mask 6/32.
 - D93/v1.0.116: **LINKEN splash replaces the Mojang logo from the first frame**; vanilla-only bootstrap progress until shaders/atlases are ready, then full `linken.` scene.
 - D94/v1.0.117: **layout-aware text shortcuts** — `LayoutKeys` + `TextInput`; Ctrl+A/C/V/X/Z/Y, word deletion and caret movement in all vanilla fields and LINKEN/ClickGUI text fields.
+- D95/v1.0.118: **HUD batch** — `CooldownsHud` + reflective `CooldownTracker`, `ArmorHud` V1, `InventoryHud` 27/36 slots, `LowArmorNotificationsHud`, five Interface settings, previews/screenshots; `HelperItems`/`DynamicIsland` intentionally blocked/skipped.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -90,16 +91,14 @@ Do not redo these from scratch. Use the docs and current code as the baseline.
 
 Use `docs/FEATURE_PARITY.md` as the source of truth. Recommended order:
 
-1. **HUD elements**, port donor behavior/geometry one by one:
-   - `CooldownsHud`
-   - `ArmorHud`
-   - `InventoryHud`
-   - `HelperItemsHud`
-   - `LowArmorNotificationsHud`
-   - `DynamicIsland` (only after the simpler elements)
-   Donor sources: `hud/impl/*.java`, `hud/HudElement.java`, `hud/LinkHudStyle.java`, `managers/system/HudManager.java`.
+1. **HUD elements**:
+   - ✅ D95: `CooldownsHud`, `ArmorHud` V1, `InventoryHud`, `LowArmorNotificationsHud` — in `HudManager.ELEMENTS`, Interface settings, drag/snap/edit-mode, preview/autotest.
+   - ⛔ `HelperItemsHud`: blocked — donor `FtHelper/HwHelper/RwHelper` modules and their bind settings are absent; do not fake data. Port the helper modules first or leave it explicitly open.
+   - ⛔ `DynamicIsland`: donor skips it while `LinkHudStyle.active()`; our style is Link-locked, media is already covered by `MediaPlayerHud` and `LyricsHud`. Do not add a duplicate island.
+   - ⛔ `ArmorHud` V2: needs screen-anchored/hotbar-relative HUD geometry; current `HudElement` is center/fraction based.
+   Donor sources: `hud/impl/*.java`, `hud/HudElement.java`, `hud/LinkHudStyle.java`, donor HUD manager.
    Our HUD architecture: `hud/HudElement.java`, `hud/HudManager.java`, `hud/HudStyle.java`, `hud/HudSurface.java`, layout persistence in `hud/HudLayoutStorage.java`.
-   Add each element to `HudManager.ELEMENTS`, preserve edit-mode drag/snap, add a working enable/disable setting if needed, and add an autotest screenshot/behavior step.
+   Add each new element to `HudManager.ELEMENTS`, preserve edit-mode drag/snap, add a working enable/disable setting, and an autotest screenshot/behavior step. Keep default positions non-overlapping at GUI scale 3.
 
 2. **Remaining visual modules** from `FEATURE_PARITY.md`:
    - `CameraSettings`, `AspectRatio`, `CustomHitBox`, `CustomVitals`, `DamageParticles`, `FortniteDamage`, `HitRange`, `ItemRadius`, `NoRender`, `Optimization`, `Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands.
@@ -136,7 +135,7 @@ Hidden/automated smoke test (requires explicit user permission):
 
 - Autotest opens both GUIs, LinkGUI, title, inventory, attacks mobs, sweeps every module/setting, takes screenshots and writes a report.
 - Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`.
-- Expected at handoff: **697/697**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
+- Expected at handoff: **723/723**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
 - Restore `run/options.txt` after the run.
 
 Jar check:
@@ -159,6 +158,11 @@ source/src/main/java/dev/linkenvisuals/
   hud/HudElement.java
   hud/HudStyle.java
   hud/HudSurface.java
+  hud/ArmorHud.java
+  hud/CooldownTracker.java
+  hud/CooldownsHud.java
+  hud/InventoryHud.java
+  hud/LowArmorNotificationsHud.java
   hud/TargetHud.java
   hud/CoordinatesHud.java
   hud/HudTween.java
@@ -201,6 +205,7 @@ source/src/test/java/dev/linkenvisuals/
 - **TargetHud**: `TargetHud` in `HudManager.ELEMENTS`; `ModuleRegistry.targetHud()` gates rendering, edit/chat shows self-preview; favours crosshair over aim-cone and holds the last target for 1 s.
 - **CoordinatesHud**: `CoordinatesHud` in `HudManager.ELEMENTS`; `ModuleRegistry.coordinatesHud()` (default off) gates rendering, edit/chat shows self-preview; BPS = horizontal velocity ×20 (1.21.11 has no public `prevX/prevZ`).
 - **HUD animation**: `HudTween` is the shared time-based linear/ease-out helper; do not duplicate per-element tween classes.
+- **HUD batch (D95)**: `CooldownsHud` + `CooldownTracker` (reflection over 1.21.11 cooldown entries, inventory fallback); `ArmorHud` V1 only; `InventoryHud` optional hotbar row; `LowArmorNotificationsHud` 50/25 thresholds. Do not expose Armor V2 until the HUD layer supports hotbar-relative anchoring. `HelperItemsHud` has no data source; `DynamicIsland` is hidden by Link style and covered by `MediaPlayerHud`/`LyricsHud`.
 - **Server browser**: `LinkenMultiplayerScreen` mirrors donor 4b list geometry (1000×272, topbar 68/row 64/footer 76); Add/Edit/Direct/Delete use a 460 px donor-style modal with resource-pack policy; window hatching and CPU-rounded favicons. Backend pinned servers are not ported.
 - **Main-menu icons**: use `LinkenFonts.icons2()` / `MENU_ICON_*`; do not swap the global `ICON_*` constants used by ClickGUI and auxiliary screens.
 - **Splash**: `SplashOverlayMixin` cancels vanilla from frame 0 and drives the reload itself; bootstrap must use only vanilla `fill/fillGradient` (no text/custom shaders) until `Pipelines.resourcesReady()`. Donor Lottie `welcome.json` is not ported (Skija out of scope); a lightweight welcome alternative is optional.
@@ -213,7 +218,7 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 9. Definition of Done for the next task
 
-- `clean build` green, **231+ tests** (or more) with zero failures/errors/skips.
+- `clean build` green, **237+ tests** (or more) with zero failures/errors/skips.
 - No new shader/sound errors in hidden/runClient log.
 - Every visible control works; no fake controls.
 - Beta/Vanilla unchanged; Linken style lock preserved.
@@ -224,4 +229,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test`, then perform the **human keyboard-layout acceptance** (RU/UA/AZERTY/QWERTZ: Ctrl+A/C/V/X/Z/Y in chat, creative search, multiplayer Add/Edit, Alt Manager, LinkGUI), fix any field-specific gaps, and then move to **CooldownsHud**. Keep the existing HUD style/border pipeline and do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud, the LINKEN splash or the input shortcuts.
+Read the docs and current code, run `test`, then continue with the **remaining visual modules** in `FEATURE_PARITY.md` (`CameraSettings`, `AspectRatio`, `CustomHitBox`, `CustomVitals`, `DamageParticles`, `FortniteDamage`, `HitRange`, `ItemRadius`, `NoRender`, `Optimization`, `Particles`, `Trajectories`, visual `KillStreak`, full `ViewModel`/Hands). Do not add dead settings; skip `HelperItemsHud` until its donor helper modules exist, and do not add `DynamicIsland` because Link style hides it. Keep HUD drag/snap/edit-mode and the existing style/border pipeline; do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud/Cooldowns/Armor/Inventory/LowArmor, the LINKEN splash or the input shortcuts. Live acceptance still needs RU/UA/AZERTY/QWERTZ and a real multiplayer tab/cooldown run.
