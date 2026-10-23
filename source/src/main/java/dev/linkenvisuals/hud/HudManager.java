@@ -86,6 +86,7 @@ public final class HudManager {
 
         PotionEffectTracker.refresh();
         NameTags.render(context);
+        dev.linkenvisuals.render.ItemRadiusRenderer.renderLabels(context);
         dev.linkenvisuals.render.FortniteDamageRenderer.render(context);
 
         boolean editMode = editing;

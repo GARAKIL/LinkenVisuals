@@ -8,7 +8,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.ItemRadiusModule;
 import dev.linkenvisuals.util.ColorMath;
+import dev.linkenvisuals.util.particles.ItemRadiusRules;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
@@ -23,6 +25,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.RaycastContext;
+import org.joml.Vector3fc;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
@@ -43,12 +46,19 @@ public final class ItemRadiusRenderer {
     private static final double WALL_LINE = 8.0;
     private static final int BUFFER_BYTES = 1 << 21;
     private static final double HALF_LINE_SCALE = 0.006;
+    private static final float[][] LABEL_OUTLINE = {
+        {-1.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, -1.0f}, {0.0f, 1.0f},
+        {-0.7f, -0.7f}, {-0.7f, 0.7f}, {0.7f, -0.7f}, {0.7f, 0.7f}
+    };
 
     private static Vec3d cachedPotionImpact;
     private static int potionCacheAge = -1;
     private static float potionCacheYaw = Float.NaN;
     private static float potionCachePitch = Float.NaN;
     private static boolean lastRenderVisible;
+    private static Vec3d lastPotionImpact;
+    private static double lastPotionRadius;
+    private static boolean lastLabelVisible;
 
     private ItemRadiusRenderer() {
     }
@@ -59,14 +69,82 @@ public final class ItemRadiusRenderer {
         potionCacheYaw = Float.NaN;
         potionCachePitch = Float.NaN;
         lastRenderVisible = false;
+        lastPotionImpact = null;
+        lastPotionRadius = 0.0;
+        lastLabelVisible = false;
     }
 
     public static boolean lastRenderVisible() {
         return lastRenderVisible;
     }
 
+    public static boolean lastLabelVisible() {
+        return lastLabelVisible;
+    }
+
+    /** HUD pass: donor "NN%" over each player inside the simulated splash radius. */
+    public static void renderLabels(DrawContext context) {
+        lastLabelVisible = false;
+        ItemRadiusModule module = Modules.itemRadius();
+        if (module == null || !module.enabled() || lastPotionImpact == null || lastPotionRadius <= 0.0) {
+            return;
+        }
+        MinecraftClient client = MinecraftClient.getInstance();
+        Camera camera = client.gameRenderer.getCamera();
+        GlyphAtlas font = Fonts.titleFont();
+        if (client.player == null || client.world == null || camera == null || font == null) {
+            return;
+        }
+        int width = context.getScaledWindowWidth();
+        int height = context.getScaledWindowHeight();
+        float fov = (float) Math.toRadians(Math.max(30, Math.min(110,
+            client.options.getFov().getValue())));
+        float focal = (float) (height / (2.0 * Math.tan(fov * 0.5)));
+        Vector3fc right = camera.getHorizontalPlane();
+        Vector3fc up = camera.getVerticalPlane();
+        Vec3d rightVec = new Vec3d(right.x(), right.y(), right.z());
+        Vec3d upVec = new Vec3d(up.x(), up.y(), up.z());
+        Vec3d forward = rightVec.crossProduct(upVec);
+        Vec3d cam = camera.getCameraPos();
+        float tickDelta = client.getRenderTickCounter().getTickProgress(false);
+        boolean visible = false;
+        for (PlayerEntity player : client.world.getPlayers()) {
+            if (player == client.player) {
+                continue;
+            }
+            int pct = ItemRadiusRules.proximityPercent(
+                Math.sqrt(player.squaredDistanceTo(lastPotionImpact)), lastPotionRadius);
+            if (pct <= 0) {
+                continue;
+            }
+            Vec3d head = player.getLerpedPos(tickDelta)
+                .add(0.0, player.getHeight() + 0.35, 0.0).subtract(cam);
+            float depth = (float) head.dotProduct(forward);
+            if (depth <= 0.05f) {
+                continue;
+            }
+            float sx = width * 0.5f + (float) head.dotProduct(rightVec) * focal / depth;
+            float sy = height * 0.5f - (float) head.dotProduct(upVec) * focal / depth;
+            float textSize = Math.max(6.0f, 0.27f * focal / depth);
+            String text = pct + "%";
+            float textWidth = font.width(text, textSize);
+            float x = sx - textWidth * 0.5f;
+            int fill = ColorMath.withAlpha(0xFFFFFF, 255);
+            int outline = ColorMath.withAlpha(0x000000, 235);
+            for (float[] offset : LABEL_OUTLINE) {
+                MsdfText.drawOn(context, font, text, x + offset[0] * 1.5f,
+                    sy + offset[1] * 1.5f, textSize, outline);
+            }
+            MsdfText.drawOn(context, font, text, x, sy, textSize, fill);
+            visible = true;
+        }
+        lastLabelVisible = visible;
+    }
+
     public static void render(WorldRenderContext context) {
         lastRenderVisible = false;
+        lastPotionImpact = null;
+        lastPotionRadius = 0.0;
         ItemRadiusModule module = Modules.itemRadius();
         MinecraftClient client = MinecraftClient.getInstance();
         if (module == null || !module.enabled() || client.player == null || client.world == null) {
@@ -109,6 +187,8 @@ public final class ItemRadiusRenderer {
                 Vec3d impact = potionImpact(client);
                 if (impact != null) {
                     double radius = module.explosivePotionRadius.value();
+                    lastPotionImpact = impact;
+                    lastPotionRadius = radius;
                     circle(data, cam, impact, radius, color(module.explosivePotionColor.rgb()), module, client);
                 }
             }
