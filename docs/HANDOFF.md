@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №58 — visual KillStreak, D104) — v1.0.127
+
+### Сделано
+1. **D104/v1.0.127** (`fc775b6`): donor `KillStreak` visual card — модуль `KillStreakModule` (Visual/World, default ON) и HUD-элемент `KillStreakHud` (top-center), плюс Interface-тумблер `Kill Streak HUD` (default true).
+2. **Трекинг**: свои damage-марки из attack-hook и `EntityDamageS2CPacket` (players always, mobs по `Count Mobs`), window 2–60 s (default 10), retention 4.5 s, health/death проверка. SoundsModule продолжает отвечать за голосовые streak-тиры, визуал их не дублирует.
+3. **Карточка**: donor-геометрия в уменьшенном виде — tile 20, sword-иконка, overline `KILL STREAK`, 5 dots, tier title (`DOUBLE/TRIPLE/MEGA/MONSTER/UNSTOPPABLE`), `xN`, combo-timer 3 s; fade-out 350 ms. Материал — общий `HudSurface`/`HudStyle` (все 8 стилей/3 формы), без raw GL.
+4. **i18n**: 6 ключей `linkenvisuals.hud.killstreak.*` в en/ru/uk; LangParityTest зелёный.
+5. **Проверки**: **265 тестов** в обеих flavor-сборках (0 fail/error/skip). Autotest: Linken **881/881**, Strange **871/871**, 1920×1080, 0 fail/skip; скриншот `killstreak-hud` (TRIPLE KILL, x3, dots, timer) и реальная проверка `KillStreakModule.streak() >= 1` после attack-шагов. Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+6. **Сборка**: `linkenvisuals-1.0.127.jar` — 11 029 466 байт, SHA-256 `220BDDC75810BD46AA680898150DCCB2BE4DF434A8E583AD212A8E56D3EE4394`; `linkenvisuals-strange-1.0.127.jar` — 11 029 463 байта, SHA-256 `777B294B43E9777F71136F14B44CF5A40D6A9AF7DCA9A19A8E306B344D153E38`.
+
+### Следующая задача
+1. **full ViewModel/Hands** — donor view-model settings поверх существующего HandPose.
+2. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2.
+3. Human: KillStreak в живом бою (2–5 килов), RU/UA/AZERTY/QWERTZ, оба flavor-jar, cooldown-тики, multiplayer custom tab.
+
+### Риски
+- Карточка использует наш `HudStyle`, а не точный donor glass/glitch/conic/shine слой; donor-эффекты fx≥3 (glitch/conic) и voice не дублировались.
+- `Count Mobs`/`Streak Window`/`Combo Timer`/`Theme Accent` работают; donor-настройки voice/volume оставлены SoundsModule.
+- HUD-позиция top-center, 0.5/0.07; при 1280×720 карточка уже/ниже, чем donor 1920×1080.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №57 — donor Trajectories, D103) — v1.0.126
 
 ### Сделано

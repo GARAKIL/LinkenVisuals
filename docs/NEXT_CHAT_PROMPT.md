@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.126 / D103
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.127 / D104
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Work autonomously, preserve the existing visual/audio decisions, and finish with a green build, tests, docs, commit/push and a Russian report.
 
@@ -6,13 +6,13 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repository: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version at handoff: **1.0.126**
+- Version at handoff: **1.0.127**
 - Tests at handoff: **265 / 0 failures / 0 errors / 0 skipped** in both flavors
-- Autotest at handoff: Linken **862/862**, Strange **852/852**, no new ERROR/exception
+- Autotest at handoff: Linken **881/881**, Strange **871/871**, no new ERROR/exception
 - Jars at handoff:
-  - `source/build/libs/linkenvisuals-1.0.126.jar` — **11 020 288 bytes**, SHA-256 `F83D8CA8EFC95FC7446FD16D4E90FC2857464D5041B1AEA463F873DCD72ABE84`
-  - `source/build/libs/linkenvisuals-strange-1.0.126.jar` — **11 020 285 bytes**, SHA-256 `38DA975FCB6C74E6CB5A32CE8F6958828A0F55FE3C7FE5471809052C6503344D`
-- HEAD: use `git log -1` after clone; the latest docs commit describes D103.
+  - `source/build/libs/linkenvisuals-1.0.127.jar` — **11 029 466 bytes**, SHA-256 `220BDDC75810BD46AA680898150DCCB2BE4DF434A8E583AD212A8E56D3EE4394`
+  - `source/build/libs/linkenvisuals-strange-1.0.127.jar` — **11 029 463 bytes**, SHA-256 `777B294B43E9777F71136F14B44CF5A40D6A9AF7DCA9A19A8E306B344D153E38`
+- HEAD: use `git log -1` after clone; the latest docs commit describes D104.
 
 Clone and verify:
 
@@ -22,7 +22,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -1
-Get-Content source/gradle.properties   # mod_version=1.0.126
+Get-Content source/gradle.properties   # mod_version=1.0.127
 ```
 
 ## 2. Donor
@@ -90,6 +90,7 @@ Read first:
 - D101/v1.0.124: **Optimization** - Tier Low/Medium/Ultra, `Entity Culling` with donor DDA OcclusionCuller, render-distance cap 12/8, particle radius 48/32/22, Ultra cloud culling; four registered mixins; 257 tests, Linken 805/805, Strange 795/795.
 - D102/v1.0.125: **Particles** - Bloom/Star/Snow/Firefly/Dollar textured billboards + Cube wireframe/glow, donor spawn/life/LOS, copied assets; 261 tests, Linken 847/847, Strange 837/837.
 - D103/v1.0.126: **Trajectories** - 300-step projectile simulation, Bow/Multishot/throwables, procedural impact marker + optional explosive radius; 265 tests, Linken 862/862, Strange 852/852.
+- D104/v1.0.127: **visual KillStreak** - damage-tracked tier card top-center, tile/dots/title/×N/timer, `Kill Streak HUD` setting, i18n en/ru/uk; 265 tests, Linken 881/881, Strange 871/871.
 - Title/main menu, loading/splash, LinkGUI, settings hub/subpages, multiplayer, Alt Manager, Select World, pause, HUD editor, pinned cards, friends/waypoints, configs, media, style lock are in place.
 - Shader-source race: no `Couldn't find source` / `Couldn't compile` in the final autotest.
 
@@ -109,7 +110,7 @@ Use `docs/FEATURE_PARITY.md` as the source of truth. Recommended order:
    Add each new element to `HudManager.ELEMENTS`, preserve edit-mode drag/snap, add a working enable/disable setting, and an autotest screenshot/behavior step. Keep default positions non-overlapping at GUI scale 3.
 
 2. **Remaining visual modules** from `FEATURE_PARITY.md`:
-   - visual `KillStreak`, full `ViewModel`/Hands. `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` in D96/D97; `HitRange`/`CustomHitBox` in D98; `Optimization` in D101; `Particles` in D102; `Trajectories` in D103.
+   - full `ViewModel`/Hands. `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` in D96/D97; `HitRange`/`CustomHitBox` in D98; `Optimization` in D101; `Particles` in D102; `Trajectories` in D103; `KillStreak` in D104.
    - For new world modules, follow the proven `END_MAIN` + `BlockOverlayPipelines.FLAT` path, byte-packed `POSITION_COLOR`, and validate with a hidden 1920×1080 screenshot before committing.
    - Do not add dead settings for modules that have no backend.
    - Port only donor client/visual behavior; leave server helpers/network/crashers out.
@@ -145,7 +146,7 @@ Hidden/automated smoke test (requires explicit user permission):
 
 - Autotest opens both GUIs, LinkGUI, title, inventory, attacks mobs, sweeps every module/setting, takes screenshots and writes a report.
 - Check `run/logs/latest.log` and `run/logs/linkenvisuals-autotest-*.log`.
-- Expected at handoff: Linken **862/862**, Strange **852/852**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
+- Expected at handoff: Linken **881/881**, Strange **871/871**, no new ERROR/exception, no `Couldn't find source`/`Couldn't compile`, no unknown sound events. `pauseOnLostFocus` must be `false` for an unfocused/minimized hidden run; restore `options.txt` afterwards.
 - Restore `run/options.txt` after the run.
 
 Jar check:
@@ -205,6 +206,8 @@ source/src/main/java/dev/linkenvisuals/
   render/ParticlesRenderer.java
   render/TrajectoriesRenderer.java
   module/impl/TrajectoriesModule.java
+  module/impl/KillStreakModule.java
+  hud/KillStreakHud.java
   util/trajectories/TrajectoryRules.java
   ui/style/StyleFlavor.java
   ui/style/StyleManager.java
@@ -255,6 +258,7 @@ source/src/test/java/dev/linkenvisuals/
 - **Optimization (D101)**: Tier Low/Medium/Ultra; entity culling goes through `OcclusionCuller` from `EntityRenderManager.shouldRender`; render cap 12/8 from `GameOptions.getClampedViewDistance`; particle radius 48/32/22 from `ParticleManager.addParticle(Particle)`; clouds cancel only on Ultra. Do not expose `Limit Render Distance` at Low or donor fast-transparency (removed 1.21.11 getter).
 - **Particles (D102)**: textured billboards use `POSITION_TEXTURE_COLOR` + `ParticlesPipelines.BILLBOARD` with `DrawMode.TRIANGLES` (6 vertices per particle). Never use raw `QUADS` — it produced long stray lines. Cube mode uses 12 thick edges on `BlockOverlayPipelines.FLAT`; assets live in `textures/particles/`, Bloom reuses `textures/esp/ghost_bloom.png`.
 - **Trajectories (D103)**: 300-step simulation in `TrajectoriesRenderer`; bow power `TrajectoryRules.bowPower`, water/air drag + gravity from `TrajectoryRules.step`. Impact marker is procedural (ring + four prongs), not the donor `hit.png` (raw texture sampling produced an atlas square). Explosive radius is a flat `HitRangeGeometry` ring; bossbar heuristic is not ported.
+- **KillStreak (D104)**: `KillStreakModule` owns damage marks/window; `KillStreakHud` is top-center, uses `HudSurface`/`HudStyle` and MSDF. Do not duplicate Sounds voice tiers; donor glitch/conic/shine effects were not ported. `Kill Streak HUD` Interface toggle gates the card.
 - **Mixin config**: every `*Mixin.java` under `dev/linkenvisuals/mixin` must be listed in `linkenvisuals.mixins.json`; `MixinRegistrationTest` enforces this. Do not target removed 1.21.11 names such as `ParticleManager.renderParticles`; use `addToBatch`.
 - **Pinned cards**: left below Profile/right when Theme closed; style-lock hides `GUI Style`.
 - **Media strip** reads `MediaWatcher`, not the title music track; title track belongs to `LinkenMenuMusic`.
@@ -273,4 +277,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read the docs and current code, run `test` in both flavors, then continue with the **remaining visual modules** in `FEATURE_PARITY.md` (visual `KillStreak`, full `ViewModel`/Hands). `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` in D96/D97; `HitRange`/`CustomHitBox` in D98; the compile-time Strange/Linken flavor lock is D100; `Optimization` is D101; `Particles` is D102; `Trajectories` is D103. Do not add dead settings; skip `HelperItemsHud` until its donor helper modules exist, and do not add `DynamicIsland` because Link style hides it. Keep HUD drag/snap/edit-mode and the existing style/border pipeline; do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud/Cooldowns/Armor/Inventory/LowArmor/HitRange/CustomHitBox/Optimization/Particles/Trajectories, the LINKEN splash or the input shortcuts. Live acceptance still needs a real run of **both** jars, RU/UA/AZERTY/QWERTZ, a real multiplayer tab/cooldown run, the HitRange red state with a second player, CustomHitBox LOS/self/items toggles, in-world Optimization culling, all six Particles modes, and Bow/Multishot/pearl trajectories.
+Read the docs and current code, run `test` in both flavors, then continue with the **remaining visual module** in `FEATURE_PARITY.md` (full `ViewModel`/Hands). `CameraSettings` is covered by Better Animations; `AspectRatio`/`NoRender` in D96/D97; `HitRange`/`CustomHitBox` in D98; the compile-time Strange/Linken flavor lock is D100; `Optimization` is D101; `Particles` is D102; `Trajectories` is D103; `KillStreak` is D104. Do not add dead settings; skip `HelperItemsHud` until its donor helper modules exist, and do not add `DynamicIsland` because Link style hides it. Keep HUD drag/snap/edit-mode and the existing style/border pipeline; do not regress title/LinkGUI/pinned/scoreboard/tab/TargetHud/CoordinatesHud/Cooldowns/Armor/Inventory/LowArmor/KillStreak/HitRange/CustomHitBox/Optimization/Particles/Trajectories, the LINKEN splash or the input shortcuts. Live acceptance still needs a real run of **both** jars, RU/UA/AZERTY/QWERTZ, a real multiplayer tab/cooldown run, the HitRange red state with a second player, CustomHitBox LOS/self/items toggles, in-world Optimization culling, all six Particles modes, Bow/Multishot/pearl trajectories, and a live 2–5 kill KillStreak run.

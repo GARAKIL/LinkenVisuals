@@ -958,3 +958,12 @@
 - **Сборка**: `linkenvisuals-1.0.126.jar` (11 020 288 байт, SHA-256 `F83D8CA8EFC95FC7446FD16D4E90FC2857464D5041B1AEA463F873DCD72ABE84`); `linkenvisuals-strange-1.0.126.jar` (11 020 285 байт, SHA-256 `38DA975FCB6C74E6CB5A32CE8F6958828A0F55FE3C7FE5471809052C6503344D`).
 - **Commit**: `90f9b60` `feat(render): port donor trajectories (v1.0.126, D103)`.
 - **Остаток**: процедурный маркер не 1:1 `hit.png`; explosive circle только по item/effect keywords; human-проверка Bow/Multishot/pearl; KillStreak/ViewModel.
+
+## 2026-10-23 · D104 · Visual KillStreak — v1.0.127
+- **Модуль**: `KillStreakModule` (Visual/World, default ON) — `Streak Window` 2–60 s (10), `Count Mobs` true, `Combo Timer` true, `Theme Accent` true; Interface-тумблер `Kill Streak HUD` true. Трекинг из attack-hook и `EntityDamageS2CPacket`, retention 4.5 s, отдельно от SoundsModule streak-voice.
+- **HUD**: `KillStreakHud` top-center (0.5/0.07), tile 20 + sword, overline, 5 dots, tier title, `xN`, 3-s combo bar, fade 350 ms. Использует `HudSurface`/`HudStyle` (все стили/формы) и MSDF-шрифты; raw GL и donor Builders не переносились. В edit-mode preview показывает `TRIPLE KILL ×3`.
+- **i18n**: 6 ключей `linkenvisuals.hud.killstreak.*` в en/ru/uk; LangParityTest зелёный.
+- **Тесты**: **265 тестов** в обеих сборках (0 fail/error/skip). Autotest Linken **881/881**, Strange **871/871**, 0 fail/skip; проверка реального `streak >= 1` после attack-шагов + screenshot `killstreak-hud`; новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+- **Сборка**: `linkenvisuals-1.0.127.jar` (11 029 466 байт, SHA-256 `220BDDC75810BD46AA680898150DCCB2BE4DF434A8E583AD212A8E56D3EE4394`); `linkenvisuals-strange-1.0.127.jar` (11 029 463 байта, SHA-256 `777B294B43E9777F71136F14B44CF5A40D6A9AF7DCA9A19A8E306B344D153E38`).
+- **Commit**: `fc775b6` `feat(hud): port visual kill streak card (v1.0.127, D104)`.
+- **Остаток**: donor glitch/conic/shine/voice не дублированы (voice — SoundsModule); card material/style — наш HudStyle; human-battle acceptance; ViewModel/Hands.
