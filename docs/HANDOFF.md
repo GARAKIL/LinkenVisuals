@@ -6,7 +6,7 @@
 
 ### Сделано
 1. **D114/v1.0.138**: закрыт `HelperItemsHud`: добавлены `FtHelperModule`, `HwHelperModule`, `RwHelperModule` (Visual/Misc, keybind-настройки), `HelperActions` (выбор hotbar-предмета + chat feedback) и `HelperItemsHud` — плитки 18 px с item icon и key label, кэш 100 мс, preview в edit mode. `KeyboardMixin` вызывает `Modules.onHelperKey`.
-2. **Проверки**: **304 теста** (+3 `HelperModulesTest`), 0 fail/error/skip; autotest Linken **1136/1136**, Strange **1126/1126**, 0 fail/skip; `check helper hud` + screenshot `helper-items`. Новых ERROR/exception/shader/sound нет.
+2. **Проверки**: **304 теста** (+3 `HelperModulesTest`), 0 fail/error/skip; autotest Linken **1136/1136**, Strange **1126/1126**, 0 fail/skip; `check helper hud` + screenshot `helper-items`. Дополнительный прогон при **1280×720** — Linken **1136/1136**, LinkGUI/custom-vitals/helper-items screenshots проверены, layout помещается. Новых ERROR/exception/shader/sound нет.
 3. **Commit**: `c1c2a14` `feat(hud): port HelperItemsHud and Ft/Hw/Rw helpers (v1.0.138, D114)`.
 4. **Сборка**: `linkenvisuals-1.0.138.jar` — 11 129 420 байт, SHA-256 `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`; `linkenvisuals-strange-1.0.138.jar` — 11 129 420 байт, SHA-256 `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`.
 

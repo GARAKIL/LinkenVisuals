@@ -200,8 +200,10 @@ From `FEATURE_PARITY.md`, still open:
 - 18 px item/key tiles for enabled Ft/Hw/Rw helper bindings; item must be in
   the hotbar (preview shows sample tiles in HUD edit mode).
 - Key-only dispatch (`KeyboardMixin`); donor mouse bindings are still open.
-- Screenshot `helper-items` at 1920×1080.
-- **Open:** mouse bindings, Punchy engine, DynamicIsland, pixel diff.
+- Screenshot `helper-items` at 1920×1080 and 1280×720.
+- 1280×720 autotest: Linken **1136/1136**; LinkGUI/custom-vitals/helper-items
+  layouts fit at that resolution.
+- **Open:** mouse bindings, Punchy engine, DynamicIsland, human pixel acceptance.
 
 ## 7. Verification for D101-D114
 

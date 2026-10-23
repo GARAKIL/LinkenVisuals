@@ -53,7 +53,7 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 1. **Punchy**: 181 класс / 62 261 строка; нужен отдельный этап, HandMotion — только видимый subset.
 2. **DynamicIsland**: 1496 + 1043 строк helper; donor hides it in Link style.
 3. **Helper mouse bindings** (сейчас key-only) + BoostFPS donor-DEFAULT.
-4. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance. `HelperItemsHud`/Ft/Hw/Rw ported (D114); `UI` background/text (D113); `ItemRadius` splash labels (D112); `UI` palette/fade/blur (D111); `SelfNametags` (D110); `DamageParticles`/`FortniteDamage` (D109).
+4. **Pixel GUI pass**: 1280×720 and 1920×1080 screenshots captured (Linken 1136/1136 at both); human acceptance remains. `HelperItemsHud`/Ft/Hw/Rw ported (D114); `UI` background/text (D113); `ItemRadius` splash labels (D112); `UI` palette/fade/blur (D111); `SelfNametags` (D110); `DamageParticles`/`FortniteDamage` (D109).
 
 ## 5. Architecture that must not break
 
