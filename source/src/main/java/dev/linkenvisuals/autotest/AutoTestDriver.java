@@ -30,6 +30,7 @@ import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
+import dev.linkenvisuals.render.ItemRadiusRenderer;
 import dev.linkenvisuals.render.ParticlesRenderer;
 import dev.linkenvisuals.render.TrajectoriesRenderer;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
@@ -641,6 +642,38 @@ public final class AutoTestDriver {
         add("disable trajectories", 1, () -> {
             if (Modules.trajectories() != null) {
                 Modules.trajectories().info().toggleSilently(false);
+            }
+        });
+
+        add("enable item radius", 1, () -> {
+            if (Modules.itemRadius() != null) {
+                Modules.itemRadius().info().toggleSilently(true);
+            }
+        });
+        add("give item radius eye", 1, () -> {
+            if (client.player != null) {
+                trajectoryReturnStack = client.player.getMainHandStack().copy();
+                client.player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.ENDER_EYE));
+                client.player.setPitch(80.0f);
+            }
+        });
+        add("wait item radius", 8, () -> {
+        });
+        add("check item radius render", 2, () -> {
+            if (!ItemRadiusRenderer.lastRenderVisible()) {
+                throw new IllegalStateException("ItemRadius did not render");
+            }
+        });
+        add("screenshot item radius", 1, () -> screenshot(client, "item-radius"));
+        add("restore item radius hand", 1, () -> {
+            if (client.player != null) {
+                client.player.setStackInHand(Hand.MAIN_HAND, trajectoryReturnStack);
+                client.player.setPitch(returnPitch);
+            }
+        });
+        add("disable item radius", 1, () -> {
+            if (Modules.itemRadius() != null) {
+                Modules.itemRadius().info().toggleSilently(false);
             }
         });
 

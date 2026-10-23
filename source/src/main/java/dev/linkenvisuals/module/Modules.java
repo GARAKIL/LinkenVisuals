@@ -15,6 +15,7 @@ import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.HitRangeModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.ItemPhysicsModule;
+import dev.linkenvisuals.module.impl.ItemRadiusModule;
 import dev.linkenvisuals.module.impl.ItemScrollerModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.KillStreakModule;
@@ -78,6 +79,7 @@ public final class Modules {
     private static KillStreakModule killStreak;
     private static ViewModelModule viewModel;
     private static CustomVitalsModule customVitals;
+    private static ItemRadiusModule itemRadius;
 
     private Modules() {
     }
@@ -230,6 +232,10 @@ public final class Modules {
         return customVitals;
     }
 
+    public static ItemRadiusModule itemRadius() {
+        return itemRadius;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -304,5 +310,7 @@ public final class Modules {
         register(viewModel);
         customVitals = new CustomVitalsModule();
         register(customVitals);
+        itemRadius = new ItemRadiusModule();
+        register(itemRadius);
     }
 }
