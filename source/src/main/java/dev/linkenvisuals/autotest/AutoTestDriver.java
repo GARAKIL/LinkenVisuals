@@ -778,6 +778,31 @@ public final class AutoTestDriver {
         add("open inventory", 5, () -> client.setScreen(new InventoryScreen(client.player)));
         add("close inventory", 3, () -> client.setScreen(null));
 
+        add("enable self nametags", 1, () -> {
+            if (Modules.streamerMode() != null) {
+                Modules.streamerMode().customName.setValue("Hidden");
+                Modules.streamerMode().info().toggleSilently(true);
+            }
+            if (Modules.selfNametags() != null) {
+                Modules.selfNametags().info().toggleSilently(true);
+            }
+        });
+        add("check self nametag", 2, () -> {
+            if (client.player == null || !client.player.getDisplayName().getString().contains("Hidden")) {
+                throw new IllegalStateException("SelfNametags did not sanitize the local display name: "
+                    + (client.player == null ? "no player" : client.player.getDisplayName().getString()));
+            }
+        });
+        add("restore self nametags", 1, () -> {
+            if (Modules.selfNametags() != null) {
+                Modules.selfNametags().info().toggleSilently(false);
+            }
+            if (Modules.streamerMode() != null) {
+                Modules.streamerMode().customName.setValue("");
+                Modules.streamerMode().info().toggleSilently(false);
+            }
+        });
+
         add("enable damage visuals", 1, () -> {
             if (Modules.damageParticles() != null) {
                 Modules.damageParticles().info().toggleSilently(true);
@@ -788,7 +813,7 @@ public final class AutoTestDriver {
             }
         });
         add("spawn debug damage number", 1, () -> FortniteDamageRenderer.debugSpawn(client, 7));
-        add("check debug damage number", 2, () -> {
+        add("check debug damage number", 8, () -> {
             if (!FortniteDamageRenderer.lastRenderVisible()) {
                 throw new IllegalStateException("FortniteDamage debug number did not render");
             }
@@ -802,7 +827,7 @@ public final class AutoTestDriver {
         for (int i = 0; i < 4; i++) {
             add("attack mob " + (i + 1), 3, () -> attackNearest(client));
         }
-        add("check damage visuals", 2, () -> {
+        add("check damage visuals", 4, () -> {
             if (!mobsSpawned) {
                 throw new SkipStep("no summoned mobs for damage visuals");
             }

@@ -62,6 +62,7 @@
     "ClientPlayNetworkHandlerMixin",
     "AddServerScreenMixin",
     "DirectConnectScreenMixin",
+    "PlayerEntityMixin",
     "PlayerEntityRenderStateMixin",
     "PlayerEntityRendererMixin",
     "PlayerEntityModelMixin",

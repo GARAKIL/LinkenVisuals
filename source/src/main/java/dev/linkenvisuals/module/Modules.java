@@ -26,6 +26,7 @@ import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.NoRenderModule;
 import dev.linkenvisuals.module.impl.OptimizationModule;
 import dev.linkenvisuals.module.impl.ParticlesModule;
+import dev.linkenvisuals.module.impl.SelfNametagsModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.module.impl.TrajectoriesModule;
@@ -71,6 +72,7 @@ public final class Modules {
     private static ItemScrollerModule itemScroller;
     private static ElytraSwapModule elytraSwap;
     private static StreamerModeModule streamerMode;
+    private static SelfNametagsModule selfNametags;
     private static SoundsModule sounds;
     private static NoRenderModule noRender;
     private static HitRangeModule hitRange;
@@ -196,6 +198,10 @@ public final class Modules {
         return streamerMode;
     }
 
+    public static SelfNametagsModule selfNametags() {
+        return selfNametags;
+    }
+
     public static SoundsModule sounds() {
         return sounds;
     }
@@ -302,6 +308,8 @@ public final class Modules {
         register(elytraSwap);
         streamerMode = new StreamerModeModule();
         register(streamerMode);
+        selfNametags = new SelfNametagsModule();
+        register(selfNametags);
         sounds = new SoundsModule();
         register(sounds);
         noRender = new NoRenderModule();
