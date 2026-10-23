@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.134 / D110
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.135 / D111
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -6,12 +6,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.134**
-- Last code commit: `1ea9fd3` `feat(visuals): port SelfNametags toggle (v1.0.134, D110)`.
+- Version: **1.0.135**
+- Last code commit: `fa38938` `feat(ui): expose secondary colour, fade and blur (v1.0.135, D111)`.
 - Tests: **300 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **1093/1093**, Strange **1083/1083**, 0 fail/skip, 1920×1080.
+- Autotest: Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.134): `linkenvisuals-1.0.134.jar` 11 110 581 bytes / `FA2E0F083AFADAB816F4652BF860EB0E8723545AC489B6B21C4726D42F9DA0A3`; `linkenvisuals-strange-1.0.134.jar` 11 110 577 bytes / `CD7A2AA03352114298C0854DB5C8BDD5C39ACB81E482356728F6C66A2BE1CE2A`.
+- Jars (1.0.135): `linkenvisuals-1.0.135.jar` 11 111 719 bytes / `FC0CEC2721C1C5A5FF6048A21C3AC12C441BC3673560EA06B56457C85DBBA82B`; `linkenvisuals-strange-1.0.135.jar` 11 111 713 bytes / `04EE5DF0090B5FB4CAE4E50ECD1CF75D102F2B9D8A2D43F08C3C463392392C52`.
 
 Clone/verify:
 
@@ -21,7 +21,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.134
+Get-Content source/gradle.properties   # mod_version=1.0.135
 ```
 
 ## 2. Donor
@@ -34,7 +34,7 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D110 (do not redo)
+## 3. Done in D105-D111 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
@@ -42,14 +42,15 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 - D108: donor `ItemRadius` (Ender Eye/Sugar circles, netherite box, dried-kelp staircase, snowball projection, splash-potion impact, proximity colour) on `FLAT_NO_DEPTH`; donor `%` proximity labels remain open.
 - D109: donor `DamageParticles` (legacy/decorative impact, projectile trail, six modes) and `FortniteDamage` (floating crit/theme numbers, screen-space MSDF projection); `damage-number`/`damage-visuals` screenshots.
 - D110: donor `SelfNametags` toggle, wired to the StreamerMode sanitizer for the local player only; autotest asserts the `Hidden` self label.
+- D111: Interface Secondary Colour, Theme Fade, GUI Blur; fade-off collapses secondary to accent, no-blur LinkGUI/ClickGUI; `linkgui-noblur` screenshot.
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **UI** donor controls: colour/fade/blur/BoostFPS; сверка с Interface/Theme/HudStyle.
+1. **UI** remaining donor controls: Background Colour, Text Colour, BoostFPS; сверка с LinkGuiTheme/HudStyle.
 2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains out of scope.
 3. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
-4. `SelfNametags` ported (D110); `DamageParticles`/`FortniteDamage` ported (D109); `ItemRadius` ported (D108), donor `%` proximity labels remain open. `HelperItemsHud` blocked, `DynamicIsland` skipped.
+4. `UI` palette/fade/blur subset ported (D111); `SelfNametags` (D110), `DamageParticles`/`FortniteDamage` (D109), `ItemRadius` (D108), donor `%` proximity labels open. `HelperItemsHud` blocked, `DynamicIsland` skipped.
 
 ## 5. Architecture that must not break
 

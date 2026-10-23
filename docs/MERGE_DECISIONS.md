@@ -1036,3 +1036,11 @@
 - **Сборка**: `linkenvisuals-1.0.134.jar` (11 110 581 байт, SHA-256 `FA2E0F083AFADAB816F4652BF860EB0E8723545AC489B6B21C4726D42F9DA0A3`); `linkenvisuals-strange-1.0.134.jar` (11 110 577 байт, SHA-256 `CD7A2AA03352114298C0854DB5C8BDD5C39ACB81E482356728F6C66A2BE1CE2A`).
 - **Commit**: `1ea9fd3` `feat(visuals): port SelfNametags toggle (v1.0.134, D110)`.
 - **Остаток**: multiplayer/team-prefix human check; full UI/Punchy/pixel parity.
+
+## 2026-10-23 · D111 · UI palette/fade/blur — v1.0.135
+- **Interface**: добавлены `Secondary Colour`, `Theme Fade`, `GUI Blur` в существующий ClickGUI/Interface ModuleInfo (не дублируем donor `UI` module). `Theme.secondary()` использует Secondary Colour; fade-off возвращает accent, поэтому HUD-градиенты (`HudStyle` MINIMAL/AURORA/GRADIENT) становятся одноцветными.
+- **Blur**: `GUI Blur=false` — `LinkGuiScreen`/`ClickGuiScreen` переопределяют `renderBackground` и не вызывают vanilla blur; Link backdrop также пропускает `context.applyBlur`. `GUI Blur=true` сохраняет прежнее поведение.
+- **Проверки**: **300 тестов**, 0 fail/error/skip; autotest Linken **1106/1106**, Strange **1096/1096**, `check UI palette` + `linkgui-noblur` screenshot. Новых ERROR/exception/shader/sound нет.
+- **Сборка**: `linkenvisuals-1.0.135.jar` (11 111 719 байт, SHA-256 `FC0CEC2721C1C5A5FF6048A21C3AC12C441BC3673560EA06B56457C85DBBA82B`); `linkenvisuals-strange-1.0.135.jar` (11 111 713 байт, SHA-256 `04EE5DF0090B5FB4CAE4E50ECD1CF75D102F2B9D8A2D43F08C3C463392392C52`).
+- **Commit**: `fa38938` `feat(ui): expose secondary colour, fade and blur (v1.0.135, D111)`.
+- **Остаток**: Background Colour/Text Colour/BoostFPS не выведены; donor offset-based fade упрощён; pixel diff/human acceptance.

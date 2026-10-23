@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D111 — UI palette/fade/blur) — v1.0.135
+
+### Сделано
+1. **D111/v1.0.135**: Interface получил donor-настройки `Secondary Colour`, `Theme Fade`, `GUI Blur`. `Theme.secondary()` берёт `Secondary Colour`; при выключенном `Theme Fade` secondary сворачивается в accent (HUD-градиенты становятся одноцветными). `GUI Blur=false` отключает blur в `LinkGuiScreen` и `ClickGuiScreen` (оба переопределяют `renderBackground`; Link backdrop дополнительно не вызывает `applyBlur`).
+2. **Проверки**: **300 тестов** (0 fail/error/skip); autotest Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip; `check UI palette` (fade-off secondary == accent) и screenshot `linkgui-noblur` (реально без blur). Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+3. **Commit**: `fa38938` `feat(ui): expose secondary colour, fade and blur (v1.0.135, D111)`.
+4. **Сборка**: `linkenvisuals-1.0.135.jar` — 11 111 719 байт, SHA-256 `FC0CEC2721C1C5A5FF6048A21C3AC12C441BC3673560EA06B56457C85DBBA82B`; `linkenvisuals-strange-1.0.135.jar` — 11 111 713 байт, SHA-256 `04EE5DF0090B5FB4CAE4E50ECD1CF75D102F2B9D8A2D43F08C3C463392392C52`.
+
+### Следующая задача
+1. **UI background/text colours + BoostFPS** (donor UI остаток); сверить `LinkGuiTheme`/`HudStyle`.
+2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
+3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped; `ItemRadius` proximity `%` labels open.
+
+### Риски
+- Donor `Theme Fade` интерполирует primary/secondary по offset; порт использует secondary как статический второй цвет и сворачивает его в accent при выключении. Это осознанное упрощение, pixel-diff не закрыт.
+- `Background Colour`, `Text Colour`, `BoostFPS` пока не выведены; не считать UI закрытым.
+- No-blur screenshot проверяет отсутствие blur, но не 1280×720/4K pixel parity.
+
 ## Состояние на 2026-10-23 (D110 — SelfNametags) — v1.0.134
 
 ### Сделано

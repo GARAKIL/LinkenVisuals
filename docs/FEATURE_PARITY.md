@@ -70,14 +70,15 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `Trajectories`, `KillStreak` (visual card D104), `ViewModel` manual offsets
 (D105), `Hand Motion` Punchy-lite subset (D106), `CustomVitals`/Armor V2 (D107),
 `ItemRadius` (D108), `DamageParticles`/`FortniteDamage` (D109),
-`SelfNametags` toggle (D110), cosmetics/pets subset, filters/ambience subset.
+`SelfNametags` toggle (D110), Interface palette/fade/blur subset (D111),
+cosmetics/pets subset, filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
 `HelperItemsHud` (blocked), `DynamicIsland`,
 `ViewModel` animated Punchy mode (the twelve manual donor
 offsets/scale settings are ported in D105; D106 adds only a lightweight
-Hand Motion subset), full `UI` colour/fade/blur/BoostFPS controls.
+Hand Motion subset), remaining `UI` background/text colour and BoostFPS controls.
 
 Covered: `CameraSettings` is implemented by `Better Animations` →
 `Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 and its
@@ -101,7 +102,7 @@ not silently faked; no dead controls are exposed for them.
 ## Verification used for this snapshot
 
 - `clean build`: **300 test / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **1093/1093**, Strange **1083/1083**, no new
+- Hidden `runAutotest`: Linken **1106/1106**, Strange **1096/1096**, no new
   ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
@@ -122,9 +123,10 @@ not silently faked; no dead controls are exposed for them.
   with `custom-vitals`/`armor-hud-v2` screenshots; D108 adds donor `ItemRadius`
   with the `item-radius` screenshot; D109 adds `DamageParticles`/`FortniteDamage`
   with `damage-number`/`damage-visuals` screenshots; D110 adds the donor
-  `SelfNametags` self-label toggle with the `check self nametag` assertion.
-  A separate frame-capture 1280×720 confirms the LINKEN splash replaces the
-  Mojang logo from the first frame.
+  `SelfNametags` self-label toggle with the `check self nametag` assertion;
+  D111 adds Secondary Colour/Theme Fade/GUI Blur with the `linkgui-noblur`
+  screenshot. A separate frame-capture 1280×720 confirms the LINKEN splash
+  replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
   QWERTZ acceptance remains a human check.
@@ -142,6 +144,6 @@ The **LinkGUI + title + welcome + settings + HUD material/shape + TargetHud +
 CoordinatesHud + CustomVitals + Armor V2 + donor server browser + pinned cards +
 custom scoreboard/tab + HitRange + CustomHitBox + Optimization + Particles +
 Trajectories + KillStreak + ViewModel + compact LINKEN pause + CustomVitals/Armor V2 +
-ItemRadius + DamageParticles/FortniteDamage + SelfNametags + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+ItemRadius + DamageParticles/FortniteDamage + SelfNametags + UI palette/fade/blur + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

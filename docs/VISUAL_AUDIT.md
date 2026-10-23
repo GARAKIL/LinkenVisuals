@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.134 / D110** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.135 / D111** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -173,14 +173,26 @@ From `FEATURE_PARITY.md`, still open:
 - Autotest sets `Hidden`, asserts the local display name, then restores.
 - **Open:** multiplayer/team-prefix human check.
 
-## 7. Verification for D101-D110
+## 6e. UI D111 — palette/fade/blur (subset, open remainder)
+
+- **Secondary Colour**: `Theme.secondary()` now uses the configured secondary
+  for HUD gradients.
+- **Theme Fade off**: secondary collapses to accent, so MINIMAL/AURORA/GRADIENT
+  HUD surfaces become single-colour.
+- **GUI Blur off**: LinkGUI and Beta ClickGUI override `renderBackground` and
+  skip vanilla post-process blur; the Link backdrop also skips `applyBlur`.
+- Screenshot `linkgui-noblur` at 1920×1080 proves the no-blur path.
+- **Open:** donor Background Colour, Text Colour and BoostFPS are not exposed;
+  donor per-offset fade interpolation is simplified.
+
+## 7. Verification for D101-D111
 
 - `test` / `clean build`: 300 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1093/1093**, Strange **1083/1083**, 0 fail/skip, 1920×1080;
+- Autotest Linken **1106/1106**, Strange **1096/1096**, 0 fail/skip, 1920×1080;
   `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius`,
-  `damage-number`, `damage-visuals`, `check self nametag` and the fake-player
-  crit assertion are part of the plan. No new shader/mixin/sound errors; only
-  offline-auth/Realms.
+  `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`
+  and the fake-player crit assertion are part of the plan. No new
+  shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact
   440 px panel with `icons2` glyphs and the `PAUSED` title.
