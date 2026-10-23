@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.137 / D113
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.138 / D114
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -6,12 +6,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.137**
-- Last code commit: `29ac193` `feat(ui): add custom background and text colours (v1.0.137, D113)`.
-- Tests: **301 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **1120/1120**, Strange **1110/1110**, 0 fail/skip, 1920×1080.
+- Version: **1.0.138**
+- Last code commit: `c1c2a14` `feat(hud): port HelperItemsHud and Ft/Hw/Rw helpers (v1.0.138, D114)`.
+- Tests: **304 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **1136/1136**, Strange **1126/1126**, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.137): `linkenvisuals-1.0.137.jar` 11 115 791 bytes / `B2BA90210F3FEE21147A302A838444001FE4063075AB12CCB39A52C9D4D501BF`; `linkenvisuals-strange-1.0.137.jar` 11 115 780 bytes / `7D53F4FC6CC2A97761C05EE4C3E24F7DB4C9B538216B2ADCB2D6C76DCAB57533`.
+- Jars (1.0.138): `linkenvisuals-1.0.138.jar` 11 129 420 bytes / `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`; `linkenvisuals-strange-1.0.138.jar` 11 129 420 bytes / `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`.
 
 Clone/verify:
 
@@ -21,7 +21,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.137
+Get-Content source/gradle.properties   # mod_version=1.0.138
 ```
 
 ## 2. Donor
@@ -34,7 +34,7 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D113 (do not redo)
+## 3. Done in D105-D114 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
@@ -45,14 +45,15 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 - D111: Interface Secondary Colour, Theme Fade, GUI Blur; fade-off collapses secondary to accent, no-blur LinkGUI/ClickGUI; `linkgui-noblur` screenshot.
 - D112: ItemRadius splash proximity `NN%` labels (donor 1−dist/radius formula) via screen-space MSDF; `ItemRadiusRulesTest`.
 - D113: Custom Theme Colours master + Background/Text colours, LinkGUI palette and HUD base; `linkgui-custom-colours` screenshot.
+- D114: HelperItemsHud + Ft/Hw/Rw helper modules, key dispatch, `helper-items` screenshot.
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **HelperItemsHud + Ft/Hw/Rw helper modules** (закрыть blocked HUD).
-2. **Punchy**: 181 класс / 62 261 строка; нужен отдельный этап, HandMotion — только видимый subset.
-3. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance.
-4. `UI` background/text ported (D113); `ItemRadius` splash labels (D112); `UI` palette/fade/blur (D111); `SelfNametags` (D110); `DamageParticles`/`FortniteDamage` (D109). `DynamicIsland` skipped; BoostFPS donor-DEFAULT.
+1. **Punchy**: 181 класс / 62 261 строка; нужен отдельный этап, HandMotion — только видимый subset.
+2. **DynamicIsland**: 1496 + 1043 строк helper; donor hides it in Link style.
+3. **Helper mouse bindings** (сейчас key-only) + BoostFPS donor-DEFAULT.
+4. **Pixel GUI pass** at 1280×720 and 1920×1080; human acceptance. `HelperItemsHud`/Ft/Hw/Rw ported (D114); `UI` background/text (D113); `ItemRadius` splash labels (D112); `UI` palette/fade/blur (D111); `SelfNametags` (D110); `DamageParticles`/`FortniteDamage` (D109).
 
 ## 5. Architecture that must not break
 

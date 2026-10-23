@@ -71,11 +71,12 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 (D105), `Hand Motion` Punchy-lite subset (D106), `CustomVitals`/Armor V2 (D107),
 `ItemRadius` (D108; splash proximity labels D112), `DamageParticles`/`FortniteDamage` (D109),
 `SelfNametags` toggle (D110), Interface palette/fade/blur/background/text (D111/D113),
-cosmetics/pets subset, filters/ambience subset.
+`HelperItemsHud`/Ft/Hw/Rw helpers (D114), cosmetics/pets subset,
+filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
-`HelperItemsHud` (blocked), `DynamicIsland`,
+`DynamicIsland`,
 `ViewModel` animated Punchy mode (the twelve manual donor
 offsets/scale settings are ported in D105; D106 adds only a lightweight
 Hand Motion subset), remaining `UI` BoostFPS control.
@@ -101,8 +102,8 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **301 test / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **1120/1120**, Strange **1110/1110**, no new
+- `clean build`: **304 test / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **1136/1136**, Strange **1126/1126**, no new
   ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
@@ -126,7 +127,8 @@ not silently faked; no dead controls are exposed for them.
   `SelfNametags` self-label toggle with the `check self nametag` assertion;
   D111 adds Secondary Colour/Theme Fade/GUI Blur with the `linkgui-noblur`
   screenshot; D112 adds the donor splash proximity `NN%` labels; D113 adds
-  Custom Theme Colours with the `linkgui-custom-colours` screenshot. A separate
+  Custom Theme Colours with the `linkgui-custom-colours` screenshot; D114 adds
+  HelperItemsHud/Ft/Hw/Rw with the `helper-items` screenshot. A separate
   frame-capture 1280×720 confirms the LINKEN splash replaces the Mojang logo
   from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
@@ -146,6 +148,6 @@ The **LinkGUI + title + welcome + settings + HUD material/shape + TargetHud +
 CoordinatesHud + CustomVitals + Armor V2 + donor server browser + pinned cards +
 custom scoreboard/tab + HitRange + CustomHitBox + Optimization + Particles +
 Trajectories + KillStreak + ViewModel + compact LINKEN pause + CustomVitals/Armor V2 +
-ItemRadius (with splash labels) + DamageParticles/FortniteDamage + SelfNametags + UI palette/fade/blur/background/text + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+ItemRadius (with splash labels) + DamageParticles/FortniteDamage + SelfNametags + UI palette/fade/blur/background/text + HelperItemsHud/Ft/Hw/Rw + Strange/Linken build flavors** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.

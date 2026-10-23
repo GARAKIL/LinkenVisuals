@@ -126,6 +126,7 @@
 - [x] **M8.36 — UI palette/fade/blur**, v1.0.135, D111: Secondary Colour, Theme Fade, GUI Blur in Interface; fade-off collapse and real no-blur LinkGUI/ClickGUI; `linkgui-noblur` screenshot; **300 тестов**, Linken 1106/1106, Strange 1096/1096.
 - [x] **M8.37 — ItemRadius splash proximity labels**, v1.0.136, D112: `NN%` over players inside the simulated splash radius, donor 1−dist/radius formula, screen-space MSDF; **301 тест**, Linken 1106/1106, Strange 1096/1096.
 - [x] **M8.38 — UI background/text colours**, v1.0.137, D113: Custom Theme Colours master, Background/Text colours, LinkGUI palette + HUD base; `linkgui-custom-colours` screenshot; **301 тест**, Linken 1120/1120, Strange 1110/1110.
-- [ ] **M8.17 — full donor visual parity remainder** — HelperItems/DynamicIsland (blocked/neutralized by Link style), ViewModel Animated, full Punchy, BoostFPS, pixel GUI pass, human sound/visual acceptance, multiplayer custom-tab check.
+- [x] **M8.39 — HelperItemsHud + Ft/Hw/Rw**, v1.0.138, D114: helper hotbar-selection modules, key dispatch, 18 px item/key HUD with preview; **304 теста**, Linken 1136/1136, Strange 1126/1126, `helper-items` screenshot.
+- [ ] **M8.17 — full donor visual parity remainder** — DynamicIsland, ViewModel Animated, full Punchy, BoostFPS, helper mouse bindings, pixel GUI pass, human sound/visual acceptance, multiplayer custom-tab check.
 
 **Правило:** M1–M6 реализованы и проверены агентом 20.10.2026 (1280×720 и 4K-framebuffer; F2/PrintWindow); финальное «принято» по M2–M6 и выбор следующего объёма M7 — за пользователем.

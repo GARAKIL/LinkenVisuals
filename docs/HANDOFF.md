@@ -2,6 +2,25 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-24 (D114 — HelperItemsHud + Ft/Hw/Rw) — v1.0.138
+
+### Сделано
+1. **D114/v1.0.138**: закрыт `HelperItemsHud`: добавлены `FtHelperModule`, `HwHelperModule`, `RwHelperModule` (Visual/Misc, keybind-настройки), `HelperActions` (выбор hotbar-предмета + chat feedback) и `HelperItemsHud` — плитки 18 px с item icon и key label, кэш 100 мс, preview в edit mode. `KeyboardMixin` вызывает `Modules.onHelperKey`.
+2. **Проверки**: **304 теста** (+3 `HelperModulesTest`), 0 fail/error/skip; autotest Linken **1136/1136**, Strange **1126/1126**, 0 fail/skip; `check helper hud` + screenshot `helper-items`. Новых ERROR/exception/shader/sound нет.
+3. **Commit**: `c1c2a14` `feat(hud): port HelperItemsHud and Ft/Hw/Rw helpers (v1.0.138, D114)`.
+4. **Сборка**: `linkenvisuals-1.0.138.jar` — 11 129 420 байт, SHA-256 `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`; `linkenvisuals-strange-1.0.138.jar` — 11 129 420 байт, SHA-256 `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`.
+
+### Следующая задача
+1. **Punchy** (181 класс / 62 261 строка) — отдельный этап; текущий HandMotion только видимый subset.
+2. **DynamicIsland** (1496 + 1043 строк helper) — donor сам скрывает его в Link style, но для 100% нужен порт.
+3. **Mouse-бинды helper-модулей** (сейчас key-only; donor поддерживает ЛКМ/ПКМ).
+4. **Pixel GUI pass** 1280×720/1920×1080; human acceptance; BoostFPS donor-DEFAULT.
+
+### Риски
+- HelperItemsHud — key-only; mouse bindings donor не портированы.
+- `HelperItemsHud` показывает только реально найденные hotbar-предметы; preview показывает samples.
+- `DynamicIsland`/Punchy остаются крупными незакрытыми блоками, 100% пока не достигнуто.
+
 ## Состояние на 2026-10-24 (D113 — UI background/text colours) — v1.0.137
 
 ### Сделано

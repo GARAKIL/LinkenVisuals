@@ -1060,3 +1060,11 @@
 - **Сборка**: `linkenvisuals-1.0.137.jar` (11 115 791 байт, SHA-256 `B2BA90210F3FEE21147A302A838444001FE4063075AB12CCB39A52C9D4D501BF`); `linkenvisuals-strange-1.0.137.jar` (11 115 780 байт, SHA-256 `7D53F4FC6CC2A97761C05EE4C3E24F7DB4C9B538216B2ADCB2D6C76DCAB57533`).
 - **Commit**: `29ac193` `feat(ui): add custom background and text colours (v1.0.137, D113)`.
 - **Остаток**: BoostFPS (donor force DEFAULT), semantic HUD colours, pixel diff.
+
+## 2026-10-24 · D114 · HelperItemsHud + Ft/Hw/Rw — v1.0.138
+- **Модули**: `FtHelperModule` (6 keybind-настроек: Desor/Trapka/Yavka/Bozhka/Plast/Snowball), `HwHelperModule` (4: Stan/Trapka/Boom Trapka/Boom Thing), `RwHelperModule` (4: Anti Fly/Exp Scroll/Trap/ Dark Pulse). `HelperActions` ищет hotbar-предмет (для Rw — с name-token) и переключает selected slot; chat feedback как у донора.
+- **HUD**: `HelperItemsHud` — 18 px tiles, item icon + key label, panel `HudSurface`, 100 ms cache, preview samples; добавлен в `HudManager.ELEMENTS`. `KeyboardMixin` -> `Modules.onHelperKey`.
+- **Проверки**: `HelperModulesTest` (3), всего **304 теста**, 0 fail/error/skip; autotest Linken **1136/1136**, Strange **1126/1126**, `check helper hud` + `helper-items` screenshot.
+- **Сборка**: `linkenvisuals-1.0.138.jar` (11 129 420 байт, SHA-256 `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`); `linkenvisuals-strange-1.0.138.jar` (11 129 420 байт, SHA-256 `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`).
+- **Commit**: `c1c2a14` `feat(hud): port HelperItemsHud and Ft/Hw/Rw helpers (v1.0.138, D114)`.
+- **Остаток**: mouse bindings (key-only), Punchy, DynamicIsland, pixel diff.
