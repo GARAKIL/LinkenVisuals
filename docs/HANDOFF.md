@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №52 — donor HitRange + CustomHitBox, D98) — v1.0.121
+
+### Сделано
+1. **D98/v1.0.121** (`acd46e7`): donor `HitRange` (Visual/World, default OFF) — вращающееся кольцо радиуса `3.32`, 72 сегмента, толщина/скорость/`Depth Test`, красный цвет при видимом игроке в радиусе; рисуется на `END_MAIN` как triangle-list лента через проверенный `BlockOverlayPipelines.FLAT` (не GL-линии), цвет — байтовый `POSITION_COLOR`. Отдельный `FLAT_NO_DEPTH` pipeline для выключенного depth-test, без глобальных RenderSystem-мутаций.
+2. **D98/v1.0.121**: donor `CustomHitBox` (Visual/World, default OFF) — fill/outline боксы, `Fill`/`Fill Alpha`/`Line Width`/`Color`/`Show Self`/`Show Items`; дистанция `128`, frustum-отсечка, LOS-рейкасты по центру и 10 запасным точкам с кэшем `120 мс`; donor-геометрия 36 fill-вершин и 144 outline-вершин на сущность, camera-relative.
+3. **Тесты**: `HitRangeGeometryTest` (6) — вершины на inner/outer окружности, ненулевая площадь каждого треугольника, wrap вращения, finite-радиус; `CustomHitBoxGeometryTest` (3) — 6 граней fill, 12 толстых рёбер, дистанция/alpha/thickness правила. Итого **249 тестов, 0 падений/ошибок/скипов**.
+4. **Autotest**: **799/799**, 0 fail/skip, 1920×1080; скриншоты `lv-autotest-20-hitrange.png` (чистое кольцо) и `lv-autotest-21-custom-hitbox.png` (заполненный/обведённый бокс вокруг тестовой коровы). Новых ERROR/exception, shader-source и unknown-sound-event ошибок нет; в `latest.log` только прежние offline-auth/Realms ERROR.
+5. **Сборка**: jar `linkenvisuals-1.0.121.jar` (10 805 529 байт, SHA-256 `CAC73CD84DD5B6F00E5A76899B0EB8D634E983D5FA2854463BCD4DE66C40B9F1`).
+
+### Следующая задача
+1. **Optimization** — donor Tier Low/Medium/Ultra, entity culling, render-distance cap, particle distance culling, transparency/cloud logic; только поведение, работающее на 1.21.11, без мёртвых настроек.
+2. Затем Particles / Trajectories / visual KillStreak / full ViewModel/Hands — по одному модулю, с проверкой world-render пути и скриншотом.
+3. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2 (нужен screen-anchored слой).
+4. Human: живые cooldown-тики, RU/UA/AZERTY/QWERTZ, low-armor в бою, multiplayer custom tab, pixel diff 1280×720/1920×1080; отдельно — красное состояние HitRange против второго игрока и LOS/self/items у CustomHitBox.
+
+### Риски
+- HitRange краснеет только от видимых non-spectator игроков; в singleplayer это состояние не воспроизводится, нужен второй игрок.
+- CustomHitBox следует donor-набору сущностей (все живые, кроме XP-orbs; предметы — по toggle), а не только `LivingEntity`.
+- Autotest-скриншот CustomHitBox использует временно повышенные `Fill Alpha`/`Line Width` и тестовую корову; после шага значения возвращаются к 90/1.5.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №51 — donor NoRender, D97) — v1.0.120
 
 ### Сделано

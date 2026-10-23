@@ -1,6 +1,6 @@
 # Feature parity — donor LinkenVisuals 2.0 vs our port
 
-> Snapshot: **v1.0.120**, 2026-10-23. This audit is deliberately explicit: it is
+> Snapshot: **v1.0.121**, 2026-10-23. This audit is deliberately explicit: it is
 > not a claim that every donor class is present. It records what is ported,
 > what is covered by an equivalent implementation, and what remains open.
 
@@ -58,21 +58,21 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 SelfNametags), `KillEffects`, `Hands`/`HandPose`, `Shader Sky` (donor
 SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 `StreamerMode`, `TotemTracker`, `UseTracker`, `Waypoints`, `ElytraSwap`,
-`HandSwap`, `Sounds`, cosmetics/pets subset, filters/ambience subset.
+`HandSwap`, `Sounds`, `HitRange`, `CustomHitBox`, cosmetics/pets subset,
+filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
-`CooldownsHud` (D95), `ArmorHud` (D95, V1), `InventoryHud` (D95),
-`LowArmorNotificationsHud` (D95), `HelperItemsHud` (blocked),
-`DynamicIsland`, `CustomHitBox`, `CustomVitals`, `DamageParticles`,
-`FortniteDamage`, `HitRange`, `ItemRadius`, `Optimization`,
+`HelperItemsHud` (blocked), `DynamicIsland`, `CustomVitals`,
+`DamageParticles`, `FortniteDamage`, `ItemRadius`, `Optimization`,
 `Particles`, `Trajectories`, `KillStreak` (visual module; sound streak is
 implemented), `ViewModel` (only HandPose subset), `SelfNametags` (our
 NameTags is not a line-by-line port), full `UI` colour/fade/blur/BoostFPS
 controls.
 
 Covered: `CameraSettings` is implemented by `Better Animations` →
-`Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 (8 donor switches).
+`Animations.perspective`; `AspectRatio` is ported in D96; `NoRender` is ported in D97 (8 donor switches);
+`HitRange` and `CustomHitBox` are ported in D98 (world-render triangle/box passes, geometry tests).
 
 ### Intentionally excluded donor modules
 
@@ -90,11 +90,12 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **240 tests / 0 failures / 0 errors / 0 skips**.
-- Hidden `runAutotest`: **749/749 steps**, no new ERROR/exception, no shader
+- `clean build`: **249 tests / 0 failures / 0 errors / 0 skips**.
+- Hidden `runAutotest`: **799/799 steps**, no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
-  `icons2` main-menu set. A separate frame-capture 1280×720 confirms the LINKEN
-  splash replaces the Mojang logo from the first frame.
+  `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
+  screenshots at 1920×1080. A separate frame-capture 1280×720 confirms the
+  LINKEN splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
   QWERTZ acceptance remains a human check.
@@ -109,7 +110,7 @@ not silently faked; no dead controls are exposed for them.
 ## Bottom line
 
 The **LinkGUI + title + settings + HUD material/shape + TargetHud +
-CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab**
-slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
+CoordinatesHud + donor server browser + pinned cards + custom scoreboard/tab +
+HitRange + CustomHitBox** slice is now in place. Full donor parity is **not** closed: the remaining visual/HUD modules above and the excluded
 network/crasher/catalog subsystems are explicit open scope. The next parity
 slice should be chosen from that list rather than adding fake controls.
