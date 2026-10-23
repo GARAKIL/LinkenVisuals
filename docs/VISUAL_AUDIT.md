@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-23 · Target build: **v1.0.133 / D109** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-23 · Target build: **v1.0.134 / D110** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -164,13 +164,23 @@ From `FEATURE_PARITY.md`, still open:
 - **Open:** exact donor 3D billboard parity, server HP-sync limitation, pixel
   diff/human acceptance.
 
-## 7. Verification for D101-D109
+## 6d. Identity D110 — SelfNametags (fixed)
 
-- `test` / `clean build`: 299 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1087/1087**, Strange **1077/1077**, 0 fail/skip, 1920×1080;
+- Donor `SelfNametags` is a toggle, not a renderer: it applies the StreamerMode
+  self-name sanitizer to the local player's `getDisplayName()`.
+- Requires StreamerMode + `Custom Name`; without them the donor and this port
+  both leave the label unchanged.
+- Autotest sets `Hidden`, asserts the local display name, then restores.
+- **Open:** multiplayer/team-prefix human check.
+
+## 7. Verification for D101-D110
+
+- `test` / `clean build`: 300 tests, 0 failures/errors/skips in both flavors.
+- Autotest Linken **1093/1093**, Strange **1083/1083**, 0 fail/skip, 1920×1080;
   `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius`,
-  `damage-number`, `damage-visuals` and the fake-player crit assertion are part
-  of the plan. No new shader/mixin/sound errors; only offline-auth/Realms.
+  `damage-number`, `damage-visuals`, `check self nametag` and the fake-player
+  crit assertion are part of the plan. No new shader/mixin/sound errors; only
+  offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact
   440 px panel with `icons2` glyphs and the `PAUSED` title.

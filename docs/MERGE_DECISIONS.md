@@ -1028,3 +1028,11 @@
 - **Сборка**: `linkenvisuals-1.0.133.jar` (11 108 168 байт, SHA-256 `74AEB58B362FACAEBAA0DFEA5395D7D8FCF7C481D1B19FC66802DAE1AD82473E`); `linkenvisuals-strange-1.0.133.jar` (11 108 167 байт, SHA-256 `A31C091673036A2ED815C8AB0F03FF3A1D1A8ABDD3C5B4F409A1F86E3089362B`).
 - **Commit**: `a9a99be` `feat(visuals): port DamageParticles and FortniteDamage (v1.0.133, D109)`.
 - **Остаток**: donor-точный 3D-билборд не воспроизведён; server HP sync limitation; pixel diff/human acceptance.
+
+## 2026-10-23 · D110 · SelfNametags — v1.0.134
+- **Модуль**: `SelfNametagsModule` (`selfnametags`, Visual, default OFF, без настроек) — donor-класс пустой, но его использует `PlayerEntityMixin.getDisplayName`: при включённом модуле локальный display name проходит `StreamerTextSanitizer` с правилами `StreamerMode`. Глобальный StreamerMode и self-only переключатель независимы.
+- **Семантика**: если StreamerMode выключен или `Custom Name` пуст, `sanitize` возвращает исходный текст; это точно donor-поведение, а не «мёртвая» настройка.
+- **Проверки**: `SelfNametagsModuleTest` (1), всего **300 тестов**, 0 fail/error/skip; autotest Linken **1093/1093**, Strange **1083/1083**, `check self nametag` (Hidden) + restore. Новых ERROR/exception/shader/sound нет.
+- **Сборка**: `linkenvisuals-1.0.134.jar` (11 110 581 байт, SHA-256 `FA2E0F083AFADAB816F4652BF860EB0E8723545AC489B6B21C4726D42F9DA0A3`); `linkenvisuals-strange-1.0.134.jar` (11 110 577 байт, SHA-256 `CD7A2AA03352114298C0854DB5C8BDD5C39ACB81E482356728F6C66A2BE1CE2A`).
+- **Commit**: `1ea9fd3` `feat(visuals): port SelfNametags toggle (v1.0.134, D110)`.
+- **Остаток**: multiplayer/team-prefix human check; full UI/Punchy/pixel parity.

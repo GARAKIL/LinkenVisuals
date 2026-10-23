@@ -2,6 +2,24 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (D110 — SelfNametags) — v1.0.134
+
+### Сделано
+1. **D110/v1.0.134**: donor `SelfNametags` — это не отдельный рендерер, а переключатель само-санитизации: `SelfNametagsModule` (Visual, default OFF, без настроек) + `PlayerEntityMixin.getDisplayName` применяет `StreamerTextSanitizer` с правилами активного `StreamerMode` только к локальному игроку. Без включённого StreamerMode/кастомного имени поведение не меняется, как у донора.
+2. **Проверки**: **300 тестов** (+1 `SelfNametagsModuleTest`), 0 fail/error/skip; autotest Linken **1093/1093**, Strange **1083/1083**, 0 fail/skip; шаг `check self nametag` проверяет `getDisplayName() == Hidden` при `StreamerMode.Custom Name=Hidden`, затем восстанавливает настройки. Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+3. **Commit**: `1ea9fd3` `feat(visuals): port SelfNametags toggle (v1.0.134, D110)`.
+4. **Сборка**: `linkenvisuals-1.0.134.jar` — 11 110 581 байт, SHA-256 `FA2E0F083AFADAB816F4652BF860EB0E8723545AC489B6B21C4726D42F9DA0A3`; `linkenvisuals-strange-1.0.134.jar` — 11 110 577 байт, SHA-256 `CD7A2AA03352114298C0854DB5C8BDD5C39ACB81E482356728F6C66A2BE1CE2A`.
+
+### Следующая задача
+1. **UI** donor controls: colour/fade/blur/BoostFPS; сверить donor `UI` и наши Interface/Theme/HudStyle.
+2. **Punchy-lite expansion** (swim/climb/elytra/fall/item idle); full Punchy remains open.
+3. **Pixel GUI pass** 1280×720/1920×1080; human acceptance.
+4. Remaining donor visual modules: `HelperItemsHud` blocked, `DynamicIsland` skipped; `ItemRadius` proximity `%` labels open.
+
+### Риски
+- `SelfNametags` зависит от `StreamerMode` и `Custom Name`; это donor-семантика, не баг. Без них модуль визуально ничего не меняет.
+- Санитизация своего label не проверена на реальном multiplayer/team-prefix (singleplayer autotest).
+
 ## Состояние на 2026-10-23 (D109 — DamageParticles + FortniteDamage) — v1.0.133
 
 ### Сделано
