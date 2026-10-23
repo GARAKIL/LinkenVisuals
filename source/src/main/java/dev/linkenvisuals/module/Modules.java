@@ -19,6 +19,7 @@ import dev.linkenvisuals.module.impl.JumpCirclesModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.NoRenderModule;
+import dev.linkenvisuals.module.impl.OptimizationModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
@@ -66,6 +67,7 @@ public final class Modules {
     private static NoRenderModule noRender;
     private static HitRangeModule hitRange;
     private static CustomHitBoxModule customHitBox;
+    private static OptimizationModule optimization;
 
     private Modules() {
     }
@@ -194,6 +196,10 @@ public final class Modules {
         return customHitBox;
     }
 
+    public static OptimizationModule optimization() {
+        return optimization;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -256,5 +262,7 @@ public final class Modules {
         register(hitRange);
         customHitBox = new CustomHitBoxModule();
         register(customHitBox);
+        optimization = new OptimizationModule();
+        register(optimization);
     }
 }
