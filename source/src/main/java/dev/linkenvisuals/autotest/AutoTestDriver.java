@@ -23,7 +23,10 @@ import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.hud.TargetHud;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.KillStreakModule;
+import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.ViewModelModule;
+import dev.linkenvisuals.player.FakePlayer;
+import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
 import dev.linkenvisuals.render.ParticlesRenderer;
@@ -33,6 +36,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -673,6 +677,12 @@ public final class AutoTestDriver {
         add("close ClickGUI", 4, () -> client.setScreen(null));
 
         add("open LINKEN main menu", 13, () -> client.setScreen(new LinkenMainMenuScreen()));
+        add("wait welcome", 20, () -> {
+        });
+        add("screenshot welcome", 1, () -> screenshot(client, "welcome"));
+        add("skip welcome", 1, LinkenMainMenuScreen::skipWelcome);
+        add("wait LINKEN main menu", 8, () -> {
+        });
         add("screenshot LINKEN main menu", 1, () -> screenshot(client, "linken-mainmenu"));
         add("close LINKEN main menu", 4, () -> client.setScreen(null));
 
@@ -709,6 +719,56 @@ public final class AutoTestDriver {
                 throw new IllegalStateException("KillStreak did not count a kill");
             }
         });
+
+        add("enable fake player", 1, () -> {
+            if (ModuleRegistry.fakePlayer() != null) {
+                ModuleRegistry.fakePlayer().toggleSilently(true);
+            }
+        });
+        add("wait fake player", 20, () -> {
+        });
+        add("force fake-player crit", 1, () -> {
+            if (client.player != null) {
+                client.player.setSprinting(false);
+                client.player.setOnGround(false);
+                client.player.fallDistance = 1.0;
+            }
+        });
+        add("hit fake player with crit", 2, () -> {
+            if (client.player == null || FakePlayer.entity() == null) {
+                throw new SkipStep("FakePlayer entity did not spawn");
+            }
+            if (!FakePlayer.hit(client, FakePlayer.entity(), true)) {
+                throw new IllegalStateException("FakePlayer hit was not accepted");
+            }
+            if (!FakePlayer.lastCrit()) {
+                throw new IllegalStateException("FakePlayer crit conditions were not detected: "
+                    + HitSoundModule.critTrace(client.player, FakePlayer.entity()));
+            }
+        });
+        add("restore fake player crit", 1, () -> {
+            if (client.player != null) {
+                client.player.fallDistance = 0.0;
+                client.player.setOnGround(true);
+            }
+            if (ModuleRegistry.fakePlayer() != null) {
+                ModuleRegistry.fakePlayer().toggleSilently(false);
+            }
+            FakePlayer.clear();
+        });
+
+        add("open LINKEN pause", 8, () -> client.setScreen(new GameMenuScreen(true)));
+        add("check LINKEN pause route", 1, () -> {
+            if (dev.linkenvisuals.BuildFlavor.STRANGE) {
+                if (!(client.currentScreen instanceof GameMenuScreen)) {
+                    throw new IllegalStateException("Strange build must keep the vanilla GameMenuScreen");
+                }
+            } else if (!(client.currentScreen instanceof LinkenPauseScreen)) {
+                throw new IllegalStateException("GameMenuScreen was not routed to LinkenPauseScreen");
+            }
+        });
+        add("screenshot LINKEN pause", 2, () -> screenshot(client, "pause"));
+        add("close LINKEN pause", 2, () -> client.setScreen(null));
 
         add("jump pressed", 1, () -> client.options.jumpKey.setPressed(true));
         add("jump released", 4, () -> client.options.jumpKey.setPressed(false));

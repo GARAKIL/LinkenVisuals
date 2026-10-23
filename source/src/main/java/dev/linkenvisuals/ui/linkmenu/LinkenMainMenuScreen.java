@@ -8,6 +8,7 @@ import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
+import net.minecraft.client.input.KeyInput;
 import dev.linkenvisuals.ui.linkmenu.LinkenSelectWorldScreen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
@@ -22,7 +23,9 @@ import net.minecraft.util.Util;
  */
 public final class LinkenMainMenuScreen extends Screen {
     private static final float INTRO_MS = 450.0f;
+    private static final long WELCOME_MS = 3000L;
     private static final long QUIT_CONFIRM_MS = 3000L;
+    private static boolean welcomePlayed;
 
     private static final String DISCORD_URL = "https://dsc.gg/linkenvisuals";
     private static final String TELEGRAM_URL = "https://t.me/linkenvisuals";
@@ -46,6 +49,8 @@ public final class LinkenMainMenuScreen extends Screen {
     private long openedAt;
     private long lastFrame = System.nanoTime();
     private long quitArmedUntil;
+    private long welcomeStart;
+    private boolean welcomeActive;
     private float parallaxX;
     private float parallaxY;
 
@@ -56,8 +61,13 @@ public final class LinkenMainMenuScreen extends Screen {
     @Override
     protected void init() {
         LinkenFonts.body();
-        LinkenMenuMusic.autoStartOnce();
         openedAt = Util.getMeasuringTimeMs();
+        if (welcomeStart == 0L && !welcomePlayed) {
+            welcomeStart = openedAt;
+            welcomeActive = true;
+        } else if (!welcomeActive) {
+            LinkenMenuMusic.autoStartOnce();
+        }
         lastFrame = System.nanoTime();
         quitArmedUntil = 0L;
         layout = null;
@@ -81,6 +91,14 @@ public final class LinkenMainMenuScreen extends Screen {
 
         LinkenMenuLayout.Metrics metrics = layout();
         long millis = Util.getMeasuringTimeMs();
+        if (welcomeActive) {
+            if (welcomePlayed || millis - welcomeStart >= WELCOME_MS) {
+                finishWelcome(millis);
+            } else {
+                renderWelcomeIntro(context, metrics, (millis - welcomeStart) / (float) WELCOME_MS);
+                return;
+            }
+        }
         float intro = Math.min(1.0f, (millis - openedAt) / INTRO_MS);
         intro = 1.0f - (1.0f - intro) * (1.0f - intro) * (1.0f - intro);
 
@@ -125,6 +143,80 @@ public final class LinkenMainMenuScreen extends Screen {
             context.fill(0, 0, width, height,
                 LinkenMenuChrome.rgba(0x060908, Math.round(200.0f * (1.0f - intro)), 1.0f));
         }
+    }
+
+    private void finishWelcome(long millis) {
+        welcomeActive = false;
+        welcomePlayed = true;
+        openedAt = millis;
+        LinkenMenuMusic.autoStartOnce();
+    }
+
+    /** Test hook: skip the first-open intro without changing the normal flow. */
+    public static void skipWelcome() {
+        welcomePlayed = true;
+    }
+
+    /**
+     * Short, donor-style first-open scene built from the same palette and
+     * MSDF fonts as the menu. The donor Lottie file needs Skija/Skottie,
+     * which is intentionally out of scope; this reproduces the welcome beat
+     * with a wordmark reveal, a progress rail and the localized greeting.
+     */
+    private void renderWelcomeIntro(DrawContext context, LinkenMenuLayout.Metrics metrics, float raw) {
+        float in = easeOut(Math.min(1.0f, raw / 0.16f));
+        float out = easeOut(Math.min(1.0f, (1.0f - raw) / 0.16f));
+        float fade = Math.min(in, out);
+        float rise = (1.0f - in) * 18.0f;
+
+        context.getMatrices().pushMatrix();
+        context.getMatrices().scale(metrics.scale(), metrics.scale());
+        LinkenMenuChrome.drawBackground(context, metrics, 0.0f, 0.0f, 1.0f);
+        context.fill(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
+            LinkenMenuChrome.rgba(0x060908, Math.round(105.0f * fade)));
+        dev.linkenvisuals.render.GlowPipeline.radial(context, metrics.width() * 0.5f,
+            metrics.height() * 0.43f, 220.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(8.0f * fade)));
+
+        float centerX = metrics.width() * 0.5f;
+        float wordY = metrics.height() * 0.41f + rise;
+        float size = 64.0f;
+        String word = "linken";
+        float wordWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), word, size);
+        float dotWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), ".", size);
+        float startX = centerX - (wordWidth + dotWidth) * 0.5f;
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), word, startX, wordY, size,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), ".", startX + wordWidth, wordY, size,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
+
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(),
+            I18n.get("linkenvisuals.linkmenu.visuals"), centerX, wordY + 58.0f, 10.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
+
+        String first = I18n.get("linkenvisuals.linkmenu.welcome_line1");
+        String second = I18n.get("linkenvisuals.linkmenu.welcome_line2", LinkenMenuChrome.username());
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), first, centerX,
+            wordY + 112.0f, 13.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT4, fade));
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), second, centerX,
+            wordY + 140.0f, 20.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
+
+        float rail = Math.min(1.0f, raw / 0.82f);
+        LinkenMenuChrome.roundedFill(context, centerX - 92.0f, wordY + 176.0f, 184.0f, 1.5f, 0.75f,
+            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(22.0f * fade)), metrics.scale());
+        LinkenMenuChrome.roundedFill(context, centerX - 92.0f, wordY + 176.0f, 184.0f * rail, 1.5f, 0.75f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(210.0f * fade)), metrics.scale());
+
+        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "CLICK TO SKIP",
+            centerX - (LinkenMenuChrome.textWidth(LinkenFonts.headingLight(), "CLICK TO SKIP", 7.5f) + 19.2f) * 0.5f,
+            metrics.height() - 86.0f, 7.5f, 1.6f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
+        context.getMatrices().popMatrix();
+    }
+
+    private static float easeOut(float value) {
+        float inverse = 1.0f - Math.max(0.0f, Math.min(1.0f, value));
+        return 1.0f - inverse * inverse * inverse;
     }
 
     private void renderWelcome(DrawContext context, LinkenMenuLayout.Metrics metrics, float fade) {
@@ -174,10 +266,9 @@ public final class LinkenMainMenuScreen extends Screen {
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
         if (LinkenFonts.icons2() != null) {
             dev.linkenvisuals.render.IconPipeline.draw(context, LinkenFonts.icons2(),
-                LinkenMenuChrome.MENU_ICON_PERSON, textX + 4.5f, rect.y() + 6.5f, 9.0f,
+                LinkenMenuChrome.MENU_ICON_PERSON, textX, rect.y() + 6.5f, 9.0f,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
-        }
-        LinkenMenuChrome.drawText(context, LinkenFonts.heading(),
+        }        LinkenMenuChrome.drawText(context, LinkenFonts.heading(),
             LinkenMenuChrome.ellipsize(LinkenFonts.heading(), nick,
                 metrics.column().right() - textX, 13.0f),
             textX, rect.y() + 18.0f, 13.0f,
@@ -246,6 +337,10 @@ public final class LinkenMainMenuScreen extends Screen {
 
     @Override
     public boolean mouseClicked(Click click, boolean doubleClick) {
+        if (welcomeActive) {
+            finishWelcome(Util.getMeasuringTimeMs());
+            return true;
+        }
         if (click.button() != 0) {
             return super.mouseClicked(click, doubleClick);
         }
@@ -316,6 +411,15 @@ public final class LinkenMainMenuScreen extends Screen {
             return true;
         }
         return super.mouseClicked(click, doubleClick);
+    }
+
+    @Override
+    public boolean keyPressed(KeyInput input) {
+        if (welcomeActive) {
+            finishWelcome(Util.getMeasuringTimeMs());
+            return true;
+        }
+        return super.keyPressed(input);
     }
 
     @Override

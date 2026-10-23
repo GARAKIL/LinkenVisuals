@@ -31,14 +31,15 @@ public abstract class ClientPlayerInteractionManagerMixin {
     private void linkenvisuals$hitDummy(PlayerEntity player, Entity target, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         boolean fake = FakePlayer.hit(client, target);
+        if (fake) {
+            ci.cancel();
+            return;
+        }
+
         HitSoundModule.tryPlay(client, HitSoundModule.isCrit(player, target));
         if (target instanceof LivingEntity living) {
             SoundsModule.noteHit(living);
             KillStreakModule.noteHit(living);
-        }
-        if (fake) {
-            ci.cancel();
-            return;
         }
 
         TargetMarks.noteHit(target);

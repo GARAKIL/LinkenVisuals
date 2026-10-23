@@ -106,7 +106,7 @@
   "linkenvisuals.video.menu_vanilla": "Menu: Vanilla",
   "linkenvisuals.video.menu_custom": "Menu: Beta",
   "linkenvisuals.video.menu_toggle_tooltip": "Switch between Vanilla Minecraft title screen and custom main menu",
-  "pause.title": "GAME MENU",
+  "pause.title": "PAUSED",
   "pause.resume": "BACK TO GAME",
   "pause.clickgui": "LINKENVISUALS HUD",
   "pause.settings": "OPTIONS & SETTINGS",

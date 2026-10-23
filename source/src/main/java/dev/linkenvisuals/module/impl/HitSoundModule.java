@@ -68,12 +68,39 @@ public final class HitSoundModule extends Module {
      * airborne, not climbing/swimming/blind/riding, living target.
      */
     public static boolean isCrit(PlayerEntity player, Entity target) {
-        return target instanceof LivingEntity
-            && player.fallDistance > 0.0
-            && !player.isOnGround()
-            && !player.isClimbing()
-            && !player.isTouchingWater()
-            && !player.hasStatusEffect(StatusEffects.BLINDNESS)
-            && !player.hasVehicle();
+        return target instanceof LivingEntity && meetsCritRules(
+            player.getAttackCooldownProgress(0.5f), player.fallDistance, player.isOnGround(),
+            player.isClimbing(), player.isTouchingWater(),
+            player.hasStatusEffect(StatusEffects.BLINDNESS), player.hasVehicle(), player.isSprinting());
+    }
+
+    /** Pure vanilla crit rule; kept separate so the conditions are testable headless. */
+    public static boolean meetsCritRules(float cooldown, double fallDistance, boolean onGround,
+                                         boolean climbing, boolean touchingWater, boolean blind,
+                                         boolean vehicle, boolean sprinting) {
+        return cooldown > 0.9f
+            && fallDistance > 0.0
+            && !onGround
+            && !climbing
+            && !touchingWater
+            && !blind
+            && !vehicle
+            && !sprinting;
+    }
+
+    /** Compact diagnostic used by the in-game auto-test when a fake crit is rejected. */
+    public static String critTrace(PlayerEntity player, Entity target) {
+        if (player == null) {
+            return "player=null";
+        }
+        return "living=" + (target instanceof LivingEntity)
+            + " cooldown=" + String.format(java.util.Locale.ROOT, "%.3f", player.getAttackCooldownProgress(0.5f))
+            + " fall=" + String.format(java.util.Locale.ROOT, "%.3f", player.fallDistance)
+            + " ground=" + player.isOnGround()
+            + " climb=" + player.isClimbing()
+            + " water=" + player.isTouchingWater()
+            + " blind=" + player.hasStatusEffect(StatusEffects.BLINDNESS)
+            + " vehicle=" + player.hasVehicle()
+            + " sprint=" + player.isSprinting();
     }
 }

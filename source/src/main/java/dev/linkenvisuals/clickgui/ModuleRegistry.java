@@ -115,6 +115,7 @@ public final class ModuleRegistry {
     private static BooleanSetting animTab;
     private static BooleanSetting animInventory;
     private static BooleanSetting animPerspective;
+    private static BooleanSetting animHand;
     private static BooleanSetting albumArt;
     private static BooleanSetting lyricsEnabled;
     private static ColorSetting lyricsColour;
@@ -307,8 +308,9 @@ public final class ModuleRegistry {
         animTab = new BooleanSetting("Tab List", true);
         animInventory = new BooleanSetting("Inventory", true);
         animPerspective = new BooleanSetting("Camera (F5)", true);
+        animHand = new BooleanSetting("Hand Motion", true);
         betterAnimations = new ModuleInfo("Better Animations", "eases what vanilla snaps", Category.VISUAL,
-            List.of(animChat, animTab), List.of(animInventory, animPerspective));
+            List.of(animChat, animTab), List.of(animInventory, animPerspective, animHand));
         betterAnimations.toggleSilently(true);
         betterAnimations.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
         MODULES.add(betterAnimations);
@@ -597,6 +599,12 @@ public final class ModuleRegistry {
 
     public static ModuleInfo betterAnimations() {
         return betterAnimations;
+    }
+
+    /** True when the hand-motion subset of Better Animations is enabled. */
+    public static boolean animateHand() {
+        return betterAnimations != null && betterAnimations.enabled()
+            && (animHand == null || animHand.value());
     }
 
     public static ModuleInfo aspectRatio() {

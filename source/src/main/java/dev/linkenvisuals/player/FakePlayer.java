@@ -3,6 +3,7 @@ package dev.linkenvisuals.player;
 import com.mojang.authlib.GameProfile;
 import dev.linkenvisuals.audio.LinkenSounds;
 import dev.linkenvisuals.clickgui.ModuleRegistry;
+import dev.linkenvisuals.module.impl.HitSoundModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -25,6 +26,7 @@ public final class FakePlayer {
     private static long arrivedAt = Long.MIN_VALUE / 2;
     private static int nextId = -4000;
     private static Vec3d lastImpact;
+    private static boolean lastCrit;
 
     private static final float ARRIVAL = 0.85f;
 
@@ -106,6 +108,7 @@ public final class FakePlayer {
         dummy.getAttributeInstance(EntityAttributes.MAX_HEALTH).setBaseValue(maxHealth());
         dummy.setHealth(maxHealth());
         health = maxHealth();
+        lastCrit = false;
         arrivedAt = System.nanoTime();
         client.world.addEntity(dummy);
     }
@@ -116,6 +119,7 @@ public final class FakePlayer {
             dummy = null;
         }
         deadFor = 0;
+        lastCrit = false;
     }
 
     public static void clear() {
@@ -150,10 +154,22 @@ public final class FakePlayer {
     }
 
     public static boolean hit(MinecraftClient client, Entity target) {
+        return hit(client, target, false);
+    }
+
+    /**
+     * @param forceCrit test hook (and future scripted hits): skip the vanilla
+     *                  environment gate but keep the crit multiplier, sound and
+     *                  particle path identical.
+     */
+    public static boolean hit(MinecraftClient client, Entity target, boolean forceCrit) {
         if (!is(target) || client.player == null) {
             return false;
         }
         hitAt = System.nanoTime();
+
+        boolean crit = forceCrit || HitSoundModule.isCrit(client.player, dummy);
+        lastCrit = crit;
 
         client.player.attack(dummy);
 
@@ -161,12 +177,13 @@ public final class FakePlayer {
         dummy.onDamaged(client.world.getDamageSources().playerAttack(client.player));
         client.world.playSoundClient(dummy.getX(), dummy.getY(), dummy.getZ(),
             LinkenSounds.BELL, dummy.getSoundCategory(), 1.0f, 1.0f, false);
+        HitSoundModule.tryPlay(client, crit);
 
         dummy.setVelocity(Vec3d.ZERO);
         dummy.velocityDirty = false;
         TargetMarks.noteHit(dummy);
         KillEffects.watch(dummy);
-        HitEffects.add(dummy, 1.0f, lastImpact);
+        HitEffects.add(dummy, crit ? 1.35f : 1.0f, lastImpact);
 
         if ("Invincible".equals(ModuleRegistry.fakeMode().current())) {
             health = maxHealth();
@@ -174,7 +191,7 @@ public final class FakePlayer {
             return true;
         }
 
-        health = Math.max(0.0f, health - damageOf(client));
+        health = Math.max(0.0f, health - damageOf(client, crit));
         dummy.setHealth(health);
         if (health <= 0.0f) {
             kill(client);
@@ -182,17 +199,32 @@ public final class FakePlayer {
         return true;
     }
 
+    /** True when the last fake-player hit satisfied the vanilla crit rules. */
+    public static boolean lastCrit() {
+        return lastCrit;
+    }
+
     private static float sinceHit() {
         return (System.nanoTime() - hitAt) / 1_000_000_000.0f;
     }
 
-    private static float damageOf(MinecraftClient client) {
+    private static float damageOf(MinecraftClient client, boolean crit) {
         float base = (float) client.player.getAttributeValue(
             net.minecraft.entity.attribute.EntityAttributes.ATTACK_DAMAGE);
 
         float perTick = Math.max(0.0001f, client.player.getAttackCooldownProgressPerTick());
         float charge = Math.min(1.0f, sinceHit() * 20.0f / perTick);
-        return Math.max(0.5f, base * (0.2f + charge * charge * 0.8f));
+        return damageFor(base, charge, crit);
+    }
+
+    /** Vanilla-shaped charge curve with the 1.5x crit multiplier. */
+    public static float damageFor(float base, float charge, boolean crit) {
+        float clamped = Math.max(0.0f, Math.min(1.0f, charge));
+        float damage = base * (0.2f + clamped * clamped * 0.8f);
+        if (crit) {
+            damage *= 1.5f;
+        }
+        return Math.max(0.5f, damage);
     }
 
     private static void kill(MinecraftClient client) {

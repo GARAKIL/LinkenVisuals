@@ -2,7 +2,9 @@ package dev.linkenvisuals.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.linkenvisuals.hands.HandEditor;
+import dev.linkenvisuals.hands.HandMotion;
 import dev.linkenvisuals.hands.HandPose;
+import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.SwingAnimationModule;
 import dev.linkenvisuals.module.impl.ViewModelModule;
@@ -118,10 +120,15 @@ public abstract class HeldItemRendererMixin {
                                                ItemStack stack, float equipProgress, MatrixStack matrices,
                                                OrderedRenderCommandQueue queue, int light, CallbackInfo ci) {
         ViewModelModule module = Modules.viewModel();
-        if (module == null || !module.enabled() || HandEditor.active()) {
+        if (HandEditor.active()) {
             return;
         }
-        module.apply(matrices, player, hand, stack);
+        if (module != null && module.enabled()) {
+            module.apply(matrices, player, hand, stack);
+        }
+        if (ModuleRegistry.animateHand()) {
+            HandMotion.apply(matrices, player, hand, tickProgress);
+        }
     }
 
     @Inject(method = "swingArm", at = @At("RETURN"))
