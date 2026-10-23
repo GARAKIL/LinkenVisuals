@@ -995,7 +995,7 @@
 ## 2026-10-23 · D106a · Fake-player attack charge fix — v1.0.130
 - **Проблема**: `FakePlayer.hit` ставил `hitAt = nanoTime()` до расчёта урона, а `damageOf` считал charge как `sinceHit() * 20 / perTick`. На первом ударе `sinceHit ≈ 0`, поэтому даже full-charge удар наносил только 20% базового урона; crit-множитель умножал эту заниженную величину.
 - **Фикс**: `damageOf` берёт `client.player.getAttackCooldownProgress(0.5f)` (тот же показатель, что и vanilla-гейт), clamp 0…1, затем `damageFor(base, charge, crit)`. `sinceHit` остался только rate-limit между ударами.
-- **Проверки**: **281 тест** (0 fail/error/skip), clean build и `-Pstrange` зелёные; Linken autotest **953/953** после фикса, Strange **943/943** (прогон 1.0.129; UI не менялся).
+- **Проверки**: **281 тест** (0 fail/error/skip), clean build и `-Pstrange` зелёные; Linken autotest **953/953**, Strange **943/943** на 1.0.130.
 - **Сборка**: `linkenvisuals-1.0.130.jar` (11 047 843 байта, SHA-256 `1FFE8177B1A4D5F2F454835A092AF4ECE86E0652AF4749D69B1F21464286968B`); `linkenvisuals-strange-1.0.130.jar` (11 047 838 байт, SHA-256 `2B8ADEDA0BD6C5E544BA463A3D6DA4F47F9650C4DA7FC0C1328B2A05EA14C11C`).
 - **Commit**: `8b0bc41` `fix(combat): use current attack charge for fake-player damage (v1.0.130, D106a)`.
 - **Остаток**: human-проверка полного и дробного charge/crit на dummy.

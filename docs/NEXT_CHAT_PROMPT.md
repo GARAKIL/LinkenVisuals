@@ -9,7 +9,7 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 - Version: **1.0.130**
 - Last code commit: `8b0bc41` `fix(combat): use current attack charge for fake-player damage (v1.0.130, D106a)`.
 - Tests: **281 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **953/953** (1.0.130), Strange **943/943** (1.0.129; D106a only touches fake-player damage), 0 fail/skip, 1920×1080.
+- Autotest: Linken **953/953**, Strange **943/943** on 1.0.130, 0 fail/skip, 1920×1080.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
 - Jars (1.0.130): `linkenvisuals-1.0.130.jar` 11 047 843 bytes / `1FFE8177B1A4D5F2F454835A092AF4ECE86E0652AF4749D69B1F21464286968B`; `linkenvisuals-strange-1.0.130.jar` 11 047 838 bytes / `2B8ADEDA0BD6C5E544BA463A3D6DA4F47F9650C4DA7FC0C1328B2A05EA14C11C`.
 
