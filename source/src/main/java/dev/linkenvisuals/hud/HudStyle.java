@@ -245,7 +245,7 @@ public final class HudStyle {
     }
 
     private static int base() {
-        return LinkGuiTheme.preset().background();
+        return LinkGuiTheme.hudBase();
     }
 
     private static int accent(String element) {

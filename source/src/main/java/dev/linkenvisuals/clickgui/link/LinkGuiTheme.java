@@ -1,6 +1,8 @@
 package dev.linkenvisuals.clickgui.link;
 
+import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.ui.linkmenu.LinkenMenuChrome;
+import dev.linkenvisuals.util.ColorMath;
 
 import java.util.Locale;
 
@@ -144,6 +146,37 @@ public final class LinkGuiTheme {
             BACKDROP_TOP = 0x050706;
             BACKDROP_BOTTOM = 0x020403;
         }
+        refreshCustom();
+    }
+
+    /** Applies Interface custom background/text on top of the active preset. */
+    public static void refreshCustom() {
+        if (ModuleRegistry.customColors()
+            && ModuleRegistry.uiBackground() != null && ModuleRegistry.uiText() != null) {
+            int bg = ModuleRegistry.uiBackground().rgb() & 0xFFFFFF;
+            int text = ModuleRegistry.uiText().rgb() & 0xFFFFFF;
+            PANEL = bg;
+            PANEL_LIGHT = ColorMath.mix(bg, light ? 0xFFFFFF : 0xFFFFFF, light ? 0.08f : 0.06f);
+            ROW = ColorMath.mix(bg, light ? 0xFFFFFF : 0xFFFFFF, light ? 0.04f : 0.03f);
+            HOVER = ColorMath.mix(bg, light ? 0x000000 : 0xFFFFFF, light ? 0.05f : 0.08f);
+            ACTIVE = ColorMath.mix(bg, light ? 0x000000 : 0xFFFFFF, light ? 0.09f : 0.12f);
+            FIELD = ColorMath.mix(bg, light ? 0xFFFFFF : 0x000000, light ? 0.25f : 0.30f);
+            TRACK = ColorMath.mix(bg, light ? 0x000000 : 0xFFFFFF, 0.18f);
+            BACKDROP_TOP = ColorMath.mix(bg, 0x000000, 0.45f);
+            BACKDROP_BOTTOM = ColorMath.mix(bg, 0x000000, 0.62f);
+            TEXT = text;
+            TEXT2 = ColorMath.mix(text, bg, 0.22f);
+            TEXT3 = ColorMath.mix(text, bg, 0.38f);
+            ON_DARK = text;
+        }
+    }
+
+    /** Base colour used by HUD panels; custom background overrides the preset. */
+    public static int hudBase() {
+        if (ModuleRegistry.customColors() && ModuleRegistry.uiBackground() != null) {
+            return ModuleRegistry.uiBackground().rgb() & 0xFFFFFF;
+        }
+        return preset.background();
     }
 
     public static String cycle() {

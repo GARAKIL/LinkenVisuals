@@ -314,6 +314,7 @@ public final class LinkGuiScreen extends Screen {
     // ------------------------------------------------------------------ backdrop
 
     private void drawBackdrop(DrawContext context, Metrics metrics, float openT) {
+        LinkGuiTheme.refreshCustom();
         if (client != null && client.world != null) {
             if (ModuleRegistry.interfaceBlur()) {
                 try {

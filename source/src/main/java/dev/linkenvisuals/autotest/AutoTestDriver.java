@@ -7,6 +7,7 @@ import dev.linkenvisuals.clickgui.ModuleRegistry;
 import dev.linkenvisuals.clickgui.classic.ClassicGuiScreen;
 import dev.linkenvisuals.clickgui.link.LinkGuiConfig;
 import dev.linkenvisuals.clickgui.link.LinkGuiScreen;
+import dev.linkenvisuals.clickgui.link.LinkGuiTheme;
 import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
@@ -786,6 +787,26 @@ public final class AutoTestDriver {
             ModuleRegistry.uiSecondary().set(Theme.DEFAULT_SECONDARY);
             ModuleRegistry.themeFadeSetting().setValue(true);
             ModuleRegistry.guiBlurSetting().setValue(true);
+        });
+        add("enable custom UI colours", 1, () -> {
+            ModuleRegistry.uiBackground().set(0x2A1030);
+            ModuleRegistry.uiText().set(0xFFE0A0);
+            ModuleRegistry.customColorsSetting().setValue(true);
+            LinkGuiTheme.apply(LinkGuiTheme.preset().name());
+        });
+        add("check custom UI colours", 1, () -> {
+            if (LinkGuiTheme.hudBase() != 0x2A1030 || LinkGuiTheme.TEXT != 0xFFE0A0) {
+                throw new IllegalStateException("Custom UI colours were not applied");
+            }
+        });
+        add("open custom-colour LinkGUI", 8, () -> client.setScreen(new LinkGuiScreen()));
+        add("screenshot custom-colour LinkGUI", 1, () -> screenshot(client, "linkgui-custom-colours"));
+        add("close custom-colour LinkGUI", 3, () -> client.setScreen(null));
+        add("restore custom UI colours", 1, () -> {
+            ModuleRegistry.customColorsSetting().setValue(false);
+            ModuleRegistry.uiBackground().set(0x0F1217);
+            ModuleRegistry.uiText().set(0xE6EBF2);
+            LinkGuiTheme.apply(LinkGuiTheme.preset().name());
         });
         add("unpin link test", 1, () -> {
             if (!pinWasSet) {

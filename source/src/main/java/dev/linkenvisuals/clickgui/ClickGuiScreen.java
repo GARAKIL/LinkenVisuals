@@ -44,6 +44,7 @@ public final class ClickGuiScreen extends Screen {
     @Override
     public void renderBackground(net.minecraft.client.gui.DrawContext context, int mouseX,
                                  int mouseY, float delta) {
+        dev.linkenvisuals.clickgui.link.LinkGuiTheme.refreshCustom();
         if (ModuleRegistry.interfaceBlur()) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {

@@ -110,6 +110,9 @@ public final class ModuleRegistry {
     private static ColorSetting uiSecondary;
     private static BooleanSetting themeFade;
     private static BooleanSetting guiBlur;
+    private static BooleanSetting uiCustomColors;
+    private static ColorSetting uiBackground;
+    private static ColorSetting uiText;
     private static ColorSetting skyColor;
     private static ModuleInfo mediaPlayer;
     private static ModuleInfo betterAnimations;
@@ -220,6 +223,11 @@ public final class ModuleRegistry {
         uiSecondary = new ColorSetting("Secondary Colour", Theme.DEFAULT_SECONDARY);
         themeFade = new BooleanSetting("Theme Fade", true);
         guiBlur = new BooleanSetting("GUI Blur", true);
+        uiCustomColors = new BooleanSetting("Custom Theme Colours", false, value ->
+            dev.linkenvisuals.clickgui.link.LinkGuiTheme.apply(
+                dev.linkenvisuals.clickgui.link.LinkGuiTheme.preset().name()));
+        uiBackground = new ColorSetting("Background Colour", 0x0F1217);
+        uiText = new ColorSetting("Text Colour", 0xE6EBF2);
         tintWatermark = new BooleanSetting("Colour Watermark", true);
         tintHotbar = new BooleanSetting("Colour Hotbar", true);
         tintPotions = new BooleanSetting("Colour Potions", true);
@@ -236,6 +244,7 @@ public final class ModuleRegistry {
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
             interfaceLeft,
             List.of(uiRadius, uiAccent, uiSecondary, themeFade, guiBlur,
+                uiCustomColors, uiBackground, uiText,
                 tintWatermark, tintHotbar, tintPotions, tintKeybinds));
         clickGui.toggleSilently(true);
         clickGui.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.INTERFACE);
@@ -512,6 +521,22 @@ public final class ModuleRegistry {
 
     public static BooleanSetting guiBlurSetting() {
         return guiBlur;
+    }
+
+    public static BooleanSetting customColorsSetting() {
+        return uiCustomColors;
+    }
+
+    public static ColorSetting uiBackground() {
+        return uiBackground;
+    }
+
+    public static ColorSetting uiText() {
+        return uiText;
+    }
+
+    public static boolean customColors() {
+        return uiCustomColors != null && uiCustomColors.value();
     }
 
     public static ModeSetting hudStyle() {
