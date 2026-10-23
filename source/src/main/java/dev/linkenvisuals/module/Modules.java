@@ -16,6 +16,7 @@ import dev.linkenvisuals.module.impl.HitSoundModule;
 import dev.linkenvisuals.module.impl.ItemPhysicsModule;
 import dev.linkenvisuals.module.impl.ItemScrollerModule;
 import dev.linkenvisuals.module.impl.JumpCirclesModule;
+import dev.linkenvisuals.module.impl.KillStreakModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.MotionBlurModule;
 import dev.linkenvisuals.module.impl.NoRenderModule;
@@ -72,6 +73,7 @@ public final class Modules {
     private static OptimizationModule optimization;
     private static ParticlesModule particles;
     private static TrajectoriesModule trajectories;
+    private static KillStreakModule killStreak;
 
     private Modules() {
     }
@@ -212,6 +214,10 @@ public final class Modules {
         return trajectories;
     }
 
+    public static KillStreakModule killStreak() {
+        return killStreak;
+    }
+
     /**
      * Registers built-in object modules. Called once from mod init.
      */
@@ -280,5 +286,7 @@ public final class Modules {
         register(particles);
         trajectories = new TrajectoriesModule();
         register(trajectories);
+        killStreak = new KillStreakModule();
+        register(killStreak);
     }
 }

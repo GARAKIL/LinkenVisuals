@@ -346,5 +346,11 @@
   "gui.waypoints.count": "%s waypoints",
   "gui.waypoints.placeholder": "Waypoint name...",
   "gui.waypoints.add": "Add here",
-  "gui.waypoints.empty": "No waypoints yet"
+  "gui.waypoints.empty": "No waypoints yet",
+  "linkenvisuals.hud.killstreak": "KILL STREAK",
+  "linkenvisuals.hud.killstreak.double": "DOUBLE KILL",
+  "linkenvisuals.hud.killstreak.triple": "TRIPLE KILL",
+  "linkenvisuals.hud.killstreak.mega": "MEGA KILL",
+  "linkenvisuals.hud.killstreak.monster": "MONSTER KILL",
+  "linkenvisuals.hud.killstreak.unstop": "UNSTOPPABLE"
 }

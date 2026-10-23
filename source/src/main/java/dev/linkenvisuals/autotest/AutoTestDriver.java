@@ -17,10 +17,12 @@ import dev.linkenvisuals.hud.ArmorHud;
 import dev.linkenvisuals.hud.CooldownsHud;
 import dev.linkenvisuals.hud.CoordinatesHud;
 import dev.linkenvisuals.hud.InventoryHud;
+import dev.linkenvisuals.hud.KillStreakHud;
 import dev.linkenvisuals.hud.LowArmorNotificationsHud;
 import dev.linkenvisuals.hud.HudManager;
 import dev.linkenvisuals.hud.TargetHud;
 import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.KillStreakModule;
 import dev.linkenvisuals.render.CustomHitBoxRenderer;
 import dev.linkenvisuals.render.HitRangeRenderer;
 import dev.linkenvisuals.render.ParticlesRenderer;
@@ -602,6 +604,20 @@ public final class AutoTestDriver {
             }
         });
 
+        add("enable killstreak hud", 1, () -> {
+            if (ModuleRegistry.killStreakHud() != null) {
+                ModuleRegistry.killStreakHud().setValue(true);
+            }
+        });
+        add("open killstreak preview", 3, () -> HudManager.setEditing(true));
+        add("check killstreak hud", 5, () -> {
+            if (!KillStreakHud.lastRenderVisible()) {
+                throw new IllegalStateException("KillStreakHud did not render");
+            }
+        });
+        add("screenshot killstreak hud", 1, () -> screenshot(client, "killstreak-hud"));
+        add("close killstreak preview", 2, () -> HudManager.setEditing(false));
+
         add("open ClickGUI", 13, () -> client.setScreen(new ClickGuiScreen()));
         add("screenshot ClickGUI", 1, () -> screenshot(client, "clickgui"));
         add("close ClickGUI", 4, () -> client.setScreen(null));
@@ -635,6 +651,14 @@ public final class AutoTestDriver {
         for (int i = 0; i < 4; i++) {
             add("attack mob " + (i + 1), 3, () -> attackNearest(client));
         }
+        add("check kill streak tracking", 10, () -> {
+            if (!mobsSpawned) {
+                throw new SkipStep("no summoned mobs for KillStreak");
+            }
+            if (KillStreakModule.streak() < 1) {
+                throw new IllegalStateException("KillStreak did not count a kill");
+            }
+        });
 
         add("jump pressed", 1, () -> client.options.jumpKey.setPressed(true));
         add("jump released", 4, () -> client.options.jumpKey.setPressed(false));

@@ -346,5 +346,11 @@
   "gui.waypoints.count": "%s ?????",
   "gui.waypoints.placeholder": "??? ?????...",
   "gui.waypoints.add": "?????",
-  "gui.waypoints.empty": "????? ???? ???"
+  "gui.waypoints.empty": "????? ???? ???",
+  "linkenvisuals.hud.killstreak": "СЕРИЯ УБИЙСТВ",
+  "linkenvisuals.hud.killstreak.double": "ДВОЙНОЕ УБИЙСТВО",
+  "linkenvisuals.hud.killstreak.triple": "ТРОЙНОЕ УБИЙСТВО",
+  "linkenvisuals.hud.killstreak.mega": "МЕГАКИЛЛ",
+  "linkenvisuals.hud.killstreak.monster": "МОНСТРКИЛЛ",
+  "linkenvisuals.hud.killstreak.unstop": "БЕЗУМИЕ"
 }

@@ -295,6 +295,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         if (sounds != null) {
             sounds.tick(client);
         }
+        dev.linkenvisuals.module.impl.KillStreakModule.tick(client);
         dev.linkenvisuals.module.impl.TotemCounterModule.tick();
         dev.linkenvisuals.module.impl.UseTrackerModule.tick();
         tickElytraSwap(client);

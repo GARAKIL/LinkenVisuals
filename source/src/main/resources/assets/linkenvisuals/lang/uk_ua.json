@@ -346,5 +346,11 @@
   "gui.waypoints.count": "%s ?????",
   "gui.waypoints.placeholder": "????? ?????...",
   "gui.waypoints.add": "???",
-  "gui.waypoints.empty": "????? ???? ?????"
+  "gui.waypoints.empty": "????? ???? ?????",
+  "linkenvisuals.hud.killstreak": "СЕРІЯ ВБИВСТВ",
+  "linkenvisuals.hud.killstreak.double": "ПОДВІЙНЕ ВБИВСТВО",
+  "linkenvisuals.hud.killstreak.triple": "ПОТРІЙНЕ ВБИВСТВО",
+  "linkenvisuals.hud.killstreak.mega": "МЕГАВБИВСТВО",
+  "linkenvisuals.hud.killstreak.monster": "МОНСТРВБИВСТВО",
+  "linkenvisuals.hud.killstreak.unstop": "БЕЗУМСТВО"
 }

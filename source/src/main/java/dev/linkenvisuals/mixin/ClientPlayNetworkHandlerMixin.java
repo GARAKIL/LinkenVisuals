@@ -3,6 +3,7 @@ package dev.linkenvisuals.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.linkenvisuals.module.Modules;
+import dev.linkenvisuals.module.impl.KillStreakModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.module.impl.TotemTrackerModule;
 import net.minecraft.client.MinecraftClient;
@@ -22,6 +23,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     @Inject(method = "onEntityDamage", at = @At("TAIL"))
     private void linkenvisuals$noteDamage(EntityDamageS2CPacket packet, CallbackInfo ci) {
         SoundsModule.noteDamage(packet);
+        KillStreakModule.noteDamage(packet);
     }
 
     @WrapOperation(

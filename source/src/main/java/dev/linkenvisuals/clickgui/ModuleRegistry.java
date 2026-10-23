@@ -34,6 +34,7 @@ public final class ModuleRegistry {
     private static BooleanSetting inventoryHud;
     private static BooleanSetting inventoryHotbar;
     private static BooleanSetting lowArmorNotifications;
+    private static BooleanSetting killStreakHud;
     private static SliderSetting scoreboardRadius;
     private static SliderSetting scoreboardOpacity;
     private static SliderSetting tabOpacity;
@@ -202,6 +203,7 @@ public final class ModuleRegistry {
         inventoryHud = new BooleanSetting("Inventory HUD", false);
         inventoryHotbar = new BooleanSetting("Inventory Hotbar", false);
         lowArmorNotifications = new BooleanSetting("Low Armor Notifications", true);
+        killStreakHud = new BooleanSetting("Kill Streak HUD", true);
         tabOpacity = new SliderSetting("Tab Opacity", 0.0f, 100.0f, 1.0f, 80.0f, "%");
         tabColor = new ColorSetting("Tab Colour", 0x0F1116);
         uiRadius = new SliderSetting("Corner Rounding", 0.0f, 10.0f, 1.0f, 5.0f, null);
@@ -220,8 +222,8 @@ public final class ModuleRegistry {
             interfaceLeft.add(hudShape);
         }
         interfaceLeft.addAll(List.of(targetHud, coordinatesHud, cooldownsHud, armorHud, inventoryHud,
-            inventoryHotbar, lowArmorNotifications, customScoreboard, scoreboardRadius, scoreboardOpacity,
-            customTab, tabColor, tabOpacity));
+            inventoryHotbar, lowArmorNotifications, killStreakHud, customScoreboard, scoreboardRadius,
+            scoreboardOpacity, customTab, tabColor, tabOpacity));
         ModuleInfo clickGui = new ModuleInfo("ClickGUI", "interface look and feel (Ctrl+Left/Right to switch)", Category.VISUAL,
             interfaceLeft,
             List.of(uiRadius, uiAccent, tintWatermark, tintHotbar, tintPotions, tintKeybinds));
@@ -531,6 +533,10 @@ public final class ModuleRegistry {
 
     public static BooleanSetting lowArmorNotifications() {
         return lowArmorNotifications;
+    }
+
+    public static BooleanSetting killStreakHud() {
+        return killStreakHud;
     }
 
     public static ColorSetting tabColor() {

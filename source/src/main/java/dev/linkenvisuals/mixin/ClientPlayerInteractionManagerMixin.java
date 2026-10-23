@@ -4,6 +4,7 @@ import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.HitColorModule;
 import dev.linkenvisuals.module.impl.MineHelperModule;
 import dev.linkenvisuals.module.impl.HitSoundModule;
+import dev.linkenvisuals.module.impl.KillStreakModule;
 import dev.linkenvisuals.module.impl.SoundsModule;
 import dev.linkenvisuals.player.FakePlayer;
 import dev.linkenvisuals.player.HitEffects;
@@ -33,6 +34,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
         HitSoundModule.tryPlay(client, HitSoundModule.isCrit(player, target));
         if (target instanceof LivingEntity living) {
             SoundsModule.noteHit(living);
+            KillStreakModule.noteHit(living);
         }
         if (fake) {
             ci.cancel();
