@@ -2,6 +2,27 @@
 
 > Методология: этот файл обновляется в конце КАЖДОЙ задачи. Следующий чат читает его первым и продолжает с «Следующей задачи». Детали решений — `MERGE_DECISIONS.md`, скоуп — `ROADMAP.md`.
 
+## Состояние на 2026-10-23 (чат №57 — donor Trajectories, D103) — v1.0.126
+
+### Сделано
+1. **D103/v1.0.126** (`90f9b60`): donor `Trajectories` (Visual/World, default OFF) — симуляция дуги 300 шагов, маркер попадания, опциональный explosive-radius 4 блока. Настройки `Explosive Circle` (true) и `Color`.
+2. **Поддержка**: Bow (только при натяжении, donor power-curve), Crossbow с Multishot (три луча −10/0/+10°), Ender Pearl, Trident, Splash/Lingering Potion, Experience Bottle, Snowball, Egg. Скорости/углы/гравитация/water-drag из donor.
+3. **Маркер**: вместо донорского `hit.png` — процедурное кольцо + 4 зубца в плоскости грани. Текстура `hit.png` через raw-sampler давала большой atlas-квадрат; ассет удалён из порта, форма кольца сохранена. Explosive radius — плоское кольцо `HitRangeGeometry` на `BlockOverlayPipelines.FLAT`.
+4. **Проверки**: **265 тестов** в обеих flavor-сборках (0 fail/error/skip; +4 `TrajectoryRulesTest`). Autotest: Linken **862/862**, Strange **852/852**, 1920×1080, 0 fail/skip; скриншот `trajectories` чистый (BlockOverlay временно скрыт на preview). Новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+5. **Сборка**: `linkenvisuals-1.0.126.jar` — 11 020 288 байт, SHA-256 `F83D8CA8EFC95FC7446FD16D4E90FC2857464D5041B1AEA463F873DCD72ABE84`; `linkenvisuals-strange-1.0.126.jar` — 11 020 285 байт, SHA-256 `38DA975FCB6C74E6CB5A32CE8F6958828A0F55FE3C7FE5471809052C6503344D`.
+
+### Следующая задача
+1. **visual KillStreak** — donor HUD/layer, звуковой streak уже есть.
+2. Затем full **ViewModel/Hands**.
+3. HUD-остатки: HelperItems (blocked), DynamicIsland (скрыт Link style), Armor V2.
+4. Human: проверить Bow/Crossbow multishot/pearl/potions, explosive circle, маркер на разных гранях, оба flavor-jar.
+
+### Риски
+- Маркер процедурный (кольцо+зубцы), не 1:1 пиксели donor `hit.png`; текстура удалена из-за raw-sampler atlas-артефакта.
+- Explosive Circle срабатывает по ключевым словам имени предмета/эффекта; donor-эвристика по bossbar (server helper) не портирована.
+- Для Bow дуга появляется только при активном натяжении; Crossbow multishot требует enchantment component.
+- Полный parity не закрыт; см. `FEATURE_PARITY.md`.
+
 ## Состояние на 2026-10-23 (чат №56 — donor Particles, D102) — v1.0.125
 
 ### Сделано

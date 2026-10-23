@@ -947,3 +947,14 @@
 - **Сборка**: `linkenvisuals-1.0.125.jar` (11 005 507 байт, SHA-256 `7783DFDC314435E038ABCD52AD1BC179BBAC6BABE1C32858988D52E20C13855F`); `linkenvisuals-strange-1.0.125.jar` (11 005 504 байта, SHA-256 `8071B3D52B43724D3EBA5F390107E616952A903B1E1AE4DF9AB9B2A160F830D4`).
 - **Commit**: `0d2d350` `feat(render): port donor ambient particles (v1.0.125, D102)`.
 - **Остаток**: Cube-настройки видны во всех режимах (setting-UI не умеет predicate visibility); живая приёмка 6 режимов; Trajectories/KillStreak/ViewModel.
+
+## 2026-10-23 · D103 · Donor Trajectories — v1.0.126
+- **Модуль**: donor `Trajectories` (Visual/World, default OFF), настройки `Explosive Circle` (true) и `Color`. Симуляция 300 шагов, donor water-drag 0.8 / air 0.99, gravity 0.05 для bow/crossbow и 0.03 для throwables, player velocity учитывается один раз.
+- **Снаряды**: Bow (power curve по `getItemUseTime`, только при натяжении), Crossbow с Multishot (offsets −10/0/+10°), Ender Pearl, Trident, Splash/Lingering Potion, Experience Bottle, Snowball, Egg. Скорости/углы из donor.
+- **Маркер**: процедурное кольцо + 4 зубца в плоскости грани (0.34 радиус, 0.025 толщина). Донорский `hit.png` через raw-sampler давал большой atlas-квадрат, поэтому текстура не портирована; форма маркера сохранена. Explosive radius 4 блока — плоское кольцо `HitRangeGeometry` на `BlockOverlayPipelines.FLAT`.
+- **Кэш**: траектория по yawOffset, player age, item, yaw/pitch с допуском 0.1°; explosive buff — item-name/status-effect keywords с TTL 200 мс. Bossbar-эвристика donor (server helper) не портирована.
+- **Тесты**: `TrajectoryRulesTest` (4) — bow power, drag/gravity/step, explosive keywords, face basis/offset. Всего **265 тестов** в обеих сборках, 0 fail/error/skip.
+- **Evidence**: Linken autotest **862/862**, Strange **852/852**, 0 fail/skip, 1920×1080; чистый `trajectories` screenshot (BlockOverlay скрыт на preview и восстановлен); новых ERROR/exception/shader/sound нет (только offline-auth/Realms).
+- **Сборка**: `linkenvisuals-1.0.126.jar` (11 020 288 байт, SHA-256 `F83D8CA8EFC95FC7446FD16D4E90FC2857464D5041B1AEA463F873DCD72ABE84`); `linkenvisuals-strange-1.0.126.jar` (11 020 285 байт, SHA-256 `38DA975FCB6C74E6CB5A32CE8F6958828A0F55FE3C7FE5471809052C6503344D`).
+- **Commit**: `90f9b60` `feat(render): port donor trajectories (v1.0.126, D103)`.
+- **Остаток**: процедурный маркер не 1:1 `hit.png`; explosive circle только по item/effect keywords; human-проверка Bow/Multishot/pearl; KillStreak/ViewModel.
