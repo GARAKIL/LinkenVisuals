@@ -61,6 +61,7 @@ public final class LinkenMenuChrome {
 
     private static final Identifier BACKGROUND = LinkenVisuals.id("textures/linkmenu/bg-tower.png");
     private static final Identifier LV_LOGO = LinkenVisuals.id("textures/gui/lv_logo.png");
+    private static final Identifier LV_LOGO_SMALL = LinkenVisuals.id("textures/gui/logo.png");
     private static final Identifier MUSIC_PLAY = LinkenVisuals.id("textures/linkmenu/music/play.png");
     private static final Identifier MUSIC_PAUSE = LinkenVisuals.id("textures/linkmenu/music/pause.png");
     private static final float BACKGROUND_WIDTH = 1270.0f;
@@ -146,9 +147,15 @@ public final class LinkenMenuChrome {
 
     /** Linken monogram used by the menu, HUD and GUI. */
     public static void drawLogo(DrawContext context, float x, float y, float size, float fade) {
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, LV_LOGO,
+        // The 512 px master is meant for large draws. At 16-24 px (LinkGUI
+        // header/footer) it is minified ~21x without mipmaps and starts to
+        // shimmer, so small draws use the dedicated 120 px texture instead.
+        boolean small = size <= 128.0f;
+        Identifier texture = small ? LV_LOGO_SMALL : LV_LOGO;
+        int texSize = small ? 120 : 512;
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, texture,
             Math.round(x), Math.round(y), 0.0f, 0.0f,
-            Math.round(size), Math.round(size), 512, 512, 512, 512,
+            Math.round(size), Math.round(size), texSize, texSize, texSize, texSize,
             rgba(0xFFFFFF, fade));
     }
 
