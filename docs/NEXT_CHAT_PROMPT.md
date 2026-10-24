@@ -1,173 +1,340 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.140 / D116
+﻿# ПРОМТ ДЛЯ СЛЕДУЮЩЕГО ЧАТА — LinkenVisuals 1.21.11: pixel-perfect доработка визуала
 
-You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
+Ты продолжаешь существующий порт **LinkenVisuals 2.0 (MC 1.21.4) → LinkenVisuals 1.21.11**. Не начинай проект заново и не переписывай принятые решения. Этот чат — **только чистая визуальная доработка и сверка пиксель в пиксель**. Новые фичи, настройки, модули, экраны и «улучшения» геймплея запрещены.
 
-> **SCOPE:** full Punchy and Punchy-dependent `ViewModel Animated` are **explicitly excluded** by the user (2026-10-24). `HandMotion` is final; do not list Punchy as open work.
+Пользователь считает, что различия при запуске и мелкие визуальные дефекты всё ещё есть. Твоя задача — найти их объективно, починить то, что относится к порту, и доказать результат скриншотами + числовым diff. Не заявляй «1:1», если это не подтверждено.
 
-## 1. Repository
+---
+
+## 1. Репозиторий и текущее состояние
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.140**
-- Last code commit: `ed3cba0` `feat(ui): finish donor LinkGUI animation parity (v1.0.140, D116)`; docs commit is separate.
-- Tests: **324 / 0 failures / 0 errors / 0 skipped** in both flavors (82 suites).
-- Autotest: Linken **1150/1150** at 1280×720/GUI 2 and 1920×1080/GUI 3, Strange **1140/1140** at 1920×1080/GUI 3, 0 fail/skip.
-- Live: `[LVLive] live checks passed: self=Hidden, botDistance=13.9`; tab list `Hidden` + `[MVP] SecondPlayer`, item-radius `77%`. `SecondPlayer` is a mineflayer bot, not a human client.
-- Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.140): `linkenvisuals-1.0.140.jar` 11 183 034 bytes / `420C9A9F2DE4732CA1DAAFCC588B8640C8E498C2303F0078B5700C089B0A0561`; `linkenvisuals-strange-1.0.140.jar` 11 183 024 bytes / `9787C1FA0AB7F333592B0564CE7848ED7503A37806EC91C7895D4983386401C7`.
+- Version: **1.0.140** (не поднимать без прямого приказа пользователя)
+- Последний code commit: `a87d04b` — `fix(ui): restore pre-D117 LV logo with SDF edges (v1.0.140, D117b)`
+- Предыдущие: `ee65d37` — D117 Create World/loading; `155645e` — docs D117
+- Docs-коммит с этим промтом идёт следующим; проверь `git log -3 --oneline` после `git pull`.
 
-Clone/verify:
+Текущие проверки:
+
+- **82 набора / 324 теста**, 0 failures / 0 errors / 0 skipped в обоих flavors.
+- Linken autotest: **1158/1158**, 0 fail/skip, 0 новых ERROR/exception (1920×1080, прогон после D117b).
+- Strange autotest: **1148/1148**, 0 fail/skip; 3 ERROR — только offline-auth/Realms (прогон D117; D117b меняет только PNG и ветку `drawLogo`).
+- Linken jar: `linkenvisuals-1.0.140.jar`, **11 180 156 байт**, SHA-256 `34282DFE9ABD6874B63580083941EEFBA4D678AB5620FDC8720869999C3A2259`.
+- Strange jar: `linkenvisuals-strange-1.0.140.jar`, **11 180 144 байта**, SHA-256 `586D71642799253C4822088C6702931F529AA476596214AFA64FADDC585C341B`.
+- Linken jar развёрнут в `D:\MultiMC\instances\1.21.111\.minecraft\mods`; SHA-256 совпадает.
+
+Что уже принято и не переделывается:
+
+- D117: loading screen переложен под donor 9d; Create World полностью перерисован `LinkenCreateWorldSkin`; ESC-tile `LINKENVISUALS HUD` удалён.
+- D117b: возвращён **прежний** LV-монограмм из `6c6919a`; края пересобраны SDF-мастером 2048; `drawLogo` для `size <= 128` использует 120 px `logo.png`, для крупных — 512 px `lv_logo.png`.
+- В текстовом wordmark главного меню/welcome/pause LV-бейджа нет; LV остаётся в LinkGUI header/footer и HUD. Strange использует только `strange_logo.png` и только в `-Pstrange`.
+
+Evidence: `source/run/screenshots/evidence-d117b/` — `linkgui-header.png`, `linkgui-header-zoom.png`, `logo-compare-old-new.png`, `pause.png`, `report.log`.
+
+---
+
+## 2. Где donor и где порт
+
+Donor (READ-ONLY, ничего не менять):
+
+- Исходники: `C:\Users\gameg\Desktop\визуалы` (`ru.method.linkenvisuals`, MC 1.21.4)
+- Запуск donor-клиента: `D:\MultiMC\instances\1.21.4` (`linkenvisuals-2.0.jar`, `fabric-api-0.119.4-1.21.4.jar`)
+- Команда: `D:\MultiMC\MultiMC.exe --launch 1.21.4`
+
+Порт:
+
+- Исходники: `C:\Users\gameg\Desktop\VS\LinkenVisuals\source`
+- Запуск: `D:\MultiMC\instances\1.21.111`
+- Команда: `D:\MultiMC\MultiMC.exe --launch 1.21.111`
+
+Donor-классы-эталоны:
+
+- `screen/overlay/LinkenLoadingScreen.java`
+- `screen/mainmenu/CustomMainMenuScreen.java`
+- `screen/settings/LinkenPauseScreen.java`
+- `screen/linkgui/LinkGuiScreen.java`
+- `screen/mainmenu/MenuChrome.java`
+
+Порт-классы:
+
+- `ui/linkmenu/LinkenLoadingScreen.java`
+- `ui/linkmenu/LinkenMainMenuScreen.java`
+- `ui/linkmenu/LinkenPauseScreen.java`
+- `ui/linkmenu/LinkenCreateWorldSkin.java`
+- `ui/linkmenu/LinkenMenuChrome.java`
+- `clickgui/link/LinkGuiScreen.java`
+- `mixin/SplashOverlayMixin.java`, `mixin/CreateWorldScreenMixin.java`
+
+---
+
+## 3. Жёсткие ограничения
+
+1. **Никаких новых фич, экранов, настроек, модулей и контролов.** Только исправление уже существующего визуала.
+2. **Punchy и Punchy-зависимый `ViewModel Animated` исключены** решением пользователя (2026-10-24). `HandMotion` — финальный принятый subset. Не открывать их и не упоминать как «остаток».
+3. **LV-логотип только в Linken-сборке**, Strange — только `strange_logo.png` в `-Pstrange`. Никаких cross-family стилей.
+4. **Без мёртвых контролов.** Если элемент виден, он должен работать.
+5. **Не менять версию** `1.0.140` без прямого приказа.
+6. **Create World:** у donor 1.21.4 нет собственного экрана создания мира. Точный «1:1» невозможен; сверять только язык стиля (фон, карточка, типографика, отступы, состояния). Ванильную сетку Game/More не перестраивать.
+7. **`run/` и артефакты сборки не коммитить.** Jar, логи, скриншоты, `build/` — вне git.
+8. Любое изменение подтверждать сборкой, тестами и скриншотом. «Должно работать» запрещено.
+
+---
+
+## 4. Методология pixel-diff
+
+### Шаг 0. Baseline
 
 ```powershell
-git clone https://github.com/KurumaOfficial/LinkenVisuals.git
-cd LinkenVisuals
-git checkout main
-git pull
-git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.140
-```
-
-## 2. Donor
-
-READ-ONLY full donor on this machine:
-
-`C:\Users\gameg\Desktop\визуалы` (`ru.method.linkenvisuals`)
-
-Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the desktop path is missing; never invent assets/dimensions/behavior.
-
-The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
-
-## 3. Done in D105-D116 (do not redo)
-
-- D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
-- D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
-- D107: hotbar-anchored `CustomVitals` (Segments/Stack/Bars, armour/air/mount/XP, damage flash) with vanilla status/exp/jump cancellation, and Armor V2 two hotbar-relative groups.
-- D108: donor `ItemRadius` (Ender Eye/Sugar circles, netherite box, dried-kelp staircase, snowball projection, splash-potion impact, proximity colour) on `FLAT_NO_DEPTH`; donor `%` proximity labels remain open.
-- D109: donor `DamageParticles` (legacy/decorative impact, projectile trail, six modes) and `FortniteDamage` (floating crit/theme numbers, screen-space MSDF projection); `damage-number`/`damage-visuals` screenshots.
-- D110: donor `SelfNametags` toggle, wired to the StreamerMode sanitizer for the local player only; autotest asserts the `Hidden` self label.
-- D111: Interface Secondary Colour, Theme Fade, GUI Blur; fade-off collapses secondary to accent, no-blur LinkGUI/ClickGUI; `linkgui-noblur` screenshot.
-- D112: ItemRadius splash proximity `NN%` labels (donor 1−dist/radius formula) via screen-space MSDF; `ItemRadiusRulesTest`.
-- D113: Custom Theme Colours master + Background/Text colours, LinkGUI palette and HUD base; `linkgui-custom-colours` screenshot.
-- D114: HelperItemsHud + Ft/Hw/Rw helper modules, key dispatch, `helper-items` screenshot.
-- D115: real helper LMB/RMB binds (`KeybindSetting.mouseAllowed`, `MOUSE1`/`MOUSE2`, donor `M1`/`M2`, `MouseMixin` → `Modules.onHelperMouse`, ClickGUI capture, HUD `LMB`/`RMB`, autotest slot assertions); ItemRadius splash labels fixed (camera quaternion basis, FakePlayer scan, screen bounds, `item-radius-labels`); SelfNametags team-prefix tests; DynamicIsland/BoostFPS closed by donor rule; LV/Strange branding split (`lv_logo.png`, `strange_logo.png`, `BrandingAssetsTest`).
-- D116: LinkGUI theme cross-fade/panel springs/grid reflow; donor `AnimatedString` search/mode/keybind morphs; enum dropdown easing; rolling slider values/knob and bind-chip morphs; HUD hidden behind screens; Linken Create World shell (`create-world` screenshot); `LiveTestDriver` on Paper 1.21.11 `localhost:25566` (bot-based machine evidence, not human acceptance).
-- `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
-
-## 4. Next priority
-
-1. **Human multiplayer acceptance**: second real player on `localhost:25566` for ItemRadius splash `NN%`, team-prefix SelfNametags, ping/tab. Do not claim live acceptance from FakePlayer, the `SecondPlayer` mineflayer bot or singleplayer.
-2. **Human pixel acceptance**: 1280×720 and 1920×1080 screenshots exist; side-by-side donor comparison and hover/press checks remain.
-3. **Punchy is out of scope** — do not start it. `HandMotion` is the final accepted animation subset.
-4. **DynamicIsland / BoostFPS / helper mouse are closed** — do not reopen them.
-
-## 5. Architecture that must not break
-
-- HUD: `HudElement` (center/fraction), `HudManager` (`ELEMENTS`, drag/snap/edit-mode), `HudStyle`/`HudSurface` (8 styles/3 shapes), `HudLayoutStorage`, `HudTween`. New HUD element -> `HudManager.ELEMENTS`, real Interface `BooleanSetting`, preview/check/screenshot, non-overlapping default at GUI scale 3.
-- Render: world passes on `END_MAIN` via `BlockOverlayPipelines.FLAT`/`FLAT_NO_DEPTH`, byte-packed `POSITION_COLOR`; never leave RenderSystem state/transforms damaged; hidden 1920×1080 screenshot required.
-- Mixins: each `*Mixin.java` must be in `linkenvisuals.mixins.json`; `MixinRegistrationTest` enforces. Do not target removed 1.21.11 names.
-- Flavors: default = Linken-only; `-Pstrange` = Strange-only. `StyleFlavor` is the single source. No cross-family style controls. Linken style lock and no Style/Editor buttons in LINKEN Settings.
-- i18n: new visible strings in en/ru/uk; `LangParityTest` green. Existing module/setting labels are raw English.
-- No Lombok, donor Module/Setting, legacy Render2D/WindowGuiRender, raw GL, Lottie/Skija, network/UserSyncManager, cosmetics catalog, crashers, Discord RPC, IAS. No empty catch/TODO/FIXME/System.out. No dead controls.
-
-## 6. Build/run
-
-```powershell
-cd source
+cd C:\Users\gameg\Desktop\VS\LinkenVisuals\source
 $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
-.\gradlew.bat test --console=plain --no-daemon
-.\gradlew.bat clean build --console=plain --no-daemon
-.\gradlew.bat test -Pstrange --console=plain --no-daemon
-.\gradlew.bat build -Pstrange --console=plain --no-daemon
+.\gradlew.bat test --console=plain
+.\gradlew.bat build --console=plain
+.\gradlew.bat test -Pstrange --console=plain
+.\gradlew.bat build -Pstrange --console=plain
 ```
 
-Expected: 324 tests, 0 fail/error/skip each.
+Ожидание: 324 теста, 0 fail/error/skip в каждом flavor. Если baseline красный — сначала чинишь его, потом визуал.
 
-Hidden autotest (explicit permission only):
+### Шаг 1. Одинаковые условия съёмки
+
+Сравнивать можно только кадры с одинаковыми:
+
+- разрешением клиента (1280×720 и 1920×1080);
+- GUI scale (2 для 1280×720, 3 для 1920×1080);
+- языком (сначала `en_us`, потом `ru_ru` — отдельными сериями);
+- набором ресурспаков (vanilla only);
+- состоянием экрана (анимация завершена, курсор в одной и той же точке, тултипов нет);
+- фазой анимации (для loading — фиксированный stage/percent, иначе сравнивать только геометрию, не текст).
+
+Практика:
+
+1. В donor `D:\MultiMC\instances\1.21.4\.minecraft\options.txt` сейчас `fullscreen:true`, `guiScale:2`. Для сравнения выставь **те же** `fullscreen`, `overrideWidth`, `overrideHeight`, `guiScale`, что и у порта, иначе кадры не совпадут.
+2. У порта — `D:\MultiMC\instances\1.21.111\.minecraft\options.txt`; не забывай вернуть значения после съёмки.
+3. Снимай **F2** (PNG). Проверь фактический размер PNG: при оконном режиме клиентская область может быть 1920×1061 из-за рамки. Если размеры отличаются — либо снимай в fullscreen, либо обрезай оба кадра до общего client-rect и фиксируй это в отчёте.
+4. Для loading/splash снимай серию кадров (F2 несколько раз подряд) или запись экрана; выбирай кадр с одинаковым progress stage. Не сравнивай разные моменты анимации.
+5. Для hover/press — отдельные пары кадров: normal / hover / pressed / focus.
+
+### Шаг 2. Числовой diff
+
+В системе есть Python 3.14, Pillow 11.3, numpy 2.4.6, scipy 1.17.1. ImageMagick нет — используй Pillow/numpy.
+
+Скрипт складывай в `C:\Users\gameg\AppData\Local\Temp\opencode\pixel-audit\` (не в repo). Минимальный набор:
+
+```python
+from PIL import Image, ImageChops
+import numpy as np
+
+a = Image.open(donor_path).convert("RGB")
+b = Image.open(port_path).convert("RGB")
+assert a.size == b.size, (a.size, b.size)
+
+na = np.asarray(a).astype(np.int16)
+nb = np.asarray(b).astype(np.int16)
+d = np.abs(na - nb)
+
+print("mean", d.mean(), "p95", np.percentile(d, 95),
+      "pct>8", (d.max(axis=2) > 8).mean() * 100,
+      "pct>16", (d.max(axis=2) > 16).mean() * 100,
+      "pct>32", (d.max(axis=2) > 32).mean() * 100)
+
+# side-by-side + heatmap + 50% onion
+side = Image.new("RGB", (a.width * 3, a.height))
+side.paste(a, (0, 0)); side.paste(b, (a.width, 0))
+heat = Image.fromarray(np.clip(d.max(axis=2) * 4, 0, 255).astype(np.uint8)).convert("RGB")
+side.paste(heat, (a.width * 2, 0))
+side.save(out_side_by_side)
+
+Image.blend(a, b, 0.5).save(out_onion)
+```
+
+Дополнительно:
+
+- сохраняй **zoom-кропы** 4×/8× по якорям (wordmark, кнопки, rail, footer, tabs, поля);
+- считай diff по областям (header / body / footer / конкретная кнопка), а не только по всему кадру;
+- если есть `skimage` — добавь SSIM; если нет, не добавляй зависимость, хватит MAE/p95/процентов.
+
+### Шаг 3. Классификация различий
+
+Каждый hotspot относи к одной из категорий:
+
+- **A. Баг порта** — неверный offset/size/цвет/alpha/шрифт/радиус/порядок слоёв. Это чинишь.
+- **B. Donor-only** — Lottie, Punchy, донорский шрифт, донорский blur и т.п. Не имитировать; задокументировать.
+- **C. Разница версий MC** — метрики ванильных виджетов 1.21.4 vs 1.21.11. Задокументировать, не ломать ванильную логику.
+- **D. Шум съёмки** — курсор, тултип, другая фаза анимации, другой кадр параллакса. Переснять.
+
+### Шаг 4. Цикл исправления
+
+Один экран за раз:
+
+1. снял donor + порт;
+2. посчитал diff и сохранил evidence;
+3. нашёл причину в коде (не «на глаз»);
+4. поправил;
+5. пересобрал;
+6. снял заново теми же условиями;
+7. сравнил до/после и записал числа.
+
+Не делай «пакетных» правок нескольких экранов без промежуточных скриншотов — иначе не докажешь, что стало лучше.
+
+### Шаг 5. Итоговый отчёт
+
+Таблица по каждому экрану и разрешению:
+
+| Экран | Разрешение | mean abs diff | p95 | % >16 | Главные остатки | Причина | Статус |
+|---|---|---|---|---|---|---|---|
+
+Плюс перед/после для каждого исправления. Если разница осталась — честно укажи, почему (B/C/D), а не прячь.
+
+---
+
+## 5. Чеклист экранов (приоритет сверху вниз)
+
+1. **Самый первый запуск / splash**
+   - первый кадр: чем заменяется Mojang splash, есть ли донорский wordmark/логотип, нет ли пустого/чёрного кадра;
+   - progress bar, stage text, footer, фон;
+   - нет ли мерцания/подмены кадра между splash и loading.
+
+2. **Loading screen**
+   - градиент `BG_TOP/MID/BOTTOM`, эллиптический glow, угловые скобки;
+   - wordmark-блок `linken.` + `VISUALS` на 44% высоты;
+   - rail 460 px на 200 px от низа, толщина/цвет/заливка;
+   - stage/percent, stacked footer `Version ..., build ...` + disclaimer;
+   - поведение при 1280×720 и 1920×1080.
+
+3. **Главное меню**
+   - фон `bg-tower`: кадр/масштаб/параллакс, затемнение;
+   - wordmark, menu rows (Singleplayer / Multiplayer / Options / Quit), иконки, hover/press;
+   - account chip: иконка/текст/статус, отсутствие overlap;
+   - social tiles, media card/footer, отступы и baseline;
+   - отсутствие LV-бейджа в текстовом wordmark (это принятое решение D117).
+
+4. **Pause**
+   - панель 440 px, topbar 56, rows 44, gap 8, 2-column tiles, divider, Save & Quit;
+   - title `PAUSED`/`ПАУЗА`, world/server line;
+   - hover/open/close, ESC;
+   - отсутствие tile `LINKENVISUALS HUD`.
+
+5. **Create World**
+   - backdrop, glass-карточка 1024 design px, header, footer;
+   - tab-pills Game/World/More и их хитбоксы (реальный клик);
+   - поля, cycling-строки, чекбоксы, кнопки, slider, WORLD SUMMARY;
+   - mint-рамка поля имени, folder hint;
+   - normal/hover/focus/disabled;
+   - помни: donor-экрана нет, сравнивай только стиль.
+
+6. **LinkGUI**
+   - header: LV 24 px (теперь 120 px текстура), wordmark, search;
+   - карточки 3×102, dock, profile/theme, footer LV;
+   - hover/press, анимации (не сравнивай разные фазы);
+   - отсутствие HUD за экраном.
+
+7. **HUD watermark / KeybindPanel**
+   - LV 10 px (120 px текстура), читаемость, отсутствие «лесенок»;
+   - Strange-сборка не показывает LV.
+
+Для каждого экрана — минимум 1280×720 и 1920×1080. Для loading — ещё и ранний/средний/поздний stage.
+
+---
+
+## 6. Команды
+
+### Сборка и тесты
 
 ```powershell
-.\gradlew.bat runAutotest -PautotestWorld=AutoTestWorld -PautotestQuit --console=plain --no-daemon
-.\gradlew.bat runAutotest -Pstrange -PautotestWorld=AutoTestWorld -PautotestQuit --console=plain --no-daemon
+cd C:\Users\gameg\Desktop\VS\LinkenVisuals\source
+$env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
+
+.\gradlew.bat test --console=plain
+.\gradlew.bat build --console=plain
+.\gradlew.bat test -Pstrange --console=plain
+.\gradlew.bat build -Pstrange --console=plain
 ```
 
-**Options workaround:** full `run/options.txt` with `key_key.*` currently trips `OptionsKeyLwjgl3Fix` and resets focus pause. Before a hidden run use:
+`build` включает `test`; отдельный `test` нужен, если хочешь быстро проверить без jar.
+
+### Autotest
+
+Перед прогоном в `source/run/options.txt` поставь:
 
 ```text
-version:4671
-fullscreen:false
 pauseOnLostFocus:false
-overrideWidth:1920
-overrideHeight:1080
-guiScale:3
-renderDistance:8
-onboardAccessibility:false
-skipMultiplayerWarning:true
-tutorialStep:none
 ```
 
-Restore the original `options.txt` afterwards. Run minimized or on a separate desktop; never leave the game on the active desktop. Expected log: only offline-auth/Realms; no shader-source/compile, mixin apply/injection, or unknown sound events.
+Иначе окно уходит в паузу и прогон ломается/зависает. После прогона верни `true`.
 
-Jar hashes:
+```powershell
+.\gradlew.bat runAutotest -PautotestWorld=AutoTestWorld -PautotestQuit=true -PautotestWidth=1920 -PautotestHeight=1080 --console=plain
+```
+
+Ожидание: `steps=1158 ok=1158 fail=0 skip=0`, `New ERROR/exception lines in latest.log: 0`.
+
+Strange (в temp-каталог, чтобы не заменить развёрнутый Linken-jar):
+
+```powershell
+.\gradlew.bat clean build -Pstrange -PmultiMcModsDir="C:\Users\gameg\AppData\Local\Temp\opencode\mods-deploy" --console=plain
+```
+
+После Strange обязательно пересобери и разверни Linken обратно:
+
+```powershell
+.\gradlew.bat build --console=plain
+```
+
+### Запуск donor и порта
+
+```powershell
+& "D:\MultiMC\MultiMC.exe" --launch 1.21.4
+& "D:\MultiMC\MultiMC.exe" --launch 1.21.111
+```
+
+Скриншоты: F2. У порта — `source/run/screenshots/`; у donor — `D:\MultiMC\instances\1.21.4\.minecraft\screenshots\`.
+
+### Хеши jar
 
 ```powershell
 Get-ChildItem build\libs\linkenvisuals-*.jar |
   ForEach-Object { "$($_.Name) | $($_.Length) | $((Get-FileHash $_.FullName -Algorithm SHA256).Hash)" }
 ```
 
-## 7. Key files
+---
 
-```text
-source/src/main/java/dev/linkenvisuals/
-  player/FakePlayer.java                 # crit detection/damage/lastCrit
-  module/impl/HitSoundModule.java        # vanilla crit gate + critTrace
-  ui/linkmenu/LinkenMainMenuScreen.java  # welcome intro, account row, menu
-  ui/linkmenu/LinkenPauseScreen.java     # compact donor ESC panel
-  ui/linkmenu/LinkenMenuChrome.java      # shared chrome/icons
-  hands/HandMotion.java                  # Punchy-lite hand motion
-  hands/HandPose.java, HandEditor.java   # accepted free-form hand editor
-  mixin/HeldItemRendererMixin.java       # HandPose + ViewModel + HandMotion anchors
-  clickgui/ModuleRegistry.java           # Better Animations settings, HUD/i18n gates
-  module/impl/ViewModelModule.java       # 12 donor manual settings
-  hud/*                                  # HUD layer incl. HelperItemsHud
-  clickgui/setting/KeybindSetting.java   # key + LMB/RMB bind representation
-  mixin/MouseMixin.java                  # helper mouse dispatch
-  ui/linkmenu/*                          # LV-branded Linken menu/pause/loading
-  clickgui/link/LinkGuiScreen.java       # LV header/footer, bind capture, animations
-  clickgui/link/LinkGuiTheme.java        # theme cross-fade targets
-  clickgui/setting/SliderSetting.java    # step/format helpers for rolling values
-  ui/AnimatedString.java                 # donor 150/160 ms EASE_OUT_CUBIC crossfade
-  mixin/CreateWorldScreenMixin.java      # Linken new-world chrome
-  autotest/AutoTestDriver.java           # welcome/pause/crit/helper/radius/create-world steps
-  autotest/LiveTestDriver.java           # Paper live checks (bot-based)
-source/src/test/java/dev/linkenvisuals/
-  player/FakePlayerTest.java
-  module/impl/HitSoundModuleTest.java
-  hands/HandMotionTest.java
-  module/impl/ViewModelModuleTest.java
-  ui/AnimatedStringTest.java
-  clickgui/SliderSettingTest.java
-  ...
-```
+## 7. Критерии готовности
 
-## 8. Known traps
+- Оба flavor собираются, **324 теста**, 0 fail/error/skip.
+- Linken autotest **1158/1158**, Strange **1148/1148**, 0 fail/skip; новых mod/shader/sound/mixin ERROR нет (только offline-auth/Realms).
+- Для каждого затронутого экрана есть **до/после** скриншоты и числовой diff; остатки классифицированы (A/B/C/D).
+- Нет новых фич, контролов, настроек; версия `1.0.140`.
+- Обновлены `docs/HANDOFF.md` (верхний раздел), `docs/MERGE_DECISIONS.md`, `docs/PORT_STATUS.md`, `docs/FEATURE_PARITY.md`, `docs/VISUAL_AUDIT.md`; `docs/NEXT_CHAT_PROMPT.md` заменён промтом для следующего чата.
+- Отдельный code-коммит и отдельный docs-коммит; `git fetch` перед коммитом; push в `main` без force.
+- Финальный отчёт пользователю — по-русски, с таблицей diff, ссылками на evidence и списком ручных проверок.
 
-- `HandMotion` and `ViewModel` both anchor at `renderFirstPersonItem -> INVOKE renderItem`; do not move them to HEAD, and skip both while `HandEditor.active()`.
-- FakePlayer crit must use the same gate for damage/sound/particles; don't force crit in production, only via the test overload.
-- `LinkenPauseScreen` must only replace `GameMenuScreen` in the Linken style. Strange/Vanilla must keep the vanilla pause.
-- `LinkenFonts.icons2()` glyphs are `MENU_ICON_*` (A-H), not legacy `ICON_*` (P/Q/...).
-- Welcome is procedural, not donor Lottie; full Punchy is not ported.
-- HUD defaults must not overlap at GUI scale 3; add autotest preview/check/screenshot. `HelperItemsHud` default is `0.77, 0.86` (hotbar's right) to avoid chat.
-- Helper mouse binds persist as `MOUSE1`/`MOUSE2`; key-only `KeybindSetting` must never show a mouse label (dead bind).
-- Linken branding uses `lv_logo.png`; `strange_logo.png` is Strange-only. Do not reference `link_icon.png` from Linken screens.
-- Do not commit `build/`, `run/`, jars, logs, screenshots or temp files.
+---
 
-## 9. Definition of Done
+## 8. Известные ловушки
 
-- Both builds green, 324 tests, 0 fail/error/skip.
-- Both hidden autotests green, no new mod/shader/sound/mixin errors (only offline-auth/Realms).
-- No dead controls; new strings en/ru/uk; `LangParityTest` green.
-- Jars path/size/SHA-256 recalculated; Russian report with visual/log evidence and manual list.
-- Code commit (+1 patch) then docs commit, `git fetch` before commit, push to main without force.
+- `pauseOnLostFocus` — см. выше; после autotest вернуть `true`.
+- Полный `run/options.txt` с `key_key.*` может словить `OptionsKeyLwjgl3Fix` и сбросить focus pause. Для autotest используй минимальный набор, после — восстанови оригинал.
+- `LinkenMenuChrome.drawLogo`: `size <= 128` → `logo.png` 120 px (UV 120), иначе `lv_logo.png` 512 px (UV 512). Не возвращай 512-only: это даёт ~21× minification в LinkGUI header/footer.
+- `rgba(int rgb, int alpha)` — alpha 0..255; `rgba(int rgb, float fade)` — fade 0..1. Int-литерал без перегрузки трактовался как fade.
+- `I18n` fallback использует `Language.getInstance().get(key)`; `I18n.translate(key)` без аргументов ломает `%s`-ключи (`Format error`).
+- `alignTabs` переставляет ванильные `TabButtonWidget`; клики идут через те же кнопки, не подменяй хитбоксы.
+- HUD скрыт за экранами (кроме ChatScreen/edit mode) — не «чини» это обратно.
+- Donor 1.21.4 и порт 1.21.11 — разные версии; не сравнивай байты кадра там, где отличается ванильная геометрия.
+- F2 при оконном режиме может дать 1920×1061; фиксируй фактический размер и обрезай одинаково.
+- Не сравнивай разные фазы анимаций (параллакс, glow, progress) — сначала стабилизируй кадр.
+- ImageMagick нет; используй Pillow/numpy/scipy.
+- Не коммить `run/`, `build/`, jar, логи, скриншоты, temp-файлы.
 
-## 10. First action
+---
 
-Read `docs/HANDOFF.md` top, `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` D105-D115, `docs/FEATURE_PARITY.md`. Run baseline tests in both flavors. The port is feature-complete for the accepted scope; do not invent new controls. Only human multiplayer/pixel acceptance remains.
+## 9. Первый шаг
+
+1. Прочитай `docs/HANDOFF.md` (верхний раздел D117b), `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` (D117/D117b), `docs/FEATURE_PARITY.md`.
+2. Прогони baseline-тесты в обоих flavors.
+3. Запусти donor 1.21.4 и порт 1.21.111 при **одинаковых** `fullscreen`/`guiScale`/разрешении.
+4. Сними главное меню на 1920×1080, построй side-by-side + diff + heatmap, запиши числа.
+5. Дальше иди по чеклисту: splash → loading → main menu → pause → Create World → LinkGUI → HUD.
+6. Исправляй только то, что классифицировано как **A. Баг порта**. Всё остальное — в отчёт с причиной.
+
+Главное: не добавляй ничего нового. Только доводи уже существующий визуал и доказывай каждое изменение.

@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-24 · Target build: **v1.0.140 / D116** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-24 · Target build: **v1.0.140 / D117b** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -218,11 +218,16 @@ is hard-wired to `DEFAULT` and its UI control is hidden.
 - **Open:** human pixel acceptance only. DynamicIsland is closed by donor rule.
 - **Punchy is out of scope** (user decision 2026-10-24); HandMotion is final.
 
-## 6h. Branding D115 — LV vs Strange
+## 6h. Branding D115 / D117b — LV vs Strange
 
-- Linken uses the user-provided LV monogram (`lv_logo.png`, transparent
-  512×512) in the main menu wordmark, welcome scene, loading scene, pause
-  topbar, HUD watermark, KeybindPanel, LinkGUI header and footer.
+- Linken uses the restored LV monogram (`lv_logo.png`, transparent 512×512) in
+  the LinkGUI header/footer and the HUD watermark/KeybindPanel. The textual
+  wordmark in the main menu, welcome and pause topbar no longer carries an LV
+  badge (D117 decision); D117b keeps that layout and only restores the drawing.
+- D117b returns the pre-D117 monogram (source commit `6c6919a`); the shape is
+  unchanged and the edges are rebuilt through a 2048 SDF master (alpha MAE
+  0.0021 at 512, 0.0044 at 120). `drawLogo` uses `logo.png` 120×120 for draws
+  ≤128 px and `lv_logo.png` 512×512 above that, with matching UVs.
 - Strange uses `strange_logo.png` in `MainMenuScreen`, `ClickGuiScreen`, the
   Strange HUD watermark/KeybindPanel and the Beta loading scene.
 - `BrandingAssetsTest` guards the packaged assets. Linken screenshots show
@@ -262,31 +267,22 @@ is hard-wired to `DEFAULT` and its UI control is hidden.
   `SecondPlayer` is a mineflayer protocol bot, so the live run is machine
   evidence, not human multiplayer acceptance.
 
-## 7. Verification for D101-D116
+## 7. Verification for D101-D117b
 
-- `test` / `clean build`: **82 suites / 324 tests**, 0 failures/errors/skips in
-  both flavors.
-- Autotest Linken **1150/1150** at 1280×720 (GUI scale 2) and 1920×1080
-  (GUI scale 3; screenshots are 1920×1061 because of the window border); Strange
-  **1140/1140** at 1920×1080, 0 fail/skip. Reports:
-  `linkenvisuals-autotest-20261024-172141.log`,
-  `...172449.log`, `...171824.log`. `welcome`, `pause`,
-  `custom-vitals`, `armor-hud-v2`, `item-radius`, `item-radius-labels`,
-  `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`,
-  `check custom UI colours`, `check helper hud`, helper LMB/RMB selection,
-  `create-world` and the fake-player crit assertion are part of the plan.
-- Live: `[LVLive] live checks passed: self=Hidden, botDistance=13.9` on the
-  local Paper server; tab list `Hidden` + `[MVP] SecondPlayer`, item-radius
-  `77%`. Evidence in `run/screenshots/evidence-d116/`. `SecondPlayer` is a
-  mineflayer bot, not a human client.
-- No new shader/mixin/sound errors. Linken `latest.log` reports 0 new
-  ERROR/exception; the 1920 console had one
-  `sessionserver.mojang.com ... Read timed out`, which is not a mod error.
-  Strange reports 3 new errors, all offline-auth/Realms (`RealmsServiceException`).
-- Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
-  `lv-autotest-*-linken-mainmenu.png`, `lv-autotest-*-linkgui.png`,
-  `lv-autotest-*-helper-items.png`, `lv-autotest-*-item-radius-labels.png`,
-  `lv-autotest-*-create-world.png`; the pause screenshot shows the compact
-  440 px panel with `icons2` glyphs, the `PAUSED` title and the LV mark.
-- Reported resolutions are the screenshot framebuffer sizes: 1280×720 and
-  1920×1061 (client area of the 1920×1080 override window).
+- `test` / `build`: **82 suites / 324 tests**, 0 failures/errors/skips in both
+  flavors (last run after D117b assets).
+- Autotest Linken **1158/1158** at 1920×1080 (GUI scale 3), 0 fail/skip, 0 new
+  ERROR/exception (run after D117b); Strange **1148/1148** (D117 run; D117b
+  only changes PNGs and the `drawLogo` branch), 3 ERROR — offline-auth/Realms
+  only. Report: `run/screenshots/evidence-d117b/report.log`.
+- D117b evidence: `run/screenshots/evidence-d117b/` — LinkGUI header,
+  header zoom, old/new logo comparison at 20/28/48/120 px, pause screenshot.
+- Jars: `linkenvisuals-1.0.140.jar` 11 180 156 B /
+  `34282DFE9ABD6874B63580083941EEFBA4D678AB5620FDC8720869999C3A2259`;
+  `linkenvisuals-strange-1.0.140.jar` 11 180 144 B /
+  `586D71642799253C4822088C6702931F529AA476596214AFA64FADDC585C341B`.
+- **Still open:** the pixel-perfect launch/screen audit. Donor client is
+  `D:\MultiMC\instances\1.21.4`; port is `D:\MultiMC\instances\1.21.111`.
+  Capture both at identical fullscreen/GUI scale, build side-by-side/diff
+  sheets, and classify every remaining hotspot as port bug / donor-only /
+  MC-version / capture noise.

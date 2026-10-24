@@ -31,6 +31,7 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | Settings hub/subpages | ✅ ported | Language, keybinds, resource packs, skin, graphics, credits where applicable. |
 | Multiplayer / Alt Manager / Select World | ✅ ported | Donor server browser 4b: 1000×272 list window, selected/hover rows, favicon/letter tiles, players/ping, search/refresh, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice (D89); D92 window hatching and CPU-rounded favicons. Backend pinned servers are not ported. Select-world uses vanilla `WorldListWidget` as backend. |
 | Pause menu | ✅ ported | Donor-style pause screen; D117 removes the separate `LINKENVISUALS HUD` tile (donor has no such entry). |
+| Branding | ✅ restored | D117b returns the pre-D117 LV monogram (source commit `6c6919a`) and rebuilds its edges through an SDF master (alpha MAE 0.0021 at 512, 0.0044 at 120; shape unchanged). `drawLogo` uses the 120 px `logo.png` for draws ≤128 px (LinkGUI header 24 px, footer 12 px) and the 512 px `lv_logo.png` above that; the HUD draws the 120 px texture directly. Strange keeps `strange_logo.png` and never shows LV. |
 | Inventory / Create/Edit World / death | ✅ Linken shell | Inventory/death stay vanilla by donor design. Create World is fully repainted by `LinkenCreateWorldSkin` over the vanilla Game/World/More form (D117): hidden vanilla chrome, 1024 px stable card, tab pills aligned to the card with live hit boxes, world summary on every tab; fields, game rules, datapacks and experiments remain functional vanilla widgets. |
 
 ## HUD
@@ -153,8 +154,9 @@ not silently faked; no dead controls are exposed for them.
   and adds the Linken Create World shell (`create-world` screenshot); D117
   repaints Create World with a stable 1024 px Linken card and live tab hit boxes
   (Game/World/More screenshots), rebuilds the loading screen to donor 9d
-  (`loading` screenshot), redraws the LV monogram with antialiasing and removes
-  the extra ESC HUD tile. A separate frame-capture 1280×720 confirms the LINKEN
+  (`loading` screenshot) and removes the extra ESC HUD tile; D117b restores the
+  pre-D117 LV monogram with SDF-rebuilt edges and routes ≤128 px draws to the
+  120 px texture. A separate frame-capture 1280×720 confirms the LINKEN
   splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/

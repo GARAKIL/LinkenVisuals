@@ -4,7 +4,32 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
+## Состояние на 2026-10-24 (D117b — возврат прежнего LV-логотипа, SDF-края) — v1.0.140
+
+### Сделано
+1. **Логотип возвращён**: D117-геометрический LV отменён по приказу пользователя. `lv_logo.png` 512×512 и `logo.png` 120×120 восстановлены из `6c6919a` (рисунок не менялся); это тот же LV-монограмм, что был до D117.
+2. **Качество краёв**: оба исходника прогнаны через SDF-мастер 2048×2048 — premultiplied Lanczos upscale, бинарный контур (alpha ≥ 0.5), Euclidean distance transform, coverage с 1 px antialiasing на целевом размере. Alpha MAE к оригиналу: 512 — 0.0021, 120 — 0.0044; пикселей с изменением alpha > 0.25 — 0.10% / 0.00%. Форма/рисунок не менялись.
+3. **Малые размеры**: `LinkenMenuChrome.drawLogo` при `size <= 128` берёт 120 px `logo.png` (UV 120), выше — 512 px `lv_logo.png` (UV 512). Сейчас единственные вызовы — LinkGUI header 24 px и footer 12 px, поэтому фактически используется 120 px; ветка 512 остаётся для крупных вызовов. Причина: 512→16–24 px — ~21× minification без mipmap, дававшая мягкость/шиммер.
+4. **Проверки**: **82 набора / 324 теста**, 0 fail/error/skip (Linken `build` и Strange `build`); Linken autotest **1158/1158** (1920×1080, 0 fail/skip, 0 новых ERROR/exception, прогон после D117b); Strange **1148/1148** (прогон D117; D117b меняет только PNG и ветку `drawLogo`, покрытую unit-тестами; 3 ERROR — только offline-auth/Realms). Логотип в LinkGUI header проверен скриншотом и zoom-кропом.
+5. **Evidence**: `run/screenshots/evidence-d117b/` — `linkgui-header.png`, `linkgui-header-zoom.png`, `logo-compare-old-new.png` (old/new при 20/28/48/120 px), `pause.png`, `report.log`.
+6. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 180 156 байт, SHA-256 `34282DFE9ABD6874B63580083941EEFBA4D678AB5620FDC8720869999C3A2259`; `linkenvisuals-strange-1.0.140.jar` — 11 180 144 байта, SHA-256 `586D71642799253C4822088C6702931F529AA476596214AFA64FADDC585C341B`. Linken-jar развёрнут в MultiMC, SHA-256 совпадает; активен один `linkenvisuals*.jar`.
+7. **Commit**: code `a87d04b` `fix(ui): restore pre-D117 LV logo with SDF edges (v1.0.140, D117b)`; docs commit follows.
+
+### Следующая задача
+1. **Pixel-perfect аудит запуска и всех экранов** (главная цель следующего чата): splash/loading, main menu, pause, Create World, LinkGUI; donor 1.21.4 запускается из `D:\MultiMC\instances\1.21.4`, порт — из `1.21.111`. Снимать F2 в одинаковом разрешении/GUI scale, складывать side-by-side/overlay/diff, фиксировать числовой diff и чинить только различия порта.
+2. **Human pixel acceptance**: side-by-side с donor для main menu / pause / loading; для Create World — только сверка языка стиля (у donor 1.21.4 нет своего экрана создания мира).
+3. **Human multiplayer acceptance**: реальный второй игрок на `localhost:25566` (splash/team prefix).
+4. **Punchy / ViewModel Animated не открывать**; `HandMotion` — финальный subset.
+
+### Риски
+- Точный «1:1» для Create World невозможен: у donor 1.21.4 нет собственного экрана создания мира; это Linken-shell над ванильной формой.
+- Game/More form column уже карточки (ванильная ширина 618 design px против 1024) — осознанный воздушный layout без перестройки ванильной сетки.
+- LV-логотип — прежний растр 512×512, края пересобраны SDF; рисунок не менялся, при очень крупном масштабе остаётся билинейная мягкость.
+- Donor 1.21.4 и порт 1.21.11 — разные версии MC; сравнение только по визуальным якорям (панель/строки/отступы), не по байтам кадра.
+
 ## Состояние на 2026-10-24 (D117 — Linken-native Create World, loading, logo, ESC cleanup) — v1.0.140
+
+> **Обновление D117b:** пункт 2 ниже (геометрический логотип) отменён — возвращён прежний LV-монограмм из `6c6919a`, края пересобраны SDF; см. верхний раздел.
 
 ### Сделано
 1. **ESC**: удалён tile `LINKENVISUALS HUD` (`pause.clickgui`) из `LinkenPauseScreen.buildEntries()`; ключ удалён из en/ru/uk. Donor pause-screen не содержит отдельного входа в LinkGUI/HUD.

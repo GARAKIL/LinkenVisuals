@@ -7,6 +7,14 @@
 
 ---
 
+## 2026-10-24 · D117b · Возврат прежнего LV-логотипа + SDF-края (v1.0.140)
+- Приказ пользователя: D117-логотип «не тот»; вернуть прежний и улучшить качество.
+- Решение: рисунок из `6c6919a` — источник истины. `lv_logo.png` 512×512, `logo.png` 120×120; форма/контур не менялись, D117-геометрия отменена.
+- Качество: SDF-мастер 2048×2048 (premultiplied Lanczos → mask alpha≥0.5 → Euclidean distance transform → coverage 1 px на целевом размере). Alpha MAE к оригиналу 0.0021 (512) / 0.0044 (120); изменено >0.25 alpha 0.10% / 0.00%.
+- `drawLogo`: `size <= 128` → `logo.png` 120 px, иначе `lv_logo.png` 512 px; UV равен размеру текстуры. Сейчас вызовы только в LinkGUI header (24 px) и footer (12 px), поэтому фактически работает 120 px; ветка 512 остаётся для крупных вызовов. Причина: 512→16–24 px — ~21× minification без mipmap.
+- Evidence: `run/screenshots/evidence-d117b/` (`linkgui-header.png`, `linkgui-header-zoom.png`, `logo-compare-old-new.png`, `pause.png`, `report.log`); Linken autotest 1158/1158 (после D117b), Strange 1148/1148 (прогон D117; D117b — только ассеты и ветка `drawLogo`), 0 новых ERROR; jar `34282DFE…` / `586D7164…`.
+- Commit: `a87d04b`.
+
 ## 2026-10-18 · D1 · Git-корень — корень `StrangeVisuals-1.21.11`
 - Evidence: `README.md`, `README_RU.md`, `LICENSE` в корне и в `source/` были байт-идентичны (SHA-256 совпадают); корневой `.gitignore` уже был написан с путями `source/...`.
 - Решение: единственный канонический набор — в корне. Дубликаты `source/README.md`, `source/README_RU.md`, `source/LICENSE`, `source/.gitignore` удалены (commit 89d03b2), правила из `source/.gitignore` влиты в корневой.
