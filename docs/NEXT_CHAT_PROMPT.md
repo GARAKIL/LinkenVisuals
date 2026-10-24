@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.139 / D115
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.140 / D116
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -8,12 +8,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.139**
-- Last code commit: `610a03d` `feat(helper): port mouse binds, fix splash labels, split LV branding (v1.0.139, D115)`.
-- Tests: **315 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **1147/1147** (1280×720 and 1920×1080), Strange **1137/1137** (1920×1080), 0 fail/skip.
+- Version: **1.0.140**
+- Last code commit: `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`.
+- Tests: **316 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **1150/1150** (1280×720 and 1920×1080), Strange **1140/1140** (1920×1080), 0 fail/skip.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.139): `linkenvisuals-1.0.139.jar` 11 165 138 bytes / `DE5528B70BC094AA7F6FEFFFA2D35D1D6775055C67675889500FCB503EA198F0`; `linkenvisuals-strange-1.0.139.jar` 11 165 146 bytes / `72E618F708D35D0661E9D568B348244E53BB67AFC01CEAEA92D43C992BE63353`.
+- Jars (1.0.140): `linkenvisuals-1.0.140.jar` 11 172 256 bytes / `2DEEF6CEBDD15C332F30710975509A45F16D79ABDFEC15EC90F75181DABDEAAB`; `linkenvisuals-strange-1.0.140.jar` 11 172 245 bytes / `831FD31CEDE5FC0C5D41D17D20D699BEF49977C09ECE0E6AD2D3C316B4B96C6A`.
 
 Clone/verify:
 
@@ -23,7 +23,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.139
+Get-Content source/gradle.properties   # mod_version=1.0.140
 ```
 
 ## 2. Donor
@@ -36,7 +36,7 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D115 (do not redo)
+## 3. Done in D105-D116 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
@@ -49,11 +49,12 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 - D113: Custom Theme Colours master + Background/Text colours, LinkGUI palette and HUD base; `linkgui-custom-colours` screenshot.
 - D114: HelperItemsHud + Ft/Hw/Rw helper modules, key dispatch, `helper-items` screenshot.
 - D115: real helper LMB/RMB binds (`KeybindSetting.mouseAllowed`, `MOUSE1`/`MOUSE2`, donor `M1`/`M2`, `MouseMixin` → `Modules.onHelperMouse`, ClickGUI capture, HUD `LMB`/`RMB`, autotest slot assertions); ItemRadius splash labels fixed (camera quaternion basis, FakePlayer scan, screen bounds, `item-radius-labels`); SelfNametags team-prefix tests; DynamicIsland/BoostFPS closed by donor rule; LV/Strange branding split (`lv_logo.png`, `strange_logo.png`, `BrandingAssetsTest`).
+- D116: LinkGUI theme cross-fade/panel springs/grid reflow; HUD hidden behind screens; Linken Create World shell (`create-world` screenshot); Paper 1.21.11 server on `localhost:25566` for human checks.
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **Human multiplayer acceptance**: real second player for ItemRadius splash `NN%` and team-prefix SelfNametags. Deterministic tests already exist; do not claim live acceptance from singleplayer.
+1. **Human multiplayer acceptance**: second real player on `localhost:25566` for ItemRadius splash `NN%`, team-prefix SelfNametags, ping/tab. Do not claim live acceptance from FakePlayer/singleplayer.
 2. **Human pixel acceptance**: 1280×720 and 1920×1080 screenshots exist; side-by-side donor comparison and hover/press checks remain.
 3. **Punchy is out of scope** — do not start it. `HandMotion` is the final accepted animation subset.
 4. **DynamicIsland / BoostFPS / helper mouse are closed** — do not reopen them.
@@ -78,7 +79,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat build -Pstrange --console=plain --no-daemon
 ```
 
-Expected: 315 tests, 0 fail/error/skip each.
+Expected: 316 tests, 0 fail/error/skip each.
 
 Hidden autotest (explicit permission only):
 
@@ -129,8 +130,10 @@ source/src/main/java/dev/linkenvisuals/
   clickgui/setting/KeybindSetting.java   # key + LMB/RMB bind representation
   mixin/MouseMixin.java                  # helper mouse dispatch
   ui/linkmenu/*                          # LV-branded Linken menu/pause/loading
-  clickgui/link/LinkGuiScreen.java       # LV header/footer, bind capture
-  autotest/AutoTestDriver.java           # welcome/pause/crit/helper/radius steps
+  clickgui/link/LinkGuiScreen.java       # LV header/footer, bind capture, animations
+  clickgui/link/LinkGuiTheme.java        # theme cross-fade targets
+  mixin/CreateWorldScreenMixin.java      # Linken new-world chrome
+  autotest/AutoTestDriver.java           # welcome/pause/crit/helper/radius/create-world steps
 source/src/test/java/dev/linkenvisuals/
   player/FakePlayerTest.java
   module/impl/HitSoundModuleTest.java
@@ -153,7 +156,7 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 9. Definition of Done
 
-- Both builds green, 315 tests, 0 fail/error/skip.
+- Both builds green, 316 tests, 0 fail/error/skip.
 - Both hidden autotests green, no new mod/shader/sound/mixin errors (only offline-auth/Realms).
 - No dead controls; new strings en/ru/uk; `LangParityTest` green.
 - Jars path/size/SHA-256 recalculated; Russian report with visual/log evidence and manual list.

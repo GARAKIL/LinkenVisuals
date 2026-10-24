@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-24 · Target build: **v1.0.139 / D115** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-24 · Target build: **v1.0.140 / D116** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -231,20 +231,35 @@ is hard-wired to `DEFAULT` and its UI control is hidden.
   the autotest opens it from a Strange build; normal Strange routing never
   exposes it.
 
-## 7. Verification for D101-D115
+## 6i. LinkGUI animations + Create World (D116)
 
-- `test` / `clean build`: 315 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1147/1147** at 1280×720 and 1920×1080; Strange
-  **1137/1137** at 1920×1080, 0 fail/skip. `welcome`, `pause`,
+- Theme switches cross-fade accent/panel/text/backdrop over ~300 ms; profile,
+  theme/interface, friends/waypoints and module-settings panels spring in/out;
+  grid cards animate to new slots, fade in and fade out instead of jumping.
+- In-game HUD is no longer drawn over screens (except ChatScreen/edit mode), so
+  hotbar/armour/potion/HUD do not leak behind LinkGUI, pause or Create World.
+- Linken Create World shell: dark tower/world backdrop, compact glass panel,
+  Linken buttons/sliders, mint text-field border, LV + localized footer. The
+  vanilla Game/World/More tabs and world-creation logic are retained because
+  the donor has no custom Create World screen.
+- Screenshot `create-world` at 1280×720 and 1920×1080; LinkGUI/pause screens
+  rechecked at both sizes after the HUD visibility change.
+- **Open:** human side-by-side pixel acceptance; live second-player check.
+
+## 7. Verification for D101-D116
+
+- `test` / `clean build`: 316 tests, 0 failures/errors/skips in both flavors.
+- Autotest Linken **1150/1150** at 1280×720 and 1920×1080; Strange
+  **1140/1140** at 1920×1080, 0 fail/skip. `welcome`, `pause`,
   `custom-vitals`, `armor-hud-v2`, `item-radius`, `item-radius-labels`,
   `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`,
-  `check custom UI colours`, `check helper hud`, helper LMB/RMB selection and
-  the fake-player crit assertion are part of the plan. No new
-  shader/mixin/sound errors; only offline-auth/Realms.
+  `check custom UI colours`, `check helper hud`, helper LMB/RMB selection,
+  `create-world` and the fake-player crit assertion are part of the plan. No
+  new shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`, `lv-autotest-*-linkgui.png`,
-  `lv-autotest-*-helper-items.png`, `lv-autotest-*-item-radius-labels.png`;
-  the pause screenshot shows the compact 440 px panel with `icons2` glyphs,
-  the `PAUSED` title and the LV mark.
+  `lv-autotest-*-helper-items.png`, `lv-autotest-*-item-radius-labels.png`,
+  `lv-autotest-*-create-world.png`; the pause screenshot shows the compact
+  440 px panel with `icons2` glyphs, the `PAUSED` title and the LV mark.
 - Reported resolutions are the screenshot framebuffer sizes: 1280×720 and
   1920×1061 (client area of the 1920×1080 override window).

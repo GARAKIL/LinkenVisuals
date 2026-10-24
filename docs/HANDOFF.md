@@ -4,6 +4,28 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
+## Состояние на 2026-10-24 (D116 — LinkGUI animations, Create World, pixel audit) — v1.0.140
+
+### Сделано
+1. **D116 — LinkGUI animations**: панели Profile / Theme / Friends/Waypoints / настройки модуля получили spring fade+slide; сетка модулей плавно переезжает на новые слоты, новые карточки появляются fade-in, ушедшие — гаснут (`gridPos`/`gridExit`); смена темы теперь кроссфейдит accent/panel/text/backdrop ~300 мс (`LinkGuiTheme.tick`), а не прыгает; добавлен unit-тест интерполяции. Существующие scroll/hover/open/close springs сохранены.
+2. **D116 — HUD больше не рисуется поверх экранов**: `HudManager.render` выходит при `currentScreen != null` (кроме ChatScreen/edit mode). Это убирает hotbar/armor/potion/HUD за LinkGUI, pause, Create World и ванильными экранами.
+3. **D116 — кастомное Linken-меню создания мира**: `CreateWorldScreen` в Linken style получил Linken backdrop, компактную glass-панель, Linken-кнопки/слайдеры, mint-рамку поля имени, LV + `WORLD SETUP` в футере и i18n en/ru/uk. Функциональные vanilla-вкладки Game/World/More сохранены; это осознанный Linken shell, а не полная копия donor (у donor такого экрана нет). Autotest: `create-world` screenshot 1280×720 и 1920×1080.
+4. **D116 — pixel-аудит**: Helper HUD вынесен вправо над hotbar; CreateWorld footer не перекрывает кнопку на 1280; убраны белые «технические» рамки; проверены LinkGUI, pause, custom-vitals, armor-hud-v2, item-radius, helper-items, create-world на 1280 и 1920.
+5. **D116 — сервер**: поднят Paper 1.21.11 (offline-mode) на `localhost:25566` с ViaVersion+Grim для multiplayer-проверок; клиентский smoke/подключение — вручную, второго живого игрока в тесте нет.
+6. **Проверки**: **316 тестов**, 0 fail/error/skip в обоих flavors; Linken autotest **1150/1150** (1280×720 и 1920×1080), Strange **1140/1140** (1920×1080), 0 fail/skip. Новых ERROR/exception/shader/sound нет; только offline-auth/Realms.
+7. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 172 256 байт, SHA-256 `2DEEF6CEBDD15C332F30710975509A45F16D79ABDFEC15EC90F75181DABDEAAB`; `linkenvisuals-strange-1.0.140.jar` — 11 172 245 байт, SHA-256 `831FD31CEDE5FC0C5D41D17D20D699BEF49977C09ECE0E6AD2D3C316B4B96C6A`.
+8. **Commit**: code `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`; docs commit follows.
+
+### Следующая задача
+1. **Human multiplayer acceptance**: второй реальный игрок на `localhost:25566` — splash `NN%`, team-prefix nametag, ping/tab.
+2. **Human pixel acceptance**: side-by-side с donor на 1280/1920, hover/press на всех sub-screens.
+3. **Punchy не открывать**; `HandMotion` — финальный subset.
+
+### Риски
+- Create World — Linken shell над vanilla-логикой; вкладки/тултипы остаются ванильными, полная donor-копия невозможна (экрана нет у donor).
+- LinkGUI Interface/settings panels скроллятся; последняя строка у края viewport'а частично обрезана — affordance скролла, не overflow.
+- Анимации темы/сетки не имеют покадрового screenshot-доказательства; проверены логикой/unit-тестом и live-прогонами.
+
 ## Состояние на 2026-10-24 (D115 — helper mouse, splash labels, branding) — v1.0.139
 
 ### Сделано

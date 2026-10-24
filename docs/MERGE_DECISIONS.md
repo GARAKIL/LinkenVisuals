@@ -1061,6 +1061,17 @@
 - **Commit**: `29ac193` `feat(ui): add custom background and text colours (v1.0.137, D113)`.
 - **Остаток**: BoostFPS (donor force DEFAULT), semantic HUD colours, pixel diff.
 
+## 2026-10-24 · D116 · LinkGUI animations + Create World shell — v1.0.140
+- **Animations**: `LinkGuiScreen` получил `profileSpring`/`themeSpring`/`sideSpring`/`settingsSpring` (fade+slide), grid `gridPos`/`gridExit`/`gridAlpha` (reflow + fade-in/out), `LinkGuiTheme.tick` с ~300 мс кроссфейдом accent/panel/text/backdrop. `LinkGuiTheme.apply` теперь задаёт target, `tick` двигает display; unit-тест проверяет интерполяцию.
+- **HUD visibility**: `HudManager` не рендерит HUD при открытом экране (кроме ChatScreen/edit mode); убраны hotbar/armor/potion за GUI.
+- **Create World**: Linken backdrop, glass-панель, mint border поля, Linken buttons/sliders, LV+`WORLD SETUP` footer, i18n en/ru/uk; vanilla Game/World/More сохранены. `CreateWorldScreenMixin` + special-case в `ScreenMixin`/`PressableWidgetMixin`/`SliderWidgetMixin`/`TextFieldWidgetMixin`.
+- **Pixel audit**: Helper HUD справа над hotbar, footer CreateWorld не перекрывает кнопку на 1280, убраны лишние белые рамки; проверены LinkGUI/pause/custom-vitals/armor/item-radius/helper-items/create-world на 1280 и 1920.
+- **Сервер**: Paper 1.21.11 offline `localhost:25566` (ViaVersion+Grim); live-второй игрок не автоматизирован.
+- **Проверки**: **316 тестов**, 0 fail/error/skip; Linken **1150/1150** (1280 и 1920), Strange **1140/1140**; только offline-auth/Realms.
+- **Сборка**: `linkenvisuals-1.0.140.jar` (11 172 256 байт, SHA-256 `2DEEF6CEBDD15C332F30710975509A45F16D79ABDFEC15EC90F75181DABDEAAB`); `linkenvisuals-strange-1.0.140.jar` (11 172 245 байт, SHA-256 `831FD31CEDE5FC0C5D41D17D20D699BEF49977C09ECE0E6AD2D3C316B4B96C6A`).
+- **Commit**: `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`.
+- **Остаток**: human multiplayer/pixel acceptance.
+
 ## 2026-10-24 · D115 · Helper mouse bindings, splash labels, LV branding — v1.0.139
 - **Mouse binds**: `KeybindSetting` получил `mouseAllowed`; helper-настройки Ft/Hw/Rw создаются с `true`. LMB/RMB → `MOUSE1`/`MOUSE2` в конфиге, донорские `M1`/`M2` читаются; `resolveMouse`/`matchesMouse`; key-only настройки очищают stale mouse-метку, чтобы не было мёртвого контроля. `MouseMixin.onMouseButton` → `Modules.onHelperMouse`; `Ft/Hw/Rw.onMouse` выбирает тот же hotbar-слот. ClickGUI/LinkGUI/Classic при listening принимают mouse button; `HelperItemsHud` показывает `LMB`/`RMB`.
 - **Splash labels**: причина отсутствия `NN%` — неверный camera basis (`right × up` из `getHorizontalPlane/getVerticalPlane` ≈ 0). Перешли на `Camera.getRotation().transform(0,0,-1)` + right/up; FakePlayer включён в скан (не в `world.getPlayers()`); добавлены screen-bounds и cap 4–10 px. Autotest `item-radius-labels` с FakePlayer.

@@ -24,14 +24,14 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 |---|---|---|
 | Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing; D91 donor `icons2` main-menu icon set; D92 donor media-cover gradient/artist baseline. |
 | Splash/loading | ✅ ported | LINKEN scene replaces the Mojang splash immediately (D93); a vanilla-only bootstrap progress runs until shaders/atlases are ready, then the full `linken.` scene. Handwritten Lottie `welcome.json` is not ported (Skija out of scope). |
-| LinkGUI | ✅ ported | 1090×830 main window, 3×102 cards, dock, profile, theme/interface, search, configs, friends/waypoints, media strip, pinned cards. |
+| LinkGUI | ✅ ported | 1090×830 main window, 3×102 cards, dock, profile, theme/interface, search, configs, friends/waypoints, media strip, pinned cards; D116 theme cross-fade, panel springs, animated grid reflow/exit. |
 | LinkGUI Interface settings | ✅ ported + scroll | Scale, transparency, cursor tracker, close animation, corner rounding, accent/tints, **HUD Style/Shape**, **custom scoreboard**, **custom tab**. The section is scrollable via mouse wheel. |
 | Pinned cards | ✅ ported | Left below Profile / right when Theme is closed; per-card toggle, unpin, settings, truncation marker. |
 | Style lock | ✅ preserved | Linken → Classic/Beta is blocked; `GUI Style` is hidden in Linken settings/pinned cards. |
 | Settings hub/subpages | ✅ ported | Language, keybinds, resource packs, skin, graphics, credits where applicable. |
 | Multiplayer / Alt Manager / Select World | ✅ ported | Donor server browser 4b: 1000×272 list window, selected/hover rows, favicon/letter tiles, players/ping, search/refresh, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice (D89); D92 window hatching and CPU-rounded favicons. Backend pinned servers are not ported. Select-world uses vanilla `WorldListWidget` as backend. |
 | Pause menu | ✅ ported | Donor-style pause screen. |
-| Inventory / Create/Edit World / death | ⚪ vanilla by design | Donor also uses vanilla for these paths. |
+| Inventory / Create/Edit World / death | ✅ Linken shell | Inventory/death stay vanilla by donor design; Create World uses a Linken backdrop, glass panel, Linken buttons/fields and LV footer (D116) over the vanilla Game/World/More logic. |
 
 ## HUD
 
@@ -109,9 +109,9 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **315 test / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **1147/1147** (1280×720 and 1920×1080),
-  Strange **1137/1137** (1920×1080), no new ERROR/exception, no shader
+- `clean build`: **316 test / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **1150/1150** (1280×720 and 1920×1080),
+  Strange **1140/1140** (1920×1080), no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
   screenshots at 1920×1080. D99 fixed and registered the bossbar/fire/particle
@@ -138,7 +138,9 @@ not silently faked; no dead controls are exposed for them.
   HelperItemsHud/Ft/Hw/Rw with the `helper-items` screenshot; D115 adds helper
   LMB/RMB binds, fixes the splash-label camera basis + FakePlayer scan
   (`item-radius-labels`), closes DynamicIsland/BoostFPS by donor rule and adds
-  LV/Strange branding with `BrandingAssetsTest`. A separate
+  LV/Strange branding with `BrandingAssetsTest`; D116 adds LinkGUI theme/grid/
+  panel animations, hides the in-game HUD behind screens and adds the Linken
+  Create World shell (`create-world` screenshot). A separate
   frame-capture 1280×720 confirms the LINKEN splash replaces the Mojang logo
   from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
