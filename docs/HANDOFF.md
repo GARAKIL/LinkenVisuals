@@ -16,6 +16,7 @@
 7. **Autotest**: `clear tutorial toasts` перед Create World; реальный клик по пилюле вкладки с проверкой `isCurrentTab()` (`clickCreateWorldTab`) — доказывает, что переставленные хитбоксы работают; preview `ProgressScreen` (62%, `BAKING MODELS`) + `lv-autotest-23-loading.png`.
 8. **Проверки**: **82 набора / 324 теста**, 0 fail/error/skip в обоих flavors; Linken autotest **1158/1158** (1920×1080, 0 fail/skip, 0 новых ERROR/exception); Strange **1148/1148** (0 fail/skip; 3 ERROR — только offline-auth/Realms). Шейдеры/звук: `Sound engine started`, shader-ERROR нет. Evidence: `run/screenshots/evidence-d117/autotest-1920/` (46 снимков + `report.log`) и `autotest-strange-1920-console.log`.
 9. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 178 121 байт, SHA-256 `94EB5A38BA11864ECE1C034B7DF93DC0679FF11ABE647855FC4564596A04622A`; `linkenvisuals-strange-1.0.140.jar` — 11 178 109 байт, SHA-256 `7AF6ECCD9E9FC961DF880426E6399A9140F9C7C7795EC67BD141385C1B00D450`. Linken-jar развёрнут в MultiMC, SHA-256 совпадает; активен один `linkenvisuals*.jar`.
+10. **Commit**: code `ee65d37` `feat(ui): rebuild Linken Create World, loading and logo (v1.0.140, D117)`; docs commit follows.
 
 ### Следующая задача
 1. **Human pixel acceptance**: side-by-side с donor для main menu / pause / loading; для Create World — только сверка языка стиля (у donor 1.21.4 нет своего экрана создания мира).

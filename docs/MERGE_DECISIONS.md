@@ -1071,6 +1071,7 @@
 - **Autotest**: реальный клик по вкладке с `isCurrentTab()` вместо `selectTab` (проверяет живые хитбоксы), очистка tutorial-toasts, preview `ProgressScreen` 62% (`BAKING MODELS`) + `lv-autotest-23-loading.png`.
 - **Проверки**: **82 набора / 324 теста**, 0 fail/error/skip в обоих flavors; Linken **1158/1158** (1920×1080, 0 новых ERROR/exception), Strange **1148/1148** (3 ERROR — только offline-auth/Realms). Evidence: `run/screenshots/evidence-d117/` (46 снимков + `report.log`), `autotest-strange-1920-console.log`.
 - **Сборка**: `linkenvisuals-1.0.140.jar` (11 178 121 байт, SHA-256 `94EB5A38BA11864ECE1C034B7DF93DC0679FF11ABE647855FC4564596A04622A`); `linkenvisuals-strange-1.0.140.jar` (11 178 109 байт, SHA-256 `7AF6ECCD9E9FC961DF880426E6399A9140F9C7C7795EC67BD141385C1B00D450`). Linken-jar развёрнут в MultiMC и проверен по SHA-256.
+- **Commit**: `ee65d37` `feat(ui): rebuild Linken Create World, loading and logo (v1.0.140, D117)`; docs commit follows.
 - **Остаток**: human pixel/multiplayer acceptance; у donor нет Create World, поэтому 1:1 возможен только по языку стиля, не по композиции.
 
 ## 2026-10-24 · D116 · LinkGUI animations + Create World shell — v1.0.140
