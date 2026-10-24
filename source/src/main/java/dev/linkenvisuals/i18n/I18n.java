@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,21 +84,26 @@ public final class I18n {
     }
 
     public static String getEffectiveLanguage() {
-        if (!"auto".equalsIgnoreCase(languageOverride) && TRANSLATIONS.containsKey(languageOverride)) {
-            return languageOverride;
-        }
         MinecraftClient client = MinecraftClient.getInstance();
-        if (client != null && client.getLanguageManager() != null) {
-            String gameLang = client.getLanguageManager().getLanguage();
-            if (gameLang != null && gameLang.equals(lastGameLang) && cachedEffectiveLanguage != null) {
-                return cachedEffectiveLanguage;
-            }
-            lastGameLang = gameLang;
-            if (gameLang != null) {
-                String lower = gameLang.toLowerCase();
-                if (lower.startsWith("ru")) return cachedEffectiveLanguage = "ru_ru";
-                if (lower.startsWith("uk")) return cachedEffectiveLanguage = "uk_ua";
-            }
+        String gameLang = client != null && client.getLanguageManager() != null
+            ? client.getLanguageManager().getLanguage() : null;
+        if (gameLang != null && gameLang.equals(lastGameLang) && cachedEffectiveLanguage != null) {
+            return cachedEffectiveLanguage;
+        }
+        lastGameLang = gameLang;
+
+        // The Minecraft language is authoritative for Russian: a stale
+        // language=en_us in the mod config must never force English over a
+        // Russian client. Every non-Russian client falls back to English.
+        if (gameLang != null && gameLang.toLowerCase(Locale.ROOT).startsWith("ru")) {
+            return cachedEffectiveLanguage = "ru_ru";
+        }
+        // Explicit RU/UK choices remain available for non-Russian clients
+        // (Classic GUI language switch); en_us is just the fallback and must
+        // not override the game language above.
+        if (("ru_ru".equals(languageOverride) || "uk_ua".equals(languageOverride))
+            && TRANSLATIONS.containsKey(languageOverride)) {
+            return cachedEffectiveLanguage = languageOverride;
         }
         return cachedEffectiveLanguage = "en_us";
     }

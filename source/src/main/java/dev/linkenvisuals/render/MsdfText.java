@@ -64,7 +64,10 @@ public final class MsdfText {
                         (glyph.planeTop - glyph.planeBottom) * size,
                         argb);
                 }
-                cursor += glyph.advance * size;
+                // Donor BuiltText advances by advance*size plus half of the
+                // 0.05 SDF thickness (0.025*size). Without it every string is
+                // ~4-5% narrower than the donor and long lines wrap differently.
+                cursor += (glyph.advance + 0.025f) * size;
                 previous = codepoint;
             }
             offset += Character.charCount(codepoint);

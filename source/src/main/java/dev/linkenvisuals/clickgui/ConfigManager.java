@@ -213,7 +213,14 @@ public final class ConfigManager {
                         root.get("menuStyle").getAsString()));
             }
             if (root.has("language") && root.get("language").isJsonPrimitive()) {
-                dev.linkenvisuals.i18n.I18n.setLanguageOverride(root.get("language").getAsString());
+                String savedLanguage = root.get("language").getAsString();
+                // Older builds persisted en_us as if it were an explicit
+                // choice. English is the fallback, so "auto" is equivalent and
+                // no longer fights a Russian Minecraft client.
+                if ("en_us".equalsIgnoreCase(savedLanguage)) {
+                    savedLanguage = "auto";
+                }
+                dev.linkenvisuals.i18n.I18n.setLanguageOverride(savedLanguage);
             }
             if (root.has("classicGuiX") && root.get("classicGuiX").isJsonPrimitive()) {
                 dev.linkenvisuals.clickgui.classic.ClassicGuiState.savedX = root.get("classicGuiX").getAsFloat();
@@ -292,7 +299,8 @@ public final class ConfigManager {
             root.addProperty("configVersion", CONFIG_VERSION);
             root.addProperty("activeProfile", activeProfile);
             root.addProperty("menuStyle", dev.linkenvisuals.ui.style.StyleManager.getStyle().name());
-            root.addProperty("language", dev.linkenvisuals.i18n.I18n.getLanguageOverride());
+            String savedLanguage = dev.linkenvisuals.i18n.I18n.getLanguageOverride();
+            root.addProperty("language", "en_us".equalsIgnoreCase(savedLanguage) ? "auto" : savedLanguage);
             if (dev.linkenvisuals.clickgui.classic.ClassicGuiState.savedX >= 0.0F) {
                 root.addProperty("classicGuiX", dev.linkenvisuals.clickgui.classic.ClassicGuiState.savedX);
             }

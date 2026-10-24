@@ -17,11 +17,19 @@ public final class LinkenMenuLayout {
     public static final float COLUMN_TOP = 300.0f;
     public static final float COLUMN_WIDTH = 340.0f;
 
-    public static final float EYEBROW_HEIGHT = 10.0f;
+    /**
+     * Donor line boxes, not the nominal font sizes: {@code MsdfFont.getHeight}
+     * adds the descender and a 1.05 stroke allowance. The eyebrow is
+     * Unbounded-Light 10 (1.24 em -> 13.02) and the subtitle is Golos 14
+     * (1.20 em -> 17.64). Using 10/14 here lifted the whole button stack 7 px
+     * above the donor.
+     */
+    public static final float EYEBROW_HEIGHT = 13.02f;
     public static final float HEADLINE_GAP = 14.0f;
     public static final float HEADLINE_SIZE = 38.0f;
     public static final float HEADLINE_LINE = 43.7f;
     public static final float SUBTITLE_SIZE = 14.0f;
+    public static final float SUBTITLE_HEIGHT = 17.64f;
     public static final float SUBTITLE_GAP = 28.0f;
     public static final float ACCOUNT_SIZE = 38.0f;
     public static final float ACCOUNT_GAP = 18.0f;
@@ -38,7 +46,8 @@ public final class LinkenMenuLayout {
     public static final float MUSIC_HEIGHT = 86.0f;
 
     public static final float DISCLAIMER_SIZE = 11.0f;
-    public static final float DISCLAIMER_LINE_HEIGHT = 21.0f;
+    /** Donor Golos 11 line box (1.20 em * 1.05) * 1.5. */
+    public static final float DISCLAIMER_LINE_HEIGHT = 20.79f;
     public static final float BOTTOM_MARGIN = 44.0f;
     public static final float SOCIAL_GAP_ABOVE_DISCLAIMER = 16.0f;
 
@@ -113,7 +122,7 @@ public final class LinkenMenuLayout {
         float headlineY = top + EYEBROW_HEIGHT + HEADLINE_GAP;
         Rect headline = new Rect(x, headlineY, COLUMN_WIDTH, HEADLINE_LINE * 2.0f);
         float subtitleY = headline.bottom() + 8.0f;
-        Rect subtitle = new Rect(x, subtitleY, COLUMN_WIDTH, SUBTITLE_SIZE);
+        Rect subtitle = new Rect(x, subtitleY, COLUMN_WIDTH, SUBTITLE_HEIGHT);
         float accountY = subtitle.bottom() + SUBTITLE_GAP;
         Rect account = new Rect(x, accountY, COLUMN_WIDTH, ACCOUNT_SIZE);
 

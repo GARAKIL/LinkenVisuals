@@ -67,12 +67,14 @@ public final class LinkenMenuChrome {
     private static final float BACKGROUND_WIDTH = 1270.0f;
     private static final float BACKGROUND_HEIGHT = 999.0f;
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEE, d MMMM");
+    private static final DateTimeFormatter DATE_DAY = DateTimeFormatter.ofPattern("EEE");
+    private static final DateTimeFormatter DATE_REST = DateTimeFormatter.ofPattern("d MMMM");
 
     private static long clockSecond = -1L;
     private static String clockHour = "";
     private static String clockMinute = "";
-    private static String clockDate = "";
+    private static String clockDay = "";
+    private static String clockRest = "";
     private static String modVersion;
 
     private LinkenMenuChrome() {
@@ -107,27 +109,28 @@ public final class LinkenMenuChrome {
         float x = (layout.width() - drawWidth) * 0.5f + offsetX;
         float y = (layout.height() - drawHeight) * 0.5f + offsetY;
 
+        // Keep the donor's sub-pixel placement: the art is a single float-sized
+        // quad there, while DrawContext takes integer texture rects. Translate
+        // by the fractional origin and scale the integer rect back to the exact
+        // float size, so cover cropping does not shift by a pixel.
+        int texWidth = Math.round(BACKGROUND_WIDTH);
+        int texHeight = Math.round(BACKGROUND_HEIGHT);
+        int drawW = Math.max(1, Math.round(drawWidth));
+        int drawH = Math.max(1, Math.round(drawHeight));
+        context.getMatrices().pushMatrix();
+        context.getMatrices().translate(x, y);
+        context.getMatrices().scale(drawWidth / drawW, drawHeight / drawH);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, BACKGROUND,
-            Math.round(x), Math.round(y), 0.0f, 0.0f,
-            Math.round(drawWidth), Math.round(drawHeight),
-            Math.round(BACKGROUND_WIDTH), Math.round(BACKGROUND_HEIGHT),
-            Math.round(BACKGROUND_WIDTH), Math.round(BACKGROUND_HEIGHT), 0xFFFFFFFF);
+            0, 0, 0.0f, 0.0f, drawW, drawH,
+            texWidth, texHeight, texWidth, texHeight, 0xFFFFFFFF);
+        context.getMatrices().popMatrix();
 
         // Donor scrim is one horizontal gradient: rgba(6,9,8,0.5) on the left
-        // fading to fully transparent on the right. Narrow slices keep it smooth
-        // with the DrawContext API.
-        int strips = 48;
-        int baseAlpha = Math.round(128.0f * fade);
-        for (int i = 0; i < strips; i++) {
-            float t = (i + 0.5f) / strips;
-            int alpha = Math.round(baseAlpha * (1.0f - t));
-            if (alpha <= 0) {
-                continue;
-            }
-            int x0 = Math.round(layout.width() * i / strips);
-            int x1 = Math.round(layout.width() * (i + 1) / strips);
-            context.fill(x0, 0, x1, Math.round(layout.height()), alpha << 24 | 0x060908);
-        }
+        // fading to fully transparent on the right. One shader quad matches the
+        // donor's vertex-colour gradient and avoids the 48 visible slices.
+        RoundedRectPipeline.drawHorizontalGradient(context, 0.0f, 0.0f,
+            layout.width(), layout.height(), 0.0f,
+            rgba(0x060908, 128, fade), rgba(0x060908, 0, fade));
     }
 
     // ------------------------------------------------------------------ header
@@ -136,12 +139,15 @@ public final class LinkenMenuChrome {
         GlyphAtlas font = LinkenFonts.bodyMedium();
         float size = 23.0f;
         String word = "linken";
-        float wordWidth = textWidth(font, word, size);
+        // Donor draws this header with drawSpaced(-0.035 em). The per-glyph
+        // path also avoids the 0.025 em thickness advance that MsdfText adds
+        // to whole strings, keeping the donor's 71 px wordmark width.
+        float wordWidth = spacedWidth(font, word, size, 0.0f);
         float dotWidth = textWidth(font, ".", size);
         float total = wordWidth + dotWidth;
         float x = (layout.width() - total) * 0.5f;
         float y = 44.0f;
-        drawText(context, font, word, x, y, size, rgba(TEXT, fade));
+        drawSpaced(context, font, word, x, y, size, 0.0f, rgba(TEXT, fade));
         drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
     }
 
@@ -191,7 +197,15 @@ public final class LinkenMenuChrome {
         drawText(context, LinkenFonts.mono(), clockMinute, cx + dot + gap, y, size, rgba(TEXT, fade));
 
         float dateY = y + size + 6.0f;
-        drawRightText(context, LinkenFonts.body(), clockDate, right, dateY, 12.5f, rgba(MUTED2, fade));
+        // Donor draws the weekday muted and the date brighter, both with
+        // 0.06 em tracking. Right-align the two runs as one line.
+        float tracking = 0.06f * 12.5f;
+        float dayWidth = spacedWidth(LinkenFonts.body(), clockDay, 12.5f, tracking);
+        float restWidth = spacedWidth(LinkenFonts.body(), clockRest, 12.5f, tracking);
+        drawSpaced(context, LinkenFonts.body(), clockDay, right - dayWidth - restWidth,
+            dateY, 12.5f, tracking, rgba(MUTED2, fade));
+        drawSpaced(context, LinkenFonts.body(), clockRest, right - restWidth,
+            dateY, 12.5f, tracking, rgba(TEXT3, fade));
     }
 
     private static void updateClock() {
@@ -204,8 +218,10 @@ public final class LinkenMenuChrome {
         LocalTime time = LocalTime.now();
         clockHour = String.format(locale, "%02d", time.getHour());
         clockMinute = String.format(locale, "%02d", time.getMinute());
-        String date = LocalDate.now().format(DATE_FORMAT.withLocale(locale));
-        clockDate = date.isEmpty() ? date : date.substring(0, 1).toUpperCase(locale) + date.substring(1);
+        LocalDate date = LocalDate.now();
+        String day = date.format(DATE_DAY.withLocale(locale));
+        clockDay = (day.isEmpty() ? day : day.substring(0, 1).toUpperCase(locale) + day.substring(1)) + ", ";
+        clockRest = date.format(DATE_REST.withLocale(locale));
     }
 
     private static Locale currentLocale() {
@@ -480,6 +496,26 @@ public final class LinkenMenuChrome {
         }
         MinecraftClient client = MinecraftClient.getInstance();
         return client != null ? client.textRenderer.getWidth(text) : text.length() * size * 0.5f;
+    }
+
+    /** Width of {@link #drawSpaced}: per-glyph advances plus tracking, no kerning. */
+    private static float spacedWidth(GlyphAtlas font, String text, float size, float tracking) {
+        if (text == null || text.isEmpty()) {
+            return 0.0f;
+        }
+        GlyphAtlas resolved = resolve(font, text);
+        if (resolved == null) {
+            return textWidth(font, text, size);
+        }
+        float width = 0.0f;
+        int count = 0;
+        for (int offset = 0; offset < text.length(); ) {
+            int codepoint = text.codePointAt(offset);
+            width += resolved.width(new String(Character.toChars(codepoint)), size);
+            count++;
+            offset += Character.charCount(codepoint);
+        }
+        return width + tracking * Math.max(0, count - 1);
     }
 
     /** Shrinks a headline just enough to fit, without dropping any words. */

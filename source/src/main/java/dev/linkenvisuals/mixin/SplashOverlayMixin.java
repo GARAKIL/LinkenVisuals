@@ -83,6 +83,7 @@ public abstract class SplashOverlayMixin {
             }
 
             if (SplashProgress.finished(reloadCompleteTime, now)) {
+                LinkenLoadingScreen.dispose();
                 client.setOverlay(null);
                 ci.cancel();
                 return;

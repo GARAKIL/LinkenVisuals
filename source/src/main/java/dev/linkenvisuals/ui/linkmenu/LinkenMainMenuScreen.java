@@ -78,13 +78,15 @@ public final class LinkenMainMenuScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         long now = System.nanoTime();
-        if ((client != null && client.getOverlay() != null) || !Pipelines.resourcesReady()) {
+        if (!Pipelines.resourcesReady()) {
             // The initial resource reload still owns the screen. Drawing the
-            // LINKEN menu behind the splash would lazily compile our shader
-            // pipelines before their sources are available.
+            // LINKEN menu before the shader sources exist would fail.
             lastFrame = now;
             return;
         }
+        // Once resources are ready the menu may render underneath the fading
+        // splash, so its first frame is already in the framebuffer when the
+        // overlay is removed.
         Pipelines.warmUp();
         double deltaSeconds = Math.min((now - lastFrame) / 1_000_000_000.0, 0.05);
         lastFrame = now;
@@ -230,9 +232,10 @@ public final class LinkenMainMenuScreen extends Screen {
             metrics.headline().x(), metrics.headline().y(), 38.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
 
+        // The donor draws the second headline line at its natural width even
+        // when it slightly overflows the 340 px column. Ellipsizing here made
+        // a normal name (__Kuruma__) render as "__Kurum..." in ru_ru.
         String second = I18n.get("linkenvisuals.linkmenu.welcome_line2", LinkenMenuChrome.username());
-        second = LinkenMenuChrome.ellipsize(LinkenFonts.bodyMedium(), second,
-            metrics.headline().width(), 38.0f);
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), second,
             metrics.headline().x(), metrics.headline().y() + 43.7f, 38.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));

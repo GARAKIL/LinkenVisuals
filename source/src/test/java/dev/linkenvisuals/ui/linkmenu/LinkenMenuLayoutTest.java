@@ -90,6 +90,13 @@ class LinkenMenuLayoutTest {
             assertTrue(m.singleplayer().bottom() < m.settings().y(), "row order broken at " + label);
             assertFalse(m.settings().intersects(m.quit()), "settings and quit overlap at " + label);
             assertEquals(m.settings().y(), m.quit().y(), 1.0e-6f);
+
+            // Donor CustomMainMenuScreen: 300 + 13.02 + 14 + 2*43.7 + 8 +
+            // 17.64 + 28 + 38 + 18 = 524.06. Using the nominal 10/14 font
+            // sizes lifted the stack 7 px above the donor.
+            if (resolution[0] == 1920 && resolution[1] == 1080) {
+                assertEquals(524.06f, m.multiplayer().y(), 0.01f);
+            }
         }
     }
 
