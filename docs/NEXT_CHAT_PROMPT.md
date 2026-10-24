@@ -11,26 +11,26 @@
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
 - Version: **1.0.140** (не поднимать без прямого приказа пользователя)
-- Последний code commit: `a87d04b` — `fix(ui): restore pre-D117 LV logo with SDF edges (v1.0.140, D117b)`
-- Предыдущие: `ee65d37` — D117 Create World/loading; `155645e` — docs D117
-- Docs-коммит с этим промтом идёт следующим; проверь `git log -3 --oneline` после `git pull`.
+- Последний code commit: D118 — `fix(ui): align menu metrics and fill splash bootstrap (v1.0.140, D118)`; предыдущие: `a87d04b` D117b logo, `ee65d37` D117.
+- Docs-коммит D118 идёт следом; проверь `git log -3 --oneline` после `git pull`.
 
 Текущие проверки:
 
 - **82 набора / 324 теста**, 0 failures / 0 errors / 0 skipped в обоих flavors.
-- Linken autotest: **1158/1158**, 0 fail/skip, 0 новых ERROR/exception (1920×1080, прогон после D117b).
-- Strange autotest: **1148/1148**, 0 fail/skip; 3 ERROR — только offline-auth/Realms (прогон D117; D117b меняет только PNG и ветку `drawLogo`).
-- Linken jar: `linkenvisuals-1.0.140.jar`, **11 180 156 байт**, SHA-256 `34282DFE9ABD6874B63580083941EEFBA4D678AB5620FDC8720869999C3A2259`.
-- Strange jar: `linkenvisuals-strange-1.0.140.jar`, **11 180 144 байта**, SHA-256 `586D71642799253C4822088C6702931F529AA476596214AFA64FADDC585C341B`.
+- Linken autotest: **1158/1158**, 0 fail/skip, 0 новых ERROR/exception (1920×1080, финальный прогон D118).
+- Strange autotest: **1148/1148**, 0 fail/skip; 3 ERROR — только offline-auth/Realms (финальный прогон D118).
+- Linken jar: `linkenvisuals-1.0.140.jar`, **11 196 339 байт**, SHA-256 `1B43021B068B63D987124D6A8069F4B7167123B3CD2E7686697C11081FEA5F86`.
+- Strange jar: `linkenvisuals-strange-1.0.140.jar`, **11 196 325 байт**, SHA-256 `9F17C7B4F494B6B8CEDE9E841B32E06FFB8828DB1336FD204296153C4C54BC44`.
 - Linken jar развёрнут в `D:\MultiMC\instances\1.21.111\.minecraft\mods`; SHA-256 совпадает.
 
 Что уже принято и не переделывается:
 
 - D117: loading screen переложен под donor 9d; Create World полностью перерисован `LinkenCreateWorldSkin`; ESC-tile `LINKENVISUALS HUD` удалён.
 - D117b: возвращён **прежний** LV-монограмм из `6c6919a`; края пересобраны SDF-мастером 2048; `drawLogo` для `size <= 128` использует 120 px `logo.png`, для крупных — 512 px `lv_logo.png`.
+- D118: главное меню — donor line boxes и кнопки 524/583/642, MSDF +0.025 em, sub-pixel фон, двухцветная дата, welcome без ellipsize. Splash bootstrap — полный LINKEN-экран через CPU `SplashFont`. Язык — game-first: `ru*` → `ru_ru`, остальные → English; stale `language=en_us` мигрирует в `auto`.
 - В текстовом wordmark главного меню/welcome/pause LV-бейджа нет; LV остаётся в LinkGUI header/footer и HUD. Strange использует только `strange_logo.png` и только в `-Pstrange`.
 
-Evidence: `source/run/screenshots/evidence-d117b/` — `linkgui-header.png`, `linkgui-header-zoom.png`, `logo-compare-old-new.png`, `pause.png`, `report.log`.
+Evidence: `source/run/screenshots/evidence-d118/` — `mainmenu-donor.png`, `mainmenu-port-after.png`, `mainmenu-ui-compare.png`, `mainmenu-side-heat-after.png`, `loading-bootstrap-before.png`, `loading-bootstrap-after.png`, `lang-ru-auto.png`, `lang-en-auto.png`, `metrics.txt`.
 
 ---
 
@@ -330,7 +330,7 @@ Get-ChildItem build\libs\linkenvisuals-*.jar |
 
 ## 9. Первый шаг
 
-1. Прочитай `docs/HANDOFF.md` (верхний раздел D117b), `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` (D117/D117b), `docs/FEATURE_PARITY.md`.
+1. Прочитай `docs/HANDOFF.md` (верхний раздел D118), `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` (D118/D117/D117b), `docs/FEATURE_PARITY.md`.
 2. Прогони baseline-тесты в обоих flavors.
 3. Запусти donor 1.21.4 и порт 1.21.111 при **одинаковых** `fullscreen`/`guiScale`/разрешении.
 4. Сними главное меню на 1920×1080, построй side-by-side + diff + heatmap, запиши числа.

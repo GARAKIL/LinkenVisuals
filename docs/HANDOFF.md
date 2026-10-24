@@ -4,6 +4,31 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
+## Состояние на 2026-10-24 (D118 — pixel-parity главного меню, splash bootstrap, язык игры) — v1.0.140
+
+### Сделано
+1. **Главное меню, вертикальные метрики**: `LinkenMenuLayout` использует donor line boxes, а не номинальные кегли: eyebrow 13.02, subtitle 17.64, disclaimer 20.79. Стек кнопок встал ровно на donor `y=524/583/642` (было 517/576/635); размеры/ширины не менялись. Регрессия закреплена в существующем `LinkenMenuLayoutTest` (счётчик тестов остался 324).
+2. **MSDF-метрики**: `MsdfText.write` добавляет donor advance `+0.025 em` (половина SDF-толщины 0.05). Headline/subtitle/кнопки совпали по ширине: head1 369 vs 369, head2 363 vs 365, subtitle 186 vs 188 px. Wordmark оставлен на per-glyph `drawSpaced`-пути и сохранил donor bbox `924..995 × 49..66`.
+3. **Welcome**: убрана ellipsize-обрезка второй строки; `__Kuruma__` в ru_ru больше не превращается в `__Kurum...`.
+4. **Фон**: sub-pixel cover через translate+scale и один horizontal-gradient quad вместо 48 полос. Background center diff 1.62 mean / p95 5; после компенсации 8 px parallax — 1.48 / p95 6.
+5. **Splash bootstrap**: портирован donor `SplashFont` (CPU MSDF → `NativeImage` → GUI texture). Первый кадр теперь содержит wordmark, VISUALS, stage, percent и footer; до правки был почти пустой чёрный экран с уголками и полосой. Текстуры освобождаются в `LinkenLoadingScreen.dispose()` при снятии overlay.
+6. **Splash → menu**: `LinkenMainMenuScreen` больше не пропускает кадр при `overlay != null`, если `Pipelines.resourcesReady()`; меню рисуется под затухающим splash.
+7. **Язык игры — источник истины**: `I18n.getEffectiveLanguage()` при `ru*` всегда возвращает `ru_ru`, независимо от сохранённого `language`. Для не-русского клиента — английский fallback; явные `ru_ru`/`uk_ua` остаются для Classic GUI. `ConfigManager` мигрирует старый `language: en_us` в `auto` и больше не пишет `en_us`. Проверено: game `ru_ru` + config `en_us` → русский UI; game `en_us` + config `auto` → английский UI.
+8. **Остаток**: одиночный pure-black кадр при старте совпадает с переключением окна в fullscreen (engine clear); классифицирован D, не UI. Bootstrap до/после — `evidence-d118/loading-bootstrap-before.png` / `...-after.png`.
+
+### Проверки
+- 82 набора / 324 теста, 0 fail/error/skip в обоих flavor.
+- Linken autotest **1158/1158**, 0 fail/skip, 0 новых ERROR/exception.
+- Strange autotest **1148/1148**, 0 fail/skip; 3 ERROR — только offline-auth/Realms.
+- Numeric diff ru_ru 1920×1080/guiScale 2: full frame mean 3.13, p95 9, >16 3.53%; buttons 5.15; account 4.93; wordmark 2.86; background 1.62. Evidence: `run/screenshots/evidence-d118/` (`mainmenu-donor.png`, `mainmenu-port-after.png`, `mainmenu-ui-compare.png`, `lang-ru-auto.png`, `lang-en-auto.png`, `metrics.txt`).
+- Jar hash: `linkenvisuals-1.0.140.jar` — `1B43021B068B63D987124D6A8069F4B7167123B3CD2E7686697C11081FEA5F86`; `linkenvisuals-strange-1.0.140.jar` — `9F17C7B4F494B6B8CEDE9E841B32E06FFB8828DB1336FD204296153C4C54BC44`.
+- Commits: code `928eb1d`, docs `docs commit follows`.
+
+### Следующая задача
+- Pause: donor 1.21.4 показывает динамические плитки из `GameMenuScreen` (Accounts/Feedback/Report Bugs/Statistics), порт сознательно оставляет компактный набор; не добавлять контролы без приказа. Сверить только геометрию/цвета.
+- LinkGUI: donor screenshot снят в другой теме/наборе модулей; для pixel-diff выставить одинаковую тему и фильтр.
+- Остаток типографики: eyebrow 188 vs 194 px (per-glyph 1.05 measurement donor); не менять глобально без проверки полей ввода.
+
 ## Состояние на 2026-10-24 (D117b — возврат прежнего LV-логотипа, SDF-края) — v1.0.140
 
 ### Сделано

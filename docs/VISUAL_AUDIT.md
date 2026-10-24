@@ -1,9 +1,37 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-24 · Target build: **v1.0.140 / D117b** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-24 · Target build: **v1.0.140 / D118** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
-> **fixed** are in D106; the rest is open scope.
+> **fixed** are in D106/D118; the rest is open scope.
+
+## 0. D118 — main menu metrics, splash bootstrap, language
+
+**Fixed in D118:**
+- Main-menu donor line boxes: eyebrow 13.02, subtitle 17.64, disclaimer 20.79;
+  button rows now sit at donor `y=524/583/642` instead of 517/576/635.
+- MSDF advance matches donor `+0.025 em` thickness; headline/subtitle/buttons
+  widths now match (head1 369 vs 369, head2 363 vs 365, subtitle 186 vs 188).
+  Header wordmark stays on the per-glyph path and keeps bbox `924..995 × 49..66`.
+- Welcome line 2 is no longer ellipsized; `__Kuruma__` renders in full.
+- Background uses sub-pixel cover + one horizontal-gradient scrim. Background
+  center diff 1.62 mean / p95 5 (1.48 aligned); full-frame 3.13 mean / p95 9.
+- Splash bootstrap is a complete LINKEN scene (wordmark, VISUALS, stage,
+  percent, footer) via the ported CPU `SplashFont`, not an empty black frame.
+- Language follows the game: `ru*` → `ru_ru` even with a stale
+  `language=en_us`; non-Russian → English. `ConfigManager` migrates `en_us`
+  to `auto`.
+
+**Residuals:**
+- One pure-black frame at startup coincides with the window switching to
+  fullscreen (engine clear), not a UI layer. Classified **D**; see
+  `evidence-d118/loading-bootstrap-before.png` vs `...-after.png`.
+- Eyebrow is 188 px vs donor 194 px because donor `drawSpaced` measures with
+  the 1.05 MSDF allowance. Not changed globally: it would affect input-field
+  caret widths.
+- Pause tiles are intentionally the compact port subset; donor 1.21.4 harvests
+  extra `GameMenuScreen` buttons (Accounts/Feedback/Report Bugs). No new
+  controls added without an explicit order.
 
 ## 1. FakePlayer crits
 

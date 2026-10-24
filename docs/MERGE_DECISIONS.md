@@ -7,6 +7,17 @@
 
 ---
 
+## 2026-10-24 · D118 · Pixel-parity главного меню, splash bootstrap, язык игры (v1.0.140)
+- **Причина 7 px**: donor `MsdfFont.getHeight` = (asc+desc)*size*1.05; eyebrow 10 → 13.02, subtitle 14 → 17.64. Порт использовал номинальные 10/14, поэтому весь стек кнопок был на 7 px выше. Решение: `EYEBROW_HEIGHT=13.02`, `SUBTITLE_HEIGHT=17.64`, `DISCLAIMER_LINE_HEIGHT=20.79`; кнопки 524/583/642 совпали с donor.
+- **Типографика**: donor `BuiltText` advance = `advance*size + 0.025*size` (половина SDF thickness 0.05). `MsdfText.write` теперь добавляет `0.025*size`; headline/subtitle/кнопки совпали по ширине. Wordmark остаётся на per-glyph `drawSpaced`, иначе глобальный advance расширял его на ~3 px.
+- **Welcome**: ellipsize второй строки убран; donor рисует natural width, даже если строка чуть выходит за 340 px. `__Kuruma__` больше не режется.
+- **Фон**: donor рисует float-quad; порт использовал `Math.round` для x/y/w/h и 48 полос scrim. Теперь translate+scale сохраняет sub-pixel, scrim — один `RoundedRectPipeline.drawHorizontalGradient`. Background center diff 1.62 mean, aligned 1.48.
+- **Splash bootstrap**: до правки первый кадр — почти чёрный экран с уголками/полосой. Портирован donor `SplashFont`: MSDF читается из jar через classloader, растеризуется на CPU в `NativeImage`, регистрируется как GUI-текстура; bootstrap рисует wordmark/VISUALS/stage/percent/footer. `dispose()` вызывается при снятии overlay.
+- **Splash → menu**: меню рендерится под затухающим splash, если ресурсы готовы; это убирает пропуск первого кадра меню. Одиночный pure-black кадр остаётся при переключении fullscreen (engine clear) — классифицирован D, не UI.
+- **Язык**: `I18n.getEffectiveLanguage` теперь game-first: `ru*` → `ru_ru` всегда; не-русский → `en_us` (явные `ru_ru`/`uk_ua` — только для Classic GUI). `ConfigManager` мигрирует `en_us` → `auto` при загрузке и не пишет `en_us`. Проверено на game `ru_ru` + config `en_us` (русский UI) и game `en_us` + `auto` (английский UI).
+- **Evidence**: `run/screenshots/evidence-d118/` — `mainmenu-donor.png`, `mainmenu-port-before.png`, `mainmenu-port-after.png`, `mainmenu-ui-compare.png`, `mainmenu-side-heat-after.png`, `loading-bootstrap-before.png`, `loading-bootstrap-after.png`, `lang-ru-auto.png`, `lang-en-auto.png`, `metrics.txt`. Тесты 324/324; autotest 1158/1158 Linken, 1148/1148 Strange (3 ERROR — Realms).
+- **Commit**: code `928eb1d`; docs `docs commit follows`.
+
 ## 2026-10-24 · D117b · Возврат прежнего LV-логотипа + SDF-края (v1.0.140)
 - Приказ пользователя: D117-логотип «не тот»; вернуть прежний и улучшить качество.
 - Решение: рисунок из `6c6919a` — источник истины. `lv_logo.png` 512×512, `logo.png` 120×120; форма/контур не менялись, D117-геометрия отменена.
