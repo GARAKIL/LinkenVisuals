@@ -85,6 +85,15 @@ public final class LinkenMenuChrome {
         return rgba(rgb, 255, fade);
     }
 
+    /**
+     * Alpha-first overload for call sites that pass an explicit 0..255 opacity.
+     * Without it an int literal binds to the {@code float fade} overload and an
+     * alpha of 26 would be treated as a 26x fade, clamping the colour to opaque.
+     */
+    public static int rgba(int rgb, int alpha) {
+        return rgba(rgb, alpha, 1.0f);
+    }
+
     // ------------------------------------------------------------------ background
 
     public static void drawBackground(DrawContext context, LinkenMenuLayout.Metrics layout,
@@ -128,15 +137,11 @@ public final class LinkenMenuChrome {
         String word = "linken";
         float wordWidth = textWidth(font, word, size);
         float dotWidth = textWidth(font, ".", size);
-        float logoSize = 24.0f;
-        float gap = 8.0f;
-        float total = logoSize + gap + wordWidth + dotWidth;
+        float total = wordWidth + dotWidth;
         float x = (layout.width() - total) * 0.5f;
         float y = 44.0f;
-        drawLogo(context, x, y - 1.0f, logoSize, fade);
-        float textX = x + logoSize + gap;
-        drawText(context, font, word, textX, y, size, rgba(TEXT, fade));
-        drawText(context, font, ".", textX + wordWidth, y, size, rgba(ACCENT, fade));
+        drawText(context, font, word, x, y, size, rgba(TEXT, fade));
+        drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
     }
 
     /** Linken monogram used by the menu, HUD and GUI. */
@@ -153,14 +158,12 @@ public final class LinkenMenuChrome {
         float size = 27.0f;
         float x = LinkenMenuLayout.MARGIN;
         float y = 36.0f;
-        drawLogo(context, x, y - 2.0f, 24.0f, fade);
-        float textX = x + 31.0f;
         String word = "linken";
-        drawText(context, font, word, textX, y, size, rgba(TEXT, fade));
+        drawText(context, font, word, x, y, size, rgba(TEXT, fade));
         float wordWidth = textWidth(font, word, size);
-        drawText(context, font, ".", textX + wordWidth, y, size, rgba(ACCENT, fade));
+        drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
         drawSpaced(context, LinkenFonts.headingLight(), I18n.get("linkenvisuals.linkmenu.visuals"),
-            textX, y + 29.0f, 9.0f, 2.1f, rgba(MUTED3, fade));
+            x, y + 29.0f, 9.0f, 2.1f, rgba(MUTED3, fade));
     }
 
     public static void drawClock(DrawContext context, LinkenMenuLayout.Metrics layout, float fade) {

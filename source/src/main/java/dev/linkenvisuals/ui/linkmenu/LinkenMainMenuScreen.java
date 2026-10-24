@@ -180,8 +180,6 @@ public final class LinkenMainMenuScreen extends Screen {
 
         float centerX = metrics.width() * 0.5f;
         float wordY = metrics.height() * 0.41f + rise;
-        float logoSize = 58.0f;
-        LinkenMenuChrome.drawLogo(context, centerX - logoSize * 0.5f, wordY - 80.0f, logoSize, fade);
         float size = 64.0f;
         String word = "linken";
         float wordWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), word, size);

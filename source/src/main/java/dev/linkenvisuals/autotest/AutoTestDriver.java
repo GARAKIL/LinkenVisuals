@@ -42,9 +42,13 @@ import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.Click;
+import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.gui.widget.TabButtonWidget;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.util.ScreenshotRecorder;
@@ -447,10 +451,24 @@ public final class AutoTestDriver {
         });
         add("screenshot multiplayer add", 1, () -> screenshot(client, "multiplayer-add"));
         add("close linken multiplayer", 2, () -> client.setScreen(null));
+        add("clear tutorial toasts", 1, () -> client.getToastManager().clear());
         add("open create world", 12, () ->
             net.minecraft.client.gui.screen.world.CreateWorldScreen.show(client, () -> client.setScreen(null)));
         add("screenshot create world", 2, () -> screenshot(client, "create-world"));
+        add("switch create world tab world", 5, () -> clickCreateWorldTab(client, 1));
+        add("screenshot create world world", 2, () -> screenshot(client, "create-world-world"));
+        add("switch create world tab more", 5, () -> clickCreateWorldTab(client, 2));
+        add("screenshot create world more", 2, () -> screenshot(client, "create-world-more"));
         add("close create world", 2, () -> client.setScreen(null));
+        add("open loading preview", 3, () -> {
+            net.minecraft.client.gui.screen.ProgressScreen screen =
+                new net.minecraft.client.gui.screen.ProgressScreen(false);
+            screen.setTitleAndTask(Text.translatable("menu.savingLevel"));
+            screen.progressStagePercentage(62);
+            client.setScreen(screen);
+        });
+        add("screenshot loading", 2, () -> screenshot(client, "loading"));
+        add("close loading preview", 2, () -> client.setScreen(null));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");
@@ -1277,6 +1295,28 @@ public final class AutoTestDriver {
         ScreenshotRecorder.saveScreenshot(client.runDirectory, name, client.getFramebuffer(), 1,
             message -> {
             });
+    }
+
+    /** Clicks the LINKEN-aligned tab pill and proves the painted hit box is live. */
+    private static void clickCreateWorldTab(MinecraftClient client, int index) {
+        if (!(client.currentScreen instanceof net.minecraft.client.gui.screen.world.CreateWorldScreen screen)) {
+            throw new IllegalStateException("Create World is not open");
+        }
+        net.minecraft.client.gui.widget.TabNavigationWidget tabs =
+            ((dev.linkenvisuals.mixin.CreateWorldScreenAccessor) screen).linkenvisuals$tabNavigation();
+        if (tabs == null) {
+            throw new IllegalStateException("Create World has no tab navigation");
+        }
+        List<? extends Element> children = tabs.children();
+        if (index < 0 || index >= children.size() || !(children.get(index) instanceof TabButtonWidget tab)) {
+            throw new IllegalStateException("Create World has no tab " + index);
+        }
+        double centerX = tab.getX() + tab.getWidth() * 0.5;
+        double centerY = tab.getY() + tab.getHeight() * 0.5;
+        screen.mouseClicked(new Click(centerX, centerY, new MouseInput(0, 0)), false);
+        if (!tab.isCurrentTab()) {
+            throw new IllegalStateException("Create World tab " + index + " did not activate from a click");
+        }
     }
 
     private static void releaseKeys(MinecraftClient client) {

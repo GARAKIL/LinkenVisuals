@@ -1,4 +1,4 @@
-{
+﻿{
   "key.linkenvisuals.clickgui": "Відкрити ClickGUI",
   "linkenvisuals.menu.singleplayer": "Одиночна гра",
   "linkenvisuals.menu.multiplayer": "Мережева гра",
@@ -104,7 +104,6 @@
   "linkenvisuals.video.menu_toggle_tooltip": "Перемикання між звичайним меню Minecraft та кастомним головним меню",
   "pause.title": "ПАУЗА",
   "pause.resume": "ПОВЕРНУТИСЯ ДО ГРИ",
-  "pause.clickgui": "LINKENVISUALS HUD",
   "pause.settings": "НАЛАШТУВАННЯ",
   "pause.advancements": "ДОСЯГНЕННЯ",
   "pause.stats": "СТАТИСТИКА",
@@ -353,5 +352,6 @@
   "linkenvisuals.hud.killstreak.mega": "МЕГАВБИВСТВО",
   "linkenvisuals.hud.killstreak.monster": "МОНСТРВБИВСТВО",
   "linkenvisuals.hud.killstreak.unstop": "БЕЗУМСТВО",
-  "linkenvisuals.world_setup": "НАЛАШТУВАННЯ СВІТУ"
+  "linkenvisuals.world_setup": "НАЛАШТУВАННЯ СВІТУ",
+  "linkenvisuals.createworld.summary": "КОРОТКО ПРО СВІТ"
 }

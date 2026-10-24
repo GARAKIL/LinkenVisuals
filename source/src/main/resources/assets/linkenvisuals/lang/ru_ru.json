@@ -1,4 +1,4 @@
-{
+﻿{
   "key.category.linkenvisuals.main": "LinkenVisuals",
   "key.linkenvisuals.clickgui": "Открыть ClickGUI",
   "linkenvisuals.gui.binds": "Бинды",
@@ -108,7 +108,6 @@
   "linkenvisuals.video.menu_toggle_tooltip": "Переключение между обычным меню Minecraft и кастомным главным меню",
   "pause.title": "ПАУЗА",
   "pause.resume": "ВЕРНУТЬСЯ В ИГРУ",
-  "pause.clickgui": "LINKENVISUALS HUD",
   "pause.settings": "НАСТРОЙКИ",
   "pause.advancements": "ДОСТИЖЕНИЯ",
   "pause.stats": "СТАТИСТИКА",
@@ -353,5 +352,6 @@
   "linkenvisuals.hud.killstreak.mega": "МЕГАКИЛЛ",
   "linkenvisuals.hud.killstreak.monster": "МОНСТРКИЛЛ",
   "linkenvisuals.hud.killstreak.unstop": "БЕЗУМИЕ",
-  "linkenvisuals.world_setup": "НАСТРОЙКА МИРА"
+  "linkenvisuals.world_setup": "НАСТРОЙКА МИРА",
+  "linkenvisuals.createworld.summary": "КРАТКО О МИРЕ"
 }

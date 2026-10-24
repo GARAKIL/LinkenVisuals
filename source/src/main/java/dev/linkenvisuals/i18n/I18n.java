@@ -6,6 +6,7 @@ import dev.linkenvisuals.LinkenVisuals;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Language;
 
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
@@ -120,9 +121,13 @@ public final class I18n {
             String val = en.get(key);
             if (val != null) return val;
         }
-        // Fallback to Minecraft vanilla translation
-        if (net.minecraft.client.resource.language.I18n.hasTranslation(key)) {
-            return net.minecraft.client.resource.language.I18n.translate(key);
+        // Fallback to the raw Minecraft translation. Calling vanilla
+        // I18n.translate(key) here would pre-format parameterised strings with
+        // zero arguments and return "Format error: ..."; get(key, args) below
+        // owns the formatting.
+        Language language = Language.getInstance();
+        if (language != null && language.hasTranslation(key)) {
+            return language.get(key);
         }
         return key;
     }

@@ -1,6 +1,5 @@
 package dev.linkenvisuals.ui.linkmenu;
 
-import dev.linkenvisuals.clickgui.link.LinkGuiScreen;
 import dev.linkenvisuals.i18n.I18n;
 import dev.linkenvisuals.render.IconPipeline;
 import dev.linkenvisuals.ui.Spring;
@@ -69,8 +68,6 @@ public final class LinkenPauseScreen extends Screen {
 
         grid.add(new Item(I18n.get("pause.settings"), "VIDEO, CONTROLS, LANGUAGE",
             LinkenMenuChrome.MENU_ICON_GEAR, false, () -> mc.setScreen(new LinkenSettingsScreen(this))));
-        grid.add(new Item(I18n.get("pause.clickgui"), "MODULES AND CONFIGS",
-            LinkenMenuChrome.MENU_ICON_PERSON, false, () -> mc.setScreen(new LinkGuiScreen(this))));
 
         if (mc.getNetworkHandler() != null) {
             grid.add(new Item(I18n.get("pause.advancements"), "WORLD PROGRESS",
@@ -169,10 +166,8 @@ public final class LinkenPauseScreen extends Screen {
             LinkenMenuChrome.rgba(0xFFFFFF, Math.round(20.0f * openValue)));
 
         // Topbar: title, world/server line, close.
-        float topLogo = 20.0f;
-        LinkenMenuChrome.drawLogo(context, x + PAD, y + 12.0f, topLogo, openValue);
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), I18n.get("pause.title"),
-            x + PAD + topLogo + 8.0f, y + 14.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, openValue));
+            x + PAD, y + 14.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, openValue));
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), worldLine(),
             x + PAD, y + 34.0f, 9.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, openValue));
 

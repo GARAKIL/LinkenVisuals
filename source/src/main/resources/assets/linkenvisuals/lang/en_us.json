@@ -1,4 +1,4 @@
-{
+﻿{
   "key.category.linkenvisuals.main": "LinkenVisuals",
   "key.linkenvisuals.clickgui": "Open ClickGUI",
   "linkenvisuals.gui.binds": "Keybinds",
@@ -108,7 +108,6 @@
   "linkenvisuals.video.menu_toggle_tooltip": "Switch between Vanilla Minecraft title screen and custom main menu",
   "pause.title": "PAUSED",
   "pause.resume": "BACK TO GAME",
-  "pause.clickgui": "LINKENVISUALS HUD",
   "pause.settings": "OPTIONS & SETTINGS",
   "pause.advancements": "ADVANCEMENTS",
   "pause.stats": "STATISTICS",
@@ -353,5 +352,6 @@
   "linkenvisuals.hud.killstreak.mega": "MEGA KILL",
   "linkenvisuals.hud.killstreak.monster": "MONSTER KILL",
   "linkenvisuals.hud.killstreak.unstop": "UNSTOPPABLE",
-  "linkenvisuals.world_setup": "WORLD SETUP"
+  "linkenvisuals.world_setup": "WORLD SETUP",
+  "linkenvisuals.createworld.summary": "WORLD SUMMARY"
 }
