@@ -7,6 +7,16 @@
 
 ---
 
+## 2026-10-24 · D119 · Встроенные optimization-моды через Fabric Jar-in-Jar (v1.0.140)
+- **Заказ**: наш jar должен содержать отдельную папку с другими optimization-модами; всё должно работать; положить тестовый jar.
+- **Решение**: `source/optimization-mods/*.jar` → Gradle `prepareOptimizationJars` копирует в `META-INF/jars/`; `processResources` добавляет записи в `jars` массива `fabric.mod.json`. Это штатный Fabric Jar-in-Jar, а не самодельный classloader: Fabric Loader сам применяет entrypoints/mixins/зависимости nested-модов.
+- **Валидность JSON**: исходный `fabric.mod.json` остаётся с `"jars": []` (Loom парсит его при конфигурации); реальный список инжектится в `build/resources/main/fabric.mod.json` в `processResources.doLast`.
+- **Защита**: `verifyEmbeddedOptimizationJars` (в `check`) проверяет наличие каждого jar в финальном jar, объявление в `fabric.mod.json`, валидный nested `fabric.mod.json`/id и отсутствие duplicate id (включая `linkenvisuals`).
+- **Тест**: `linkenvisuals-test-optimization-1.0.0.jar` — metadata-only, id `linkenvisuals_test_optimization`; в логе `Loading 50 mods: ... linkenvisuals_test_optimization 1.0.0`.
+- **Ограничения**: только release-джарники; лицензия должна разрешать redistribution; nested-моды обновляются только вместе с LinkenVisuals. Реальные Sodium/Lithium не добавлялись без отдельного решения по версии/лицензии.
+- **Evidence**: `run/screenshots/evidence-d119/` (`jar-contents.txt`, `launch-log.txt`); 324 теста; Linken/Strange jars `E236C359…` / `D27C9321…`.
+- **Commit**: code `8b193b2`; docs `docs commit follows`.
+
 ## 2026-10-24 · D118 · Pixel-parity главного меню, splash bootstrap, язык игры (v1.0.140)
 - **Причина 7 px**: donor `MsdfFont.getHeight` = (asc+desc)*size*1.05; eyebrow 10 → 13.02, subtitle 14 → 17.64. Порт использовал номинальные 10/14, поэтому весь стек кнопок был на 7 px выше. Решение: `EYEBROW_HEIGHT=13.02`, `SUBTITLE_HEIGHT=17.64`, `DISCLAIMER_LINE_HEIGHT=20.79`; кнопки 524/583/642 совпали с donor.
 - **Типографика**: donor `BuiltText` advance = `advance*size + 0.025*size` (половина SDF thickness 0.05). `MsdfText.write` теперь добавляет `0.025*size`; headline/subtitle/кнопки совпали по ширине. Wordmark остаётся на per-glyph `drawSpaced`, иначе глобальный advance расширял его на ~3 px.

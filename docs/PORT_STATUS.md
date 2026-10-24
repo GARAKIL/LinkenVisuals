@@ -29,6 +29,8 @@
 
 На 2026-10-24 **D118/v1.0.140**: главное меню доведено до donor-метрик (кнопки 524/583/642, MSDF +0.025 em, sub-pixel фон, двухцветная дата), splash bootstrap получил полный LINKEN-экран через CPU `SplashFont`, язык следует за Minecraft (`ru*` → `ru_ru`, остальные → English; stale `en_us` мигрирует в `auto`). 324 теста; autotest Linken 1158/1158, Strange 1148/1148 (3 ERROR — Realms).
 
+На 2026-10-24 **D119/v1.0.140**: `optimization-mods/*.jar` встраиваются в финальный jar через Fabric Jar-in-Jar (`META-INF/jars/` + `jars` в `fabric.mod.json`); `check` проверяет наличие/метаданные/duplicate id. Тестовый `linkenvisuals_test_optimization 1.0.0` загружается Fabric Loader'ом (50 mods в логе). 324 теста.
+
 ## Третий стиль LINKEN (MASTER_PROMPT_STYLE3)
 - **M1 — главное меню и роутинг — ✅ v1.0.76, D52.** LINKEN — отдельный слой; Beta/Vanilla не перерисованы. Главное меню `LinkenMainMenuScreen` (1920×1080, `bg-tower`, parallax, аккаунт-чип, медиа-карточка, Quit с подтверждением, Esc не закрывает), `StyleRouting`, `MenuStyle.LINKEN`, трёхпозиционный цикл стиля, LINKEN без `applyPreset`. 181 тест, 0 падений. **Визуальная приёмка (20.10.2026) завершена агентом:** 1280×720/GUI 2 и 4K-framebuffer 3840×2160 (F2 PNG; физического 4K нет), все кнопки, соцсети, медиа с реальным SMTC-треком, редактор, цикл стилей и сохранение LINKEN после рестарта; лог без `ERROR`/`Exception`. Остаётся финальное «принято» пользователя — до него M2 не начинается.
 - **M2 — splash/loading/connect — ✅ v1.0.77, D53, `bef9569`.** `SplashOverlayMixin`, `LinkenLoadingScreen`, `SplashProgress` + тест; LINKEN `LevelLoading`/`Connect`/`Progress`/`Message`; кастомный `SAVING WORLD`, hand-off на title.

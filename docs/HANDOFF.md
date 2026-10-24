@@ -4,6 +4,27 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
+## Состояние на 2026-10-24 (D119 — встроенные optimization-моды, Fabric Jar-in-Jar) — v1.0.140
+
+### Сделано
+1. **Папка `source/optimization-mods/`**: сюда кладутся release-джарники оптимизации. Gradle-задача `prepareOptimizationJars` копирует каждый `*.jar` в `META-INF/jars/` внутри финального jar; `processResources` добавляет соответствующие записи в `jars` массива `fabric.mod.json`. Исходный `fabric.mod.json` остаётся валидным JSON (`"jars": []`), поэтому Loom не ругается на парсинг.
+2. **Загрузка**: это штатный Fabric Jar-in-Jar. Fabric Loader сам находит nested-моды, применяет их mixins/entrypoints и зависимости; в логе запуска они видны как обычные моды.
+3. **Проверка `verifyEmbeddedOptimizationJars`** (входит в `check`): каждый jar из папки есть в финальном jar, объявлен в `fabric.mod.json`, содержит валидный `fabric.mod.json` с id; duplicate mod id (включая `linkenvisuals`) валит сборку.
+4. **Тестовый jar**: `optimization-mods/linkenvisuals-test-optimization-1.0.0.jar`, metadata-only, id `linkenvisuals_test_optimization`, без кода/mixins. В логе: `Loading 50 mods: ... \-- linkenvisuals_test_optimization 1.0.0`.
+5. **README** в папке: только release-джарники, лицензия должна разрешать redistribution, нельзя два мода с одинаковым id. Реальные оптимизаторы (Sodium/Lithium и т.п.) не добавлялись: их версия/лицензия/совместимость с 1.21.11 — отдельное решение пользователя.
+
+### Проверки
+- 82 набора / 324 теста, 0 fail/error/skip в обоих flavor.
+- Linken jar: `linkenvisuals-1.0.140.jar`, **11 197 037 байт**, SHA-256 `E236C35996C8064215570469AB1C19F0D42AF7F8F9084C7994BC77148EDCD679`; Strange jar: **11 197 023 байта**, SHA-256 `D27C9321BB0E7AE985896A16D21C6B295E10D0EAC29AA4192F9DC5E408774636`.
+- `verifyEmbeddedOptimizationJars`: `embedded linkenvisuals_test_optimization 1.0.0`, `verified 1 embedded optimization jar(s)`.
+- Запуск 1.21.11: Fabric Loader загрузил 50 модов, включая nested test mod; `Sound engine started`, ERROR/exception нет.
+- Evidence: `run/screenshots/evidence-d119/` — `jar-contents.txt`, `launch-log.txt`.
+- Commits: code `8b193b2`; docs `docs commit follows`.
+
+### Следующая задача
+- Добавлять реальные optimization-моды только по приказу пользователя, с проверкой лицензии и совместимости с 1.21.11.
+- Помнить: nested-моды нельзя обновлять отдельно от LinkenVisuals; при обновлении jar пересобрать и развернуть.
+
 ## Состояние на 2026-10-24 (D118 — pixel-parity главного меню, splash bootstrap, язык игры) — v1.0.140
 
 ### Сделано

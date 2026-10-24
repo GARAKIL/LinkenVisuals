@@ -11,16 +11,16 @@
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
 - Version: **1.0.140** (не поднимать без прямого приказа пользователя)
-- Последний code commit: D118 — `fix(ui): align menu metrics and fill splash bootstrap (v1.0.140, D118)`; предыдущие: `a87d04b` D117b logo, `ee65d37` D117.
-- Docs-коммит D118 идёт следом; проверь `git log -3 --oneline` после `git pull`.
+- Последний code commit: D119 — встроенные optimization-моды через Fabric Jar-in-Jar; предыдущие: `928eb1d` D118, `a87d04b` D117b logo.
+- Docs-коммит D119 идёт следом; проверь `git log -3 --oneline` после `git pull`.
 
 Текущие проверки:
 
 - **82 набора / 324 теста**, 0 failures / 0 errors / 0 skipped в обоих flavors.
 - Linken autotest: **1158/1158**, 0 fail/skip, 0 новых ERROR/exception (1920×1080, финальный прогон D118).
 - Strange autotest: **1148/1148**, 0 fail/skip; 3 ERROR — только offline-auth/Realms (финальный прогон D118).
-- Linken jar: `linkenvisuals-1.0.140.jar`, **11 196 339 байт**, SHA-256 `1B43021B068B63D987124D6A8069F4B7167123B3CD2E7686697C11081FEA5F86`.
-- Strange jar: `linkenvisuals-strange-1.0.140.jar`, **11 196 325 байт**, SHA-256 `9F17C7B4F494B6B8CEDE9E841B32E06FFB8828DB1336FD204296153C4C54BC44`.
+- Linken jar: `linkenvisuals-1.0.140.jar`, **11 197 037 байт**, SHA-256 `E236C35996C8064215570469AB1C19F0D42AF7F8F9084C7994BC77148EDCD679` (с встроенным test optimization jar).
+- Strange jar: `linkenvisuals-strange-1.0.140.jar`, **11 197 023 байта**, SHA-256 `D27C9321BB0E7AE985896A16D21C6B295E10D0EAC29AA4192F9DC5E408774636`.
 - Linken jar развёрнут в `D:\MultiMC\instances\1.21.111\.minecraft\mods`; SHA-256 совпадает.
 
 Что уже принято и не переделывается:
@@ -28,9 +28,10 @@
 - D117: loading screen переложен под donor 9d; Create World полностью перерисован `LinkenCreateWorldSkin`; ESC-tile `LINKENVISUALS HUD` удалён.
 - D117b: возвращён **прежний** LV-монограмм из `6c6919a`; края пересобраны SDF-мастером 2048; `drawLogo` для `size <= 128` использует 120 px `logo.png`, для крупных — 512 px `lv_logo.png`.
 - D118: главное меню — donor line boxes и кнопки 524/583/642, MSDF +0.025 em, sub-pixel фон, двухцветная дата, welcome без ellipsize. Splash bootstrap — полный LINKEN-экран через CPU `SplashFont`. Язык — game-first: `ru*` → `ru_ru`, остальные → English; stale `language=en_us` мигрирует в `auto`.
+- D119: `source/optimization-mods/*.jar` встраиваются в `META-INF/jars/` и `fabric.mod.json` (Fabric Jar-in-Jar). `check` проверяет наличие/метаданные/duplicate id. Тестовый `linkenvisuals_test_optimization 1.0.0` загружается как nested-мод. Реальные оптимизаторы — только по приказу, с проверкой лицензии/совместимости.
 - В текстовом wordmark главного меню/welcome/pause LV-бейджа нет; LV остаётся в LinkGUI header/footer и HUD. Strange использует только `strange_logo.png` и только в `-Pstrange`.
 
-Evidence: `source/run/screenshots/evidence-d118/` — `mainmenu-donor.png`, `mainmenu-port-after.png`, `mainmenu-ui-compare.png`, `mainmenu-side-heat-after.png`, `loading-bootstrap-before.png`, `loading-bootstrap-after.png`, `lang-ru-auto.png`, `lang-en-auto.png`, `metrics.txt`.
+Evidence: `source/run/screenshots/evidence-d118/` — `mainmenu-donor.png`, `mainmenu-port-after.png`, `mainmenu-ui-compare.png`, `mainmenu-side-heat-after.png`, `loading-bootstrap-before.png`, `loading-bootstrap-after.png`, `lang-ru-auto.png`, `lang-en-auto.png`, `metrics.txt`; `source/run/screenshots/evidence-d119/` — `jar-contents.txt`, `launch-log.txt`.
 
 ---
 
