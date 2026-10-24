@@ -14,7 +14,7 @@
 5. **D116 — сервер**: поднят Paper 1.21.11 (offline-mode) на `localhost:25566` с ViaVersion+Grim для multiplayer-проверок; клиентский smoke/подключение — вручную, второго живого игрока в тесте нет.
 6. **Проверки**: **316 тестов**, 0 fail/error/skip в обоих flavors; Linken autotest **1150/1150** (1280×720 и 1920×1080), Strange **1140/1140** (1920×1080), 0 fail/skip. Новых ERROR/exception/shader/sound нет; только offline-auth/Realms.
 7. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 172 256 байт, SHA-256 `2DEEF6CEBDD15C332F30710975509A45F16D79ABDFEC15EC90F75181DABDEAAB`; `linkenvisuals-strange-1.0.140.jar` — 11 172 245 байт, SHA-256 `831FD31CEDE5FC0C5D41D17D20D699BEF49977C09ECE0E6AD2D3C316B4B96C6A`.
-8. **Commit**: code `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`; docs commit follows.
+8. **Commit**: code `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`; docs `d4990bd`.
 
 ### Следующая задача
 1. **Human multiplayer acceptance**: второй реальный игрок на `localhost:25566` — splash `NN%`, team-prefix nametag, ping/tab.
