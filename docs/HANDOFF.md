@@ -4,6 +4,29 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
+## Состояние на 2026-10-24 (D117 — Linken-native Create World, loading, logo, ESC cleanup) — v1.0.140
+
+### Сделано
+1. **ESC**: удалён tile `LINKENVISUALS HUD` (`pause.clickgui`) из `LinkenPauseScreen.buildEntries()`; ключ удалён из en/ru/uk. Donor pause-screen не содержит отдельного входа в LinkGUI/HUD.
+2. **Логотип**: LV-монограмм перерисован программно (геометрический LV с antialiasing, рендер 2048→512/120) — без «лесенок». `lv_logo.png` 512×512 (8 929 B), `logo.png` 120×120 (1 360 B). LV-бейдж убран из текстового wordmark (`LinkenMenuChrome.drawWordmark`, welcome-intro, pause topbar); `drawLogo` остался только в LinkGUI (header/footer) и HUD.
+3. **Loading screen 1:1 с donor 9d**: градиент `BG_TOP/MID/BOTTOM`, эллиптический accent-glow, две угловые скобки, wordmark-блок `linken.` + `VISUALS` на 44% высоты, progress rail 460 px на 200 px от низа, stage/percent, stacked footer (`Version ..., build ...` + disclaimer). Фоновая фотография и LV-логотип убраны.
+4. **Create World**: полностью LINKEN-скин поверх ванильного `CreateWorldScreen` — фон, wordmark/version, tab-pills, glass-карточка, поля/cycling-строки/кнопки/чекбоксы, footer и WORLD SUMMARY на всех вкладках. Ванильная логика, вкладки и ввод сохранены; добавлены `CreateWorldWidgetRenderMixin`, `CreateWorldTabNavigationMixin`, `TextFieldWidgetAccessor`, `CreateWorldScreenAccessor`; скин рисуется на `render` TAIL, `renderDarkening` отменён.
+5. **Стабильная геометрия**: карточка 1024 design px на всех вкладках; ванильные `TabButtonWidget` переставляются `alignTabs` под ширину карточки (хитбоксы остаются живыми); header/folder/summary выровнены по внутренним краям карточки.
+6. **Фиксы**: `LinkenMenuChrome.rgba(int rgb, int alpha)` — int-литерал теперь 0..255 alpha, а не fade (активная вкладка стала полупрозрачной); folder hint — `I18n.get("selectWorld.targetFolder", hint)`, fallback `I18n` читает сырой `Language.getInstance().get(key)` (ванильный `I18n.translate(key)` давал `Format error` на параметризованных ключах).
+7. **Autotest**: `clear tutorial toasts` перед Create World; реальный клик по пилюле вкладки с проверкой `isCurrentTab()` (`clickCreateWorldTab`) — доказывает, что переставленные хитбоксы работают; preview `ProgressScreen` (62%, `BAKING MODELS`) + `lv-autotest-23-loading.png`.
+8. **Проверки**: **82 набора / 324 теста**, 0 fail/error/skip в обоих flavors; Linken autotest **1158/1158** (1920×1080, 0 fail/skip, 0 новых ERROR/exception); Strange **1148/1148** (0 fail/skip; 3 ERROR — только offline-auth/Realms). Шейдеры/звук: `Sound engine started`, shader-ERROR нет. Evidence: `run/screenshots/evidence-d117/autotest-1920/` (46 снимков + `report.log`) и `autotest-strange-1920-console.log`.
+9. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 178 121 байт, SHA-256 `94EB5A38BA11864ECE1C034B7DF93DC0679FF11ABE647855FC4564596A04622A`; `linkenvisuals-strange-1.0.140.jar` — 11 178 109 байт, SHA-256 `7AF6ECCD9E9FC961DF880426E6399A9140F9C7C7795EC67BD141385C1B00D450`. Linken-jar развёрнут в MultiMC, SHA-256 совпадает; активен один `linkenvisuals*.jar`.
+
+### Следующая задача
+1. **Human pixel acceptance**: side-by-side с donor для main menu / pause / loading; для Create World — только сверка языка стиля (у donor 1.21.4 нет своего экрана создания мира).
+2. **Human multiplayer acceptance**: реальный второй игрок на `localhost:25566` (splash/team prefix).
+3. **Punchy / ViewModel Animated не открывать**; `HandMotion` — финальный subset.
+
+### Риски
+- Точный «1:1» для Create World невозможен: у donor 1.21.4 нет собственного экрана создания мира; это Linken-shell над ванильной формой.
+- Game/More form column уже карточки (ванильная ширина 618 design px против 1024) — осознанный воздушный layout без перестройки ванильной сетки.
+- LV-логотип — процедурный растр 512×512; при очень крупном масштабе остаётся билинейная мягкость, но «лесенок» нет.
+
 ## Состояние на 2026-10-24 (D116 — donor animation parity, live/autotest evidence) — v1.0.140
 
 ### Сделано

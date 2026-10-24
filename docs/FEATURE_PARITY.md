@@ -23,15 +23,15 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | Area | State | Notes |
 |---|---|---|
 | Title/main menu | ✅ ported | Donor `CustomMainMenuScreen`: wordmark, 3 rows, account chip, social tiles, media card/footer; D90 donor secondary/social-gradient material and footer spacing; D91 donor `icons2` main-menu icon set; D92 donor media-cover gradient/artist baseline. |
-| Splash/loading | ✅ ported | LINKEN scene replaces the Mojang splash immediately (D93); a vanilla-only bootstrap progress runs until shaders/atlases are ready, then the full `linken.` scene. Handwritten Lottie `welcome.json` is not ported (Skija out of scope). |
+| Splash/loading | ✅ ported | LINKEN scene replaces the Mojang splash immediately (D93); a vanilla-only bootstrap progress runs until shaders/atlases are ready, then the full `linken.` scene. D117 re-lays the loading screen to donor 9d: gradient + elliptical glow + corner brackets, wordmark block at 44%, 460 px progress rail 200 px from the bottom, stacked version/build footer. Handwritten Lottie `welcome.json` is not ported (Skija out of scope). |
 | LinkGUI | ✅ ported | 1090×830 main window, 3×102 cards, dock, profile, theme/interface, search, configs, friends/waypoints, media strip, pinned cards; D116 theme cross-fade, panel springs, animated grid reflow/exit, donor `AnimatedString` search/mode/keybind morphs, eased dropdown, rolling slider values/knob, morphing bind chips. |
 | LinkGUI Interface settings | ✅ ported + scroll | Scale, transparency, cursor tracker, close animation, corner rounding, accent/tints, **HUD Style/Shape**, **custom scoreboard**, **custom tab**. The section is scrollable via mouse wheel. |
 | Pinned cards | ✅ ported | Left below Profile / right when Theme is closed; per-card toggle, unpin, settings, truncation marker. |
 | Style lock | ✅ preserved | Linken → Classic/Beta is blocked; `GUI Style` is hidden in Linken settings/pinned cards. |
 | Settings hub/subpages | ✅ ported | Language, keybinds, resource packs, skin, graphics, credits where applicable. |
 | Multiplayer / Alt Manager / Select World | ✅ ported | Donor server browser 4b: 1000×272 list window, selected/hover rows, favicon/letter tiles, players/ping, search/refresh, donor 460 px Add/Edit/Direct/Delete forms with resource-pack choice (D89); D92 window hatching and CPU-rounded favicons. Backend pinned servers are not ported. Select-world uses vanilla `WorldListWidget` as backend. |
-| Pause menu | ✅ ported | Donor-style pause screen. |
-| Inventory / Create/Edit World / death | ✅ Linken shell | Inventory/death stay vanilla by donor design; Create World uses a Linken backdrop, glass panel, Linken buttons/fields and LV footer (D116) over the vanilla Game/World/More logic. |
+| Pause menu | ✅ ported | Donor-style pause screen; D117 removes the separate `LINKENVISUALS HUD` tile (donor has no such entry). |
+| Inventory / Create/Edit World / death | ✅ Linken shell | Inventory/death stay vanilla by donor design. Create World is fully repainted by `LinkenCreateWorldSkin` over the vanilla Game/World/More form (D117): hidden vanilla chrome, 1024 px stable card, tab pills aligned to the card with live hit boxes, world summary on every tab; fields, game rules, datapacks and experiments remain functional vanilla widgets. |
 
 ## HUD
 
@@ -150,9 +150,12 @@ not silently faked; no dead controls are exposed for them.
   LV/Strange branding with `BrandingAssetsTest`; D116 adds LinkGUI theme/grid/
   panel animations plus donor `AnimatedString` search/mode/keybind morphs,
   rolling slider/knob and bind-chip morphs, hides the in-game HUD behind screens
-  and adds the Linken Create World shell (`create-world` screenshot). A separate
-  frame-capture 1280×720 confirms the LINKEN splash replaces the Mojang logo
-  from the first frame.
+  and adds the Linken Create World shell (`create-world` screenshot); D117
+  repaints Create World with a stable 1024 px Linken card and live tab hit boxes
+  (Game/World/More screenshots), rebuilds the loading screen to donor 9d
+  (`loading` screenshot), redraws the LV monogram with antialiasing and removes
+  the extra ESC HUD tile. A separate frame-capture 1280×720 confirms the LINKEN
+  splash replaces the Mojang logo from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret
   movement are covered by `TextInputTest`/`LayoutKeysTest`; live RU/UA/AZERTY/
   QWERTZ acceptance remains a human check.
