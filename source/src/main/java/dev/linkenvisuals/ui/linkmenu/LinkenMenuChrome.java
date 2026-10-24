@@ -60,6 +60,7 @@ public final class LinkenMenuChrome {
     public static final int MENU_ICON_CODE = 'H';
 
     private static final Identifier BACKGROUND = LinkenVisuals.id("textures/linkmenu/bg-tower.png");
+    private static final Identifier LV_LOGO = LinkenVisuals.id("textures/gui/lv_logo.png");
     private static final Identifier MUSIC_PLAY = LinkenVisuals.id("textures/linkmenu/music/play.png");
     private static final Identifier MUSIC_PAUSE = LinkenVisuals.id("textures/linkmenu/music/pause.png");
     private static final float BACKGROUND_WIDTH = 1270.0f;
@@ -127,10 +128,23 @@ public final class LinkenMenuChrome {
         String word = "linken";
         float wordWidth = textWidth(font, word, size);
         float dotWidth = textWidth(font, ".", size);
-        float x = (layout.width() - wordWidth - dotWidth) * 0.5f;
+        float logoSize = 24.0f;
+        float gap = 8.0f;
+        float total = logoSize + gap + wordWidth + dotWidth;
+        float x = (layout.width() - total) * 0.5f;
         float y = 44.0f;
-        drawText(context, font, word, x, y, size, rgba(TEXT, fade));
-        drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
+        drawLogo(context, x, y - 1.0f, logoSize, fade);
+        float textX = x + logoSize + gap;
+        drawText(context, font, word, textX, y, size, rgba(TEXT, fade));
+        drawText(context, font, ".", textX + wordWidth, y, size, rgba(ACCENT, fade));
+    }
+
+    /** Linken monogram used by the menu, HUD and GUI. */
+    public static void drawLogo(DrawContext context, float x, float y, float size, float fade) {
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, LV_LOGO,
+            Math.round(x), Math.round(y), 0.0f, 0.0f,
+            Math.round(size), Math.round(size), 512, 512, 512, 512,
+            rgba(0xFFFFFF, fade));
     }
 
     /** Legacy corner wordmark used by the LINKEN sub-screens. */
@@ -139,12 +153,14 @@ public final class LinkenMenuChrome {
         float size = 27.0f;
         float x = LinkenMenuLayout.MARGIN;
         float y = 36.0f;
+        drawLogo(context, x, y - 2.0f, 24.0f, fade);
+        float textX = x + 31.0f;
         String word = "linken";
-        drawText(context, font, word, x, y, size, rgba(TEXT, fade));
+        drawText(context, font, word, textX, y, size, rgba(TEXT, fade));
         float wordWidth = textWidth(font, word, size);
-        drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
+        drawText(context, font, ".", textX + wordWidth, y, size, rgba(ACCENT, fade));
         drawSpaced(context, LinkenFonts.headingLight(), I18n.get("linkenvisuals.linkmenu.visuals"),
-            x, y + 29.0f, 9.0f, 2.1f, rgba(MUTED3, fade));
+            textX, y + 29.0f, 9.0f, 2.1f, rgba(MUTED3, fade));
     }
 
     public static void drawClock(DrawContext context, LinkenMenuLayout.Metrics layout, float fade) {

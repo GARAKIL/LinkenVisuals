@@ -5,7 +5,9 @@ import dev.linkenvisuals.module.Modules;
 import dev.linkenvisuals.module.impl.FreelookModule;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.client.network.ClientPlayerEntity;
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,6 +23,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MouseMixin {
     @Shadow
     private MinecraftClient client;
+
+    @Inject(method = "onMouseButton(JLnet/minecraft/client/input/MouseInput;I)V", at = @At("HEAD"))
+    private void linkenvisuals$helperMouse(long window, MouseInput input, int action, CallbackInfo ci) {
+        if (action == GLFW.GLFW_PRESS) {
+            Modules.onHelperMouse(input.button());
+        }
+    }
 
     @Inject(method = "updateMouse", at = @At("HEAD"))
     private void linkenvisuals$captureFreelook(double delta, CallbackInfo ci) {

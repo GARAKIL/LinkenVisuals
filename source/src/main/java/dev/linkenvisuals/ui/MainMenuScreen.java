@@ -47,7 +47,7 @@ import java.util.List;
  * with 1:1 editor synchronicity and guaranteed responsive screen transitions.
  */
 public final class MainMenuScreen extends Screen {
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
     private static final Identifier ICON_DATA = LinkenVisuals.id("fonts/msdf/wtmico.json");
     private static final Identifier ICON_ATLAS = LinkenVisuals.id("fonts/msdf/wtmico.png");
     private static final Identifier BRAND_DATA = LinkenVisuals.id("fonts/msdf/brands.json");
@@ -279,7 +279,7 @@ public final class MainMenuScreen extends Screen {
         context.getMatrices().scale(pop, pop);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO,
             Math.round(-logoSize * 0.5f), Math.round(-logoSize * 0.5f), 0.0f, 0.0f,
-            Math.round(logoSize), Math.round(logoSize), 120, 120, 120, 120,
+            Math.round(logoSize), Math.round(logoSize), 128, 128, 128, 128,
             ColorMath.withAlpha(0xFFFFFF, Math.round(255 * logoAppear)));
         context.getMatrices().popMatrix();
 

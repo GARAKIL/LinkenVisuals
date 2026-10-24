@@ -132,6 +132,9 @@ public final class AutoTestDriver {
     private static boolean blockPlaced;
     private static String blockCoords;
     private static ItemStack trajectoryReturnStack = ItemStack.EMPTY;
+    private static ItemStack helperReturnSlot0 = ItemStack.EMPTY;
+    private static ItemStack helperReturnSlot1 = ItemStack.EMPTY;
+    private static int helperReturnSelected;
     private static boolean trajectoryBlockOverlay = true;
 
     private AutoTestDriver() {
@@ -670,6 +673,59 @@ public final class AutoTestDriver {
             }
         });
         add("screenshot item radius", 1, () -> screenshot(client, "item-radius"));
+        add("aim flat for radius player", 1, () -> {
+            if (client.player != null) {
+                client.player.setPitch(0.0f);
+            }
+        });
+        add("enable radius fake player", 1, () -> {
+            if (ModuleRegistry.fakePlayer() != null) {
+                ModuleRegistry.fakePlayer().toggleSilently(true);
+            }
+        });
+        add("wait radius fake player", 20, () -> {
+        });
+        add("aim at radius player", 1, () -> {
+            if (client.player != null && FakePlayer.entity() != null) {
+                lookAt(client.player, FakePlayer.entity().getEyePos());
+                client.player.setPitch(0.0f);
+            }
+        });
+        add("give radius splash potion", 1, () -> {
+            if (client.player != null) {
+                trajectoryReturnStack = client.player.getMainHandStack().copy();
+                client.player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.SPLASH_POTION));
+            }
+            if (Modules.itemRadius() != null) {
+                Modules.itemRadius().explosivePotionRadius.setValue(30.0f);
+            }
+        });
+        add("wait radius labels", 8, () -> {
+        });
+        add("check radius labels", 2, () -> {
+            if (!ItemRadiusRenderer.lastLabelVisible()) {
+                throw new IllegalStateException("ItemRadius splash proximity label did not render for the fake player"
+                    + " (impact=" + ItemRadiusRenderer.lastPotionImpactValue()
+                    + ", radius=" + ItemRadiusRenderer.lastPotionRadiusValue()
+                    + ", pct=" + ItemRadiusRenderer.lastLabelPercent()
+                    + ", candidates=" + ItemRadiusRenderer.lastLabelCandidates()
+                    + ", depth=" + ItemRadiusRenderer.lastLabelDepth()
+                    + ", player=" + (FakePlayer.entity() == null ? "missing" : FakePlayer.entity().getEntityPos()) + ")");
+            }
+        });
+        add("screenshot radius labels", 1, () -> screenshot(client, "item-radius-labels"));
+        add("restore radius labels", 1, () -> {
+            FakePlayer.clear();
+            if (ModuleRegistry.fakePlayer() != null) {
+                ModuleRegistry.fakePlayer().toggleSilently(false);
+            }
+            if (client.player != null) {
+                client.player.setStackInHand(Hand.MAIN_HAND, trajectoryReturnStack);
+            }
+            if (Modules.itemRadius() != null) {
+                Modules.itemRadius().explosivePotionRadius.setValue(4.0f);
+            }
+        });
         add("restore item radius hand", 1, () -> {
             if (client.player != null) {
                 client.player.setStackInHand(Hand.MAIN_HAND, trajectoryReturnStack);
@@ -821,16 +877,40 @@ public final class AutoTestDriver {
         add("open inventory", 5, () -> client.setScreen(new InventoryScreen(client.player)));
         add("close inventory", 3, () -> client.setScreen(null));
 
-        add("enable ft helper", 1, () -> {
+        add("enable ft helper with mouse bind", 1, () -> {
             if (Modules.ftHelper() != null) {
-                Modules.ftHelper().desor.resolve("R");
+                Modules.ftHelper().desor.resolveMouse(0);
+                Modules.ftHelper().snowball.resolveMouse(1);
                 Modules.ftHelper().info().toggleSilently(true);
             }
         });
-        add("give helper eye", 1, () -> {
-            if (client.player != null) {
-                trajectoryReturnStack = client.player.getMainHandStack().copy();
-                client.player.setStackInHand(Hand.MAIN_HAND, new ItemStack(Items.ENDER_EYE));
+        add("prepare helper mouse selection", 1, () -> {
+            if (client.player == null) {
+                return;
+            }
+            helperReturnSelected = client.player.getInventory().getSelectedSlot();
+            helperReturnSlot0 = client.player.getInventory().getStack(0).copy();
+            helperReturnSlot1 = client.player.getInventory().getStack(1).copy();
+            client.player.getInventory().setStack(0, new ItemStack(Items.ENDER_EYE));
+            client.player.getInventory().setStack(1, new ItemStack(Items.SNOWBALL));
+            client.player.getInventory().setSelectedSlot(8);
+        });
+        add("trigger helper LMB", 1, () -> {
+            if (client.player == null) {
+                return;
+            }
+            Modules.onHelperMouse(0);
+            if (client.player.getInventory().getSelectedSlot() != 0) {
+                throw new IllegalStateException("LMB helper bind did not select the ender-eye slot");
+            }
+        });
+        add("trigger helper RMB", 1, () -> {
+            if (client.player == null) {
+                return;
+            }
+            Modules.onHelperMouse(1);
+            if (client.player.getInventory().getSelectedSlot() != 1) {
+                throw new IllegalStateException("RMB helper bind did not select the snowball slot");
             }
         });
         add("open helper preview", 3, () -> HudManager.setEditing(true));
@@ -838,16 +918,23 @@ public final class AutoTestDriver {
             if (!HelperItemsHud.lastRenderVisible()) {
                 throw new IllegalStateException("HelperItemsHud did not render");
             }
+            if (!HelperItemsHud.lastLabels().contains("LMB") || !HelperItemsHud.lastLabels().contains("RMB")) {
+                throw new IllegalStateException("HelperItemsHud did not show LMB/RMB binds: "
+                    + HelperItemsHud.lastLabels());
+            }
         });
         add("screenshot helper hud", 1, () -> screenshot(client, "helper-items"));
         add("close helper preview", 2, () -> HudManager.setEditing(false));
         add("restore helper", 1, () -> {
             if (Modules.ftHelper() != null) {
                 Modules.ftHelper().desor.clear();
+                Modules.ftHelper().snowball.clear();
                 Modules.ftHelper().info().toggleSilently(false);
             }
             if (client.player != null) {
-                client.player.setStackInHand(Hand.MAIN_HAND, trajectoryReturnStack);
+                client.player.getInventory().setStack(0, helperReturnSlot0);
+                client.player.getInventory().setStack(1, helperReturnSlot1);
+                client.player.getInventory().setSelectedSlot(helperReturnSelected);
             }
         });
 

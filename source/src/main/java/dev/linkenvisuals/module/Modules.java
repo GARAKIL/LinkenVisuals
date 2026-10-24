@@ -96,7 +96,7 @@ public final class Modules {
     private Modules() {
     }
 
-    /** Keyboard dispatch for the donor helper modules (key-only subset). */
+    /** Keyboard dispatch for the donor helper modules (key or mouse binds). */
     public static void onHelperKey(int key) {
         net.minecraft.client.MinecraftClient client =
             net.minecraft.client.MinecraftClient.getInstance();
@@ -106,6 +106,18 @@ public final class Modules {
         if (ftHelper != null) ftHelper.onKey(client, key);
         if (hwHelper != null) hwHelper.onKey(client, key);
         if (rwHelper != null) rwHelper.onKey(client, key);
+    }
+
+    /** Mouse dispatch for the donor helper LMB/RMB binds. */
+    public static void onHelperMouse(int button) {
+        net.minecraft.client.MinecraftClient client =
+            net.minecraft.client.MinecraftClient.getInstance();
+        if (client == null || client.currentScreen != null) {
+            return;
+        }
+        if (ftHelper != null) ftHelper.onMouse(client, button);
+        if (hwHelper != null) hwHelper.onMouse(client, button);
+        if (rwHelper != null) rwHelper.onMouse(client, button);
     }
 
     public static void register(Module module) {

@@ -12,6 +12,7 @@ import dev.linkenvisuals.render.MsdfText;
 import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Theme;
+import dev.linkenvisuals.ui.style.StyleFlavor;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
@@ -21,7 +22,9 @@ import java.util.List;
 import java.util.Locale;
 
 public final class KeybindPanel extends HudElement {
-    private static final Identifier ICON = LinkenVisuals.id("textures/gui/link_icon.png");
+    private static final Identifier ICON = LinkenVisuals.id(StyleFlavor.isStrange()
+        ? "textures/gui/strange_logo.png" : "textures/gui/logo.png");
+    private static final int ICON_TEX = StyleFlavor.isStrange() ? 128 : 120;
 
     private static final float PADDING = 7.0f;
     private static final float HEADER_H = 17.0f;
@@ -104,7 +107,7 @@ public final class KeybindPanel extends HudElement {
 
         float iconY = y + (HEADER_H - ICON_H) * 0.5f;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, ICON, Math.round(x + PADDING), Math.round(iconY), 0.0f, 0.0f,
-            Math.round(ICON_W), Math.round(ICON_H), 128, 114, 128, 114, ColorMath.withAlpha(0xFFFFFF, 220));
+            Math.round(ICON_W), Math.round(ICON_H), ICON_TEX, ICON_TEX, ICON_TEX, ICON_TEX, ColorMath.withAlpha(0xFFFFFF, 220));
 
         float dividerX = x + PADDING + ICON_W + 5.0f;
         context.fill(Math.round(dividerX), Math.round(y + 5.0f), Math.round(dividerX) + 1, Math.round(y + HEADER_H - 5.0f),

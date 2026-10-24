@@ -11,6 +11,7 @@ import dev.linkenvisuals.render.MsdfText;
 import dev.linkenvisuals.render.NeonEdge;
 import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.Theme;
+import dev.linkenvisuals.ui.style.StyleFlavor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -18,7 +19,9 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.util.Identifier;
 
 public final class Watermark extends HudElement {
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id(StyleFlavor.isStrange()
+        ? "textures/gui/strange_logo.png" : "textures/gui/logo.png");
+    private static final int LOGO_TEX = StyleFlavor.isStrange() ? 128 : 120;
 
     private static final float HEIGHT = 17.0f;
     private static final float PADDING = 7.0f;
@@ -104,7 +107,7 @@ public final class Watermark extends HudElement {
         GlowPipeline.radial(context, cursor + LOGO_SIZE * 0.5f, centerY, LOGO_SIZE * 1.2f,
             ColorMath.withAlpha(NeonEdge.cool(), 75));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO, Math.round(cursor), Math.round(logoY),
-            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), 120, 120, 120, 120, ColorMath.withAlpha(0xFFFFFF, 255));
+            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), LOGO_TEX, LOGO_TEX, LOGO_TEX, LOGO_TEX, ColorMath.withAlpha(0xFFFFFF, 255));
         cursor += LOGO_SIZE + GAP;
 
         MsdfText.draw(context, bold, username, cursor, topFor(centerY, NAME_SIZE), NAME_SIZE,

@@ -78,6 +78,23 @@ class ConfigJsonTest {
     }
 
     @Test
+    void roundTripsHelperMouseBind() {
+        KeybindSetting mouse = new KeybindSetting("Desor", "NONE", true);
+        mouse.resolveMouse(1);
+        ModuleInfo module = new ModuleInfo("FtHelper", "", Category.MISC,
+            List.of(), List.of(mouse));
+
+        JsonObject json = ConfigJson.build(List.of(module));
+        mouse.clear();
+        ConfigJson.apply(List.of(module), json);
+
+        assertTrue(mouse.mouse(), "a stored MOUSE2 token must load as a mouse bind");
+        assertEquals(1, mouse.button());
+        assertEquals("RMB", mouse.label());
+        assertEquals("MOUSE2", mouse.raw());
+    }
+
+    @Test
     void keybindIgnoresLegacyNumericValues() {
         KeybindSetting key = new KeybindSetting("Key", "A");
         ModuleInfo module = new ModuleInfo("TextModule", "", Category.MISC,

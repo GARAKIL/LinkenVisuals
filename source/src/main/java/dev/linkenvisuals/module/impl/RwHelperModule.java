@@ -18,8 +18,8 @@ public final class RwHelperModule extends Module {
     public final KeybindSetting darkPulse;
 
     public RwHelperModule() {
-        this(new KeybindSetting("Anti Fly", "NONE"), new KeybindSetting("Exp Scroll", "NONE"),
-            new KeybindSetting("Trap", "NONE"), new KeybindSetting("Dark Pulse", "NONE"));
+        this(new KeybindSetting("Anti Fly", "NONE", true), new KeybindSetting("Exp Scroll", "NONE", true),
+            new KeybindSetting("Trap", "NONE", true), new KeybindSetting("Dark Pulse", "NONE", true));
     }
 
     private RwHelperModule(KeybindSetting antiFly, KeybindSetting expScroll,
@@ -34,10 +34,21 @@ public final class RwHelperModule extends Module {
 
     public void onKey(MinecraftClient client, int key) {
         if (!enabled()) return;
-        if (antiFly.code() == key) HelperActions.select(client, Items.FIREWORK_STAR, "Anti Fly");
-        if (expScroll.code() == key) HelperActions.select(client, Items.FLOWER_BANNER_PATTERN, "Exp Scroll");
-        if (trap.code() == key) HelperActions.select(client, Items.HEART_OF_THE_SEA, "Trap", "Ловушка");
-        if (darkPulse.code() == key) {
+        if (antiFly.matchesKey(key)) HelperActions.select(client, Items.FIREWORK_STAR, "Anti Fly");
+        if (expScroll.matchesKey(key)) HelperActions.select(client, Items.FLOWER_BANNER_PATTERN, "Exp Scroll");
+        if (trap.matchesKey(key)) HelperActions.select(client, Items.HEART_OF_THE_SEA, "Trap", "Ловушка");
+        if (darkPulse.matchesKey(key)) {
+            HelperActions.select(client, Items.FIREWORK_STAR, "Dark Pulse", "Тёмный Пульс");
+        }
+    }
+
+    /** Donor mouse path: LMB/RMB binds select the same hotbar slots as keys. */
+    public void onMouse(MinecraftClient client, int button) {
+        if (!enabled()) return;
+        if (antiFly.matchesMouse(button)) HelperActions.select(client, Items.FIREWORK_STAR, "Anti Fly");
+        if (expScroll.matchesMouse(button)) HelperActions.select(client, Items.FLOWER_BANNER_PATTERN, "Exp Scroll");
+        if (trap.matchesMouse(button)) HelperActions.select(client, Items.HEART_OF_THE_SEA, "Trap", "Ловушка");
+        if (darkPulse.matchesMouse(button)) {
             HelperActions.select(client, Items.FIREWORK_STAR, "Dark Pulse", "Тёмный Пульс");
         }
     }

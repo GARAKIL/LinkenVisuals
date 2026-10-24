@@ -17,6 +17,11 @@ class HelperModulesTest {
         assertFalse(module.enabled());
         assertEquals(-1, module.desor.code());
         assertEquals(-1, module.snowball.code());
+        assertTrue(module.desor.mouseAllowed(), "helper actions accept donor LMB/RMB binds");
+        module.desor.resolveMouse(0);
+        assertTrue(module.desor.matchesMouse(0));
+        assertFalse(module.desor.matchesMouse(1));
+        assertEquals("LMB", module.desor.label());
     }
 
     @Test
@@ -27,6 +32,7 @@ class HelperModulesTest {
         assertFalse(module.enabled());
         assertEquals(-1, module.stan.code());
         assertEquals(-1, module.boomThing.code());
+        assertTrue(module.stan.mouseAllowed());
     }
 
     @Test
@@ -37,5 +43,6 @@ class HelperModulesTest {
         assertFalse(module.enabled());
         assertEquals(-1, module.antiFly.code());
         assertTrue(module.trap.code() == -1);
+        assertTrue(module.trap.mouseAllowed());
     }
 }

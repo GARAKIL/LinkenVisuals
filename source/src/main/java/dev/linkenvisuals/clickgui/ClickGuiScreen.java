@@ -52,7 +52,7 @@ public final class ClickGuiScreen extends Screen {
         }
     }
 
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/ico_logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
     private static final Identifier SEARCH_ICON = LinkenVisuals.id("textures/gui/ico_search.png");
 
     private static final float WINDOW_W = 496.0f;
@@ -380,7 +380,7 @@ public final class ClickGuiScreen extends Screen {
         GlowPipeline.radial(context, wx + RAIL_CENTER_X, logoCy, logoSize * 1.3f, ColorMath.withAlpha(0xFFFFFF, Math.round(85 * openT)));
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO,
             Math.round(wx + RAIL_CENTER_X - logoSize * 0.5f), Math.round(logoCy - logoSize * 0.5f), 0.0f, 0.0f,
-            Math.round(logoSize), Math.round(logoSize), 48, 48, 48, 48, ColorMath.withAlpha(0xFFFFFF, Math.round(255 * openT)));
+            Math.round(logoSize), Math.round(logoSize), 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, Math.round(255 * openT)));
 
         drawTick(context, wx + RAIL_CENTER_X, (logoCy + wy + RAIL_FIRST_Y) * 0.5f, openT);
 
@@ -1121,6 +1121,11 @@ public final class ClickGuiScreen extends Screen {
     public boolean mouseClicked(Click click, boolean doubleClick) {
         if (closing) {
             return super.mouseClicked(click, doubleClick);
+        }
+        KeybindSetting listening = findListeningKeybind();
+        if (listening != null && listening.mouseAllowed()) {
+            listening.resolveMouse(click.button());
+            return true;
         }
         float wx = windowX();
         float wy = windowY();

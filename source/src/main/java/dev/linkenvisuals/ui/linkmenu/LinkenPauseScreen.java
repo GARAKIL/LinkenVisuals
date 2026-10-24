@@ -169,8 +169,10 @@ public final class LinkenPauseScreen extends Screen {
             LinkenMenuChrome.rgba(0xFFFFFF, Math.round(20.0f * openValue)));
 
         // Topbar: title, world/server line, close.
+        float topLogo = 20.0f;
+        LinkenMenuChrome.drawLogo(context, x + PAD, y + 12.0f, topLogo, openValue);
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), I18n.get("pause.title"),
-            x + PAD, y + 14.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, openValue));
+            x + PAD + topLogo + 8.0f, y + 14.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, openValue));
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), worldLine(),
             x + PAD, y + 34.0f, 9.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, openValue));
 

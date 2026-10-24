@@ -20,12 +20,12 @@ public final class FtHelperModule extends Module {
     public final KeybindSetting snowball;
 
     public FtHelperModule() {
-        this(new KeybindSetting("Desor", "NONE"),
-            new KeybindSetting("Trapka", "NONE"),
-            new KeybindSetting("Yavka", "NONE"),
-            new KeybindSetting("Bozhka", "NONE"),
-            new KeybindSetting("Plast", "NONE"),
-            new KeybindSetting("Snowball", "NONE"));
+        this(new KeybindSetting("Desor", "NONE", true),
+            new KeybindSetting("Trapka", "NONE", true),
+            new KeybindSetting("Yavka", "NONE", true),
+            new KeybindSetting("Bozhka", "NONE", true),
+            new KeybindSetting("Plast", "NONE", true),
+            new KeybindSetting("Snowball", "NONE", true));
     }
 
     private FtHelperModule(KeybindSetting desor, KeybindSetting trapka, KeybindSetting yavka,
@@ -42,11 +42,22 @@ public final class FtHelperModule extends Module {
 
     public void onKey(MinecraftClient client, int key) {
         if (!enabled()) return;
-        if (desor.code() == key) HelperActions.select(client, Items.ENDER_EYE, "Desor");
-        if (trapka.code() == key) HelperActions.select(client, Items.NETHERITE_SCRAP, "Trapka");
-        if (yavka.code() == key) HelperActions.select(client, Items.SUGAR, "Yavka");
-        if (bozhka.code() == key) HelperActions.select(client, Items.PHANTOM_MEMBRANE, "Bozhka");
-        if (plast.code() == key) HelperActions.select(client, Items.DRIED_KELP, "Plast");
-        if (snowball.code() == key) HelperActions.select(client, Items.SNOWBALL, "Snowball");
+        if (desor.matchesKey(key)) HelperActions.select(client, Items.ENDER_EYE, "Desor");
+        if (trapka.matchesKey(key)) HelperActions.select(client, Items.NETHERITE_SCRAP, "Trapka");
+        if (yavka.matchesKey(key)) HelperActions.select(client, Items.SUGAR, "Yavka");
+        if (bozhka.matchesKey(key)) HelperActions.select(client, Items.PHANTOM_MEMBRANE, "Bozhka");
+        if (plast.matchesKey(key)) HelperActions.select(client, Items.DRIED_KELP, "Plast");
+        if (snowball.matchesKey(key)) HelperActions.select(client, Items.SNOWBALL, "Snowball");
+    }
+
+    /** Donor mouse path: LMB/RMB binds select the same hotbar slots as keys. */
+    public void onMouse(MinecraftClient client, int button) {
+        if (!enabled()) return;
+        if (desor.matchesMouse(button)) HelperActions.select(client, Items.ENDER_EYE, "Desor");
+        if (trapka.matchesMouse(button)) HelperActions.select(client, Items.NETHERITE_SCRAP, "Trapka");
+        if (yavka.matchesMouse(button)) HelperActions.select(client, Items.SUGAR, "Yavka");
+        if (bozhka.matchesMouse(button)) HelperActions.select(client, Items.PHANTOM_MEMBRANE, "Bozhka");
+        if (plast.matchesMouse(button)) HelperActions.select(client, Items.DRIED_KELP, "Plast");
+        if (snowball.matchesMouse(button)) HelperActions.select(client, Items.SNOWBALL, "Snowball");
     }
 }

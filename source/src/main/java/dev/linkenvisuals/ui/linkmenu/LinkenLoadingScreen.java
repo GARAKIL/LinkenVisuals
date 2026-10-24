@@ -198,6 +198,8 @@ public final class LinkenLoadingScreen {
         float dotWidth = LinkenMenuChrome.textWidth(font, dot, size);
         float left = width * 0.5f - (wordWidth + dotWidth) * 0.5f;
         float top = 382.0f;
+        float logoSize = 56.0f;
+        LinkenMenuChrome.drawLogo(context, width * 0.5f - logoSize * 0.5f, top - 72.0f, logoSize, fade);
         LinkenMenuChrome.drawText(context, font, word, left, top, size,
             LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
         LinkenMenuChrome.drawText(context, font, dot, left + wordWidth, top, size,

@@ -12,6 +12,7 @@ import dev.linkenvisuals.util.particles.ItemRadiusRules;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.block.Blocks;
+import dev.linkenvisuals.player.FakePlayer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.render.Camera;
@@ -25,11 +26,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.RaycastContext;
-import org.joml.Vector3fc;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -59,6 +63,29 @@ public final class ItemRadiusRenderer {
     private static Vec3d lastPotionImpact;
     private static double lastPotionRadius;
     private static boolean lastLabelVisible;
+    private static int lastLabelPercent;
+    private static int lastLabelCandidates;
+    private static float lastLabelDepth = -1.0f;
+
+    public static int lastLabelCandidates() {
+        return lastLabelCandidates;
+    }
+
+    public static float lastLabelDepth() {
+        return lastLabelDepth;
+    }
+
+    public static Vec3d lastPotionImpactValue() {
+        return lastPotionImpact == null ? null : new Vec3d(lastPotionImpact.x, lastPotionImpact.y, lastPotionImpact.z);
+    }
+
+    public static double lastPotionRadiusValue() {
+        return lastPotionRadius;
+    }
+
+    public static int lastLabelPercent() {
+        return lastLabelPercent;
+    }
 
     private ItemRadiusRenderer() {
     }
@@ -85,6 +112,9 @@ public final class ItemRadiusRenderer {
     /** HUD pass: donor "NN%" over each player inside the simulated splash radius. */
     public static void renderLabels(DrawContext context) {
         lastLabelVisible = false;
+        lastLabelPercent = 0;
+        lastLabelCandidates = 0;
+        lastLabelDepth = -1.0f;
         ItemRadiusModule module = Modules.itemRadius();
         if (module == null || !module.enabled() || lastPotionImpact == null || lastPotionRadius <= 0.0) {
             return;
@@ -100,34 +130,43 @@ public final class ItemRadiusRenderer {
         float fov = (float) Math.toRadians(Math.max(30, Math.min(110,
             client.options.getFov().getValue())));
         float focal = (float) (height / (2.0 * Math.tan(fov * 0.5)));
-        Vector3fc right = camera.getHorizontalPlane();
-        Vector3fc up = camera.getVerticalPlane();
+        Quaternionf rotation = camera.getRotation();
+        Vector3f right = rotation.transform(new Vector3f(1.0f, 0.0f, 0.0f));
+        Vector3f up = rotation.transform(new Vector3f(0.0f, 1.0f, 0.0f));
+        Vector3f forwardV = rotation.transform(new Vector3f(0.0f, 0.0f, -1.0f));
         Vec3d rightVec = new Vec3d(right.x(), right.y(), right.z());
         Vec3d upVec = new Vec3d(up.x(), up.y(), up.z());
-        Vec3d forward = rightVec.crossProduct(upVec);
+        Vec3d forward = new Vec3d(forwardV.x(), forwardV.y(), forwardV.z());
         Vec3d cam = camera.getCameraPos();
         float tickDelta = client.getRenderTickCounter().getTickProgress(false);
         boolean visible = false;
-        for (PlayerEntity player : client.world.getPlayers()) {
+        for (PlayerEntity player : nearbyPlayers(client)) {
             if (player == client.player) {
                 continue;
             }
+            lastLabelCandidates++;
             int pct = ItemRadiusRules.proximityPercent(
                 Math.sqrt(player.squaredDistanceTo(lastPotionImpact)), lastPotionRadius);
             if (pct <= 0) {
                 continue;
             }
+            lastLabelPercent = pct;
             Vec3d head = player.getLerpedPos(tickDelta)
                 .add(0.0, player.getHeight() + 0.35, 0.0).subtract(cam);
             float depth = (float) head.dotProduct(forward);
+            lastLabelDepth = depth;
             if (depth <= 0.05f) {
                 continue;
             }
             float sx = width * 0.5f + (float) head.dotProduct(rightVec) * focal / depth;
             float sy = height * 0.5f - (float) head.dotProduct(upVec) * focal / depth;
-            float textSize = Math.max(6.0f, 0.27f * focal / depth);
+            float textSize = Math.max(4.0f, Math.min(10.0f, 0.27f * focal / depth));
             String text = pct + "%";
             float textWidth = font.width(text, textSize);
+            if (sx < -textWidth || sx > width + textWidth
+                || sy < -textSize || sy > height + textSize) {
+                continue;
+            }
             float x = sx - textWidth * 0.5f;
             int fill = ColorMath.withAlpha(0xFFFFFF, 255);
             int outline = ColorMath.withAlpha(0x000000, 235);
@@ -137,6 +176,7 @@ public final class ItemRadiusRenderer {
             }
             MsdfText.drawOn(context, font, text, x, sy, textSize, fill);
             visible = true;
+            lastLabelPercent = pct;
         }
         lastLabelVisible = visible;
     }
@@ -414,7 +454,7 @@ public final class ItemRadiusRenderer {
             return false;
         }
         double squared = radius * radius;
-        for (PlayerEntity player : client.world.getPlayers()) {
+        for (PlayerEntity player : nearbyPlayers(client)) {
             if (player == client.player) {
                 continue;
             }
@@ -424,6 +464,19 @@ public final class ItemRadiusRenderer {
         }
         return false;
     }
+
+    /** World players plus the client-side FakePlayer, which is not in {@code world.getPlayers()}. */
+    private static List<? extends PlayerEntity> nearbyPlayers(MinecraftClient client) {
+        List<? extends PlayerEntity> players = client.world == null
+            ? List.of() : client.world.getPlayers();
+        PlayerEntity dummy = FakePlayer.entity() instanceof PlayerEntity player ? player : null;
+        if (dummy == null || players.contains(dummy)) {
+            return players;
+        }
+        List<PlayerEntity> out = new ArrayList<>(players.size() + 1);
+        out.addAll(players);
+        out.add(dummy);
+        return out;    }
 
     private static int visibleColor(int rgb) {
         return ColorMath.withAlpha(rgb & 0xFFFFFF, 210);

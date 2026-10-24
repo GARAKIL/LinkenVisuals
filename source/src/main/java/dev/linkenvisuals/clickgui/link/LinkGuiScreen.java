@@ -361,14 +361,17 @@ public final class LinkGuiScreen extends Screen {
         GlyphAtlas logo = LinkenFonts.bodyMedium();
         float logoSize = 16.0f;
         float tracking = -0.56f;
-        LinkenMenuChrome.drawSpaced(context, logo, "linken", bx, centerY - 8.0f,
+        float lvSize = 24.0f;
+        LinkenMenuChrome.drawLogo(context, bx, centerY - lvSize * 0.5f, lvSize, openT);
+        float wordX = bx + lvSize + 9.0f;
+        LinkenMenuChrome.drawSpaced(context, logo, "linken", wordX, centerY - 8.0f,
             logoSize, tracking, LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
         float wordWidth = LinkenMenuChrome.textWidth(logo, "linken", logoSize) + tracking * 5.0f;
         float dotWidth = LinkenMenuChrome.textWidth(logo, ".", logoSize);
-        LinkenMenuChrome.drawText(context, logo, ".", bx + wordWidth, centerY - 8.0f,
+        LinkenMenuChrome.drawText(context, logo, ".", wordX + wordWidth, centerY - 8.0f,
             logoSize, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
 
-        float cursorX = bx + wordWidth + dotWidth + 12.0f;
+        float cursorX = wordX + wordWidth + dotWidth + 12.0f;
         context.fill(Math.round(cursorX), Math.round(centerY - 11.0f),
             Math.round(cursorX + 1.0f), Math.round(centerY + 11.0f),
             LinkenMenuChrome.rgba(0xFFFFFF, 26, openT));
@@ -1893,10 +1896,13 @@ public final class LinkGuiScreen extends Screen {
 
         GlyphAtlas footerFont = LinkenFonts.bodyMedium();
         float footerY = panel.bottom() - 20.0f - 10.0f;
-        LinkenMenuChrome.drawSpaced(context, footerFont, "linken", px, footerY, 11.5f, -0.35f,
+        float footerLogo = 12.0f;
+        LinkenMenuChrome.drawLogo(context, px, footerY - 1.0f, footerLogo, openT);
+        float footerX = px + footerLogo + 4.0f;
+        LinkenMenuChrome.drawSpaced(context, footerFont, "linken", footerX, footerY, 11.5f, -0.35f,
             LinkenMenuChrome.rgba(LinkGuiTheme.MUTED, openT));
         float flw = LinkenMenuChrome.textWidth(footerFont, "linken", 11.5f) - 0.35f * 5.0f;
-        LinkenMenuChrome.drawText(context, footerFont, ".", px + flw, footerY, 11.5f,
+        LinkenMenuChrome.drawText(context, footerFont, ".", footerX + flw, footerY, 11.5f,
             LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         LinkenMenuChrome.drawRightText(context, LinkenFonts.mono(),
             LinkenMenuChrome.version(), px + cw, footerY + 1.0f, 9.5f,
@@ -1909,6 +1915,11 @@ public final class LinkGuiScreen extends Screen {
     public boolean mouseClicked(Click click, boolean doubleClick) {
         if (closing) {
             return super.mouseClicked(click, doubleClick);
+        }
+        KeybindSetting listening = findListeningKeybind();
+        if (listening != null && listening.mouseAllowed()) {
+            listening.resolveMouse(click.button());
+            return true;
         }
         Metrics metrics = LinkGuiLayout.compute(width, height);
         float mx = (float) (click.x() - metrics.offsetX()) / metrics.scale();

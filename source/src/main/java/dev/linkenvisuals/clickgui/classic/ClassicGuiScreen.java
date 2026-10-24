@@ -133,13 +133,17 @@ public class ClassicGuiScreen extends Screen {
             if (m.hasSettings()) {
                 for (Setting s : m.leftSettings()) {
                     if (s instanceof KeybindSetting k && k.listening()) {
-                        k.resolve("M" + (button + 1));
+                        if (k.mouseAllowed()) {
+                            k.resolveMouse(button);
+                        }
                         return true;
                     }
                 }
                 for (Setting s : m.rightSettings()) {
                     if (s instanceof KeybindSetting k && k.listening()) {
-                        k.resolve("M" + (button + 1));
+                        if (k.mouseAllowed()) {
+                            k.resolveMouse(button);
+                        }
                         return true;
                     }
                 }

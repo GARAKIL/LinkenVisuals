@@ -45,15 +45,21 @@ public final class HelperItemsHud extends HudElement {
     );
 
     private static List<Tile> cached;
+    private static List<Tile> lastRendered = List.of();
     private static long cacheAt;
     private static boolean lastRenderVisible;
 
     public HelperItemsHud() {
-        super("helperitemshud", 0.5f, 0.75f);
+        super("helperitemshud", 0.77f, 0.86f);
     }
 
     public static boolean lastRenderVisible() {
         return lastRenderVisible;
+    }
+
+    /** Labels of the tiles drawn in the last frame; used by the autotest assertion. */
+    public static List<String> lastLabels() {
+        return lastRendered.stream().map(Tile::label).toList();
     }
 
     @Override
@@ -71,6 +77,7 @@ public final class HelperItemsHud extends HudElement {
     @Override
     public void render(DrawContext context, float x, float y) {
         lastRenderVisible = false;
+        lastRendered = List.of();
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null) {
             return;
@@ -101,6 +108,7 @@ public final class HelperItemsHud extends HudElement {
             cursor += TILE + GAP;
         }
         lastRenderVisible = true;
+        lastRendered = tiles;
     }
 
     private static List<Tile> tiles(boolean preview) {
@@ -116,7 +124,7 @@ public final class HelperItemsHud extends HudElement {
                 continue;
             }
             KeybindSetting bind = bind(mapping);
-            if (bind == null || bind.code() < 0) {
+            if (bind == null || (bind.code() < 0 && !bind.mouse())) {
                 continue;
             }
             ItemStack stack = itemStack(mapping);
