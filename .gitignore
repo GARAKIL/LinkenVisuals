@@ -13,6 +13,7 @@ source/mappings/
 # Compiled jars (keep the Gradle wrapper jar tracked)
 *.jar
 !source/gradle/wrapper/gradle-wrapper.jar
+!source/optimization-mods/linkenvisuals-test-optimization-1.0.0.jar
 
 # IDE files
 .idea/

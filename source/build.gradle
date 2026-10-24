@@ -31,6 +31,11 @@ def strangeFlavor = project.hasProperty('strange')
     && !project.property('strange').toString().equalsIgnoreCase('false')
 def flavorName = strangeFlavor ? 'strange' : 'linken'
 
+// Optimization jars dropped here are embedded as Fabric Jar-in-Jar entries.
+// Release jars only; see optimization-mods/README.md.
+def optimizationModsDir = file('optimization-mods')
+def optimizationJarFiles = fileTree(optimizationModsDir) { include '*.jar' }
+
 version = project.mod_version
 group = project.maven_group
 
@@ -88,12 +93,84 @@ test {
     useJUnitPlatform()
 }
 
+def prepareOptimizationJars = tasks.register('prepareOptimizationJars', Copy) {
+    from(optimizationModsDir) {
+        include '*.jar'
+    }
+    into(layout.buildDirectory.dir('generated/optimization-jars/META-INF/jars'))
+}
+
 processResources {
+    dependsOn prepareOptimizationJars
     inputs.property 'version', project.version
+    inputs.files(optimizationJarFiles)
+    // META-INF/jars/* is copied from optimization-mods/ by the task above.
+    from(layout.buildDirectory.dir('generated/optimization-jars'))
     filesMatching('fabric.mod.json') {
         expand 'version': inputs.properties.version
     }
+    // Keep the source fabric.mod.json valid JSON for Loom's configuration
+    // parser; inject the actual nested-jar list into the processed copy.
+    doLast {
+        def manifest = layout.buildDirectory.file('resources/main/fabric.mod.json').get().asFile
+        if (!manifest.exists()) {
+            return
+        }
+        def jars = optimizationJarFiles.files.sort { it.name }.collect { jar ->
+            "    {\"file\": \"META-INF/jars/${jar.name}\"}"
+        }.join(",\n")
+        def text = manifest.getText('UTF-8')
+        if (!jars.isEmpty()) {
+            text = text.replace('"jars": []', "\"jars\": [\n${jars}\n  ]")
+        }
+        manifest.setText(text, 'UTF-8')
+    }
 }
+
+// Guard the contract: every optimization-mods/*.jar must be inside the final
+// jar and declared in fabric.mod.json, otherwise Fabric Loader ignores it.
+def verifyEmbeddedOptimizationJars = tasks.register('verifyEmbeddedOptimizationJars') {
+    dependsOn remapJar
+    doLast {
+        def built = remapJar.archiveFile.get().asFile
+        def expected = optimizationJarFiles.files.sort { it.name }
+        def ids = new HashSet<String>()
+        ids.add('linkenvisuals')
+        new java.util.zip.ZipFile(built).withCloseable { zip ->
+            def metaEntry = zip.getEntry('fabric.mod.json')
+            if (metaEntry == null) {
+                throw new GradleException("fabric.mod.json missing from ${built.name}")
+            }
+            def meta = zip.getInputStream(metaEntry).getText('UTF-8')
+            expected.each { jar ->
+                def path = "META-INF/jars/${jar.name}"
+                if (zip.getEntry(path) == null) {
+                    throw new GradleException("missing ${path} in ${built.name}")
+                }
+                if (!meta.contains(path)) {
+                    throw new GradleException("fabric.mod.json does not declare ${path}")
+                }
+                new java.util.zip.ZipFile(jar).withCloseable { nested ->
+                    def nestedMeta = nested.getEntry('fabric.mod.json')
+                    if (nestedMeta == null) {
+                        throw new GradleException("${jar.name} has no fabric.mod.json")
+                    }
+                    def data = new groovy.json.JsonSlurper().parse(nested.getInputStream(nestedMeta))
+                    def id = data.id?.toString()
+                    if (id == null || id.isBlank()) {
+                        throw new GradleException("${jar.name} has no Fabric mod id")
+                    }
+                    if (!ids.add(id)) {
+                        throw new GradleException("duplicate embedded mod id '${id}' (${jar.name})")
+                    }
+                    println " [LinkenVisuals] embedded ${id} ${data.version ?: '?'} (${jar.name})"
+                }
+            }
+        }
+        println " [LinkenVisuals] verified ${expected.size()} embedded optimization jar(s)"
+    }
+}
+check.dependsOn verifyEmbeddedOptimizationJars
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

@@ -11,6 +11,7 @@
     "client": ["dev.linkenvisuals.LinkenVisuals"]
   },
   "mixins": ["linkenvisuals.mixins.json"],
+  "jars": [],
   "depends": {
     "fabricloader": ">=0.19.1",
     "minecraft": "~1.21.11",
