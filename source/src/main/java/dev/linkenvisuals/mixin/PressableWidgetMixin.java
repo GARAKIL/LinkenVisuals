@@ -38,9 +38,11 @@ public abstract class PressableWidgetMixin extends ClickableWidget {
         }
 
         dev.linkenvisuals.ui.style.MenuStyle style = dev.linkenvisuals.ui.style.StyleManager.getStyle();
+        boolean linkenCreateWorld = screen instanceof net.minecraft.client.gui.screen.world.CreateWorldScreen
+            && style == dev.linkenvisuals.ui.style.MenuStyle.LINKEN;
 
         // Authentic Vanilla Theme: also used by unported LINKEN fallback screens
-        if (StyleRouting.usesVanillaChrome(style)) {
+        if (StyleRouting.usesVanillaChrome(style) && !linkenCreateWorld) {
             Object self = this;
             if (self instanceof net.minecraft.client.gui.widget.ButtonWidget
                     || self instanceof net.minecraft.client.gui.widget.CyclingButtonWidget) {

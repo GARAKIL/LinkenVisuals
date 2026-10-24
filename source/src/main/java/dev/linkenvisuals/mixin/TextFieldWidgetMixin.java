@@ -4,6 +4,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.linkenvisuals.anim.Animations;
 import dev.linkenvisuals.module.impl.StreamerModeModule;
+import dev.linkenvisuals.render.RoundedRectPipeline;
+import dev.linkenvisuals.ui.linkmenu.LinkenMenuChrome;
+import dev.linkenvisuals.ui.style.MenuStyle;
+import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.util.input.LayoutKeys;
 import dev.linkenvisuals.util.text.StreamerTextSanitizer;
 import net.minecraft.client.MinecraftClient;
@@ -207,6 +211,22 @@ public abstract class TextFieldWidgetMixin {
         if (client != null && client.keyboard != null) {
             write(client.keyboard.getClipboard());
         }
+    }
+
+    @Inject(method = "renderWidget", at = @At("TAIL"))
+    private void linkenvisuals$createWorldField(DrawContext context, int mouseX, int mouseY,
+                                                float delta, CallbackInfo ci) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client == null || !(client.currentScreen
+            instanceof net.minecraft.client.gui.screen.world.CreateWorldScreen)
+            || StyleManager.getStyle() != MenuStyle.LINKEN) {
+            return;
+        }
+        net.minecraft.client.gui.widget.TextFieldWidget self =
+            (net.minecraft.client.gui.widget.TextFieldWidget) (Object) this;
+        RoundedRectPipeline.drawOutline(context, self.getX(), self.getY(),
+            self.getWidth(), self.getHeight(), 3.0f, 1.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 120));
     }
 
     // Anchored to the main text draw of the field: within renderWidget it is the single

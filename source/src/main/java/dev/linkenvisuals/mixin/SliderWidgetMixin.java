@@ -45,7 +45,10 @@ public abstract class SliderWidgetMixin extends ClickableWidget {
         }
 
         // Authentic Vanilla Theme: also used by unported LINKEN fallback screens
-        if (StyleRouting.usesVanillaChrome(dev.linkenvisuals.ui.style.StyleManager.getStyle())) {
+        if (StyleRouting.usesVanillaChrome(dev.linkenvisuals.ui.style.StyleManager.getStyle())
+            && !(screen instanceof net.minecraft.client.gui.screen.world.CreateWorldScreen
+                && dev.linkenvisuals.ui.style.StyleManager.getStyle()
+                    == dev.linkenvisuals.ui.style.MenuStyle.LINKEN)) {
             boolean isHovered = isSelected() || isHovered();
             dev.linkenvisuals.render.VanillaStylePipeline.renderSlider(context, getX(), getY(), getWidth(), getHeight(), value, getMessage(), this.active, isHovered);
             ci.cancel();

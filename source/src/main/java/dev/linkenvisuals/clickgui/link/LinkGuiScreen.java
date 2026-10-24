@@ -53,9 +53,12 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -100,6 +103,13 @@ public final class LinkGuiScreen extends Screen {
     private final Spring interfaceScrollSpring = new Spring(0.0, 1100.0, 60.0);
     private final Map<ModuleInfo, Spring> cardHover = new HashMap<>();
     private final Spring closeHover = new Spring(0.0, 900.0, 50.0);
+    private final Spring profileSpring = new Spring(1.0, 900.0, 52.0);
+    private final Spring themeSpring = new Spring(1.0, 900.0, 52.0);
+    private final Spring sideSpring = new Spring(0.0, 900.0, 52.0);
+    private final Spring settingsSpring = new Spring(0.0, 900.0, 52.0);
+    private final Map<String, float[]> gridPos = new HashMap<>();
+    private final Map<String, ExitCard> gridExit = new HashMap<>();
+    private final Map<String, Float> gridAlpha = new HashMap<>();
     private final LinkGuiCursorTrail cursorTrail = new LinkGuiCursorTrail();
 
     private long lastFrame = System.nanoTime();
@@ -259,6 +269,8 @@ public final class LinkGuiScreen extends Screen {
         long now = System.nanoTime();
         float deltaSeconds = Math.min((now - lastFrame) / 1_000_000_000.0f, 0.05f);
         lastFrame = now;
+        LinkGuiTheme.refreshCustom();
+        LinkGuiTheme.tick(deltaSeconds);
 
         Metrics metrics = LinkGuiLayout.compute(width, height, ModuleRegistry.interfaceScale());
         openSpring.step(closing ? 0.0 : 1.0, deltaSeconds);
@@ -275,6 +287,10 @@ public final class LinkGuiScreen extends Screen {
 
         float uiFade = openT * ModuleRegistry.interfaceTransparency();
         drawBackdrop(context, metrics, uiFade);
+        profileSpring.step(profileOpen ? 1.0 : 0.0, deltaSeconds);
+        themeSpring.step(themeOpen && sidePanel == SidePanel.NONE ? 1.0 : 0.0, deltaSeconds);
+        sideSpring.step(sidePanel == SidePanel.NONE ? 0.0 : 1.0, deltaSeconds);
+        settingsSpring.step(settingsOpen && focused != null ? 1.0 : 0.0, deltaSeconds);
         context.getMatrices().pushMatrix();
         context.getMatrices().translate(metrics.offsetX(), metrics.offsetY());
         context.getMatrices().scale(metrics.scale(), metrics.scale());
@@ -286,19 +302,48 @@ public final class LinkGuiScreen extends Screen {
             drawModulePanel(context, metrics, mx, my, uiFade, deltaSeconds);
         }
         drawNav(context, metrics, mx, my, uiFade, deltaSeconds);
-        if (profileOpen) {
-            drawProfilePanel(context, metrics, mx, my, uiFade, deltaSeconds);
+        float profileT = (float) profileSpring.get();
+        if (profileT > 0.01f) {
+            context.getMatrices().pushMatrix();
+            context.getMatrices().translate(-(1.0f - profileT) * 26.0f, 0.0f);
+            drawProfilePanel(context, metrics, mx, my, uiFade * profileT, deltaSeconds);
+            context.getMatrices().popMatrix();
+        } else {
+            profileCloseHit = null;
         }
-        if (sidePanel != SidePanel.NONE) {
-            drawSidePanel(context, metrics, mx, my, uiFade);
-        } else if (themeOpen) {
-            drawThemePanel(context, metrics, mx, my, uiFade);
+        float themeT = (float) themeSpring.get();
+        float sideT = (float) sideSpring.get();
+        if (themeT > 0.01f) {
+            context.getMatrices().pushMatrix();
+            context.getMatrices().translate((1.0f - themeT) * 24.0f, 0.0f);
+            drawThemePanel(context, metrics, mx, my, uiFade * themeT);
+            context.getMatrices().popMatrix();
         } else {
             themeHits.clear();
             interfaceHits.clear();
         }
-        if (settingsOpen && focused != null) {
-            drawSettingsPanel(context, metrics, mx, my, uiFade, deltaSeconds);
+        if (sideT > 0.01f) {
+            context.getMatrices().pushMatrix();
+            context.getMatrices().translate((1.0f - sideT) * 24.0f, 0.0f);
+            drawSidePanel(context, metrics, mx, my, uiFade * sideT);
+            context.getMatrices().popMatrix();
+        } else {
+            sideCloseHit = null;
+            sideAddHit = null;
+            sideInputHit = null;
+            sideRemoveHits.clear();
+        }
+        float settingsT = (float) settingsSpring.get();
+        if (settingsT > 0.01f) {
+            context.getMatrices().pushMatrix();
+            context.getMatrices().translate(0.0f, (1.0f - settingsT) * 18.0f);
+            drawSettingsPanel(context, metrics, mx, my, uiFade * settingsT, deltaSeconds);
+            context.getMatrices().popMatrix();
+        } else {
+            settingsCloseHit = null;
+            settingsHeaderHit = null;
+            settingHits.clear();
+            pinnedSettingHits.clear();
         }
         drawPinnedCards(context, metrics, mx, my, uiFade, deltaSeconds);
         drawPopups(context, metrics, mx, my, uiFade);
@@ -314,7 +359,6 @@ public final class LinkGuiScreen extends Screen {
     // ------------------------------------------------------------------ backdrop
 
     private void drawBackdrop(DrawContext context, Metrics metrics, float openT) {
-        LinkGuiTheme.refreshCustom();
         if (client != null && client.world != null) {
             if (ModuleRegistry.interfaceBlur()) {
                 try {
@@ -652,10 +696,20 @@ public final class LinkGuiScreen extends Screen {
                 area.x() + area.width() * 0.5f, area.y() + area.height() * 0.42f + 28.0f, 11.0f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
         }
+        updateGridAnimation(modules, metrics, deltaSeconds);
+        drawExitingCards(context, metrics, area, scroll, openT, deltaSeconds);
         for (int i = 0; i < modules.size(); i++) {
             ModuleInfo module = modules.get(i);
-            Rect base = LinkGuiLayout.card(metrics, i);
-            Rect card = new Rect(base.x(), base.y() - scroll, base.width(), base.height());
+            float[] pos = gridPos.get(module.name());
+            if (pos == null) {
+                continue;
+            }
+            Rect card = new Rect(pos[0], pos[1] - scroll,
+                cardWidth(metrics), LinkGuiLayout.CARD_HEIGHT);
+            float alpha = gridAlpha.getOrDefault(module.name(), 1.0f);
+            if (alpha < 0.05f) {
+                continue;
+            }
             if (card.bottom() < area.y() || card.y() > area.bottom()) {
                 cardHits.add(new CardHit(module, card, false, null));
                 continue;
@@ -663,13 +717,79 @@ public final class LinkGuiScreen extends Screen {
             boolean hovered = card.contains(mx, my);
             Spring spring = cardHover.computeIfAbsent(module, key -> new Spring(0.0, 900.0, 55.0));
             spring.step(hovered ? 1.0 : 0.0, deltaSeconds);
-            drawModuleCard(context, metrics, module, card, (float) spring.get(), openT);
+            drawModuleCard(context, metrics, module, card, (float) spring.get(), openT * alpha);
             Rect more = LinkGuiLayout.cardMetrics(card).more();
             cardHits.add(new CardHit(module, card, true, more));
         }
         context.disableScissor();
         scrollbar(context, metrics, area.right() - 0.0f, area.y(), area.height(), contentHeight, scroll, openT);
         drawMediaStrip(context, metrics, panel, mx, my, openT);
+    }
+
+    private float cardWidth(Metrics metrics) {
+        return (metrics.cards().width() - LinkGuiLayout.CARD_GAP * (LinkGuiLayout.CARD_COLUMNS - 1))
+            / LinkGuiLayout.CARD_COLUMNS;
+    }
+
+    /** Donor-style grid reflow: cards move to new slots and fade instead of jumping. */
+    private void updateGridAnimation(List<ModuleInfo> modules, Metrics metrics, float deltaSeconds) {
+        Set<String> visible = new HashSet<>();
+        float moveK = 1.0f - (float) Math.exp(-18.0f * deltaSeconds);
+        float fadeK = 1.0f - (float) Math.exp(-14.0f * deltaSeconds);
+        for (int i = 0; i < modules.size(); i++) {
+            ModuleInfo module = modules.get(i);
+            String name = module.name();
+            visible.add(name);
+            Rect base = LinkGuiLayout.card(metrics, i);
+            float[] pos = gridPos.computeIfAbsent(name, key -> new float[]{base.x(), base.y()});
+            pos[0] += (base.x() - pos[0]) * moveK;
+            pos[1] += (base.y() - pos[1]) * moveK;
+            float alpha = gridAlpha.getOrDefault(name, 0.0f);
+            alpha += (1.0f - alpha) * fadeK;
+            gridAlpha.put(name, alpha);
+        }
+        Iterator<Map.Entry<String, float[]>> iterator = gridPos.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, float[]> entry = iterator.next();
+            if (visible.contains(entry.getKey())) {
+                continue;
+            }
+            ModuleInfo module = moduleByName(entry.getKey());
+            if (module != null) {
+                float[] pos = entry.getValue();
+                gridExit.put(entry.getKey(), new ExitCard(module, pos[0], pos[1],
+                    gridAlpha.getOrDefault(entry.getKey(), 1.0f)));
+            }
+            iterator.remove();
+            gridAlpha.remove(entry.getKey());
+        }
+    }
+
+    private static ModuleInfo moduleByName(String name) {
+        for (ModuleInfo module : ModuleRegistry.all()) {
+            if (module.name().equals(name)) {
+                return module;
+            }
+        }
+        return null;
+    }
+
+    private void drawExitingCards(DrawContext context, Metrics metrics, Rect area, float scroll,
+                                  float openT, float deltaSeconds) {
+        Iterator<Map.Entry<String, ExitCard>> iterator = gridExit.entrySet().iterator();
+        while (iterator.hasNext()) {
+            ExitCard exit = iterator.next().getValue();
+            exit.alpha -= deltaSeconds * 3.6f;
+            if (exit.alpha <= 0.01f) {
+                iterator.remove();
+                continue;
+            }
+            Rect card = new Rect(exit.x, exit.y - scroll, cardWidth(metrics), LinkGuiLayout.CARD_HEIGHT);
+            if (card.bottom() < area.y() || card.y() > area.bottom()) {
+                continue;
+            }
+            drawModuleCard(context, metrics, exit.module, card, 0.0f, openT * exit.alpha);
+        }
     }
 
     private void drawMediaStrip(DrawContext context, Metrics metrics, Rect panel, float mx, float my,
@@ -2552,6 +2672,20 @@ public final class LinkGuiScreen extends Screen {
     private enum SidePanel { NONE, FRIENDS, WAYPOINTS }
 
     private record UtilityHit(Runnable action, Rect bounds) {
+    }
+
+    private static final class ExitCard {
+        private final ModuleInfo module;
+        private final float x;
+        private final float y;
+        private float alpha;
+
+        private ExitCard(ModuleInfo module, float x, float y, float alpha) {
+            this.module = module;
+            this.x = x;
+            this.y = y;
+            this.alpha = alpha;
+        }
     }
 
     private record SideRemoveHit(String name, Rect bounds) {

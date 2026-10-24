@@ -352,5 +352,6 @@
   "linkenvisuals.hud.killstreak.triple": "TRIPLE KILL",
   "linkenvisuals.hud.killstreak.mega": "MEGA KILL",
   "linkenvisuals.hud.killstreak.monster": "MONSTER KILL",
-  "linkenvisuals.hud.killstreak.unstop": "UNSTOPPABLE"
+  "linkenvisuals.hud.killstreak.unstop": "UNSTOPPABLE",
+  "linkenvisuals.world_setup": "WORLD SETUP"
 }

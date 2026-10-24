@@ -212,6 +212,8 @@ public final class ClickGuiScreen extends Screen {
         long now = System.nanoTime();
         double deltaSeconds = Math.min((now - lastFrame) / 1_000_000_000.0, 0.05);
         lastFrame = now;
+        dev.linkenvisuals.clickgui.link.LinkGuiTheme.refreshCustom();
+        dev.linkenvisuals.clickgui.link.LinkGuiTheme.tick((float) deltaSeconds);
 
         if (stagedCategory != selected) {
             stagedCategory = selected;

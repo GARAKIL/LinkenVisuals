@@ -14,6 +14,7 @@ import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Spring;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -79,6 +80,9 @@ public final class HudManager {
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.options != null && client.options.hudHidden) {
+            return;
+        }
+        if (client.currentScreen != null && !(client.currentScreen instanceof ChatScreen)) {
             return;
         }
         long now = System.nanoTime();

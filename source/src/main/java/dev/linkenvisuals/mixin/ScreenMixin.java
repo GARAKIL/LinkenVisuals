@@ -65,6 +65,17 @@ public abstract class ScreenMixin {
             return;
         }
 
+        if (screen instanceof net.minecraft.client.gui.screen.world.CreateWorldScreen
+            && dev.linkenvisuals.ui.style.StyleManager.getStyle()
+                == dev.linkenvisuals.ui.style.MenuStyle.LINKEN) {
+            BackgroundPipeline.draw(1.0f);
+            context.fillGradient(0, 0, width, height, 0x66020406, 0xCC050706);
+            GlowPipeline.radial(context, width * 0.5f, height * 0.38f, width * 0.38f,
+                (0x18 << 24) | (Theme.accent() & 0xFFFFFF));
+            ci.cancel();
+            return;
+        }
+
         if (StyleRouting.usesVanillaChrome(dev.linkenvisuals.ui.style.StyleManager.getStyle())) {
             if (screen instanceof GameMenuScreen) {
                 context.fillGradient(0, 0, width, height, 0x88000000, 0xAA000000);
@@ -136,6 +147,7 @@ public abstract class ScreenMixin {
                 context.fillGradient(0, 0, width, height, 0x44000000, 0x88020406);
             }
             ci.cancel();
+            return;
         }
     }
 

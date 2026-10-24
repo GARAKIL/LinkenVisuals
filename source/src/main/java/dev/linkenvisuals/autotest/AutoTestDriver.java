@@ -447,6 +447,10 @@ public final class AutoTestDriver {
         });
         add("screenshot multiplayer add", 1, () -> screenshot(client, "multiplayer-add"));
         add("close linken multiplayer", 2, () -> client.setScreen(null));
+        add("open create world", 12, () ->
+            net.minecraft.client.gui.screen.world.CreateWorldScreen.show(client, () -> client.setScreen(null)));
+        add("screenshot create world", 2, () -> screenshot(client, "create-world"));
+        add("close create world", 2, () -> client.setScreen(null));
         add("create test scoreboard", 10, () -> {
             command(client, "scoreboard objectives remove lvtest");
             command(client, "scoreboard objectives add lvtest dummy");
@@ -852,6 +856,7 @@ public final class AutoTestDriver {
             LinkGuiTheme.apply(LinkGuiTheme.preset().name());
         });
         add("check custom UI colours", 1, () -> {
+            LinkGuiTheme.tick(1.0f);
             if (LinkGuiTheme.hudBase() != 0x2A1030 || LinkGuiTheme.TEXT != 0xFFE0A0) {
                 throw new IllegalStateException("Custom UI colours were not applied");
             }

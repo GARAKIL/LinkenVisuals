@@ -40,6 +40,7 @@
     "OptimizationParticleMixin",
     "OptimizationWorldRendererMixin",
     "ScreenMixin",
+    "CreateWorldScreenMixin",
     "WeatherRenderingMixin",
     "RainSplashParticleMixin",
     "ClientPlayerInteractionManagerMixin",

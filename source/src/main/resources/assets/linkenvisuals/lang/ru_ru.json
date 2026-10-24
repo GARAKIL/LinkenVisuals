@@ -352,5 +352,6 @@
   "linkenvisuals.hud.killstreak.triple": "ТРОЙНОЕ УБИЙСТВО",
   "linkenvisuals.hud.killstreak.mega": "МЕГАКИЛЛ",
   "linkenvisuals.hud.killstreak.monster": "МОНСТРКИЛЛ",
-  "linkenvisuals.hud.killstreak.unstop": "БЕЗУМИЕ"
+  "linkenvisuals.hud.killstreak.unstop": "БЕЗУМИЕ",
+  "linkenvisuals.world_setup": "НАСТРОЙКА МИРА"
 }
