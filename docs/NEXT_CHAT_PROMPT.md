@@ -9,11 +9,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
 - Version: **1.0.140**
-- Last code commit: `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`.
-- Tests: **316 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **1150/1150** (1280×720 and 1920×1080), Strange **1140/1140** (1920×1080), 0 fail/skip.
+- Last code commit: `ed3cba0` `feat(ui): finish donor LinkGUI animation parity (v1.0.140, D116)`; docs commit is separate.
+- Tests: **324 / 0 failures / 0 errors / 0 skipped** in both flavors (82 suites).
+- Autotest: Linken **1150/1150** at 1280×720/GUI 2 and 1920×1080/GUI 3, Strange **1140/1140** at 1920×1080/GUI 3, 0 fail/skip.
+- Live: `[LVLive] live checks passed: self=Hidden, botDistance=13.9`; tab list `Hidden` + `[MVP] SecondPlayer`, item-radius `77%`. `SecondPlayer` is a mineflayer bot, not a human client.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.140): `linkenvisuals-1.0.140.jar` 11 172 256 bytes / `2DEEF6CEBDD15C332F30710975509A45F16D79ABDFEC15EC90F75181DABDEAAB`; `linkenvisuals-strange-1.0.140.jar` 11 172 245 bytes / `831FD31CEDE5FC0C5D41D17D20D699BEF49977C09ECE0E6AD2D3C316B4B96C6A`.
+- Jars (1.0.140): `linkenvisuals-1.0.140.jar` 11 183 034 bytes / `420C9A9F2DE4732CA1DAAFCC588B8640C8E498C2303F0078B5700C089B0A0561`; `linkenvisuals-strange-1.0.140.jar` 11 183 024 bytes / `9787C1FA0AB7F333592B0564CE7848ED7503A37806EC91C7895D4983386401C7`.
 
 Clone/verify:
 
@@ -49,12 +50,12 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 - D113: Custom Theme Colours master + Background/Text colours, LinkGUI palette and HUD base; `linkgui-custom-colours` screenshot.
 - D114: HelperItemsHud + Ft/Hw/Rw helper modules, key dispatch, `helper-items` screenshot.
 - D115: real helper LMB/RMB binds (`KeybindSetting.mouseAllowed`, `MOUSE1`/`MOUSE2`, donor `M1`/`M2`, `MouseMixin` → `Modules.onHelperMouse`, ClickGUI capture, HUD `LMB`/`RMB`, autotest slot assertions); ItemRadius splash labels fixed (camera quaternion basis, FakePlayer scan, screen bounds, `item-radius-labels`); SelfNametags team-prefix tests; DynamicIsland/BoostFPS closed by donor rule; LV/Strange branding split (`lv_logo.png`, `strange_logo.png`, `BrandingAssetsTest`).
-- D116: LinkGUI theme cross-fade/panel springs/grid reflow; HUD hidden behind screens; Linken Create World shell (`create-world` screenshot); Paper 1.21.11 server on `localhost:25566` for human checks.
+- D116: LinkGUI theme cross-fade/panel springs/grid reflow; donor `AnimatedString` search/mode/keybind morphs; enum dropdown easing; rolling slider values/knob and bind-chip morphs; HUD hidden behind screens; Linken Create World shell (`create-world` screenshot); `LiveTestDriver` on Paper 1.21.11 `localhost:25566` (bot-based machine evidence, not human acceptance).
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **Human multiplayer acceptance**: second real player on `localhost:25566` for ItemRadius splash `NN%`, team-prefix SelfNametags, ping/tab. Do not claim live acceptance from FakePlayer/singleplayer.
+1. **Human multiplayer acceptance**: second real player on `localhost:25566` for ItemRadius splash `NN%`, team-prefix SelfNametags, ping/tab. Do not claim live acceptance from FakePlayer, the `SecondPlayer` mineflayer bot or singleplayer.
 2. **Human pixel acceptance**: 1280×720 and 1920×1080 screenshots exist; side-by-side donor comparison and hover/press checks remain.
 3. **Punchy is out of scope** — do not start it. `HandMotion` is the final accepted animation subset.
 4. **DynamicIsland / BoostFPS / helper mouse are closed** — do not reopen them.
@@ -79,7 +80,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat build -Pstrange --console=plain --no-daemon
 ```
 
-Expected: 316 tests, 0 fail/error/skip each.
+Expected: 324 tests, 0 fail/error/skip each.
 
 Hidden autotest (explicit permission only):
 
@@ -132,13 +133,18 @@ source/src/main/java/dev/linkenvisuals/
   ui/linkmenu/*                          # LV-branded Linken menu/pause/loading
   clickgui/link/LinkGuiScreen.java       # LV header/footer, bind capture, animations
   clickgui/link/LinkGuiTheme.java        # theme cross-fade targets
+  clickgui/setting/SliderSetting.java    # step/format helpers for rolling values
+  ui/AnimatedString.java                 # donor 150/160 ms EASE_OUT_CUBIC crossfade
   mixin/CreateWorldScreenMixin.java      # Linken new-world chrome
   autotest/AutoTestDriver.java           # welcome/pause/crit/helper/radius/create-world steps
+  autotest/LiveTestDriver.java           # Paper live checks (bot-based)
 source/src/test/java/dev/linkenvisuals/
   player/FakePlayerTest.java
   module/impl/HitSoundModuleTest.java
   hands/HandMotionTest.java
   module/impl/ViewModelModuleTest.java
+  ui/AnimatedStringTest.java
+  clickgui/SliderSettingTest.java
   ...
 ```
 
@@ -156,7 +162,7 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 9. Definition of Done
 
-- Both builds green, 316 tests, 0 fail/error/skip.
+- Both builds green, 324 tests, 0 fail/error/skip.
 - Both hidden autotests green, no new mod/shader/sound/mixin errors (only offline-auth/Realms).
 - No dead controls; new strings en/ru/uk; `LangParityTest` green.
 - Jars path/size/SHA-256 recalculated; Russian report with visual/log evidence and manual list.

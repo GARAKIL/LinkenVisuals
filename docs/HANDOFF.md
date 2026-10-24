@@ -4,27 +4,31 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
-## Состояние на 2026-10-24 (D116 — LinkGUI animations, Create World, pixel audit) — v1.0.140
+## Состояние на 2026-10-24 (D116 — donor animation parity, live/autotest evidence) — v1.0.140
 
 ### Сделано
-1. **D116 — LinkGUI animations**: панели Profile / Theme / Friends/Waypoints / настройки модуля получили spring fade+slide; сетка модулей плавно переезжает на новые слоты, новые карточки появляются fade-in, ушедшие — гаснут (`gridPos`/`gridExit`); смена темы теперь кроссфейдит accent/panel/text/backdrop ~300 мс (`LinkGuiTheme.tick`), а не прыгает; добавлен unit-тест интерполяции. Существующие scroll/hover/open/close springs сохранены.
-2. **D116 — HUD больше не рисуется поверх экранов**: `HudManager.render` выходит при `currentScreen != null` (кроме ChatScreen/edit mode). Это убирает hotbar/armor/potion/HUD за LinkGUI, pause, Create World и ванильными экранами.
-3. **D116 — кастомное Linken-меню создания мира**: `CreateWorldScreen` в Linken style получил Linken backdrop, компактную glass-панель, Linken-кнопки/слайдеры, mint-рамку поля имени, LV + `WORLD SETUP` в футере и i18n en/ru/uk. Функциональные vanilla-вкладки Game/World/More сохранены; это осознанный Linken shell, а не полная копия donor (у donor такого экрана нет). Autotest: `create-world` screenshot 1280×720 и 1920×1080.
-4. **D116 — pixel-аудит**: Helper HUD вынесен вправо над hotbar; CreateWorld footer не перекрывает кнопку на 1280; убраны белые «технические» рамки; проверены LinkGUI, pause, custom-vitals, armor-hud-v2, item-radius, helper-items, create-world на 1280 и 1920.
-5. **D116 — сервер**: поднят Paper 1.21.11 (offline-mode) на `localhost:25566` с ViaVersion+Grim для multiplayer-проверок; клиентский smoke/подключение — вручную, второго живого игрока в тесте нет.
-6. **Проверки**: **316 тестов**, 0 fail/error/skip в обоих flavors; Linken autotest **1150/1150** (1280×720 и 1920×1080), Strange **1140/1140** (1920×1080), 0 fail/skip. Новых ERROR/exception/shader/sound нет; только offline-auth/Realms.
-7. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 172 256 байт, SHA-256 `2DEEF6CEBDD15C332F30710975509A45F16D79ABDFEC15EC90F75181DABDEAAB`; `linkenvisuals-strange-1.0.140.jar` — 11 172 245 байт, SHA-256 `831FD31CEDE5FC0C5D41D17D20D699BEF49977C09ECE0E6AD2D3C316B4B96C6A`.
-8. **Commit**: code `886f0e1` `feat(ui): animate LinkGUI and add Linken Create World shell (v1.0.140, D116)`; docs `d4990bd`.
+1. **D116 — donor animation parity в LinkGUI**: `AnimatedString` повторяет донорский кроссфейд — поиск 150 мс, значения mode/keybind 160 мс, `EASE_OUT_CUBIC`; поиск кроссфейдит prefix/suffix, значения переходят old/new slide-fade. Enum-dropdown использует экспоненциальное сглаживание 20/с, сохраняет `lastOpenMode`/`lastOpenModeBox` до конца закрытия, плавно меняет высоту панели и каскадно раскрывает строки. Слайдер: значение катится к реальному 14/с со snap `max(0.001, step*0.25)`, позиция knob — 20/с, при drag следует за сырой позицией курсора; knob растёт 5.0→6.7 px и получает accent halo. Bind-chip на карточках и bind-row в настройках используют donor-style `drawMorphValue`, ширина chip резервирует ширину уходящего текста. Все animation-id owner-qualified (`sld:`, `modev:`, `keybindv:`, `cardbind:`, `bindrow:`).
+2. **D116 — остальные анимации/UI**: панели Profile / Theme / Friends/Waypoints / настройки модуля получили spring fade+slide; сетка модулей плавно переезжает на новые слоты, новые карточки появляются fade-in, ушедшие — гаснут (`gridPos`/`gridExit`); смена темы кроссфейдит accent/panel/text/backdrop ~300 мс (`LinkGuiTheme.tick`). `HudManager.render` выходит при `currentScreen != null` (кроме ChatScreen/edit mode), поэтому hotbar/armor/potion/HUD не просвечивают за LinkGUI, pause, Create World и ванильными экранами.
+3. **D116 — Linken Create World**: `CreateWorldScreen` получил Linken backdrop, компактную glass-панель, Linken-кнопки/слайдеры, mint-рамку поля имени, LV + `WORLD SETUP` в футере и i18n en/ru/uk. Функциональные vanilla-вкладки Game/World/More сохранены; это осознанный Linken shell, а не полная копия donor (у donor такого экрана нет). Autotest: `create-world` на 1280×720 и 1920×1080.
+4. **D116 — live-проверка**: `LiveTestDriver` на Paper 1.21.11 (`localhost:25566`) в окне 1280×720 при GUI scale 1 проверил `self=Hidden`, `botDistance=13.9`; tab list показывает `Hidden` и `[MVP] SecondPlayer`, item-radius splash показывает `77%`. Состояние конфига/настроек после прогона восстановлено. Watermark санитизирует username через `StreamerRules`.
+5. **D116 — autotest sizing**: в `build.gradle` добавлены `-PautotestWidth=` / `-PautotestHeight=`; финальные прогоны: Linken **1150/1150** при 1280×720 (GUI scale 2) и 1920×1080 (GUI scale 3), Strange **1140/1140** при 1920×1080 (GUI scale 3), 0 fail/skip.
+6. **Доказательства**: `run/screenshots/evidence-d116/` — `live-tab.png`, `live-item-radius.png`, `live-self-nametag.png` и три каталога `autotest-1280/`, `autotest-1920/`, `autotest-strange-1920/` (по 43 скриншота + `report.log`). Отчёты: `linkenvisuals-autotest-20261024-172141.log` (1150), `...172449.log` (1150), `...171824.log` (1140).
+7. **Проверки**: **82 набора / 324 теста**, 0 failures/errors/skips в обоих flavors. В Linken-прогонах `latest.log` — 0 новых ERROR/exception; 1920-консоль содержала один `sessionserver.mojang.com ... Read timed out`, это не mod-ошибка. В Strange 3 новых ERROR — только offline-auth/Realms (`RealmsServiceException`), не ошибки мода.
+8. **Сборка**: `linkenvisuals-1.0.140.jar` — 11 183 034 байта, SHA-256 `420C9A9F2DE4732CA1DAAFCC588B8640C8E498C2303F0078B5700C089B0A0561`; `linkenvisuals-strange-1.0.140.jar` — 11 183 024 байта, SHA-256 `9787C1FA0AB7F333592B0564CE7848ED7503A37806EC91C7895D4983386401C7`. Linken-jar развёрнут в `D:\MultiMC\instances\1.21.111\.minecraft\mods\linkenvisuals-1.0.140.jar`, SHA-256 совпадает; активен ровно один `linkenvisuals*.jar`, старый `1.0.74` отключён.
+9. **Commit**: code `ed3cba0` `feat(ui): finish donor LinkGUI animation parity (v1.0.140, D116)`; docs commit — отдельный коммит.
 
 ### Следующая задача
-1. **Human multiplayer acceptance**: второй реальный игрок на `localhost:25566` — splash `NN%`, team-prefix nametag, ping/tab.
+1. **Human multiplayer acceptance**: второй реальный игрок на `localhost:25566` — splash `NN%`, team-prefix nametag, ping/tab. `SecondPlayer` — mineflayer-бот, поэтому это не человеческая приёмка.
 2. **Human pixel acceptance**: side-by-side с donor на 1280/1920, hover/press на всех sub-screens.
 3. **Punchy не открывать**; `HandMotion` — финальный subset.
 
 ### Риски
+- `SecondPlayer` — протокольный mineflayer-бот, не человеческий клиент; side-by-side human acceptance остаётся ручной задачей.
 - Create World — Linken shell над vanilla-логикой; вкладки/тултипы остаются ванильными, полная donor-копия невозможна (экрана нет у donor).
 - LinkGUI Interface/settings panels скроллятся; последняя строка у края viewport'а частично обрезана — affordance скролла, не overflow.
-- Анимации темы/сетки не имеют покадрового screenshot-доказательства; проверены логикой/unit-тестом и live-прогонами.
+- Анимации проверены unit-тестами и финальными скриншотами, но покадрового pixel-diff против donor нет.
+- 1280-скриншоты — 1280×720; 1920-скриншоты — 1920×1061 из-за рамки окна при override 1920×1080.
+- `run/options.txt` восстановлен: `guiScale:3`, `pauseOnLostFocus:true`, `overrideWidth:0`, `overrideHeight:0`; `default.json` чистый (Streamer Mode/Self Nametags/Item Radius off, Potion Radius 4.0).
 
 ## Состояние на 2026-10-24 (D115 — helper mouse, splash labels, branding) — v1.0.139
 

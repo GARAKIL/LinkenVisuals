@@ -213,7 +213,7 @@ is hard-wired to `DEFAULT` and its UI control is hidden.
 - Default position moved to the hotbar's right (`0.77, 0.86` design fraction):
   at 1280×720 the old centre-left slot overlapped chat and the hotbar.
 - Screenshot `helper-items` at 1920×1080 and 1280×720; labels are fully visible.
-- 1280×720 autotest: Linken **1147/1147**; LinkGUI/custom-vitals/helper-items
+- 1280×720 autotest: Linken **1150/1150**; LinkGUI/custom-vitals/helper-items
   layouts fit at that resolution.
 - **Open:** human pixel acceptance only. DynamicIsland is closed by donor rule.
 - **Punchy is out of scope** (user decision 2026-10-24); HandMotion is final.
@@ -236,6 +236,16 @@ is hard-wired to `DEFAULT` and its UI control is hidden.
 - Theme switches cross-fade accent/panel/text/backdrop over ~300 ms; profile,
   theme/interface, friends/waypoints and module-settings panels spring in/out;
   grid cards animate to new slots, fade in and fade out instead of jumping.
+- Donor animation parity: `AnimatedString` reproduces the donor
+  `EASE_OUT_CUBIC` crossfade — search 150 ms (prefix/suffix), mode/keybind
+  values 160 ms (old/new slide-fade). The enum dropdown uses exponential
+  smoothing at 20/s, keeps `lastOpenMode`/`lastOpenModeBox` through closing,
+  eases panel height and cascades rows. Slider values roll at 14/s with
+  `max(0.001, step*0.25)` snap; the knob eases at 20/s, follows the raw cursor
+  fraction while dragging, grows 5.0→6.7 px and gains an accent halo. Card bind
+  chips and the settings bind row use donor-style `drawMorphValue` and reserve
+  the outgoing text width. All animation IDs are owner-qualified (`sld:`,
+  `modev:`, `keybindv:`, `cardbind:`, `bindrow:`).
 - In-game HUD is no longer drawn over screens (except ChatScreen/edit mode), so
   hotbar/armour/potion/HUD do not leak behind LinkGUI, pause or Create World.
 - Linken Create World shell: dark tower/world backdrop, compact glass panel,
@@ -243,19 +253,36 @@ is hard-wired to `DEFAULT` and its UI control is hidden.
   vanilla Game/World/More tabs and world-creation logic are retained because
   the donor has no custom Create World screen.
 - Screenshot `create-world` at 1280×720 and 1920×1080; LinkGUI/pause screens
-  rechecked at both sizes after the HUD visibility change.
-- **Open:** human side-by-side pixel acceptance; live second-player check.
+  rechecked at both sizes after the HUD visibility and animation changes.
+- Live evidence on Paper 1.21.11 (`localhost:25566`, 1280×720, GUI scale 1):
+  `[LVLive] live checks passed: self=Hidden, botDistance=13.9`; the tab list
+  shows `Hidden` and `[MVP] SecondPlayer`, and the splash item-radius label
+  shows `77%`. The test restores config/state afterwards.
+- **Open:** human side-by-side pixel acceptance and a second real human client.
+  `SecondPlayer` is a mineflayer protocol bot, so the live run is machine
+  evidence, not human multiplayer acceptance.
 
 ## 7. Verification for D101-D116
 
-- `test` / `clean build`: 316 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1150/1150** at 1280×720 and 1920×1080; Strange
-  **1140/1140** at 1920×1080, 0 fail/skip. `welcome`, `pause`,
+- `test` / `clean build`: **82 suites / 324 tests**, 0 failures/errors/skips in
+  both flavors.
+- Autotest Linken **1150/1150** at 1280×720 (GUI scale 2) and 1920×1080
+  (GUI scale 3; screenshots are 1920×1061 because of the window border); Strange
+  **1140/1140** at 1920×1080, 0 fail/skip. Reports:
+  `linkenvisuals-autotest-20261024-172141.log`,
+  `...172449.log`, `...171824.log`. `welcome`, `pause`,
   `custom-vitals`, `armor-hud-v2`, `item-radius`, `item-radius-labels`,
   `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`,
   `check custom UI colours`, `check helper hud`, helper LMB/RMB selection,
-  `create-world` and the fake-player crit assertion are part of the plan. No
-  new shader/mixin/sound errors; only offline-auth/Realms.
+  `create-world` and the fake-player crit assertion are part of the plan.
+- Live: `[LVLive] live checks passed: self=Hidden, botDistance=13.9` on the
+  local Paper server; tab list `Hidden` + `[MVP] SecondPlayer`, item-radius
+  `77%`. Evidence in `run/screenshots/evidence-d116/`. `SecondPlayer` is a
+  mineflayer bot, not a human client.
+- No new shader/mixin/sound errors. Linken `latest.log` reports 0 new
+  ERROR/exception; the 1920 console had one
+  `sessionserver.mojang.com ... Read timed out`, which is not a mod error.
+  Strange reports 3 new errors, all offline-auth/Realms (`RealmsServiceException`).
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
   `lv-autotest-*-linken-mainmenu.png`, `lv-autotest-*-linkgui.png`,
   `lv-autotest-*-helper-items.png`, `lv-autotest-*-item-radius-labels.png`,
