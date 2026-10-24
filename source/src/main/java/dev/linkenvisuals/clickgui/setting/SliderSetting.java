@@ -1,5 +1,7 @@
 package dev.linkenvisuals.clickgui.setting;
 
+import java.util.Locale;
+
 public final class SliderSetting extends Setting {
     private final float min;
     private final float max;
@@ -24,6 +26,10 @@ public final class SliderSetting extends Setting {
         return max;
     }
 
+    public float step() {
+        return step;
+    }
+
     public float value() {
         return value;
     }
@@ -43,7 +49,12 @@ public final class SliderSetting extends Setting {
     }
 
     public String display() {
-        String number = step < 1.0f ? String.format("%.2f", value) : String.valueOf((int) value);
+        return format(value);
+    }
+
+    /** Formats an arbitrary (possibly smoothed) value with the slider's own precision. */
+    public String format(float value) {
+        String number = step < 1.0f ? String.format(Locale.ROOT, "%.2f", value) : String.valueOf((int) value);
         return suffix == null ? number : number + suffix;
     }
 

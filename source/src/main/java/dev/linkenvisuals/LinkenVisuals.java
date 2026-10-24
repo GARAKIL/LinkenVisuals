@@ -190,6 +190,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         WorldRenderEvents.END_MAIN.register(WaypointsRenderer::render);
         dev.linkenvisuals.command.WaypointCommand.register();
         dev.linkenvisuals.autotest.AutoTestDriver.register();
+        dev.linkenvisuals.autotest.LiveTestDriver.register();
         dev.linkenvisuals.autotest.AutoTestCommand.register();
     }
 

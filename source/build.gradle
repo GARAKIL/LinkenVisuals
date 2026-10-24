@@ -112,6 +112,8 @@ java {
 // straight into an existing world (vanilla --quickPlaySingleplayer).
 def autotestWorld = project.findProperty('autotestWorld')
 def autotestQuit = project.hasProperty('autotestQuit')
+def autotestWidth = project.findProperty('autotestWidth')
+def autotestHeight = project.findProperty('autotestHeight')
 loom {
     runs {
         autotest {
@@ -125,6 +127,21 @@ loom {
                 programArg "--quickPlaySingleplayer"
                 programArg autotestWorld.toString()
             }
+            if (autotestWidth != null) {
+                programArg "--width"
+                programArg autotestWidth.toString()
+            }
+            if (autotestHeight != null) {
+                programArg "--height"
+                programArg autotestHeight.toString()
+            }
+        }
+        liveTest {
+            client()
+            configName = "Live Server Test"
+            vmArg "-Dlinkenvisuals.livetest=true"
+            programArg "--quickPlayMultiplayer"
+            programArg "localhost:25566"
         }
     }
 }

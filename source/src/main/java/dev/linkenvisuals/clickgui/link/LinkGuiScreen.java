@@ -29,6 +29,7 @@ import dev.linkenvisuals.render.IconPipeline;
 import dev.linkenvisuals.render.MsdfText;
 import dev.linkenvisuals.render.PanelPipeline;
 import dev.linkenvisuals.render.RoundedRectPipeline;
+import dev.linkenvisuals.ui.AnimatedString;
 import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.linkmenu.LinkenFonts;
 import dev.linkenvisuals.ui.linkmenu.LinkenMenuChrome;
@@ -179,8 +180,17 @@ public final class LinkGuiScreen extends Screen {
     private SliderSetting draggingSlider;
     private float dragTrackX;
     private float dragTrackWidth;
+    private float activeSliderRaw;
     private ModeSetting openMode;
     private Rect openModeBox;
+    private ModeSetting lastOpenMode;
+    private Rect lastOpenModeBox;
+    private float enumddOpen;
+    private final AnimatedString searchTextAnim = new AnimatedString(150L, "");
+    private final Map<String, AnimatedString> valueAnims = new HashMap<>();
+    private final Map<String, Float> smoothNumbers = new HashMap<>();
+    private final Map<String, Float> smoothFractions = new HashMap<>();
+    private final Map<String, Float> sliderGrabs = new HashMap<>();
     private final List<OptionHit> optionHits = new ArrayList<>();
     private ColorSetting openColor;
     private boolean draggingColor;
@@ -346,7 +356,7 @@ public final class LinkGuiScreen extends Screen {
             pinnedSettingHits.clear();
         }
         drawPinnedCards(context, metrics, mx, my, uiFade, deltaSeconds);
-        drawPopups(context, metrics, mx, my, uiFade);
+        drawPopups(context, metrics, mx, my, uiFade, deltaSeconds);
         if (ModuleRegistry.cursorTracker()) {
             cursorTrail.update(mx, my);
             cursorTrail.render(context);
@@ -467,23 +477,26 @@ public final class LinkGuiScreen extends Screen {
                 LinkenMenuChrome.rgba(searchFocused ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED, openT));
         }
         String query = search.value();
+        searchTextAnim.update(query);
+        GlyphAtlas searchFont = LinkenFonts.body();
         String placeholder = I18n.get("gui.search.placeholder");
-        if (query.isEmpty() && !searchFocused) {
-            LinkenMenuChrome.drawOn(context, LinkenFonts.body(), placeholder,
+        if (query.isEmpty() && !searchFocused && !searchTextAnim.isAnimating()) {
+            LinkenMenuChrome.drawOn(context, searchFont, placeholder,
                 searchRect.x() + 30.0f, centerY, 12.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.MUTED3, openT));
         } else {
-            LinkenMenuChrome.drawOn(context, LinkenFonts.body(), query,
-                searchRect.x() + 30.0f, centerY, 12.5f,
+            drawSearchText(context, searchFont, searchRect.x() + 30.0f, centerY, 12.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.TEXT, openT));
-            String beforeCaret = query.substring(0, Math.min(search.caret(), query.length()));
-            float caret = searchRect.x() + 30.0f
-                + LinkenMenuChrome.textWidth(LinkenFonts.body(), beforeCaret, 12.5f);
-            float blink = (System.currentTimeMillis() - lastTyped) < 700L
-                ? 1.0f : 0.35f + 0.65f * (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000.0 * 3.1));
-            context.fill(Math.round(caret), Math.round(centerY - 7.0f),
-                Math.round(caret + 1.2f), Math.round(centerY + 7.0f),
-                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, Math.round(220 * blink * openT)));
+            if (searchFocused) {
+                String beforeCaret = query.substring(0, Math.min(search.caret(), query.length()));
+                float caret = searchRect.x() + 30.0f
+                    + LinkenMenuChrome.textWidth(searchFont, beforeCaret, 12.5f);
+                float blink = (System.currentTimeMillis() - lastTyped) < 700L
+                    ? 1.0f : 0.35f + 0.65f * (float) Math.abs(Math.sin(System.currentTimeMillis() / 1000.0 * 3.1));
+                context.fill(Math.round(caret), Math.round(centerY - 7.0f),
+                    Math.round(caret + 1.2f), Math.round(centerY + 7.0f),
+                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, Math.round(220 * blink * openT)));
+            }
         }
 
         themeToggleHit = new Rect(slidersX, centerY - 17.0f, 34.0f, 34.0f);
@@ -950,8 +963,15 @@ public final class LinkGuiScreen extends Screen {
 
         boolean listening = module.binding();
         String bind = listening ? "..." : (module.hasKeybind() ? module.keybind() : "NONE");
-        float bindW = Math.min(cm.bind().width(),
-            Math.max(44.0f, LinkenMenuChrome.textWidth(LinkenFonts.mono(), bind, 8.0f) + 26.0f));
+        String bindId = "cardbind:" + module.name();
+        AnimatedString bindAnim = valueAnims.computeIfAbsent(bindId, key -> new AnimatedString(160L, bind));
+        bindAnim.update(bind);
+        float bindTextW = LinkenMenuChrome.textWidth(LinkenFonts.mono(), bind, 8.0f);
+        if (bindAnim.isAnimating()) {
+            bindTextW = Math.max(bindTextW,
+                LinkenMenuChrome.textWidth(LinkenFonts.mono(), bindAnim.previous(), 8.0f));
+        }
+        float bindW = Math.min(cm.bind().width(), Math.max(44.0f, bindTextW + 26.0f));
         Rect bindRect = new Rect(cm.bind().x(), cm.bind().y(), bindW, cm.bind().height());
         LinkenMenuChrome.roundedFill(context, bindRect.x(), bindRect.y(), bindRect.width(), bindRect.height(),
             5.0f, LinkenMenuChrome.rgba(0xFFFFFF, 16, openT), metrics.scale());
@@ -960,8 +980,8 @@ public final class LinkGuiScreen extends Screen {
         LinkenMenuChrome.roundedOutline(context, bindRect.x(), bindRect.y(), bindRect.width(), bindRect.height(),
             5.0f, 0.8f, LinkenMenuChrome.rgba(listening ? LinkGuiTheme.ACCENT : 0xFFFFFF,
                 listening ? 160 : 28, openT), metrics.scale());
-        LinkenMenuChrome.drawOn(context, LinkenFonts.mono(), bind,
-            bindRect.x() + 9.0f, bindRect.y() + bindRect.height() * 0.5f, 8.0f,
+        drawMorphValue(context, LinkenFonts.mono(), bindId, bind,
+            bindRect.x() + 9.0f, MsdfText.topFor(bindRect.y() + bindRect.height() * 0.5f, 8.0f), 8.0f,
             LinkenMenuChrome.rgba(listening ? LinkGuiTheme.ACCENT : LinkGuiTheme.MUTED, openT));
 
         drawSwitch(context, cm.toggle().x(), cm.toggle().y(),
@@ -1170,7 +1190,7 @@ public final class LinkGuiScreen extends Screen {
             float h = rowHeight(setting);
             Rect row = new Rect(area.x(), y, area.width(), h);
             if (row.bottom() >= area.y() - 6.0f && row.y() <= area.bottom() + 6.0f) {
-                drawSetting(context, metrics, setting, row, mx, my, openT, deltaSeconds);
+                drawSetting(context, metrics, setting, row, mx, my, openT, deltaSeconds, focused.name());
                 settingHits.add(new SettingHit(setting, row));
             }
             y += h + 6.0f;
@@ -1283,7 +1303,7 @@ public final class LinkGuiScreen extends Screen {
             for (Setting setting : visible) {
                 float h = rowHeight(setting);
                 Rect row = new Rect(x + 12.0f, rowY, width - 24.0f, h);
-                drawSetting(context, metrics, setting, row, mx, my, openT, deltaSeconds);
+                drawSetting(context, metrics, setting, row, mx, my, openT, deltaSeconds, module.name());
                 pinnedSettingHits.add(new SettingHit(setting, row));
                 rowY += h + 6.0f;
             }
@@ -1316,17 +1336,113 @@ public final class LinkGuiScreen extends Screen {
             row.x() + 9.0f, row.y() + row.height() * 0.5f, 9.5f,
             LinkenMenuChrome.rgba(LinkGuiTheme.MUTED2, openT));
         String label = focused.binding() ? "..." : (focused.hasKeybind() ? focused.keybind() : "NONE");
-        float chipW = Math.max(48.0f, LinkenMenuChrome.textWidth(LinkenFonts.mono(), label, 8.0f) + 16.0f);
+        String bindId = "bindrow:" + focused.name();
+        AnimatedString bindAnim = valueAnims.computeIfAbsent(bindId, key -> new AnimatedString(160L, label));
+        bindAnim.update(label);
+        float labelW = LinkenMenuChrome.textWidth(LinkenFonts.mono(), label, 8.0f);
+        if (bindAnim.isAnimating()) {
+            labelW = Math.max(labelW,
+                LinkenMenuChrome.textWidth(LinkenFonts.mono(), bindAnim.previous(), 8.0f));
+        }
+        float chipW = Math.max(48.0f, labelW + 16.0f);
         float chipX = row.right() - 8.0f - chipW;
         LinkenMenuChrome.roundedFill(context, chipX, row.y() + 7.0f, chipW, 18.0f, 4.0f,
             LinkenMenuChrome.rgba(0x000000, 92, openT), metrics.scale());
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), label,
+        drawMorphValueCentered(context, LinkenFonts.mono(), bindId, label,
             chipX + chipW * 0.5f, row.y() + 16.0f, 8.0f,
             LinkenMenuChrome.rgba(focused.binding() ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, openT));
     }
 
+    /** Donor search crossfade: common prefix stays, the new tail rises while the removed tail fades. */
+    private void drawSearchText(DrawContext context, GlyphAtlas font, float x, float centerY,
+                                float size, int color) {
+        String current = searchTextAnim.current();
+        if (!searchTextAnim.isAnimating()) {
+            LinkenMenuChrome.drawOn(context, font, current, x, centerY, size, color);
+            return;
+        }
+        String previous = searchTextAnim.previous();
+        float p = searchTextAnim.progress();
+        int common = 0;
+        int limit = Math.min(current.length(), previous.length());
+        while (common < limit && current.charAt(common) == previous.charAt(common)) {
+            common++;
+        }
+        String prefix = current.substring(0, common);
+        String currentTail = current.substring(common);
+        String previousTail = previous.substring(common);
+        LinkenMenuChrome.drawOn(context, font, prefix, x, centerY, size, color);
+        float tailX = x + LinkenMenuChrome.textWidth(font, prefix, size);
+        if (!previousTail.isEmpty()) {
+            LinkenMenuChrome.drawOn(context, font, previousTail, tailX, centerY, size,
+                fadeColor(color, 1.0f - p));
+        }
+        if (!currentTail.isEmpty()) {
+            LinkenMenuChrome.drawOn(context, font, currentTail, tailX, centerY + (1.0f - p) * 3.0f,
+                size, fadeColor(color, p));
+        }
+    }
+
+    /** Donor drawMorphValue: 160 ms EASE_OUT_CUBIC old/new crossfade. */
+    private void drawMorphValue(DrawContext context, GlyphAtlas font, String id, String value,
+                                float x, float top, float size, int color) {
+        AnimatedString anim = valueAnims.computeIfAbsent(id, key -> new AnimatedString(160L, value));
+        anim.update(value);
+        if (!anim.isAnimating()) {
+            LinkenMenuChrome.drawText(context, font, anim.current(), x, top, size, color);
+            return;
+        }
+        float p = anim.progress();
+        LinkenMenuChrome.drawText(context, font, anim.previous(), x, top - p * 2.0f, size,
+            fadeColor(color, 1.0f - p));
+        LinkenMenuChrome.drawText(context, font, anim.current(), x, top + (1.0f - p) * 2.0f, size,
+            fadeColor(color, p));
+    }
+
+    /** Same crossfade for the centred keybind chip, where the donor would otherwise shift the text. */
+    private void drawMorphValueCentered(DrawContext context, GlyphAtlas font, String id, String value,
+                                        float centerX, float centerY, float size, int color) {
+        AnimatedString anim = valueAnims.computeIfAbsent(id, key -> new AnimatedString(160L, value));
+        anim.update(value);
+        if (!anim.isAnimating()) {
+            LinkenMenuChrome.drawCentered(context, font, anim.current(), centerX, centerY, size, color);
+            return;
+        }
+        float p = anim.progress();
+        LinkenMenuChrome.drawCentered(context, font, anim.previous(), centerX, centerY - p * 2.0f,
+            size, fadeColor(color, 1.0f - p));
+        LinkenMenuChrome.drawCentered(context, font, anim.current(), centerX, centerY + (1.0f - p) * 2.0f,
+            size, fadeColor(color, p));
+    }
+
+    private static int fadeColor(int argb, float factor) {
+        float clamped = Math.max(0.0f, Math.min(1.0f, factor));
+        int alpha = Math.round(((argb >>> 24) & 0xFF) * clamped);
+        return (alpha << 24) | (argb & 0xFFFFFF);
+    }
+
+    /** Donor time-based easing: frame-rate independent, snaps once the target is close enough. */
+    private static float smoothValue(Map<String, Float> values, String id, float target, float rate,
+                                     float snap, float deltaSeconds) {
+        float current = values.getOrDefault(id, target);
+        float alpha = 1.0f - (float) Math.exp(-rate * Math.max(0.0f, deltaSeconds));
+        current += (target - current) * alpha;
+        if (Math.abs(target - current) < snap) {
+            current = target;
+        }
+        values.put(id, current);
+        return current;
+    }
+
+    /** Donor smoothNumStr: the slider badge rolls toward the real value instead of jumping. */
+    private String smoothSliderText(String id, SliderSetting slider, float deltaSeconds) {
+        float value = smoothValue(smoothNumbers, id, slider.value(), 14.0f,
+            Math.max(0.001f, slider.step() * 0.25f), deltaSeconds);
+        return slider.format(value);
+    }
+
     private void drawSetting(DrawContext context, Metrics metrics, Setting setting, Rect row,
-                             float mx, float my, float openT, float deltaSeconds) {
+                             float mx, float my, float openT, float deltaSeconds, String owner) {
         boolean hovered = row.contains(mx, my);
         LinkenMenuChrome.roundedFill(context, row.x(), row.y(), row.width(), row.height(), 7.0f,
             LinkenMenuChrome.rgba(hovered ? LinkGuiTheme.HOVER : LinkGuiTheme.ROW,
@@ -1353,7 +1469,8 @@ public final class LinkGuiScreen extends Screen {
             drawSwitch(context, row.right() - 16.0f - switchW, row.y() + (row.height() - switchH) * 0.5f,
                 switchW, switchH, (float) bool.glow.get(), openT, metrics.scale());
         } else if (setting instanceof SliderSetting slider) {
-            String value = slider.display();
+            String sliderId = "sld:" + owner + ":" + setting.name();
+            String value = smoothSliderText(sliderId, slider, deltaSeconds);
             LinkenMenuChrome.drawRightText(context, LinkenFonts.mono(), value,
                 row.right() - 16.0f, row.y() + 13.0f, 10.0f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
@@ -1362,15 +1479,34 @@ public final class LinkGuiScreen extends Screen {
             float trackY = row.bottom() - 23.0f;
             LinkenMenuChrome.roundedFill(context, trackX, trackY, trackW, 3.0f, 1.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.TRACK, openT), metrics.scale());
-            float fill = Math.max(3.0f, trackW * Math.max(0.0f, Math.min(1.0f, slider.fraction())));
+            float target = Math.max(0.0f, Math.min(1.0f, slider.fraction()));
+            boolean active = slider == draggingSlider;
+            float position;
+            if (active) {
+                // Donor: while dragging the knob follows the raw cursor fraction, so it does not
+                // jump between quantized steps. On release it eases back to the real value.
+                position = Math.max(0.0f, Math.min(1.0f, activeSliderRaw));
+                smoothFractions.put(sliderId, position);
+            } else {
+                position = smoothValue(smoothFractions, sliderId, target, 20.0f, 0.001f, deltaSeconds);
+            }
+            float fill = Math.max(3.0f, trackW * position);
             LinkenMenuChrome.roundedFill(context, trackX, trackY, fill, 3.0f, 1.5f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT), metrics.scale());
-            float knobX = trackX + trackW * Math.max(0.0f, Math.min(1.0f, slider.fraction()));
-            GlowPipeline.radial(context, knobX, trackY + 1.5f, 10.0f,
-                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, 42, openT));
-            CirclePipeline.draw(context, knobX, trackY + 1.5f, 5.0f,
+            float knobX = trackX + trackW * position;
+            float grab = smoothValue(sliderGrabs, sliderId, active ? 1.0f : 0.0f, 20.0f, 0.001f, deltaSeconds);
+            float knobY = trackY + 1.5f;
+            float knobR = 5.0f + 1.7f * grab;
+            GlowPipeline.radial(context, knobX, knobY, 10.0f + 4.0f * grab,
+                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, Math.round(42 + 120 * grab), openT));
+            if (grab > 0.01f) {
+                // Donor drawSliderKnob: an accent halo appears and the knob grows while in use.
+                CirclePipeline.draw(context, knobX, knobY, knobR + 2.4f,
+                    LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, Math.round(210 * grab), openT));
+            }
+            CirclePipeline.draw(context, knobX, knobY, knobR,
                 LinkenMenuChrome.rgba(0xFFFFFF, openT));
-            CirclePipeline.draw(context, knobX, trackY + 1.5f, 3.0f,
+            CirclePipeline.draw(context, knobX, knobY, Math.max(2.0f, knobR - 2.0f),
                 LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
         } else if (setting instanceof ModeSetting mode) {
             String current = mode.current();
@@ -1380,12 +1516,16 @@ public final class LinkGuiScreen extends Screen {
                 LinkenMenuChrome.rgba(0x000000, 90, openT), metrics.scale());
             LinkenMenuChrome.roundedOutline(context, box.x(), box.y(), box.width(), box.height(), 5.0f, 1.0f,
                 LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, mode.open() ? 100 : 34, openT), metrics.scale());
-            LinkenMenuChrome.drawText(context, LinkenFonts.body(), LinkenMenuChrome.ellipsize(LinkenFonts.body(), current, box.width() - 26.0f, 10.0f),
-                box.x() + 9.0f, box.y() + 7.0f, 10.0f, LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
+            drawMorphValue(context, LinkenFonts.body(), "modev:" + owner + ":" + setting.name(),
+                LinkenMenuChrome.ellipsize(LinkenFonts.body(), current, box.width() - 26.0f, 10.0f),
+                box.x() + 9.0f, box.y() + 7.0f, 10.0f,
+                LinkenMenuChrome.rgba(LinkGuiTheme.ACCENT, openT));
             drawChevron(context, box.right() - 13.0f, box.y() + box.height() * 0.5f, mode.open(), openT);
             if (mode.open()) {
                 openMode = mode;
                 openModeBox = box;
+                lastOpenMode = mode;
+                lastOpenModeBox = box;
             }
             if (row.height() >= 56.0f) {
                 String options = mode.options().size() + " OPTIONS";
@@ -1412,7 +1552,7 @@ public final class LinkGuiScreen extends Screen {
             float chipY = row.y() + (row.height() - 22.0f) * 0.5f;
             LinkenMenuChrome.roundedFill(context, chipX, chipY, chipW, 22.0f, 5.0f,
                 LinkenMenuChrome.rgba(0x000000, 90, openT), metrics.scale());
-            LinkenMenuChrome.drawCentered(context, LinkenFonts.mono(), label,
+            drawMorphValueCentered(context, LinkenFonts.mono(), "keybindv:" + owner + ":" + setting.name(), label,
                 chipX + chipW * 0.5f, chipY + 11.0f, 9.0f,
                 LinkenMenuChrome.rgba(keybind.listening() ? LinkGuiTheme.ACCENT : LinkGuiTheme.TEXT3, openT));
         } else if (setting instanceof StringSetting string) {
@@ -1595,38 +1735,23 @@ public final class LinkGuiScreen extends Screen {
 
     // ------------------------------------------------------------------ popups
 
-    private void drawPopups(DrawContext context, Metrics metrics, float mx, float my, float openT) {
+    private void drawPopups(DrawContext context, Metrics metrics, float mx, float my,
+                            float openT, float deltaSeconds) {
         optionHits.clear();
-        if (openMode != null && openModeBox != null) {
-            List<String> options = openMode.options();
-            float rowH = 30.0f;
-            float listH = options.size() * rowH + 12.0f;
-            float listX = openModeBox.x();
-            float listY = openModeBox.bottom() + 4.0f;
-            if (listY + listH > height - 30.0f) {
-                listY = openModeBox.y() - listH - 4.0f;
-            }
-            float listW = Math.max(openModeBox.width(), 190.0f);
-            GlowPipeline.radial(context, listX + listW * 0.5f, listY + listH * 0.5f,
-                Math.max(listW, listH) * 0.6f, LinkenMenuChrome.rgba(0x000000, 150, openT));
-            LinkenMenuChrome.roundedFill(context, listX, listY, listW, listH, 8.0f,
-                LinkenMenuChrome.rgba(LinkGuiTheme.PANEL_LIGHT, 248, openT), metrics.scale());
-            LinkenMenuChrome.roundedOutline(context, listX, listY, listW, listH, 8.0f, 1.0f,
-                LinkenMenuChrome.rgba(0xFFFFFF, 38, openT), metrics.scale());
-            for (int i = 0; i < options.size(); i++) {
-                float rowY = listY + 6.0f + i * rowH;
-                boolean hovered = mx >= listX && mx <= listX + listW && my >= rowY && my <= rowY + rowH;
-                boolean active = i == openMode.index();
-                if (hovered || active) {
-                    LinkenMenuChrome.roundedFill(context, listX + 5.0f, rowY, listW - 10.0f, rowH, 5.0f,
-                        LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : 0xFFFFFF,
-                            active ? 24 : 10, openT), metrics.scale());
-                }
-                LinkenMenuChrome.drawText(context, LinkenFonts.body(), options.get(i),
-                    listX + 16.0f, rowY + 8.0f, 10.0f,
-                    LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : LinkGuiTheme.ON_DARK, openT));
-                optionHits.add(new OptionHit(openMode, i, new Rect(listX + 5.0f, rowY, listW - 10.0f, rowH)));
-            }
+        // Donor enum dropdown: exponential open/close smoothing (rate 20/s), keeping the
+        // last setting while the list shrinks so closing is animated, not a hard cut.
+        float enumddTarget = openMode != null ? 1.0f : 0.0f;
+        enumddOpen += (enumddTarget - enumddOpen)
+            * (1.0f - (float) Math.exp(-20.0f * deltaSeconds));
+        if (Math.abs(enumddTarget - enumddOpen) < 0.001f) {
+            enumddOpen = enumddTarget;
+        }
+        if (openMode != null) {
+            lastOpenMode = openMode;
+            lastOpenModeBox = openModeBox;
+        }
+        if (lastOpenMode != null && lastOpenModeBox != null && enumddOpen > 0.01f) {
+            drawEnumDropdown(context, metrics, mx, my, openT);
         }
 
         if (openColor == null) {
@@ -1686,6 +1811,66 @@ public final class LinkGuiScreen extends Screen {
 
         // Popup bounds are remembered through the primitive fields above.
         popupBounds = new Rect(px, py, popupW, popupH);
+    }
+
+    /**
+     * Donor enum dropdown: the panel height grows with an eased factor, rows cascade
+     * in from the top, and closing keeps the last setting so the list visibly shrinks.
+     */
+    private void drawEnumDropdown(DrawContext context, Metrics metrics, float mx, float my, float openT) {
+        ModeSetting setting = lastOpenMode;
+        Rect anchor = lastOpenModeBox;
+        if (setting == null || anchor == null) {
+            return;
+        }
+        List<String> options = setting.options();
+        if (options.isEmpty()) {
+            return;
+        }
+        float rowH = 30.0f;
+        float listH = options.size() * rowH + 12.0f;
+        float listX = anchor.x();
+        float listY = anchor.bottom() + 4.0f;
+        if (listY + listH > height - 30.0f) {
+            listY = Math.max(0.0f, anchor.y() - listH - 4.0f);
+        }
+        float listW = Math.max(anchor.width(), 190.0f);
+
+        // Donor ease-out over the exponentially smoothed open factor.
+        float inverse = 1.0f - enumddOpen;
+        float ease = 1.0f - inverse * inverse * inverse;
+        float revealH = Math.max(1.0f, listH * ease);
+
+        GlowPipeline.radial(context, listX + listW * 0.5f, listY + revealH * 0.5f,
+            Math.max(listW, revealH) * 0.6f, LinkenMenuChrome.rgba(0x000000, 150, openT));
+        LinkenMenuChrome.roundedFill(context, listX, listY, listW, revealH, 8.0f,
+            LinkenMenuChrome.rgba(LinkGuiTheme.PANEL_LIGHT, 248, openT), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, listX, listY, listW, revealH, 8.0f, 1.0f,
+            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(38 * ease), openT), metrics.scale());
+
+        boolean interactive = openMode == setting && enumddOpen > 0.99f;
+        for (int i = 0; i < options.size(); i++) {
+            float rowY = listY + 6.0f + i * rowH;
+            float rowAlpha = Math.max(0.0f, Math.min(1.0f, (listY + revealH - rowY) / rowH));
+            if (rowAlpha <= 0.02f) {
+                continue;
+            }
+            boolean hovered = interactive && mx >= listX && mx <= listX + listW
+                && my >= rowY && my <= rowY + rowH;
+            boolean active = i == setting.index();
+            if (hovered || active) {
+                LinkenMenuChrome.roundedFill(context, listX + 5.0f, rowY, listW - 10.0f, rowH, 5.0f,
+                    LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : 0xFFFFFF,
+                        Math.round((active ? 24 : 10) * rowAlpha), openT), metrics.scale());
+            }
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(), options.get(i),
+                listX + 16.0f, rowY + 8.0f, 10.0f,
+                LinkenMenuChrome.rgba(active ? LinkGuiTheme.ACCENT : LinkGuiTheme.ON_DARK,
+                    Math.round(255 * rowAlpha), openT));
+            if (interactive) {
+                optionHits.add(new OptionHit(setting, i, new Rect(listX + 5.0f, rowY, listW - 10.0f, rowH)));
+            }
+        }
     }
 
     private Rect popupBounds;
@@ -2005,7 +2190,7 @@ public final class LinkGuiScreen extends Screen {
             float height = Math.min(rowHeight(setting), 64.0f);
             Rect row = new Rect(px, rowY, cw, height);
             if (row.bottom() >= interfaceTop - 6.0f && row.y() <= interfaceBottom + 6.0f) {
-                drawSetting(context, metrics, setting, row, mx, my, openT, 0.05f);
+                drawSetting(context, metrics, setting, row, mx, my, openT, 0.05f, ui != null ? ui.name() : "ClickGUI");
                 interfaceHits.add(new SettingHit(setting, row));
             }
             rowY += height + 6.0f;
@@ -2391,7 +2576,8 @@ public final class LinkGuiScreen extends Screen {
             draggingSlider = slider;
             dragTrackX = row.x() + 16.0f;
             dragTrackWidth = row.width() - 32.0f;
-            slider.setFraction((mx - dragTrackX) / dragTrackWidth);
+            activeSliderRaw = Math.max(0.0f, Math.min(1.0f, (mx - dragTrackX) / dragTrackWidth));
+            slider.setFraction(activeSliderRaw);
         } else if (setting instanceof ModeSetting mode) {
             if (rightClick) {
                 mode.select((mode.index() + mode.options().size() - 1) % mode.options().size());
@@ -2439,7 +2625,8 @@ public final class LinkGuiScreen extends Screen {
             return true;
         }
         if (draggingSlider != null) {
-            draggingSlider.setFraction((mx - dragTrackX) / dragTrackWidth);
+            activeSliderRaw = Math.max(0.0f, Math.min(1.0f, (mx - dragTrackX) / dragTrackWidth));
+            draggingSlider.setFraction(activeSliderRaw);
             return true;
         }
         return super.mouseDragged(click, offsetX, offsetY);

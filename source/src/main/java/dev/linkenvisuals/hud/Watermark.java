@@ -9,9 +9,11 @@ import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.MsdfText;
 import dev.linkenvisuals.render.NeonEdge;
+import dev.linkenvisuals.module.impl.StreamerModeModule;
 import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.Theme;
 import dev.linkenvisuals.ui.style.StyleFlavor;
+import dev.linkenvisuals.util.text.StreamerRules;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -80,6 +82,10 @@ public final class Watermark extends HudElement {
         MinecraftClient client = MinecraftClient.getInstance();
 
         String username = client.getSession() != null ? client.getSession().getUsername() : "Player";
+        StreamerRules streamer = StreamerModeModule.rules();
+        if (streamer != null) {
+            username = streamer.sanitize(username);
+        }
         String fps = String.valueOf(client.getCurrentFps());
         String ping = currentPing(client) + "ms";
         String server = client.getCurrentServerEntry() != null
