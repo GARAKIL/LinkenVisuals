@@ -1061,6 +1061,18 @@
 - **Commit**: `29ac193` `feat(ui): add custom background and text colours (v1.0.137, D113)`.
 - **Остаток**: BoostFPS (donor force DEFAULT), semantic HUD colours, pixel diff.
 
+## 2026-10-24 · D115 · Helper mouse bindings, splash labels, LV branding — v1.0.139
+- **Mouse binds**: `KeybindSetting` получил `mouseAllowed`; helper-настройки Ft/Hw/Rw создаются с `true`. LMB/RMB → `MOUSE1`/`MOUSE2` в конфиге, донорские `M1`/`M2` читаются; `resolveMouse`/`matchesMouse`; key-only настройки очищают stale mouse-метку, чтобы не было мёртвого контроля. `MouseMixin.onMouseButton` → `Modules.onHelperMouse`; `Ft/Hw/Rw.onMouse` выбирает тот же hotbar-слот. ClickGUI/LinkGUI/Classic при listening принимают mouse button; `HelperItemsHud` показывает `LMB`/`RMB`.
+- **Splash labels**: причина отсутствия `NN%` — неверный camera basis (`right × up` из `getHorizontalPlane/getVerticalPlane` ≈ 0). Перешли на `Camera.getRotation().transform(0,0,-1)` + right/up; FakePlayer включён в скан (не в `world.getPlayers()`); добавлены screen-bounds и cap 4–10 px. Autotest `item-radius-labels` с FakePlayer.
+- **Team prefix**: `StreamerTextSanitizerTest` — 4 детерминированных кейса, включая `[MVP] Ivan` и legacy-коды.
+- **DynamicIsland**: закрыт donor-правилом (`LinkHudStyle.active()` → return); media/lyrics покрыты существующими HUD; не open item.
+- **BoostFPS**: закрыт donor-правилом (`getBoostFpsMode()` = DEFAULT, UI control hidden); dead toggle не добавлен.
+- **Branding**: `lv_logo.png` (512, прозрачный, из пользовательского файла), `logo.png`/`ico_logo.png` = LV, `strange_logo.png` = Strange. Linken: menu/welcome/loading/pause/HUD/KeybindPanel/LinkGUI; Strange: `MainMenuScreen`/`ClickGuiScreen`/Strange HUD/loading. `BrandingAssetsTest` проверяет ассеты.
+- **Проверки**: **315 тестов**, 0 fail/error/skip в обоих flavors; Linken **1147/1147** (1280×720 и 1920×1080), Strange **1137/1137** (1920×1080), 0 fail/skip; только offline-auth/Realms.
+- **Сборка**: `linkenvisuals-1.0.139.jar` (11 165 138 байт, SHA-256 `DE5528B70BC094AA7F6FEFFFA2D35D1D6775055C67675889500FCB503EA198F0`); `linkenvisuals-strange-1.0.139.jar` (11 165 146 байт, SHA-256 `72E618F708D35D0661E9D568B348244E53BB67AFC01CEAEA92D43C992BE63353`).
+- **Commit**: `610a03d` `feat(helper): port mouse binds, fix splash labels, split LV branding (v1.0.139, D115)`.
+- **Остаток**: только human multiplayer/pixel acceptance; Punchy исключён.
+
 ## 2026-10-24 · D114 · HelperItemsHud + Ft/Hw/Rw — v1.0.138
 - **Модули**: `FtHelperModule` (6 keybind-настроек: Desor/Trapka/Yavka/Bozhka/Plast/Snowball), `HwHelperModule` (4: Stan/Trapka/Boom Trapka/Boom Thing), `RwHelperModule` (4: Anti Fly/Exp Scroll/Trap/ Dark Pulse). `HelperActions` ищет hotbar-предмет (для Rw — с name-token) и переключает selected slot; chat feedback как у донора.
 - **HUD**: `HelperItemsHud` — 18 px tiles, item icon + key label, panel `HudSurface`, 100 ms cache, preview samples; добавлен в `HudManager.ELEMENTS`. `KeyboardMixin` -> `Modules.onHelperKey`.

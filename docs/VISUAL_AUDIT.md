@@ -1,6 +1,6 @@
 # VISUAL_AUDIT — Linken 1.21.11 vs donor 1.21.4
 
-> Date: 2026-10-24 · Target build: **v1.0.138 / D114** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
+> Date: 2026-10-24 · Target build: **v1.0.139 / D115** · Donor: `C:\Users\gameg\Desktop\визуалы` (READ-ONLY, `linkenvisuals-2.0.jar`, MC 1.21.4)
 >
 > This is an explicit gap audit, not a claim of pixel parity. Items marked
 > **fixed** are in D106; the rest is open scope.
@@ -120,9 +120,11 @@ open task.
 
 ## 6. Other explicit parity gaps
 
-From `FEATURE_PARITY.md`, still open:
-`DynamicIsland` (donor hides it for Link style; media covered),
-helper mouse bindings, and BoostFPS (donor force DEFAULT).
+From `FEATURE_PARITY.md`, the remaining items are human checks only:
+live multiplayer splash/team-prefix acceptance and screen-by-screen pixel
+acceptance. `DynamicIsland` is closed by the donor Link-style rule; helper
+mouse bindings shipped in D115; `BoostFPS` is closed because the donor getter
+is hard-wired to `DEFAULT` and its UI control is hidden.
 **Punchy and Punchy-dependent ViewModel Animated are excluded by user
 (2026-10-24); HandMotion is final.**
 
@@ -140,7 +142,7 @@ helper mouse bindings, and BoostFPS (donor force DEFAULT).
 - Still manual: live mount/air/hotbar-offhand clearance, 1280×720 preview,
   exact donor damage-flash timing.
 
-## 6b. World D108 — ItemRadius (fixed, proximity labels open)
+## 6b. World D108 — ItemRadius (fixed; labels fixed in D115)
 
 - **Ender Eye/Sugar**: radius-14 ring at the player's feet.
 - **Netherite Scrap**: 5×5×5 box (7×7×7 with Dragon Trap).
@@ -150,9 +152,13 @@ helper mouse bindings, and BoostFPS (donor force DEFAULT).
 - **Splash Potion**: 200-step impact simulation (speed 0.5, pitch −20°,
   gravity 0.03, water/air drag, player velocity, block raycast), radius 1–30.
 - **Proximity colour**: magenta when another player is inside the circle/box.
-- **Splash labels (D112)**: `NN%` over each player inside the simulated splash
-  radius, donor `1 − dist/radius` formula, screen-space MSDF with black outline.
-  A live multiplayer case is still a human check.
+- **Splash labels (D112, fixed D115)**: `NN%` over each player inside the
+  simulated splash radius, donor `1 − dist/radius` formula, screen-space MSDF
+  with black outline. D115 fixed the camera basis (`Camera.getRotation()`
+  instead of a near-zero `right × up`), added the client-side FakePlayer to
+  the scan and added screen-bounds + a 4–10 px size cap. Autotest screenshot
+  `item-radius-labels` shows `92%` over the FakePlayer. A live multiplayer
+  case remains a human check.
 
 ## 6c. Combat D109 — DamageParticles + FortniteDamage (fixed)
 
@@ -184,8 +190,8 @@ helper mouse bindings, and BoostFPS (donor force DEFAULT).
 - **GUI Blur off**: LinkGUI and Beta ClickGUI override `renderBackground` and
   skip vanilla post-process blur; the Link backdrop also skips `applyBlur`.
 - Screenshot `linkgui-noblur` at 1920×1080 proves the no-blur path.
-- **Open:** donor Background Colour, Text Colour and BoostFPS are not exposed;
-  donor per-offset fade interpolation is simplified.
+- **Remaining:** donor per-offset fade interpolation is simplified. Background/
+  Text shipped in D113; BoostFPS is closed by donor rule in D115.
 
 ## 6f. UI D113 — custom background/text colours
 
@@ -193,29 +199,52 @@ helper mouse bindings, and BoostFPS (donor force DEFAULT).
 - LinkGUI panel/row/field/text/backdrop are recoloured; `HudStyle.base()` uses
   the custom background for HUD panels.
 - Screenshot `linkgui-custom-colours` at 1920×1080.
-- **Open:** BoostFPS is not exposed because donor `getBoostFpsMode()` always
-  returns DEFAULT; semantic HUD colours (health/armour) keep their own colours.
+- **Closed in D115:** BoostFPS is not exposed because donor `getBoostFpsMode()`
+  always returns DEFAULT and its UI control is hidden; semantic HUD colours
+  (health/armour) keep their own colours.
 
-## 6g. HUD D114 — HelperItemsHud + Ft/Hw/Rw
+## 6g. HUD D114 — HelperItemsHud + Ft/Hw/Rw (mouse added in D115)
 
 - 18 px item/key tiles for enabled Ft/Hw/Rw helper bindings; item must be in
   the hotbar (preview shows sample tiles in HUD edit mode).
-- Key-only dispatch (`KeyboardMixin`); donor mouse bindings are still open.
-- Screenshot `helper-items` at 1920×1080 and 1280×720.
-- 1280×720 autotest: Linken **1136/1136**; LinkGUI/custom-vitals/helper-items
+- D115: LMB/RMB binds (`MOUSE1`/`MOUSE2`, donor `M1`/`M2`), `MouseMixin`
+  dispatch, ClickGUI capture and `LMB`/`RMB` tile labels. Autotest asserts
+  both buttons select the same slots as key binds.
+- Default position moved to the hotbar's right (`0.77, 0.86` design fraction):
+  at 1280×720 the old centre-left slot overlapped chat and the hotbar.
+- Screenshot `helper-items` at 1920×1080 and 1280×720; labels are fully visible.
+- 1280×720 autotest: Linken **1147/1147**; LinkGUI/custom-vitals/helper-items
   layouts fit at that resolution.
-- **Open:** mouse bindings, DynamicIsland, human pixel acceptance.
+- **Open:** human pixel acceptance only. DynamicIsland is closed by donor rule.
 - **Punchy is out of scope** (user decision 2026-10-24); HandMotion is final.
 
-## 7. Verification for D101-D114
+## 6h. Branding D115 — LV vs Strange
 
-- `test` / `clean build`: 304 tests, 0 failures/errors/skips in both flavors.
-- Autotest Linken **1136/1136**, Strange **1126/1126**, 0 fail/skip, 1920×1080;
-  `welcome`, `pause`, `custom-vitals`, `armor-hud-v2`, `item-radius`,
+- Linken uses the user-provided LV monogram (`lv_logo.png`, transparent
+  512×512) in the main menu wordmark, welcome scene, loading scene, pause
+  topbar, HUD watermark, KeybindPanel, LinkGUI header and footer.
+- Strange uses `strange_logo.png` in `MainMenuScreen`, `ClickGuiScreen`, the
+  Strange HUD watermark/KeybindPanel and the Beta loading scene.
+- `BrandingAssetsTest` guards the packaged assets. Linken screenshots show
+  only LV; the Strange world screenshot shows the infinity mark.
+- The LinkGUI screen is a Linken-family shell and keeps the LV mark even when
+  the autotest opens it from a Strange build; normal Strange routing never
+  exposes it.
+
+## 7. Verification for D101-D115
+
+- `test` / `clean build`: 315 tests, 0 failures/errors/skips in both flavors.
+- Autotest Linken **1147/1147** at 1280×720 and 1920×1080; Strange
+  **1137/1137** at 1920×1080, 0 fail/skip. `welcome`, `pause`,
+  `custom-vitals`, `armor-hud-v2`, `item-radius`, `item-radius-labels`,
   `damage-number`, `damage-visuals`, `check self nametag`, `check UI palette`,
-  `check custom UI colours`, `check helper hud` and the fake-player crit
-  assertion are part of the plan. No new shader/mixin/sound errors; only
-  offline-auth/Realms.
+  `check custom UI colours`, `check helper hud`, helper LMB/RMB selection and
+  the fake-player crit assertion are part of the plan. No new
+  shader/mixin/sound errors; only offline-auth/Realms.
 - Screenshots: `lv-autotest-*-welcome.png`, `lv-autotest-*-pause.png`,
-  `lv-autotest-*-linken-mainmenu.png`; the pause screenshot shows the compact
-  440 px panel with `icons2` glyphs and the `PAUSED` title.
+  `lv-autotest-*-linken-mainmenu.png`, `lv-autotest-*-linkgui.png`,
+  `lv-autotest-*-helper-items.png`, `lv-autotest-*-item-radius-labels.png`;
+  the pause screenshot shows the compact 440 px panel with `icons2` glyphs,
+  the `PAUSED` title and the LV mark.
+- Reported resolutions are the screenshot framebuffer sizes: 1280×720 and
+  1920×1061 (client area of the 1920×1080 override window).

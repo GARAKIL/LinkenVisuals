@@ -4,7 +4,31 @@
 >
 > **SCOPE DECISION 2026-10-24:** полный **Punchy** (181 класс / 62 261 строка), включая Punchy-зависимый `ViewModel Animated`, **не портируем**. Это не открытый остаток, а явно исключённый объём по решению пользователя. `HandMotion` (walk/sprint/water/fall/attack) — финальный принятый subset.
 
+## Состояние на 2026-10-24 (D115 — helper mouse, splash labels, branding) — v1.0.139
+
+### Сделано
+1. **D115/v1.0.139 — helper mouse bindings**: `KeybindSetting` расширен флагом `mouseAllowed`; LMB/RMB хранятся как `MOUSE1`/`MOUSE2`, читаются донорские `M1`/`M2`, отображаются как `LMB`/`RMB`. `MouseMixin` (`onMouseButton`) вызывает `Modules.onHelperMouse`, `Ft/Hw/Rw` получили `onMouse`, ClickGUI/LinkGUI/Classic захватывают кнопку при listening. `HelperItemsHud` показывает mouse-бинд; autotest проверяет, что LMB и RMB выбирают те же hotbar-слоты, что и key bind. Key-only настройки больше не могут получить мёртвый `M1`.
+2. **D115 — ItemRadius splash labels fixed**: реальный баг D112 — `forward = right × up` из `Camera.getHorizontalPlane/getVerticalPlane` давал near-zero depth, поэтому `NN%` не рисовались ни над одним игроком. Теперь базис берётся из `Camera.getRotation()`; FakePlayer добавлен в `nearbyPlayers` (он не входит в `world.getPlayers()`); добавлены screen-bounds и cap 4–10 design px. Autotest: FakePlayer + splash potion + `check radius labels` + screenshot `item-radius-labels`.
+3. **D115 — SelfNametags team prefix**: `StreamerTextSanitizerTest` (4) фиксирует `[MVP] Ivan` → `[MVP] Streamer`, legacy `§7[Team] §fIvan`, чужой ник не трогается, `Ivanov` не считается self-ником.
+4. **DynamicIsland закрыт по donor-правилу**: donor `DynamicIsland.onRender2D` сразу выходит при `LinkHudStyle.active()`; Linken-сборка всегда Link style. Media/lyrics уже покрыты `MediaPlayerHud`/`LyricsHud`; второй media-HUD не добавляется. В Strange-сборке Linken-HUD-элемент не показывается из-за flavor-lock. Не числится незакрытым.
+5. **BoostFPS закрыт по donor-правилу**: donor `UI.getBoostFpsMode()` всегда возвращает `DEFAULT`, а `boostFpsUi` имеет `visible=false`. Наш порт не выводит мёртвый `Default/Middle/High`; `Optimization` остаётся реальным управляемым FPS-модулем.
+6. **Branding**: добавлен прозрачный LV-монограмм `lv_logo.png` (из пользовательского файла), `logo.png`/`ico_logo.png` заменены на LV; `strange_logo.png` — Strange-логотип. LV используется в Linken main menu/welcome/loading/pause/HUD watermark/KeybindPanel/LinkGUI header+footer; Strange logo — только в Strange screens (`MainMenuScreen`, `ClickGuiScreen`, Strange HUD/loading).
+7. **Проверки**: **315 тестов**, 0 fail/error/skip в обоих flavors; Linken autotest **1147/1147** (1280×720 и 1920×1080), Strange **1137/1137** (1920×1080), 0 fail/skip. Новых ERROR/exception/shader/sound нет; только offline-auth/Realms. `BrandingAssetsTest` проверяет упаковку LV/Strange ассетов.
+8. **Commit**: code `610a03d` `feat(helper): port mouse binds, fix splash labels, split LV branding (v1.0.139, D115)`; docs commit follows.
+
+### Следующая задача
+1. **Human multiplayer acceptance**: реальный второй игрок в радиусе splash и team-prefix nametag на сервере; формулы/FakePlayer/team-prefix тесты уже есть, live-кейс — только вручную.
+2. **Human pixel acceptance**: 1280×720 и 1920×1080 screenshots просмотрены; остаётся side-by-side с donor и проверка hover/press на всех sub-screens.
+3. **Punchy не открывать**: полный Punchy и `ViewModel Animated` исключены пользователем (2026-10-24); `HandMotion` — финальный subset.
+
+### Риски
+- LinkGUI Interface-панель скроллится; на 1920 последняя строка (`Kill Streak HUD`) частично обрезана viewport'ом — это не overflow, а affordance скролла.
+- Helper HUD по умолчанию стоит справа над hotbar (`0.77, 0.86`) и не пересекает chat/hotbar при GUI scale 3; при scale 5 возможен сдвиг — проверять вручную.
+- LV-логотип — растровый (512×512), получен из пользовательского файла; Strange-логотип остаётся отдельным ассетом.
+
 ## Состояние на 2026-10-24 (D114 — HelperItemsHud + Ft/Hw/Rw) — v1.0.138
+
+> Историческая запись. Пункты «Следующая задача» ниже закрыты в D115: mouse bindings, DynamicIsland, BoostFPS; см. верхний раздел.
 
 ### Сделано
 1. **D114/v1.0.138**: закрыт `HelperItemsHud`: добавлены `FtHelperModule`, `HwHelperModule`, `RwHelperModule` (Visual/Misc, keybind-настройки), `HelperActions` (выбор hotbar-предмета + chat feedback) и `HelperItemsHud` — плитки 18 px с item icon и key label, кэш 100 мс, preview в edit mode. `KeyboardMixin` вызывает `Modules.onHelperKey`.

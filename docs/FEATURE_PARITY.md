@@ -47,9 +47,9 @@ RPC, IAS/account backend, cosmetics catalog/remote pets, legacy
 | CoordinatesHud | ✅ **ported** (`CoordinatesHud`, D88): 17 px card, `iconsnew` compass, integer XYZ, two-decimal BPS, animated width/fade, `Coordinates HUD` setting (default off) |
 | CooldownsHud | ✅ **ported** (`CooldownsHud`, `CooldownTracker`, D95): reflection over 1.21.11 cooldown entries + inventory fallback, preview, item/name/time rows |
 | ArmorHud / InventoryHud | ✅ **ported** D95 + D107: Armor V1 100×39 card with durability %; Armor V2 two hotbar-relative 49 px groups (boots/leggings left, chest/helmet right) selectable via `Armor HUD Mode`; Inventory 27/36 slots with optional hotbar row |
-| HelperItemsHud / LowArmorNotificationsHud | ✅ LowArmor D95 (50/25 thresholds, 3.5 s, preview, en/ru/uk); ⛔ HelperItems blocked on absent donor Ft/Hw/Rw helper modules |
+| HelperItemsHud / LowArmorNotificationsHud | ✅ LowArmor D95 (50/25 thresholds, 3.5 s, preview, en/ru/uk); ✅ HelperItems D114 + mouse binds D115: LMB/RMB persisted as `MOUSE1`/`MOUSE2`, `MouseMixin` dispatch, ClickGUI capture, HUD shows `LMB`/`RMB` |
 | CustomVitals | ✅ **ported** D107: hotbar-anchored 182 px bars, Segments/Stack/Bars, armor row, air, mount HP/jump, XP/level, damage flash; vanilla status/exp/jump layers cancelled |
-| DynamicIsland (full) | ⛔ intentionally not ported: donor hides it when Link style is active; `MediaPlayerHud` + `LyricsHud` cover media/lyrics |
+| DynamicIsland (full) | ⛔ closed by donor rule: donor hides it when Link style is active; `MediaPlayerHud` + `LyricsHud` cover media/lyrics. Not open work |
 | Custom Hotbar | ✅ `HotbarHud` |
 | HUD Style (8 variants) | ✅ all donor variants ported (D85); donor border smoothness ported (D86) |
 | HUD Shape (Rounded/Pill/Sharp) | ✅ implemented centrally in `HudStyle`; geometry test |
@@ -71,12 +71,15 @@ SkyChanger), `ChatHelper`, `FastExp`, `ItemScroller`, `MineHelper`,
 (D105), `HandMotion` final subset (D106), `CustomVitals`/Armor V2 (D107),
 `ItemRadius` (D108; splash proximity labels D112), `DamageParticles`/`FortniteDamage` (D109),
 `SelfNametags` toggle (D110), Interface palette/fade/blur/background/text (D111/D113),
-`HelperItemsHud`/Ft/Hw/Rw helpers (D114), cosmetics/pets subset,
+`HelperItemsHud`/Ft/Hw/Rw helpers (D114) with LMB/RMB binds (D115),
+LV/Strange branding split (D115), cosmetics/pets subset,
 filters/ambience subset.
 
 ### Donor modules not ported (visual/client, still open)
 
-`DynamicIsland`, remaining `UI` BoostFPS control.
+None from the remaining visual/client list. `DynamicIsland` is closed by the
+donor Link-style rule; `BoostFPS` is closed because the donor getter always
+returns `DEFAULT` and its UI control is hidden.
 
 ### Excluded by scope (not open items)
 
@@ -106,9 +109,9 @@ not silently faked; no dead controls are exposed for them.
 
 ## Verification used for this snapshot
 
-- `clean build`: **304 test / 0 failures / 0 errors / 0 skips** in both flavors.
-- Hidden `runAutotest`: Linken **1136/1136**, Strange **1126/1126**, no new
-  ERROR/exception, no shader
+- `clean build`: **315 test / 0 failures / 0 errors / 0 skips** in both flavors.
+- Hidden `runAutotest`: Linken **1147/1147** (1280×720 and 1920×1080),
+  Strange **1137/1137** (1920×1080), no new ERROR/exception, no shader
   source errors, no unknown sound events; title screenshot includes the donor
   `icons2` main-menu set. D98 adds clean `hitrange` and `custom-hitbox`
   screenshots at 1920×1080. D99 fixed and registered the bossbar/fire/particle
@@ -132,7 +135,10 @@ not silently faked; no dead controls are exposed for them.
   D111 adds Secondary Colour/Theme Fade/GUI Blur with the `linkgui-noblur`
   screenshot; D112 adds the donor splash proximity `NN%` labels; D113 adds
   Custom Theme Colours with the `linkgui-custom-colours` screenshot; D114 adds
-  HelperItemsHud/Ft/Hw/Rw with the `helper-items` screenshot. A separate
+  HelperItemsHud/Ft/Hw/Rw with the `helper-items` screenshot; D115 adds helper
+  LMB/RMB binds, fixes the splash-label camera basis + FakePlayer scan
+  (`item-radius-labels`), closes DynamicIsland/BoostFPS by donor rule and adds
+  LV/Strange branding with `BrandingAssetsTest`. A separate
   frame-capture 1280×720 confirms the LINKEN splash replaces the Mojang logo
   from the first frame.
 - Text shortcuts: layout-aware `Ctrl+A/C/V/X/Z/Y`, word deletion and caret

@@ -1,4 +1,4 @@
-﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.138 / D114
+﻿# MASTER PROMPT - LinkenVisuals: continue from v1.0.139 / D115
 
 You are the lead engineer continuing the existing LinkenVisuals port. Do not restart the project. Preserve accepted visual/audio/HUD decisions. Work autonomously through green builds, tests, autotest, docs, commit/push and a Russian report.
 
@@ -8,12 +8,12 @@ You are the lead engineer continuing the existing LinkenVisuals port. Do not res
 
 - Repo: `https://github.com/KurumaOfficial/LinkenVisuals`
 - Branch: `main`
-- Version: **1.0.138**
-- Last code commit: `c1c2a14` `feat(hud): port HelperItemsHud and Ft/Hw/Rw helpers (v1.0.138, D114)`.
-- Tests: **304 / 0 failures / 0 errors / 0 skipped** in both flavors.
-- Autotest: Linken **1136/1136**, Strange **1126/1126**, 0 fail/skip, 1920×1080.
+- Version: **1.0.139**
+- Last code commit: `610a03d` `feat(helper): port mouse binds, fix splash labels, split LV branding (v1.0.139, D115)`.
+- Tests: **315 / 0 failures / 0 errors / 0 skipped** in both flavors.
+- Autotest: Linken **1147/1147** (1280×720 and 1920×1080), Strange **1137/1137** (1920×1080), 0 fail/skip.
 - Audit: `docs/VISUAL_AUDIT.md` records what is fixed and what is still open.
-- Jars (1.0.138): `linkenvisuals-1.0.138.jar` 11 129 420 bytes / `96CC4CF33F7C93F379F9AFEA5BEEB420B08122412ACC7E20965BC2C9FBD4F90A`; `linkenvisuals-strange-1.0.138.jar` 11 129 420 bytes / `0E7B71D3B2186B772BF4BCC886A451744F27A04863E6B4D8EC27E0A8F76E8F4B`.
+- Jars (1.0.139): `linkenvisuals-1.0.139.jar` 11 165 138 bytes / `DE5528B70BC094AA7F6FEFFFA2D35D1D6775055C67675889500FCB503EA198F0`; `linkenvisuals-strange-1.0.139.jar` 11 165 146 bytes / `72E618F708D35D0661E9D568B348244E53BB67AFC01CEAEA92D43C992BE63353`.
 
 Clone/verify:
 
@@ -23,7 +23,7 @@ cd LinkenVisuals
 git checkout main
 git pull
 git log -2 --oneline
-Get-Content source/gradle.properties   # mod_version=1.0.138
+Get-Content source/gradle.properties   # mod_version=1.0.139
 ```
 
 ## 2. Donor
@@ -36,7 +36,7 @@ Historical `C:\StrangeVisuals\donor2\visualy` is absent. Ask the user if the des
 
 The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not use `screen/linkgui/windows/*`.
 
-## 3. Done in D105-D114 (do not redo)
+## 3. Done in D105-D115 (do not redo)
 
 - D105: `ViewModelModule` 12 donor manual offsets/scales, applied at the donor `renderItem` anchor on top of HandPose; object modules register before config load.
 - D106: FakePlayer crit path (1.5× damage, vanilla crit gate, crit sound/particles, no double hit sound); first-open Welcome scene; compact 440 px `LinkenPauseScreen` with `pause.*` i18n/icons/real `GameMenuScreen` route; `Better Animations -> Hand Motion` (walk/sprint/water/fall/attack Punchy-lite); account-row icon overlap fix.
@@ -48,14 +48,15 @@ The real LINKEN GUI is monolithic `screen/linkgui/LinkGuiScreen.java`; do not us
 - D112: ItemRadius splash proximity `NN%` labels (donor 1−dist/radius formula) via screen-space MSDF; `ItemRadiusRulesTest`.
 - D113: Custom Theme Colours master + Background/Text colours, LinkGUI palette and HUD base; `linkgui-custom-colours` screenshot.
 - D114: HelperItemsHud + Ft/Hw/Rw helper modules, key dispatch, `helper-items` screenshot.
+- D115: real helper LMB/RMB binds (`KeybindSetting.mouseAllowed`, `MOUSE1`/`MOUSE2`, donor `M1`/`M2`, `MouseMixin` → `Modules.onHelperMouse`, ClickGUI capture, HUD `LMB`/`RMB`, autotest slot assertions); ItemRadius splash labels fixed (camera quaternion basis, FakePlayer scan, screen bounds, `item-radius-labels`); SelfNametags team-prefix tests; DynamicIsland/BoostFPS closed by donor rule; LV/Strange branding split (`lv_logo.png`, `strange_logo.png`, `BrandingAssetsTest`).
 - `docs/VISUAL_AUDIT.md` explains the root causes and open gaps.
 
 ## 4. Next priority
 
-1. **DynamicIsland**: 1496 + 1043 строк helper; donor hides it in Link style.
-2. **Helper mouse bindings** (сейчас key-only) + BoostFPS donor-DEFAULT.
-3. **Pixel GUI pass**: 1280×720 and 1920×1080 screenshots captured (Linken 1136/1136 at both); human acceptance remains. `HelperItemsHud`/Ft/Hw/Rw ported (D114); `UI` background/text (D113); `ItemRadius` splash labels (D112); `UI` palette/fade/blur (D111); `SelfNametags` (D110); `DamageParticles`/`FortniteDamage` (D109).
-4. **Punchy is out of scope** — do not start it. `HandMotion` is the final accepted animation subset.
+1. **Human multiplayer acceptance**: real second player for ItemRadius splash `NN%` and team-prefix SelfNametags. Deterministic tests already exist; do not claim live acceptance from singleplayer.
+2. **Human pixel acceptance**: 1280×720 and 1920×1080 screenshots exist; side-by-side donor comparison and hover/press checks remain.
+3. **Punchy is out of scope** — do not start it. `HandMotion` is the final accepted animation subset.
+4. **DynamicIsland / BoostFPS / helper mouse are closed** — do not reopen them.
 
 ## 5. Architecture that must not break
 
@@ -77,7 +78,7 @@ $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21'
 .\gradlew.bat build -Pstrange --console=plain --no-daemon
 ```
 
-Expected: 281+ tests, 0 fail/error/skip each.
+Expected: 315 tests, 0 fail/error/skip each.
 
 Hidden autotest (explicit permission only):
 
@@ -124,8 +125,12 @@ source/src/main/java/dev/linkenvisuals/
   mixin/HeldItemRendererMixin.java       # HandPose + ViewModel + HandMotion anchors
   clickgui/ModuleRegistry.java           # Better Animations settings, HUD/i18n gates
   module/impl/ViewModelModule.java       # 12 donor manual settings
-  hud/*                                  # HUD layer
-  autotest/AutoTestDriver.java           # welcome/pause/crit steps
+  hud/*                                  # HUD layer incl. HelperItemsHud
+  clickgui/setting/KeybindSetting.java   # key + LMB/RMB bind representation
+  mixin/MouseMixin.java                  # helper mouse dispatch
+  ui/linkmenu/*                          # LV-branded Linken menu/pause/loading
+  clickgui/link/LinkGuiScreen.java       # LV header/footer, bind capture
+  autotest/AutoTestDriver.java           # welcome/pause/crit/helper/radius steps
 source/src/test/java/dev/linkenvisuals/
   player/FakePlayerTest.java
   module/impl/HitSoundModuleTest.java
@@ -141,12 +146,14 @@ source/src/test/java/dev/linkenvisuals/
 - `LinkenPauseScreen` must only replace `GameMenuScreen` in the Linken style. Strange/Vanilla must keep the vanilla pause.
 - `LinkenFonts.icons2()` glyphs are `MENU_ICON_*` (A-H), not legacy `ICON_*` (P/Q/...).
 - Welcome is procedural, not donor Lottie; full Punchy is not ported.
-- HUD defaults must not overlap at GUI scale 3; add autotest preview/check/screenshot.
+- HUD defaults must not overlap at GUI scale 3; add autotest preview/check/screenshot. `HelperItemsHud` default is `0.77, 0.86` (hotbar's right) to avoid chat.
+- Helper mouse binds persist as `MOUSE1`/`MOUSE2`; key-only `KeybindSetting` must never show a mouse label (dead bind).
+- Linken branding uses `lv_logo.png`; `strange_logo.png` is Strange-only. Do not reference `link_icon.png` from Linken screens.
 - Do not commit `build/`, `run/`, jars, logs, screenshots or temp files.
 
 ## 9. Definition of Done
 
-- Both builds green, 281+ tests, 0 fail/error/skip.
+- Both builds green, 315 tests, 0 fail/error/skip.
 - Both hidden autotests green, no new mod/shader/sound/mixin errors (only offline-auth/Realms).
 - No dead controls; new strings en/ru/uk; `LangParityTest` green.
 - Jars path/size/SHA-256 recalculated; Russian report with visual/log evidence and manual list.
@@ -154,4 +161,4 @@ source/src/test/java/dev/linkenvisuals/
 
 ## 10. First action
 
-Read `docs/HANDOFF.md` top, `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` D105-D106, `docs/FEATURE_PARITY.md`. Run baseline tests in both flavors. Then start with the pixel GUI pass or the screen-anchored HUD layer; choose the one with the clearest donor evidence and do not add fake controls.
+Read `docs/HANDOFF.md` top, `docs/VISUAL_AUDIT.md`, `docs/MERGE_DECISIONS.md` D105-D115, `docs/FEATURE_PARITY.md`. Run baseline tests in both flavors. The port is feature-complete for the accepted scope; do not invent new controls. Only human multiplayer/pixel acceptance remains.
