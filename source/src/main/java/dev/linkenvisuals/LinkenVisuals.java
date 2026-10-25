@@ -126,7 +126,7 @@ public final class LinkenVisuals implements ClientModInitializer {
             AccountStorage.save();
             HandPose.save();
             dev.linkenvisuals.waypoint.WaypointStorage.save();
-        }, "linkenvisuals-shutdown"));
+        }, "visuals-modification-shutdown"));
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             TargetMarks.clear();

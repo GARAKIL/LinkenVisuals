@@ -245,12 +245,12 @@ public final class LinkGuiScreen extends Screen {
                 return textures;
             }
         } catch (RuntimeException unavailable) {
-            LinkenVisuals.LOGGER.debug("LINKEN ClickGUI skin lookup failed: {}", unavailable.getMessage());
+            LinkenVisuals.LOGGER.debug("[Visuals Modification] ClickGUI skin lookup failed: {}", unavailable.getMessage());
         }
         try {
             return DefaultSkinHelper.getSkinTextures(client.getGameProfile());
         } catch (RuntimeException unavailable) {
-            LinkenVisuals.LOGGER.debug("LINKEN ClickGUI default skin failed: {}", unavailable.getMessage());
+            LinkenVisuals.LOGGER.debug("[Visuals Modification] ClickGUI default skin failed: {}", unavailable.getMessage());
             return null;
         }
     }
@@ -374,7 +374,7 @@ public final class LinkGuiScreen extends Screen {
                 try {
                     context.applyBlur();
                 } catch (RuntimeException unavailable) {
-                    LinkenVisuals.LOGGER.debug("LINKEN ClickGUI blur unavailable: {}", unavailable.getMessage());
+                    LinkenVisuals.LOGGER.debug("[Visuals Modification] ClickGUI blur unavailable: {}", unavailable.getMessage());
                 }
             }
             context.fill(0, 0, width, height,

@@ -32,7 +32,7 @@ public final class LinkGuiMediaKeys {
             robot.keyPress(keyCode);
             robot.keyRelease(keyCode);
         } catch (AWTException | SecurityException | IllegalArgumentException failure) {
-            LinkenVisuals.LOGGER.debug("LINKEN media key unavailable: {}", failure.getMessage());
+            LinkenVisuals.LOGGER.debug("[Visuals Modification] Media key unavailable: {}", failure.getMessage());
         }
     }
 }

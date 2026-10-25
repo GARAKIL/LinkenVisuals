@@ -125,7 +125,7 @@ public final class LinkenFonts {
                 Identifier.of(LinkenVisuals.MOD_ID, atlasPath)
             );
         } catch (RuntimeException failure) {
-            LinkenVisuals.LOGGER.warn("Failed to load LINKEN font '{}': {}", label, failure.getMessage());
+            LinkenVisuals.LOGGER.warn("[Visuals Modification] Failed to load font '{}': {}", label, failure.getMessage());
             return null;
         }
     }

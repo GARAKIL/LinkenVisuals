@@ -255,7 +255,7 @@ public final class MainMenuScreen extends Screen {
         context.getMatrices().translate(cx, cy);
         context.getMatrices().scale(size / 120.0f, size / 120.0f);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO, -60, -60, 0.0f, 0.0f,
-            120, 120, 128, 128, ColorMath.withAlpha(0xFFFFFF, Math.round(16 * appear)));
+            120, 120, 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, Math.round(16 * appear)));
         context.getMatrices().popMatrix();
     }
 

@@ -643,7 +643,7 @@ public final class LinkenMenuChrome {
         try {
             Util.getOperatingSystem().open(url);
         } catch (RuntimeException failure) {
-            LinkenVisuals.LOGGER.warn("Failed to open LINKEN menu URL '{}': {}", url, failure.getMessage());
+            LinkenVisuals.LOGGER.warn("[Visuals Modification] Failed to open menu URL '{}': {}", url, failure.getMessage());
         }
     }
 }

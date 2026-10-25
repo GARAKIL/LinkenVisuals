@@ -112,7 +112,7 @@ public abstract class SplashOverlayMixin {
         } catch (Throwable failure) {
             if (!linkenvisuals$failureLogged) {
                 linkenvisuals$failureLogged = true;
-                LinkenVisuals.LOGGER.warn("LINKEN splash failed, falling back to vanilla: {}",
+                LinkenVisuals.LOGGER.warn("[Visuals Modification] Splash failed, falling back to vanilla: {}",
                     failure.toString());
             }
         }

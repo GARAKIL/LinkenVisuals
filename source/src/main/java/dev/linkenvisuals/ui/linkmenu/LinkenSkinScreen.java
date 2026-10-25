@@ -94,12 +94,12 @@ public final class LinkenSkinScreen extends Screen {
                 return textures;
             }
         } catch (RuntimeException unavailable) {
-            LinkenVisuals.LOGGER.debug("LINKEN skin preview lookup failed: {}", unavailable.getMessage());
+            LinkenVisuals.LOGGER.debug("[Visuals Modification] Skin preview lookup failed: {}", unavailable.getMessage());
         }
         try {
             return DefaultSkinHelper.getSkinTextures(client.getGameProfile());
         } catch (RuntimeException unavailable) {
-            LinkenVisuals.LOGGER.debug("LINKEN default skin preview failed: {}", unavailable.getMessage());
+            LinkenVisuals.LOGGER.debug("[Visuals Modification] Default skin preview failed: {}", unavailable.getMessage());
             return null;
         }
     }

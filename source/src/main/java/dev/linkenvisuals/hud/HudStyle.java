@@ -88,8 +88,8 @@ public final class HudStyle {
             case LEGACY -> {
                 GlassPanelPipeline.draw(context, x, y, width, height,
                     ColorMath.withAlpha(Theme.hudTint(element), Math.round(225.0f * a)));
-                RoundedRectPipeline.draw(context, x, y, width, height,
-                    ColorMath.withAlpha(LEGACY_BODY, Math.round(206.0f * a)));
+                RoundedRectPipeline.draw(context, x, y, width, height, radius,
+                    ColorMath.withAlpha(LEGACY_BODY, Math.round(75.0f * a)));
                 NeonEdge.frame(context, x, y, width, height, 0, a);
             }
             case CARD -> {
@@ -227,9 +227,9 @@ public final class HudStyle {
         if (variant == Variant.LEGACY) {
             GlassPanelPipeline.draw(context, x, y, width, height,
                 ColorMath.withAlpha(Theme.hudTint(element), Math.round(215.0f * a)));
-            RoundedRectPipeline.draw(context, x, y, width, height,
-                ColorMath.withAlpha(LEGACY_BODY, Math.round(200.0f * a)));
-            RoundedRectPipeline.drawOutline(context, x, y, width, height,
+            RoundedRectPipeline.draw(context, x, y, width, height, radius,
+                ColorMath.withAlpha(LEGACY_BODY, Math.round(65.0f * a)));
+            RoundedRectPipeline.drawOutline(context, x, y, width, height, radius, 1.0f,
                 ColorMath.withAlpha(0xFFFFFF, Math.round(20.0f * a)));
             return;
         }
