@@ -21,8 +21,7 @@ import net.minecraft.util.Identifier;
  * per-screen drawing 1:1.</p>
  */
 public final class LoadingOverlay {
-    public static final Identifier LOGO = LinkenVisuals.id("textures/gui/lv_logo.png");
-    private static final Identifier STRANGE_LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
+    public static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
 
     /** The backdrop renders every frame; a broken panorama would otherwise log forever. */
     private static boolean panoramaFailureLogged;
@@ -72,11 +71,9 @@ public final class LoadingOverlay {
         GlowPipeline.radial(context, cx, glowY, glowRadius, ColorMath.argb(NeonEdge.cool(), 50.0f / 255.0f));
 
         // Crisp stable logo - no jittering
-        boolean strange = StyleFlavor.isStrange() || StyleManager.getStyle() == MenuStyle.BETA;
-        int logoTexture = strange ? 128 : 512;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, strange ? STRANGE_LOGO : LOGO,
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO,
             Math.round(cx - 23.0f), Math.round(logoY), 0.0f, 0.0f,
-            46, 46, logoTexture, logoTexture, logoTexture, logoTexture, 0xFFFFFFFF);
+            46, 46, 128, 128, 128, 128, 0xFFFFFFFF);
 
         GlyphAtlas tf = Fonts.titleFont();
         GlyphAtlas sf = Fonts.textFont();

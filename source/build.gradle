@@ -24,11 +24,10 @@ if (project.hasProperty('bumpVersion')) {
     }
 }
 
-// -Pstrange builds the visuals modification family jar (Classic/Beta GUI, Vanilla/Beta
-// menu, legacy HUD). Without the flag the jar is default visuals. The two style
-// families are mutually exclusive at runtime; see StyleFlavor.
-def strangeFlavor = project.hasProperty('strange')
-    && !project.property('strange').toString().equalsIgnoreCase('false')
+// Strange is the primary and sole base for the visuals modification mod.
+// The default build produces the Strange family jar.
+def strangeFlavor = !project.hasProperty('linken')
+    || !project.property('linken').toString().equalsIgnoreCase('true')
 def flavorName = strangeFlavor ? 'strange' : 'linken'
 
 // Optimization jars dropped here are embedded as Fabric Jar-in-Jar entries.
@@ -41,7 +40,7 @@ group = project.maven_group
 
 base {
     archivesName = strangeFlavor
-        ? "${project.archives_base_name}-strange"
+        ? 'strangevisuals'
         : project.archives_base_name
 }
 

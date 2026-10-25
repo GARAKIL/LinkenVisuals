@@ -52,7 +52,7 @@ public final class ClickGuiScreen extends Screen {
         }
     }
 
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
     private static final Identifier SEARCH_ICON = LinkenVisuals.id("textures/gui/ico_search.png");
 
     private static final float WINDOW_W = 496.0f;

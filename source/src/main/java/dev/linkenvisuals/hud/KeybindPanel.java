@@ -22,8 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 public final class KeybindPanel extends HudElement {
-    private static final Identifier STRANGE_ICON = LinkenVisuals.id("textures/gui/strange_logo.png");
-    private static final Identifier LINKEN_ICON = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier ICON = LinkenVisuals.id("textures/gui/logo.png");
 
     private static final float PADDING = 7.0f;
     private static final float HEADER_H = 17.0f;
@@ -105,11 +104,8 @@ public final class KeybindPanel extends HudElement {
         HudSurface.panel(context, "keybinds", x, y, cachedWidth, cachedHeight, 1.0f);
 
         float iconY = y + (HEADER_H - ICON_H) * 0.5f;
-        boolean strange = StyleFlavor.isStrange() || HudStyle.variant() == HudStyle.Variant.LEGACY;
-        Identifier icon = strange ? STRANGE_ICON : LINKEN_ICON;
-        int iconTex = strange ? 128 : 120;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, icon, Math.round(x + PADDING), Math.round(iconY), 0.0f, 0.0f,
-            Math.round(ICON_W), Math.round(ICON_H), iconTex, iconTex, iconTex, iconTex, ColorMath.withAlpha(0xFFFFFF, 220));
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, ICON, Math.round(x + PADDING), Math.round(iconY), 0.0f, 0.0f,
+            Math.round(ICON_W), Math.round(ICON_H), 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, 220));
 
         float dividerX = x + PADDING + ICON_W + 5.0f;
         context.fill(Math.round(dividerX), Math.round(y + 5.0f), Math.round(dividerX) + 1, Math.round(y + HEADER_H - 5.0f),

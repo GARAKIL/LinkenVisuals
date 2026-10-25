@@ -21,8 +21,7 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.util.Identifier;
 
 public final class Watermark extends HudElement {
-    private static final Identifier STRANGE_LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
-    private static final Identifier LINKEN_LOGO = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
 
     private static final float HEIGHT = 17.0f;
     private static final float PADDING = 7.0f;
@@ -109,13 +108,10 @@ public final class Watermark extends HudElement {
         float cursor = x + PADDING;
 
         float logoY = centerY - LOGO_SIZE * 0.5f;
-        boolean strange = StyleFlavor.isStrange() || HudStyle.variant() == HudStyle.Variant.LEGACY;
-        Identifier logo = strange ? STRANGE_LOGO : LINKEN_LOGO;
-        int logoTex = strange ? 128 : 120;
         GlowPipeline.radial(context, cursor + LOGO_SIZE * 0.5f, centerY, LOGO_SIZE * 1.2f,
             ColorMath.withAlpha(NeonEdge.cool(), 75));
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, logo, Math.round(cursor), Math.round(logoY),
-            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), logoTex, logoTex, logoTex, logoTex, ColorMath.withAlpha(0xFFFFFF, 255));
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO, Math.round(cursor), Math.round(logoY),
+            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, 255));
         cursor += LOGO_SIZE + GAP;
 
         MsdfText.draw(context, bold, username, cursor, topFor(centerY, NAME_SIZE), NAME_SIZE,

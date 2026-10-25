@@ -46,7 +46,7 @@ import java.util.List;
  * and snap-to-grid controls.
  */
 public final class MainMenuEditorScreen extends Screen {
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
     private static final Identifier ICON_DATA = LinkenVisuals.id("fonts/msdf/wtmico.json");
     private static final Identifier ICON_ATLAS = LinkenVisuals.id("fonts/msdf/wtmico.png");
 
