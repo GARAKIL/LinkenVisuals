@@ -1080,7 +1080,7 @@ public final class AutoTestDriver {
         add("check LINKEN pause route", 1, () -> {
             if (dev.linkenvisuals.BuildFlavor.STRANGE) {
                 if (!(client.currentScreen instanceof GameMenuScreen)) {
-                    throw new IllegalStateException("Strange build must keep the vanilla GameMenuScreen");
+                    throw new IllegalStateException("Alternative visuals modification build must keep the vanilla GameMenuScreen");
                 }
             } else if (!(client.currentScreen instanceof LinkenPauseScreen)) {
                 throw new IllegalStateException("GameMenuScreen was not routed to LinkenPauseScreen");
@@ -1469,7 +1469,7 @@ public final class AutoTestDriver {
             String stamp = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").format(LocalDateTime.now());
             Path file = dir.resolve("linkenvisuals-autotest-" + stamp + ".log");
             StringBuilder out = new StringBuilder(2048);
-            out.append("LinkenVisuals in-game auto-test\n");
+            out.append("Visuals Modification in-game auto-test\n");
             out.append("when: ").append(LocalDateTime.now()).append('\n');
             out.append("finish: ").append(reason).append('\n');
             out.append("dimension: ").append(client.world != null

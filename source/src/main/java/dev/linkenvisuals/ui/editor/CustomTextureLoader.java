@@ -38,7 +38,7 @@ public final class CustomTextureLoader {
     // Now the render thread only touches volatiles; a daemon loader decodes in
     // background and the render thread performs just the GPU upload (registerTexture).
     private static final ExecutorService LOADER = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "LinkenVisuals-CustomBG");
+        Thread t = new Thread(r, "VisualsModification-CustomBG");
         t.setDaemon(true);
         return t;
     });

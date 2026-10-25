@@ -85,8 +85,8 @@ public final class MediaWatcher {
                 + "(no Windows SMTC and no external script at config/{})", SCRIPT_FILE);
             return;
         }
-        Runtime.getRuntime().addShutdownHook(new Thread(MediaWatcher::stop, "linkenvisuals-media-cleanup"));
-        Thread thread = new Thread(MediaWatcher::pump, "linkenvisuals-media");
+        Runtime.getRuntime().addShutdownHook(new Thread(MediaWatcher::stop, "visuals-modification-media-cleanup"));
+        Thread thread = new Thread(MediaWatcher::pump, "visuals-modification-media");
         thread.setDaemon(true);
         thread.start();
     }
