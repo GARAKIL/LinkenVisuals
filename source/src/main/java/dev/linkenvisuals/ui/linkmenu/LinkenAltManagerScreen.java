@@ -720,7 +720,11 @@ public final class LinkenAltManagerScreen extends Screen {
     @Override
     public void close() {
         if (client != null) {
-            client.setScreen(parent);
+            Screen target = parent;
+            if (target == null || target == this) {
+                target = client.world != null ? new LinkenPauseScreen() : new LinkenMainMenuScreen();
+            }
+            client.setScreen(target);
         }
     }
 }

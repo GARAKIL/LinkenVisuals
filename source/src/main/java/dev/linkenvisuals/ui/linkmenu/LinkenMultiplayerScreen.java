@@ -1406,7 +1406,11 @@ public final class LinkenMultiplayerScreen extends Screen {
     public void close() {
         pinger.cancel();
         if (client != null) {
-            client.setScreen(parent);
+            Screen target = parent;
+            if (target == null || target == this) {
+                target = new LinkenMainMenuScreen();
+            }
+            client.setScreen(target);
         }
     }
 

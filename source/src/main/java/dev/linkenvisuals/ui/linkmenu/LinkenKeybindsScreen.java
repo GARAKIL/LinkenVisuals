@@ -529,7 +529,11 @@ public final class LinkenKeybindsScreen extends Screen {
             client.options.write();
         }
         if (client != null) {
-            client.setScreen(parent);
+            Screen target = parent;
+            if (target == null || target == this) {
+                target = new LinkenSettingsScreen(null);
+            }
+            client.setScreen(target);
         }
     }
 }

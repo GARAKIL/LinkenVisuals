@@ -449,7 +449,11 @@ public final class LinkenSubSettingsScreen extends Screen {
     @Override
     public void close() {
         if (client != null) {
-            client.setScreen(parent);
+            Screen target = parent;
+            if (target == null || target == this) {
+                target = new LinkenSettingsScreen(null);
+            }
+            client.setScreen(target);
         }
     }
 }

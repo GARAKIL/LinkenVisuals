@@ -339,8 +339,13 @@ public final class LinkenPauseScreen extends Screen {
     }
 
     @Override
+    public boolean shouldCloseOnEsc() {
+        return true;
+    }
+
+    @Override
     public boolean keyPressed(net.minecraft.client.input.KeyInput input) {
-        if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
+        if (input.key() == GLFW.GLFW_KEY_ESCAPE || input.isEscape()) {
             close();
             return true;
         }

@@ -665,13 +665,17 @@ public final class LinkenResourcePacksScreen extends Screen {
         if (client == null) {
             return;
         }
+        Screen target = parent;
+        if (target == null || target == this) {
+            target = new LinkenSettingsScreen(null);
+        }
         if (organizer != null) {
             organizer.apply();
             if (client.currentScreen == this) {
-                client.setScreen(parent);
+                client.setScreen(target);
             }
         } else {
-            client.setScreen(parent);
+            client.setScreen(target);
         }
     }
 
