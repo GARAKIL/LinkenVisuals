@@ -86,11 +86,11 @@ public final class HudStyle {
         int accent = accent(element);
         switch (variant()) {
             case LEGACY -> {
-                GlassPanelPipeline.draw(context, x, y, width, height,
+                GlassPanelPipeline.draw(context, x, y, width, height, radius,
                     ColorMath.withAlpha(Theme.hudTint(element), Math.round(225.0f * a)));
                 RoundedRectPipeline.draw(context, x, y, width, height, radius,
                     ColorMath.withAlpha(LEGACY_BODY, Math.round(75.0f * a)));
-                NeonEdge.frame(context, x, y, width, height, 0, a);
+                NeonEdge.frame(context, x, y, width, height, radius, 0, a);
             }
             case CARD -> {
                 RoundedRectPipeline.drawBorder(context, x - 6.0f, y - 6.0f + 1.5f,
