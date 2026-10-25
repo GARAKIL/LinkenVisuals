@@ -13,33 +13,34 @@ class LinkenAnimationTest {
     }
 
     @Test
-    void forwardProgressReachesOne() throws InterruptedException {
-        LinkenAnimation anim = LinkenAnimation.hover();
+    void forwardProgressReachesOne() {
+        long[] time = {1000L};
+        LinkenAnimation anim = new LinkenAnimation(130L, () -> time[0]);
         anim.update(true);
-        Thread.sleep(150);
+        time[0] += 130L;
         assertEquals(1.0f, anim.get(), 0.001f);
     }
 
     @Test
-    void reverseProgressReturnsToZero() throws InterruptedException {
-        LinkenAnimation anim = LinkenAnimation.hover();
+    void reverseProgressReturnsToZero() {
+        long[] time = {1000L};
+        LinkenAnimation anim = new LinkenAnimation(130L, () -> time[0]);
         anim.update(true);
-        Thread.sleep(150);
+        time[0] += 130L;
         assertEquals(1.0f, anim.get(), 0.001f);
         anim.update(false);
-        Thread.sleep(150);
+        time[0] += 130L;
         assertEquals(0.0f, anim.get(), 0.001f);
     }
 
     @Test
-    void animationEasesOutCubically() throws InterruptedException {
-        LinkenAnimation anim = new LinkenAnimation(300L);
+    void animationEasesOutCubically() {
+        long[] time = {1000L};
+        LinkenAnimation anim = new LinkenAnimation(100L, () -> time[0]);
         anim.update(true);
-        Thread.sleep(60);
+        time[0] += 20L; // t = 0.2
         float value = anim.get();
-        // At t ~ 0.2, linear is 0.2, ease-out cubic (1 - 0.8^3) is 0.488.
-        // It must be significantly ahead of linear progress due to ease-out.
-        assertTrue(value > 0.25f, "Ease-out cubic should start fast, was " + value);
-        assertTrue(value <= 1.0f);
+        // At t = 0.2, linear is 0.2, ease-out cubic (1 - 0.8^3) is 0.488.
+        assertEquals(1.0f - 0.8f * 0.8f * 0.8f, value, 0.001f);
     }
 }

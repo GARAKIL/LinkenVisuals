@@ -282,8 +282,13 @@ public final class LinkenVisuals implements ClientModInitializer {
             } else if (client.currentScreen instanceof dev.linkenvisuals.clickgui.link.LinkGuiScreen linken) {
                 linken.close();
             } else if (client.currentScreen == null) {
-                client.setScreen(dev.linkenvisuals.ui.style.StyleRouting.resolveGuiScreen(
-                    ModuleRegistry.guiStyle() != null ? ModuleRegistry.guiStyle().value() : "Beta"));
+                if (ModuleRegistry.isLinkenGui()) {
+                    client.setScreen(new dev.linkenvisuals.clickgui.link.LinkGuiScreen());
+                } else if (ModuleRegistry.isClassicGui()) {
+                    client.setScreen(new ClassicGuiScreen());
+                } else {
+                    client.setScreen(new ClickGuiScreen());
+                }
             }
         }
         updateFog();

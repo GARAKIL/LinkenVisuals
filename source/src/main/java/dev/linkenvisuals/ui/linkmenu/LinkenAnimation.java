@@ -5,6 +5,7 @@ package dev.linkenvisuals.ui.linkmenu;
  */
 public final class LinkenAnimation {
     private final long fullDurationMs;
+    private final java.util.function.LongSupplier timeSupplier;
     private boolean forward;
     private float startValue;
     private float targetValue;
@@ -12,11 +13,16 @@ public final class LinkenAnimation {
     private long currentDurationMs;
 
     public LinkenAnimation(long durationMs) {
+        this(durationMs, System::currentTimeMillis);
+    }
+
+    public LinkenAnimation(long durationMs, java.util.function.LongSupplier timeSupplier) {
         this.fullDurationMs = Math.max(1L, durationMs);
+        this.timeSupplier = timeSupplier != null ? timeSupplier : System::currentTimeMillis;
         this.forward = false;
         this.startValue = 0.0f;
         this.targetValue = 0.0f;
-        this.startTime = System.currentTimeMillis();
+        this.startTime = this.timeSupplier.getAsLong();
         this.currentDurationMs = 0L;
     }
 
@@ -34,14 +40,14 @@ public final class LinkenAnimation {
         this.targetValue = targetForward ? 1.0f : 0.0f;
         float distance = Math.abs(targetValue - startValue);
         this.currentDurationMs = Math.max(1L, Math.round(distance * fullDurationMs));
-        this.startTime = System.currentTimeMillis();
+        this.startTime = timeSupplier.getAsLong();
     }
 
     public float get() {
         if (currentDurationMs <= 0L) {
             return targetValue;
         }
-        long elapsed = System.currentTimeMillis() - startTime;
+        long elapsed = timeSupplier.getAsLong() - startTime;
         if (elapsed >= currentDurationMs) {
             return targetValue;
         }

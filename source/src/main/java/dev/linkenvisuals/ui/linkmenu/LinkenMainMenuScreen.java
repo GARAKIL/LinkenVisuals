@@ -299,8 +299,10 @@ public final class LinkenMainMenuScreen extends Screen {
         float switchWidth = LinkenMenuChrome.textWidth(LinkenFonts.body(), switchLabel, 11.0f);
         float switchX = metrics.quit().x() + (metrics.quit().width() - switchWidth) * 0.5f;
         float switchY = rect.y() + (avatar - 11.0f) * 0.5f;
-        boolean switchHover = mouseX >= switchX && mouseX <= switchX + switchWidth
-            && mouseY >= switchY && mouseY <= switchY + 11.0f;
+        boolean switchHover = (mouseX >= switchX - 4.0f && mouseX <= switchX + switchWidth + 4.0f
+            && mouseY >= rect.y() && mouseY <= rect.bottom())
+            || (mouseX >= switchX && mouseX <= switchX + switchWidth
+            && mouseY >= switchY && mouseY <= switchY + 11.0f);
         float hover = accountHover.updateAndGet(switchHover);
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), switchLabel,
             switchX, switchY, 11.0f,
@@ -403,8 +405,10 @@ public final class LinkenMainMenuScreen extends Screen {
         float switchWidth = LinkenMenuChrome.textWidth(LinkenFonts.body(), switchLabel, 11.0f);
         float switchX = metrics.quit().x() + (metrics.quit().width() - switchWidth) * 0.5f;
         float switchY = account.y() + (account.height() - 11.0f) * 0.5f;
-        if (mouseX >= switchX && mouseX <= switchX + switchWidth
-            && contentMouseY >= switchY && contentMouseY <= switchY + 11.0f) {
+        boolean switchHit = (mouseX >= switchX - 4.0f && mouseX <= switchX + switchWidth + 4.0f
+            && contentMouseY >= account.y() && contentMouseY <= account.bottom())
+            || account.contains(mouseX, contentMouseY);
+        if (switchHit) {
             if (client != null) {
                 client.setScreen(new LinkenAltManagerScreen(this));
             }
@@ -414,8 +418,9 @@ public final class LinkenMainMenuScreen extends Screen {
         LinkenMenuLayout.Rect socials = metrics.socials();
         for (int i = 0; i < 4; i++) {
             float x = socials.x() + i * (LinkenMenuLayout.SOCIAL_SIZE + LinkenMenuLayout.SOCIAL_GAP);
-            if (mouseX >= x && mouseX <= x + LinkenMenuLayout.SOCIAL_SIZE
-                && contentMouseY >= socials.y() && contentMouseY <= socials.bottom()) {
+            LinkenMenuLayout.Rect tile = new LinkenMenuLayout.Rect(
+                x, socials.y(), LinkenMenuLayout.SOCIAL_SIZE, LinkenMenuLayout.SOCIAL_SIZE);
+            if (tile.contains(mouseX, contentMouseY)) {
                 LinkenMenuChrome.openUrl(switch (i) {
                     case 0 -> TELEGRAM_URL;
                     case 1 -> DISCORD_URL;

@@ -41,7 +41,7 @@ group = project.maven_group
 base {
     archivesName = strangeFlavor
         ? 'strangevisuals'
-        : project.archives_base_name
+        : 'linkenvisuals'
 }
 
 // Generate the compile-time flavor constant; never edit build/ by hand.
