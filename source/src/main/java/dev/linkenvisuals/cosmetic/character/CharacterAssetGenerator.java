@@ -3,7 +3,6 @@ package dev.linkenvisuals.cosmetic.character;
 import javax.imageio.ImageIO;
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -40,17 +39,20 @@ public final class CharacterAssetGenerator {
     }
 
     // =========================================================================
-    // 1. ROBLOX BACON HAIR (R6 Blocky / Pal Hair / Motorcycle Tee)
+    // 1. ROBLOX NOOB / BACON HAIR (R6 Blocky / Beveled Cylinder Head / Pal Hair)
     // =========================================================================
 
     public static void generateRobloxBacon(File meshFile, File textureFile) throws IOException {
         List<MeshPart> parts = new ArrayList<>();
 
-        // Part 0: Head (Roblox cylindrical head + 3D bacon Pal hair)
+        // Part 0: Head (Smoothly beveled 16-segment cylindrical head + 3D Pal Bacon hair)
         MeshBuilder head = new MeshBuilder(0, 0);
-        // Base head: x: -0.22..0.22, y: -0.44..0.0, z: -0.22..0.22
-        head.addBox(-0.22f, -0.44f, -0.22f, 0.22f, 0.0f, 0.22f,
-            0.0f, 0.0f, 0.25f, 0.25f);
+        // Base head: beveled cylinder from y = -0.44 to 0.0 with radius 0.22.
+        // Front (-Z) receives face texture (eyes + mouth); sides, back, top, bottom get solid yellow.
+        head.addRobloxHead(-0.44f, 0.0f, 0.22f,
+            0.0f, 0.0f, 0.25f, 0.25f,
+            0.20f, 0.02f, 0.24f, 0.06f);
+
         // Pal Hair - Top mass
         head.addBox(-0.24f, -0.52f, -0.24f, 0.24f, -0.40f, 0.24f,
             0.25f, 0.0f, 0.50f, 0.25f);
@@ -73,65 +75,50 @@ public final class CharacterAssetGenerator {
             0.25f, 0.0f, 0.50f, 0.25f);
         parts.add(head.build());
 
-        // Part 1: Torso (R6 Roblox Torso: open black jacket + blue motorcycle t-shirt)
+        // Part 1: Torso (Classic R6 Roblox Blue Torso #0D69AC)
         MeshBuilder body = new MeshBuilder(1, 0);
         // Main torso: x: -0.25..0.25, y: 0.0..0.72, z: -0.13..0.13
         body.addBox(-0.25f, 0.0f, -0.13f, 0.25f, 0.72f, 0.13f,
             0.0f, 0.25f, 0.25f, 0.50f);
-        // 3D Jacket collar / lapels on front
-        body.addBox(-0.26f, 0.02f, -0.145f, -0.11f, 0.70f, -0.125f,
-            0.25f, 0.40f, 0.35f, 0.60f);
-        body.addBox(0.11f, 0.02f, -0.145f, 0.26f, 0.70f, -0.125f,
-            0.25f, 0.40f, 0.35f, 0.60f);
         parts.add(body.build());
 
-        // Part 2: Right Arm (Black sleeve + grey arm + 3D C-clamp hand)
+        // Part 2: Right Arm (Classic R6 Yellow Blocky Arm #F5CD2F + C-clamp hand)
         MeshBuilder rightArm = new MeshBuilder(2, 0);
-        // Sleeve: x: -0.12..0.12, y: -0.06..0.22, z: -0.12..0.12
-        rightArm.addBox(-0.12f, -0.06f, -0.12f, 0.12f, 0.22f, 0.12f,
-            0.0f, 0.50f, 0.15f, 0.70f);
-        // Lower arm: x: -0.10..0.10, y: 0.22..0.48, z: -0.10..0.10
-        rightArm.addBox(-0.10f, 0.22f, -0.10f, 0.10f, 0.48f, 0.10f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+        // Arm main block: x: -0.12..0.12, y: -0.06..0.48, z: -0.12..0.12
+        rightArm.addBox(-0.12f, -0.06f, -0.12f, 0.12f, 0.48f, 0.12f,
+            0.0f, 0.50f, 0.25f, 0.70f);
         // 3D Roblox C-clamp hand (wrist base + 2 curved prongs with empty center)
         rightArm.addBox(-0.09f, 0.48f, -0.09f, 0.09f, 0.54f, 0.09f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+            0.0f, 0.50f, 0.25f, 0.70f);
         rightArm.addBox(-0.09f, 0.54f, -0.09f, -0.02f, 0.65f, 0.09f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+            0.0f, 0.50f, 0.25f, 0.70f);
         rightArm.addBox(0.02f, 0.54f, -0.09f, 0.09f, 0.65f, 0.09f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+            0.0f, 0.50f, 0.25f, 0.70f);
         parts.add(rightArm.build());
 
-        // Part 3: Left Arm (Symmetrical)
+        // Part 3: Left Arm (Symmetrical Yellow Blocky Arm + C-clamp hand)
         MeshBuilder leftArm = new MeshBuilder(3, 0);
-        leftArm.addBox(-0.12f, -0.06f, -0.12f, 0.12f, 0.22f, 0.12f,
-            0.0f, 0.50f, 0.15f, 0.70f);
-        leftArm.addBox(-0.10f, 0.22f, -0.10f, 0.10f, 0.48f, 0.10f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+        leftArm.addBox(-0.12f, -0.06f, -0.12f, 0.12f, 0.48f, 0.12f,
+            0.0f, 0.50f, 0.25f, 0.70f);
         leftArm.addBox(-0.09f, 0.48f, -0.09f, 0.09f, 0.54f, 0.09f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+            0.0f, 0.50f, 0.25f, 0.70f);
         leftArm.addBox(-0.09f, 0.54f, -0.09f, -0.02f, 0.65f, 0.09f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+            0.0f, 0.50f, 0.25f, 0.70f);
         leftArm.addBox(0.02f, 0.54f, -0.09f, 0.09f, 0.65f, 0.09f,
-            0.15f, 0.50f, 0.25f, 0.70f);
+            0.0f, 0.50f, 0.25f, 0.70f);
         parts.add(leftArm.build());
 
-        // Part 4: Right Leg (Dark grey/green denim jeans + white sneaker shoe)
+        // Part 4: Right Leg (Classic R6 Olive/Lime Green Leg #A3B243)
         MeshBuilder rightLeg = new MeshBuilder(4, 0);
-        // Jeans: x: -0.12..0.12, y: 0.0..0.56, z: -0.12..0.12
-        rightLeg.addBox(-0.12f, 0.0f, -0.12f, 0.12f, 0.56f, 0.12f,
-            0.0f, 0.70f, 0.15f, 0.95f);
-        // White rounded sneaker: x: -0.125..0.125, y: 0.56..0.73, z: -0.14..0.13
-        rightLeg.addBox(-0.125f, 0.56f, -0.14f, 0.125f, 0.73f, 0.13f,
-            0.15f, 0.70f, 0.30f, 0.95f);
+        // Leg block: x: -0.12..0.12, y: 0.0..0.72, z: -0.12..0.12
+        rightLeg.addBox(-0.12f, 0.0f, -0.12f, 0.12f, 0.72f, 0.12f,
+            0.0f, 0.70f, 0.25f, 0.95f);
         parts.add(rightLeg.build());
 
-        // Part 5: Left Leg
+        // Part 5: Left Leg (Symmetrical Olive/Lime Green Leg #A3B243)
         MeshBuilder leftLeg = new MeshBuilder(5, 0);
-        leftLeg.addBox(-0.12f, 0.0f, -0.12f, 0.12f, 0.56f, 0.12f,
-            0.0f, 0.70f, 0.15f, 0.95f);
-        leftLeg.addBox(-0.125f, 0.56f, -0.14f, 0.125f, 0.73f, 0.13f,
-            0.15f, 0.70f, 0.30f, 0.95f);
+        leftLeg.addBox(-0.12f, 0.0f, -0.12f, 0.12f, 0.72f, 0.12f,
+            0.0f, 0.70f, 0.25f, 0.95f);
         parts.add(leftLeg.build());
 
         writeMeshFile(meshFile, parts);
@@ -148,25 +135,32 @@ public final class CharacterAssetGenerator {
         g.fillRect(0, 0, TEX_SIZE, TEX_SIZE);
 
         // --- Region 1: Head Face & Skin (0..128, 0..128) ---
-        Color robloxSkin = new Color(0xDFE2E4);
-        g.setColor(robloxSkin);
+        // Bright Yellow #F5CD2F matching user reference screenshot
+        Color robloxYellow = new Color(0xF5, 0xCD, 0x2F);
+        g.setColor(robloxYellow);
         g.fillRect(0, 0, 128, 128);
-        // Shading edges
-        g.setColor(new Color(0xC5C9CC));
+        // Subtle edge shading
+        g.setColor(new Color(0xDE, 0xB6, 0x24));
         g.drawRect(1, 1, 126, 126);
-        // Roblox smiley face: eyes at x=42 and x=86, y=55; smile at y=76
-        g.setColor(new Color(0x111214));
-        g.fillOval(38, 48, 12, 18);
-        g.fillOval(78, 48, 12, 18);
-        // Curved smile
+
+        // Solid yellow patch reserved at (102..122, 10..30) for sides/back/top/bottom mapping
+        g.setColor(robloxYellow);
+        g.fillRect(100, 8, 25, 25);
+
+        // Classic Roblox Smiley Face (strictly in the front center):
+        // Vertical oval eyes at x=40 and x=77, y=48
+        g.setColor(new Color(0x11, 0x12, 0x14));
+        g.fillOval(40, 48, 11, 20);
+        g.fillOval(77, 48, 11, 20);
+        // Iconic curved smile
         g.setStroke(new BasicStroke(5.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.drawArc(36, 62, 56, 32, 200, 140);
 
         // --- Region 2: Pal Bacon Hair (128..256, 0..128) & Bangs (128..256, 128..205) ---
-        Color hairDark = new Color(0x4A2511);
-        Color hairMid = new Color(0x783E1D);
-        Color hairLight = new Color(0xA96332);
-        Color hairBaconStreak = new Color(0xC27A45);
+        Color hairDark = new Color(0x4A, 0x25, 0x11);
+        Color hairMid = new Color(0x78, 0x3E, 0x1D);
+        Color hairLight = new Color(0xA9, 0x63, 0x32);
+        Color hairBaconStreak = new Color(0xC2, 0x7A, 0x45);
 
         g.setPaint(new GradientPaint(128, 0, hairMid, 256, 128, hairDark));
         g.fillRect(128, 0, 128, 205);
@@ -177,87 +171,27 @@ public final class CharacterAssetGenerator {
             g.drawLine(132, y, 252, y + 6);
         }
 
-        // --- Region 3: Torso (0..128, 128..256) - Black Jacket + Blue Motorcycle Tee ---
-        // Blue t-shirt center
-        Color teeBlue = new Color(0x0E82CA);
-        g.setColor(teeBlue);
+        // --- Region 3: Torso (0..128, 128..256) - Bright Blue #0D69AC ---
+        Color torsoBlue = new Color(0x0D, 0x69, 0xAC);
+        Color torsoBorder = new Color(0x09, 0x52, 0x86);
+        g.setColor(torsoBlue);
         g.fillRect(0, 128, 128, 128);
-        // Subtle knit texture
-        g.setColor(new Color(0x0C74B5));
-        for (int y = 130; y < 254; y += 4) {
-            g.drawLine(0, y, 128, y);
-        }
-        // Motorcycle Graphic Print in center of tee (x=24..104, y=148..228)
-        g.setColor(new Color(0x121B22));
-        // Rear and front wheels
-        g.setStroke(new BasicStroke(3.5f));
-        g.drawOval(28, 186, 26, 26);
-        g.drawOval(74, 186, 26, 26);
-        // Spokes & hubs
-        g.fillOval(38, 196, 6, 6);
-        g.fillOval(84, 196, 6, 6);
-        // Frame, tank, engine, handlebars
-        g.drawLine(41, 199, 60, 188); // swingarm
-        g.drawLine(60, 188, 85, 175); // top tube/tank
-        g.drawLine(85, 175, 87, 199); // fork
-        g.drawLine(60, 188, 62, 204); // seat post
-        g.drawLine(62, 204, 85, 199); // bottom tube
-        // Engine block
-        g.fillRect(56, 192, 18, 14);
-        // Handlebars and headlight
-        g.drawLine(85, 175, 80, 168);
-        g.drawLine(76, 168, 84, 168);
-        // Gas tank & seat
-        g.fillRoundRect(62, 175, 20, 8, 4, 4);
-        g.fillRoundRect(48, 179, 16, 6, 3, 3);
+        g.setColor(torsoBorder);
+        g.drawRect(1, 129, 126, 126);
 
-        // --- Region 4: Open Jacket Lapels & Sleeves (128..180, 205..308 & 0..77, 256..358) ---
-        Color jacketBlack = new Color(0x18191B);
-        Color jacketDark = new Color(0x101112);
-        Color jacketZipper = new Color(0x35373B);
-        g.setColor(jacketBlack);
-        g.fillRect(128, 205, 128, 103);
-        g.fillRect(0, 256, 77, 102);
-        // Lapel seam & zipper edge
-        g.setColor(jacketZipper);
-        g.setStroke(new BasicStroke(2.0f));
-        g.drawLine(140, 205, 140, 308);
-        g.drawLine(244, 205, 244, 308);
+        // --- Region 4: Arms (0..128, 256..358) - Bright Yellow #F5CD2F ---
+        g.setColor(robloxYellow);
+        g.fillRect(0, 256, 128, 102);
+        g.setColor(new Color(0xDE, 0xB6, 0x24));
+        g.drawRect(1, 257, 126, 100);
 
-        // --- Region 5: Lower Arm & Clamp Hand (77..128, 256..358) ---
-        g.setColor(robloxSkin);
-        g.fillRect(77, 256, 51, 102);
-        g.setColor(new Color(0xC0C3C6));
-        g.drawRect(78, 257, 49, 100);
-
-        // --- Region 6: Dark Denim Jeans (0..77, 358..486) ---
-        Color jeansBase = new Color(0x283033);
-        Color jeansShadow = new Color(0x1E2427);
-        Color jeansStitch = new Color(0x424E52);
-        g.setColor(jeansBase);
-        g.fillRect(0, 358, 77, 128);
-        // Denim twill diagonal texture
-        g.setColor(jeansShadow);
-        g.setStroke(new BasicStroke(1.0f));
-        for (int i = -77; i < 77; i += 4) {
-            g.drawLine(i, 358, i + 128, 486);
-        }
-        // Seams and pockets
-        g.setColor(jeansStitch);
-        g.drawLine(8, 358, 8, 486);
-        g.drawLine(68, 358, 68, 486);
-
-        // --- Region 7: White Rounded Sneakers (77..154, 358..486) ---
-        Color shoeWhite = new Color(0xEEEEF0);
-        Color shoeSole = new Color(0x45484D);
-        g.setColor(shoeWhite);
-        g.fillRect(77, 358, 77, 128);
-        // Rubber sole band at bottom
-        g.setColor(shoeSole);
-        g.fillRect(77, 462, 77, 24);
-        // Toe cap seam
-        g.setColor(new Color(0xD0D3D6));
-        g.drawRoundRect(82, 365, 66, 90, 16, 16);
+        // --- Region 5: Legs (0..128, 358..486) - Olive / Lime Green #A3B243 ---
+        Color legGreen = new Color(0xA3, 0xB2, 0x43);
+        Color legBorder = new Color(0x7F, 0x8E, 0x2E);
+        g.setColor(legGreen);
+        g.fillRect(0, 358, 128, 128);
+        g.setColor(legBorder);
+        g.drawRect(1, 359, 126, 126);
 
         g.dispose();
         ImageIO.write(img, "png", file);
@@ -272,9 +206,10 @@ public final class CharacterAssetGenerator {
 
         // Part 0: Head (Handsome rugged face, backward camo cap, tactical sunglasses)
         MeshBuilder head = new MeshBuilder(0, 0);
-        // Base head: x: -0.22..0.22, y: -0.44..0.0, z: -0.22..0.22
-        head.addBox(-0.22f, -0.44f, -0.22f, 0.22f, 0.0f, 0.22f,
-            0.0f, 0.0f, 0.25f, 0.25f);
+        // Base head: Front (-Z) gets face with eyes/beard, all other 5 faces get clean skin without eyes/mouth
+        head.addBoxFrontSide(-0.22f, -0.44f, -0.22f, 0.22f, 0.0f, 0.22f,
+            0.0f, 0.0f, 0.25f, 0.25f,
+            0.20f, 0.02f, 0.24f, 0.06f);
         // Backward Baseball Cap Crown
         head.addBox(-0.23f, -0.50f, -0.23f, 0.23f, -0.40f, 0.23f,
             0.25f, 0.0f, 0.50f, 0.25f);
@@ -288,17 +223,15 @@ public final class CharacterAssetGenerator {
 
         // Part 1: Torso (Muscular bare upper body, 3D silver chain, tactical belt)
         MeshBuilder body = new MeshBuilder(1, 0);
-        // Defined torso: x: -0.25..0.25, y: 0.0..0.72, z: -0.13..0.13
-        body.addBox(-0.25f, 0.0f, -0.13f, 0.25f, 0.72f, 0.13f,
-            0.0f, 0.25f, 0.25f, 0.50f);
+        // Defined torso: Front (-Z) gets muscular chest/abs, other faces get muscular skin/back
+        body.addBoxFrontSide(-0.25f, 0.0f, -0.13f, 0.25f, 0.72f, 0.13f,
+            0.0f, 0.25f, 0.25f, 0.50f,
+            0.20f, 0.02f, 0.24f, 0.06f);
         // 3D Silver chain necklace hanging down from neck to mid-chest
-        // Left chain rail
         body.addBox(-0.12f, 0.04f, -0.142f, -0.08f, 0.22f, -0.125f,
             0.25f, 0.35f, 0.35f, 0.50f);
-        // Right chain rail
         body.addBox(0.08f, 0.04f, -0.142f, 0.12f, 0.22f, -0.125f,
             0.25f, 0.35f, 0.35f, 0.50f);
-        // Center chain loop at bottom
         body.addBox(-0.08f, 0.20f, -0.144f, 0.08f, 0.235f, -0.125f,
             0.25f, 0.35f, 0.35f, 0.50f);
         // Tactical belt volume at waist
@@ -308,10 +241,8 @@ public final class CharacterAssetGenerator {
 
         // Part 2: Right Arm (Muscular arm + wrist strap)
         MeshBuilder rightArm = new MeshBuilder(2, 0);
-        // Shoulder, bicep, forearm: x: -0.12..0.12, y: -0.06..0.66, z: -0.12..0.12
         rightArm.addBox(-0.12f, -0.06f, -0.12f, 0.12f, 0.66f, 0.12f,
             0.0f, 0.50f, 0.15f, 0.75f);
-        // Wristband / bracelet on right wrist
         rightArm.addBox(-0.125f, 0.48f, -0.125f, 0.125f, 0.53f, 0.125f,
             0.15f, 0.50f, 0.25f, 0.60f);
         parts.add(rightArm.build());
@@ -320,25 +251,20 @@ public final class CharacterAssetGenerator {
         MeshBuilder leftArm = new MeshBuilder(3, 0);
         leftArm.addBox(-0.12f, -0.06f, -0.12f, 0.12f, 0.66f, 0.12f,
             0.0f, 0.50f, 0.15f, 0.75f);
-        // 3D Tactical Sports Watch on left wrist (strap + bezel)
         leftArm.addBox(-0.13f, 0.46f, -0.13f, 0.13f, 0.52f, 0.13f,
             0.15f, 0.60f, 0.25f, 0.75f);
         leftArm.addBox(-0.145f, 0.47f, -0.04f, -0.125f, 0.51f, 0.04f,
             0.15f, 0.60f, 0.25f, 0.75f);
         parts.add(leftArm.build());
 
-        // Part 4: Right Leg (Camouflage cargo pants/shorts, 3D side pocket, athletic sock & sneaker)
+        // Part 4: Right Leg (Camouflage cargo shorts, 3D side pocket, athletic sock & sneaker)
         MeshBuilder rightLeg = new MeshBuilder(4, 0);
-        // Camo cargo pants: y: 0.0..0.54
         rightLeg.addBox(-0.125f, 0.0f, -0.125f, 0.125f, 0.54f, 0.125f,
             0.0f, 0.75f, 0.15f, 1.0f);
-        // 3D Cargo Side Flap Pocket on outer thigh (right side = -X)
         rightLeg.addBox(-0.16f, 0.18f, -0.06f, -0.12f, 0.36f, 0.06f,
             0.0f, 0.75f, 0.15f, 1.0f);
-        // High striped athletic sock: y: 0.54..0.63
         rightLeg.addBox(-0.115f, 0.54f, -0.115f, 0.115f, 0.63f, 0.115f,
             0.15f, 0.75f, 0.25f, 0.88f);
-        // Sneaker running shoe: y: 0.63..0.75
         rightLeg.addBox(-0.125f, 0.63f, -0.15f, 0.125f, 0.75f, 0.13f,
             0.15f, 0.88f, 0.30f, 1.0f);
         parts.add(rightLeg.build());
@@ -356,27 +282,37 @@ public final class CharacterAssetGenerator {
         parts.add(leftLeg.build());
 
         writeMeshFile(meshFile, parts);
-        writeJasonTexture(textureFile);
+        writeJasonGta6Texture(textureFile);
     }
 
-    private static void writeJasonTexture(File file) throws IOException {
+    private static void writeJasonGta6Texture(File file) throws IOException {
         BufferedImage img = new BufferedImage(TEX_SIZE, TEX_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = img.createGraphics();
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // --- Region 1: Jason's Face (0..128, 0..128) ---
-        Color skinBase = new Color(0xC99370);
-        Color skinShadow = new Color(0xAB7756);
-        Color stubbleColor = new Color(0x563E32);
-        Color eyeBrown = new Color(0x3B2519);
+        g.setColor(new Color(0, 0, 0, 0));
+        g.fillRect(0, 0, TEX_SIZE, TEX_SIZE);
+
+        // --- Region 1: Handsome Tanned Face & Skin (0..128, 0..128) ---
+        Color skinBase = new Color(0xC6, 0x8C, 0x65);
+        Color skinShadow = new Color(0xAD, 0x75, 0x50);
+        Color eyeBrown = new Color(0x3B, 0x24, 0x14);
+        Color browDark = new Color(0x2C, 0x20, 0x18);
+        Color stubbleColor = new Color(0x3A, 0x2C, 0x23, 175);
 
         g.setColor(skinBase);
         g.fillRect(0, 0, 128, 128);
-        // Facial bone structure shading
+
+        // Solid skin margin reserved at (102..122, 10..30) for sides/back/top/bottom mapping
+        g.setColor(skinBase);
+        g.fillRect(100, 8, 25, 25);
+
+        // Shading edges
         g.setColor(skinShadow);
-        g.fillPolygon(new int[]{20, 64, 108}, new int[]{100, 125, 100}, 3);
-        // Eyes and eyebrows
-        g.setColor(eyeBrown);
+        g.drawRect(1, 1, 126, 126);
+
+        // Eyebrows & Eyes
+        g.setColor(browDark);
         g.fillRect(36, 42, 18, 5); // left brow
         g.fillRect(74, 42, 18, 5); // right brow
         g.setColor(Color.WHITE);
@@ -396,11 +332,10 @@ public final class CharacterAssetGenerator {
         }
 
         // --- Region 2: Camo Cap & Tactical Sunglasses (128..256, 0..128 & 128..230, 128..179) ---
-        // MultiCam pattern for cap
-        Color camoBase = new Color(0x6A6D52);
-        Color camoTan = new Color(0x9C9174);
-        Color camoBrown = new Color(0x4E3C2C);
-        Color camoDarkGreen = new Color(0x3B4431);
+        Color camoBase = new Color(0x6A, 0x6D, 0x52);
+        Color camoTan = new Color(0x9C, 0x91, 0x74);
+        Color camoBrown = new Color(0x4E, 0x3C, 0x2C);
+        Color camoDarkGreen = new Color(0x3B, 0x44, 0x31);
 
         g.setColor(camoBase);
         g.fillRect(128, 0, 128, 128);
@@ -412,9 +347,9 @@ public final class CharacterAssetGenerator {
         }
 
         // Tactical Sunglasses (128..230, 128..179)
-        Color frameColor = new Color(0x1B1E1C);
-        Color lensEmerald = new Color(0x124738);
-        Color lensHighlight = new Color(0x35A788);
+        Color frameColor = new Color(0x1B, 0x1E, 0x1C);
+        Color lensEmerald = new Color(0x12, 0x47, 0x38);
+        Color lensHighlight = new Color(0x35, 0xA7, 0x88);
         g.setColor(frameColor);
         g.fillRoundRect(128, 128, 102, 51, 8, 8);
         // Dual polarized emerald lenses
@@ -438,7 +373,7 @@ public final class CharacterAssetGenerator {
         g.drawRoundRect(30, 228, 30, 18, 6, 6);
         g.drawRoundRect(68, 228, 30, 18, 6, 6);
         // Chest and abdominal hair texture
-        g.setColor(new Color(0x563826));
+        g.setColor(new Color(0x56, 0x38, 0x26));
         for (int y = 146; y < 190; y += 4) {
             for (int x = 40; x < 88; x += 4) {
                 if ((x * 13 + y * 7) % 4 == 0) {
@@ -448,10 +383,9 @@ public final class CharacterAssetGenerator {
         }
 
         // --- Region 4: Silver Curb Chain Necklace (128..180, 180..256) ---
-        Color silverHigh = new Color(0xF2F5F8);
-        Color silverMid = new Color(0xCCD2D8);
-        Color silverDark = new Color(0x767F88);
-        g.setColor(new Color(0x30353A));
+        Color silverHigh = new Color(0xF2, 0xF5, 0xF8);
+        Color silverDark = new Color(0x76, 0x7F, 0x88);
+        g.setColor(new Color(0x30, 0x35, 0x3A));
         g.fillRect(128, 180, 52, 76);
         for (int y = 182; y < 254; y += 8) {
             g.setColor(silverHigh);
@@ -461,34 +395,32 @@ public final class CharacterAssetGenerator {
         }
 
         // --- Region 5: Tactical Belt (180..256, 180..256) ---
-        Color beltOlive = new Color(0x3A4032);
-        Color buckleMatte = new Color(0x1B1C1D);
+        Color beltOlive = new Color(0x3A, 0x40, 0x32);
+        Color buckleMatte = new Color(0x1B, 0x1C, 0x1D);
         g.setColor(beltOlive);
         g.fillRect(180, 180, 76, 76);
-        // Buckle in center
         g.setColor(buckleMatte);
         g.fillRoundRect(198, 198, 40, 38, 6, 6);
-        g.setColor(new Color(0x5A5C5E));
+        g.setColor(new Color(0x5A, 0x5C, 0x5E));
         g.drawRect(205, 205, 26, 24);
 
         // --- Region 6: Muscular Arm Skin & Watch (0..128, 256..384) ---
         g.setColor(skinBase);
         g.fillRect(0, 256, 77, 128);
-        // Muscle contours
         g.setColor(skinShadow);
         g.setStroke(new BasicStroke(2.0f));
-        g.drawArc(10, 270, 32, 60, 290, 140); // bicep contour
-        g.drawArc(36, 310, 28, 50, 100, 140); // forearm contour
+        g.drawArc(10, 270, 32, 60, 290, 140);
+        g.drawArc(36, 310, 28, 50, 100, 140);
         // Sports watch (77..128, 256..384)
-        Color watchCase = new Color(0x1F2224);
-        Color watchDial = new Color(0x0C1215);
-        Color watchAccent = new Color(0x4BB580);
+        Color watchCase = new Color(0x1F, 0x22, 0x24);
+        Color watchDial = new Color(0x0C, 0x12, 0x15);
+        Color watchAccent = new Color(0x4B, 0xB5, 0x80);
         g.setColor(watchCase);
         g.fillRect(77, 256, 51, 128);
         g.setColor(watchDial);
         g.fillOval(84, 290, 36, 36);
         g.setColor(watchAccent);
-        g.fillOval(100, 306, 4, 4); // hands center
+        g.fillOval(100, 306, 4, 4);
 
         // --- Region 7: Camo Cargo Shorts/Pants (0..77, 384..512) ---
         g.setColor(camoBase);
@@ -499,22 +431,20 @@ public final class CharacterAssetGenerator {
             int cy = 388 + (i * 31) % 115;
             g.fillOval(cx, cy, 22, 16);
         }
-        // Pocket flap seam
-        g.setColor(new Color(0x28231C));
+        g.setColor(new Color(0x28, 0x23, 0x1C));
         g.setStroke(new BasicStroke(2.0f));
         g.drawRect(6, 412, 64, 48);
 
         // --- Region 8: Athletic Striped Socks & Sneakers (77..154, 384..512) ---
-        Color sockWhite = new Color(0xEDEFEF);
-        Color stripeRed = new Color(0xB52B27);
-        Color stripeBlue = new Color(0x234E96);
-        Color shoeNavy = new Color(0x1D2D44);
-        Color shoeMidsole = new Color(0xF2F4F5);
+        Color sockWhite = new Color(0xED, 0xEF, 0xEF);
+        Color stripeRed = new Color(0xB5, 0x2B, 0x27);
+        Color stripeBlue = new Color(0x23, 0x4E, 0x96);
+        Color shoeNavy = new Color(0x1D, 0x2D, 0x44);
+        Color shoeMidsole = new Color(0xF2, 0xF4, 0xF5);
 
         // Socks: y=384..448
         g.setColor(sockWhite);
         g.fillRect(77, 384, 77, 64);
-        // Dual retro athletic stripes
         g.setColor(stripeRed);
         g.fillRect(77, 396, 77, 6);
         g.setColor(stripeBlue);
@@ -523,11 +453,9 @@ public final class CharacterAssetGenerator {
         // Sneakers: y=448..512
         g.setColor(shoeNavy);
         g.fillRect(77, 448, 77, 64);
-        // White athletic midsole
         g.setColor(shoeMidsole);
         g.fillRect(77, 496, 77, 12);
-        // Dark rubber outsole
-        g.setColor(new Color(0x282C30));
+        g.setColor(new Color(0x28, 0x2C, 0x30));
         g.fillRect(77, 508, 77, 4);
 
         g.dispose();
@@ -552,23 +480,197 @@ public final class CharacterAssetGenerator {
         }
 
         /**
-         * Adds an axis-aligned box with normals and UV coordinates.
-         * Generates 12 triangles (36 vertices, each with 8 floats).
+         * Adds an axis-aligned box with normals and uniform UV coordinates across all faces.
          */
         public void addBox(float x0, float y0, float z0, float x1, float y1, float z1,
                            float u0, float v0, float u1, float v1) {
-            // Front (+Z towards North/South depending on model)
-            quad(x0, y1, z1, x1, y1, z1, x1, y0, z1, x0, y0, z1, 0, 0, 1, u0, v1, u1, v0);
-            // Back (-Z)
-            quad(x1, y1, z0, x0, y1, z0, x0, y0, z0, x1, y0, z0, 0, 0, -1, u0, v1, u1, v0);
+            addBoxFaces(x0, y0, z0, x1, y1, z1,
+                u0, v0, u1, v1,
+                u0, v0, u1, v1,
+                u0, v0, u1, v1,
+                u0, v0, u1, v1,
+                u0, v0, u1, v1,
+                u0, v0, u1, v1);
+        }
+
+        /**
+         * Adds an axis-aligned box with individual per-face UV coordinates.
+         * Front face is -Z (entity forward in Minecraft model coordinates).
+         */
+        public void addBoxFaces(float x0, float y0, float z0, float x1, float y1, float z1,
+                                float fu0, float fv0, float fu1, float fv1,
+                                float bu0, float bv0, float bu1, float bv1,
+                                float tu0, float tv0, float tu1, float tv1,
+                                float du0, float dv0, float du1, float dv1,
+                                float ru0, float rv0, float ru1, float rv1,
+                                float lu0, float lv0, float lu1, float lv1) {
+            // Front (-Z in entity space)
+            quad(x1, y1, z0, x0, y1, z0, x0, y0, z0, x1, y0, z0, 0, 0, -1, fu0, fv1, fu1, fv0);
+            // Back (+Z)
+            quad(x0, y1, z1, x1, y1, z1, x1, y0, z1, x0, y0, z1, 0, 0, 1, bu0, bv1, bu1, bv0);
             // Top (-Y in entity space is UP)
-            quad(x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, 0, -1, 0, u0, v0, u1, v1);
+            quad(x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, 0, -1, 0, tu0, tv0, tu1, tv1);
             // Bottom (+Y is DOWN)
-            quad(x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0, 0, 1, 0, u0, v0, u1, v1);
+            quad(x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0, 0, 1, 0, du0, dv0, du1, dv1);
             // Right face (+X)
-            quad(x1, y1, z1, x1, y1, z0, x1, y0, z0, x1, y0, z1, 1, 0, 0, u0, v1, u1, v0);
+            quad(x1, y1, z1, x1, y1, z0, x1, y0, z0, x1, y0, z1, 1, 0, 0, ru0, rv1, ru1, rv0);
             // Left face (-X)
-            quad(x0, y1, z0, x0, y1, z1, x0, y0, z1, x0, y0, z0, -1, 0, 0, u0, v1, u1, v0);
+            quad(x0, y1, z0, x0, y1, z1, x0, y0, z1, x0, y0, z0, -1, 0, 0, lu0, lv1, lu1, lv0);
+        }
+
+        /**
+         * Adds an axis-aligned box where front face (-Z) receives front UVs (e.g. face/eyes),
+         * and all other 5 faces (back, top, bottom, right, left) receive side UVs (e.g. solid skin).
+         */
+        public void addBoxFrontSide(float x0, float y0, float z0, float x1, float y1, float z1,
+                                    float fu0, float fv0, float fu1, float fv1,
+                                    float su0, float sv0, float su1, float sv1) {
+            addBoxFaces(x0, y0, z0, x1, y1, z1,
+                fu0, fv0, fu1, fv1,
+                su0, sv0, su1, sv1,
+                su0, sv0, su1, sv1,
+                su0, sv0, su1, sv1,
+                su0, sv0, su1, sv1,
+                su0, sv0, su1, sv1);
+        }
+
+        /**
+         * Builds an authentic Roblox smoothly beveled cylindrical head (16 segments with beveled rims).
+         * Front face (-Z) receives face texture; sides, back, and top/bottom caps receive solid yellow.
+         */
+        public void addRobloxHead(float yTop, float yBottom, float radius,
+                                  float fu0, float fv0, float fu1, float fv1,
+                                  float su0, float sv0, float su1, float sv1) {
+            int segments = 16;
+            float bevelH = 0.04f;
+            float bevelR = 0.04f;
+            float innerR = radius - bevelR;
+            float yRimTop = yTop + bevelH;
+            float yRimBottom = yBottom - bevelH;
+
+            float[][] innerTop = new float[segments][3];
+            float[][] outerTop = new float[segments][3];
+            float[][] outerBottom = new float[segments][3];
+            float[][] innerBottom = new float[segments][3];
+            float[] cosArr = new float[segments];
+            float[] sinArr = new float[segments];
+
+            for (int i = 0; i < segments; i++) {
+                double angle = i * 2.0 * Math.PI / segments;
+                float sin = (float) Math.sin(angle);
+                float cos = (float) Math.cos(angle);
+                sinArr[i] = sin;
+                cosArr[i] = cos;
+
+                float xOut = radius * sin;
+                float zOut = -radius * cos; // Front is -Z
+                float xIn = innerR * sin;
+                float zIn = -innerR * cos;
+
+                innerTop[i] = new float[]{xIn, yTop, zIn};
+                outerTop[i] = new float[]{xOut, yRimTop, zOut};
+                outerBottom[i] = new float[]{xOut, yRimBottom, zOut};
+                innerBottom[i] = new float[]{xIn, yBottom, zIn};
+            }
+
+            // 1. Top flat cap (fan at yTop, normal 0, -1, 0, solid yellow)
+            for (int i = 0; i < segments; i++) {
+                int next = (i + 1) % segments;
+                triangle(0f, yTop, 0f,
+                         innerTop[next][0], yTop, innerTop[next][2],
+                         innerTop[i][0], yTop, innerTop[i][2],
+                         0f, -1f, 0f, su0, sv0, su1, sv1);
+            }
+
+            // 2. Top bevel rim (quad from innerTop to outerTop)
+            for (int i = 0; i < segments; i++) {
+                int next = (i + 1) % segments;
+                float nx = (sinArr[i] + sinArr[next]) * 0.5f;
+                float nz = -(cosArr[i] + cosArr[next]) * 0.5f;
+                quadCustom(innerTop[i][0], innerTop[i][1], innerTop[i][2],
+                           innerTop[next][0], innerTop[next][1], innerTop[next][2],
+                           outerTop[next][0], outerTop[next][1], outerTop[next][2],
+                           outerTop[i][0], outerTop[i][1], outerTop[i][2],
+                           nx, -0.7f, nz,
+                           su0, sv0, su1, sv1);
+            }
+
+            // 3. Main cylinder wall (from outerTop to outerBottom)
+            for (int i = 0; i < segments; i++) {
+                int next = (i + 1) % segments;
+                float midCos = (cosArr[i] + cosArr[next]) * 0.5f;
+                float nx = (sinArr[i] + sinArr[next]) * 0.5f;
+                float nz = -(cosArr[i] + cosArr[next]) * 0.5f;
+
+                if (midCos > 0.35f) {
+                    float u_i = fu0 + (0.5f - outerTop[i][0] / (2.0f * radius)) * (fu1 - fu0);
+                    float u_next = fu0 + (0.5f - outerTop[next][0] / (2.0f * radius)) * (fu1 - fu0);
+                    float v_top = fv0;
+                    float v_bottom = fv1;
+
+                    v(outerTop[i][0], outerTop[i][1], outerTop[i][2], nx, 0f, nz, u_i, v_top);
+                    v(outerTop[next][0], outerTop[next][1], outerTop[next][2], nx, 0f, nz, u_next, v_top);
+                    v(outerBottom[next][0], outerBottom[next][1], outerBottom[next][2], nx, 0f, nz, u_next, v_bottom);
+
+                    v(outerTop[i][0], outerTop[i][1], outerTop[i][2], nx, 0f, nz, u_i, v_top);
+                    v(outerBottom[next][0], outerBottom[next][1], outerBottom[next][2], nx, 0f, nz, u_next, v_bottom);
+                    v(outerBottom[i][0], outerBottom[i][1], outerBottom[i][2], nx, 0f, nz, u_i, v_bottom);
+                } else {
+                    quadCustom(outerTop[i][0], outerTop[i][1], outerTop[i][2],
+                               outerTop[next][0], outerTop[next][1], outerTop[next][2],
+                               outerBottom[next][0], outerBottom[next][1], outerBottom[next][2],
+                               outerBottom[i][0], outerBottom[i][1], outerBottom[i][2],
+                               nx, 0f, nz,
+                               su0, sv0, su1, sv1);
+                }
+            }
+
+            // 4. Bottom bevel rim (from outerBottom to innerBottom)
+            for (int i = 0; i < segments; i++) {
+                int next = (i + 1) % segments;
+                float nx = (sinArr[i] + sinArr[next]) * 0.5f;
+                float nz = -(cosArr[i] + cosArr[next]) * 0.5f;
+                quadCustom(outerBottom[i][0], outerBottom[i][1], outerBottom[i][2],
+                           outerBottom[next][0], outerBottom[next][1], outerBottom[next][2],
+                           innerBottom[next][0], innerBottom[next][1], innerBottom[next][2],
+                           innerBottom[i][0], innerBottom[i][1], innerBottom[i][2],
+                           nx, 0.7f, nz,
+                           su0, sv0, su1, sv1);
+            }
+
+            // 5. Bottom flat cap (fan at yBottom, normal 0, 1, 0, solid yellow)
+            for (int i = 0; i < segments; i++) {
+                int next = (i + 1) % segments;
+                triangle(0f, yBottom, 0f,
+                         innerBottom[i][0], yBottom, innerBottom[i][2],
+                         innerBottom[next][0], yBottom, innerBottom[next][2],
+                         0f, 1f, 0f, su0, sv0, su1, sv1);
+            }
+        }
+
+        private void triangle(float x0, float y0, float z0,
+                              float x1, float y1, float z1,
+                              float x2, float y2, float z2,
+                              float nx, float ny, float nz,
+                              float u0, float v0, float u1, float v1) {
+            v(x0, y0, z0, nx, ny, nz, u0, v0);
+            v(x1, y1, z1, nx, ny, nz, u1, v0);
+            v(x2, y2, z2, nx, ny, nz, u1, v1);
+        }
+
+        private void quadCustom(float x0, float y0, float z0,
+                                float x1, float y1, float z1,
+                                float x2, float y2, float z2,
+                                float x3, float y3, float z3,
+                                float nx, float ny, float nz,
+                                float u0, float v0, float u1, float v1) {
+            v(x0, y0, z0, nx, ny, nz, u0, v0);
+            v(x1, y1, z1, nx, ny, nz, u1, v0);
+            v(x2, y2, z2, nx, ny, nz, u1, v1);
+
+            v(x0, y0, z0, nx, ny, nz, u0, v0);
+            v(x2, y2, z2, nx, ny, nz, u1, v1);
+            v(x3, y3, z3, nx, ny, nz, u0, v1);
         }
 
         private void quad(float x0, float y0, float z0,

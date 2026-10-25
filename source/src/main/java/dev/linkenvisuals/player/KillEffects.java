@@ -42,6 +42,7 @@ public final class KillEffects {
     private static final double[] atY = new double[POOL];
     private static final double[] atZ = new double[POOL];
     private static final float[] facing = new float[POOL];
+    private static final CosmeticContext CONTEXT = new CosmeticContext();
     private static final float[] tall = new float[POOL];
     private static final float[] wide = new float[POOL];
     private static final float[] born = new float[POOL];
@@ -249,9 +250,10 @@ public final class KillEffects {
         for (int pass = 0; pass < 3; pass++) {
             VertexConsumer buffer = consumers.getBuffer(pass == CosmeticContext.SOLID
                 ? Material.SOLID : pass == CosmeticContext.SHEET ? Material.BODY : Material.LIGHT);
-            CosmeticContext ctx = new CosmeticContext(buffer, pass,
+            CONTEXT.set(buffer, pass,
                 matrices.peek().getPositionMatrix(), client.player,
                 clock, scale, colour, 0.0f, 0.0f, 1.0f);
+            CosmeticContext ctx = CONTEXT;
 
             for (int i = 0; i < POOL; i++) {
                 float age = (clock - born[i]) / life;

@@ -37,6 +37,8 @@ public abstract class PlayerEntityRendererMixin {
             custom = "Roblox Bacon";
         } else if ("Jason GTA 6".equals(selected) && JasonCharacter.available()) {
             custom = "Jason GTA 6";
+        } else if ("Astolfo".equals(selected) && dev.linkenvisuals.cosmetic.character.AstolfoMesh.available()) {
+            custom = "Astolfo";
         }
 
         RudyRenderState customState = (RudyRenderState) state;

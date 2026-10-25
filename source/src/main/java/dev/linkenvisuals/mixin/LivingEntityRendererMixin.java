@@ -111,6 +111,11 @@ public abstract class LivingEntityRendererMixin {
                 dev.linkenvisuals.cosmetic.character.JasonCharacter.submit(queue, matrices, playerModel, playerState, light, overlay, color);
                 return;
             }
+            if (dev.linkenvisuals.cosmetic.character.AstolfoMesh.active(playerState)
+                    && dev.linkenvisuals.cosmetic.character.AstolfoMesh.available()) {
+                dev.linkenvisuals.cosmetic.character.AstolfoMesh.submit(queue, matrices, playerModel, playerState, light, overlay, color);
+                return;
+            }
         }
         original.call(queue, model, state, matrices, layer, light, overlay, color, sprite, outlineColor, crumbling);
     }

@@ -62,6 +62,17 @@ class CustomCharacterTest {
         state.linkenvisuals$setCustomCharacter("Jason GTA 6");
         assertFalse(RobloxBaconCharacter.active(state));
         assertTrue(JasonCharacter.active(state));
+        assertFalse(AstolfoMesh.active(state));
+
+        state.linkenvisuals$setCustomCharacter("Astolfo");
+        assertFalse(RobloxBaconCharacter.active(state));
+        assertFalse(JasonCharacter.active(state));
+        assertTrue(AstolfoMesh.active(state));
+    }
+
+    @Test
+    void parsesAstolfoMeshAsset() {
+        assertTrue(AstolfoMesh.available(), "Astolfo assets should be present and valid");
     }
 
     @Test

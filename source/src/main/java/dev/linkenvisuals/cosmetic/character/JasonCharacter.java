@@ -91,13 +91,15 @@ public final class JasonCharacter {
                 (entry, consumer) -> emit(model, state, loaded, snapshot, consumer, light, overlay, color));
     }
 
+    private static final ThreadLocal<MatrixStack> LOCAL_MATRICES = ThreadLocal.withInitial(MatrixStack::new);
+
     private static void emit(PlayerEntityModel model, PlayerEntityRenderState state, RudyMesh.Part[] loaded,
                              MatrixStack.Entry snapshot, VertexConsumer consumer,
                              int light, int overlay, int color) {
         model.setAngles(state);
         pose(model, state);
 
-        MatrixStack local = new MatrixStack();
+        MatrixStack local = LOCAL_MATRICES.get();
         local.push();
         local.peek().copy(snapshot);
         for (RudyMesh.Part mesh : loaded) {
