@@ -108,15 +108,14 @@ public final class BlockOverlayRenderer {
         int fbHeight = Math.max(1, main.textureHeight);
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-        boolean drawFill = module.fill.value() && fillAlpha > 0;
-        if (drawFill) {
-            if (module.useShader.value()) {
-                int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
-                writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, fillAlpha);
-                drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box);
-            } else {
-                drawGradientFill(encoder, main, box, fillAlpha, animation, palette, mode);
-            }
+        boolean useShader = module.useShader.value();
+        if (useShader && Math.max(fillAlpha, outlineAlpha) > 0) {
+            int shaderAlpha = Math.max(fillAlpha, Math.round(outlineAlpha * 0.72f));
+            int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
+            writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, shaderAlpha);
+            drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box.expand(0.003));
+        } else if (module.fill.value() && fillAlpha > 0) {
+            drawGradientFill(encoder, main, box.expand(0.002), fillAlpha, animation, palette, mode);
         }
 
         if (outlineAlpha > 0) {
@@ -160,25 +159,28 @@ public final class BlockOverlayRenderer {
             cachedLocalBox = local;
         }
         Vec3d cam = mc.gameRenderer.getCamera().getCameraPos();
-        return local.offset(pos).expand(0.004).offset(-cam.x, -cam.y, -cam.z);
+        return local.offset(pos).offset(-cam.x, -cam.y, -cam.z);
     }
 
     private static void writeUniforms(CommandEncoder encoder, float time, int fbWidth, int fbHeight,
                                       int baseRgb, int alpha) {
-        float shaderAlpha = Math.max(0.0f, Math.min(1.0f, alpha / 255.0f));
+        float shaderAlpha = alpha <= 0 ? 0.0f : Math.max(0.35f, Math.min(1.0f, alpha / 255.0f));
         UNIFORM_DATA.clear();
-        UNIFORM_DATA.putFloat(time); // @0
-        UNIFORM_DATA.putFloat(0.0f); // @4 pad
-        UNIFORM_DATA.putFloat(fbWidth); // @8 screenSize.x
-        UNIFORM_DATA.putFloat(fbHeight); // @10 screenSize.y
-        UNIFORM_DATA.putFloat((baseRgb >> 16 & 0xFF) / 255.0f); // @16 baseColor.r
+        // uParams: x=time, y=alpha, z=zoomFactor, w=shaderAlpha
+        UNIFORM_DATA.putFloat(time);
+        UNIFORM_DATA.putFloat(shaderAlpha);
+        UNIFORM_DATA.putFloat(1.0f);
+        UNIFORM_DATA.putFloat(shaderAlpha);
+        // uScreen: xy=screenSize, zw=unused
+        UNIFORM_DATA.putFloat(fbWidth);
+        UNIFORM_DATA.putFloat(fbHeight);
+        UNIFORM_DATA.putFloat(0.0f);
+        UNIFORM_DATA.putFloat(0.0f);
+        // uColor: rgba=baseColor
+        UNIFORM_DATA.putFloat((baseRgb >> 16 & 0xFF) / 255.0f);
         UNIFORM_DATA.putFloat((baseRgb >> 8 & 0xFF) / 255.0f);
         UNIFORM_DATA.putFloat((baseRgb & 0xFF) / 255.0f);
-        UNIFORM_DATA.putFloat(shaderAlpha); // baseColor.a
-        UNIFORM_DATA.putFloat(shaderAlpha); // @32 alpha
-        UNIFORM_DATA.putFloat(1.0f); // @36 zoomFactor
-        UNIFORM_DATA.putFloat(0.0f); // @40 pad
-        UNIFORM_DATA.putFloat(0.0f); // @44 pad
+        UNIFORM_DATA.putFloat(shaderAlpha);
         UNIFORM_DATA.flip();
         encoder.writeToBuffer(uniforms.slice(), UNIFORM_DATA);
     }
@@ -285,9 +287,9 @@ public final class BlockOverlayRenderer {
         for (int i = 0; i < 2; i++) {
             float strength = 1.0f - i * 0.45f;
             int glowAlpha = Math.max(8, Math.round(alpha * 0.24f * strength));
-            putLineBox(data, box.expand(0.0012 * (i + 1)), ColorMath.withAlpha(glowRgb, glowAlpha));
+            putLineBox(data, box.expand(0.0035 + 0.0012 * (i + 1)), ColorMath.withAlpha(glowRgb, glowAlpha));
         }
-        putLineBox(data, box, ColorMath.withAlpha(base, alpha));
+        putLineBox(data, box.expand(0.0035), ColorMath.withAlpha(base, alpha));
         data.flip();
         drawColored(encoder, main, BlockOverlayPipelines.LINES, data);
     }

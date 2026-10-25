@@ -36,7 +36,7 @@ public final class BlockOverlayPipelines {
             .withBlend(BlendFunction.TRANSLUCENT)
             .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
             .withDepthWrite(false)
-            .withCull(true)
+            .withCull(false)
             .build());
 
     public static final RenderPipeline LINES = Pipelines.register(
@@ -76,7 +76,7 @@ public final class BlockOverlayPipelines {
                     .withBlend(BlendFunction.TRANSLUCENT)
                     .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
                     .withDepthWrite(false)
-                    .withCull(true)
+                    .withCull(false)
                     .build()));
         }
     }
