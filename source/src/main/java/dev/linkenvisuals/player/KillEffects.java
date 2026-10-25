@@ -272,6 +272,11 @@ public final class KillEffects {
                 }
             }
         }
+        if (consumers instanceof net.minecraft.client.render.VertexConsumerProvider.Immediate immediate) {
+            immediate.draw(Material.SOLID);
+            immediate.draw(Material.BODY);
+            immediate.draw(Material.LIGHT);
+        }
     }
 
     private static float climb(float height, float age) {

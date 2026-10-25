@@ -322,10 +322,10 @@ public final class AstolfoMesh {
         float[] rcur = rcurCache;
         System.arraycopy(bindR, 0, rcur, 0, bindR.length);
 
-        applyRot(jThighL, qx(swing * 0.55f), rcur);
-        applyRot(jThighR, qx(-swing * 0.55f), rcur);
-        applyRot(jCalfL, qx(-Math.max(0f, (float) Math.cos(state.limbSwingAnimationProgress * 0.6662f + 0.7f)) * 0.8f * stride - 0.06f), rcur);
-        applyRot(jCalfR, qx(-Math.max(0f, (float) Math.cos(state.limbSwingAnimationProgress * 0.6662f + Math.PI + 0.7f)) * 0.8f * stride - 0.06f), rcur);
+        applyRotX(jThighL, swing * 0.55f, rcur);
+        applyRotX(jThighR, -swing * 0.55f, rcur);
+        applyRotX(jCalfL, -Math.max(0f, (float) Math.cos(state.limbSwingAnimationProgress * 0.6662f + 0.7f)) * 0.8f * stride - 0.06f, rcur);
+        applyRotX(jCalfR, -Math.max(0f, (float) Math.cos(state.limbSwingAnimationProgress * 0.6662f + Math.PI + 0.7f)) * 0.8f * stride - 0.06f, rcur);
 
         float armL = -swing * 0.45f;
         float armR = swing * 0.45f;
@@ -334,23 +334,25 @@ public final class AstolfoMesh {
             if (state.preferredArm == Arm.RIGHT) armL += hit;
             else armR += hit;
         }
-        applyRot(jArmL, qx(armL), rcur);
-        applyRot(jArmR, qx(armR), rcur);
-        applyRot(jForeL, qx(0.28f + Math.abs(armL) * 0.35f), rcur);
-        applyRot(jForeR, qx(0.28f + Math.abs(armR) * 0.35f), rcur);
+        applyRotX(jArmL, armL, rcur);
+        applyRotX(jArmR, armR, rcur);
+        applyRotX(jForeL, 0.28f + Math.abs(armL) * 0.35f, rcur);
+        applyRotX(jForeR, 0.28f + Math.abs(armR) * 0.35f, rcur);
 
         float headYaw = -(vanilla.head.yaw) * 0.8f;
         float headPitch = (vanilla.head.pitch) * 0.8f;
-        applyRot(jHead, qmul(qy(headYaw), qx(headPitch)), rcur);
-        applyRot(jNeck, qmul(qy(headYaw * 0.3f), qx(headPitch * 0.3f)), rcur);
+        applyRotHead(jHead, headYaw, headPitch, rcur);
+        applyRotHead(jNeck, headYaw * 0.3f, headPitch * 0.3f, rcur);
         double time = System.nanoTime() / 1_000_000_000.0;
-        applyRot(jSpine, qx((float) (0.02 * Math.sin(time * 1.6) * (1f - stride) + 0.03 * Math.sin(state.limbSwingAnimationProgress * 0.6662f) * stride)), rcur);
-        float[] pelvisT = new float[]{0f, (float) (-0.035 * Math.abs(Math.cos(state.limbSwingAnimationProgress * 0.6662f)) * stride), 0f};
+        applyRotX(jSpine, (float) (0.02 * Math.sin(time * 1.6) * (1f - stride) + 0.03 * Math.sin(state.limbSwingAnimationProgress * 0.6662f) * stride), rcur);
+        PELVIS_T[0] = 0f;
+        PELVIS_T[1] = (float) (-0.035 * Math.abs(Math.cos(state.limbSwingAnimationProgress * 0.6662f)) * stride);
+        PELVIS_T[2] = 0f;
 
         // world + skin matrices
         for (int k = 0; k < jointCount; k++) {
             float[] m = worldCache[k];
-            compose(m, k == jPelvis ? pelvisT : null, rcur, k);
+            compose(m, k == jPelvis ? PELVIS_T : null, rcur, k);
             int p = jointParent[k];
             if (p >= 0) {
                 float[] parentM = worldCache[p];
@@ -393,19 +395,57 @@ public final class AstolfoMesh {
         }
     }
 
-    private static void applyRot(int joint, float[] qworld, float[] rcur) {
+    private static final float[] PELVIS_T = new float[3];
+
+    private static void applyRotX(int joint, float angle, float[] rcur) {
+        float s = (float) Math.sin(angle * 0.5f);
+        float c = (float) Math.cos(angle * 0.5f);
+        applyRot(joint, s, 0f, 0f, c, rcur);
+    }
+
+    private static void applyRotHead(int joint, float yaw, float pitch, float[] rcur) {
+        float sy = (float) Math.sin(yaw * 0.5f);
+        float cy = (float) Math.cos(yaw * 0.5f);
+        float sx = (float) Math.sin(pitch * 0.5f);
+        float cx = (float) Math.cos(pitch * 0.5f);
+        float qx = cy * sx;
+        float qy = sy * cx;
+        float qz = -sy * sx;
+        float qw = cy * cx;
+        applyRot(joint, qx, qy, qz, qw, rcur);
+    }
+
+    private static void applyRot(int joint, float qw0, float qw1, float qw2, float qw3, float[] rcur) {
         if (joint < 0) return;
-        float[] p = new float[]{
-                bindParentQuat[joint * 4], bindParentQuat[joint * 4 + 1],
-                bindParentQuat[joint * 4 + 2], bindParentQuat[joint * 4 + 3]};
-        float[] d = qmul(qmul(qconj(p), qworld), p);
-        float[] r = new float[]{
-                bindR[joint * 4], bindR[joint * 4 + 1], bindR[joint * 4 + 2], bindR[joint * 4 + 3]};
-        float[] out = qmul(d, r);
-        rcur[joint * 4] = out[0];
-        rcur[joint * 4 + 1] = out[1];
-        rcur[joint * 4 + 2] = out[2];
-        rcur[joint * 4 + 3] = out[3];
+        int o4 = joint * 4;
+        float p0 = bindParentQuat[o4];
+        float p1 = bindParentQuat[o4 + 1];
+        float p2 = bindParentQuat[o4 + 2];
+        float p3 = bindParentQuat[o4 + 3];
+
+        // p_conj = (-p0, -p1, -p2, p3)
+        // d = p_conj * qworld
+        float dx = p3 * qw0 + (-p0) * qw3 + (-p1) * qw2 - (-p2) * qw1;
+        float dy = p3 * qw1 - (-p0) * qw2 + (-p1) * qw3 + (-p2) * qw0;
+        float dz = p3 * qw2 + (-p0) * qw1 - (-p1) * qw0 + (-p2) * qw3;
+        float dw = p3 * qw3 - (-p0) * qw0 - (-p1) * qw1 - (-p2) * qw2;
+
+        // d2 = d * p
+        float d2x = dw * p0 + dx * p3 + dy * p2 - dz * p1;
+        float d2y = dw * p1 - dx * p2 + dy * p3 + dz * p0;
+        float d2z = dw * p2 + dx * p1 - dy * p0 + dz * p3;
+        float d2w = dw * p3 - dx * p0 - dy * p1 - dz * p2;
+
+        // out = d2 * bindR
+        float r0 = bindR[o4];
+        float r1 = bindR[o4 + 1];
+        float r2 = bindR[o4 + 2];
+        float r3 = bindR[o4 + 3];
+
+        rcur[o4] = d2w * r0 + d2x * r3 + d2y * r2 - d2z * r1;
+        rcur[o4 + 1] = d2w * r1 - d2x * r2 + d2y * r3 + d2z * r0;
+        rcur[o4 + 2] = d2w * r2 + d2x * r1 - d2y * r0 + d2z * r3;
+        rcur[o4 + 3] = d2w * r3 - d2x * r0 - d2y * r1 - d2z * r2;
     }
 
     private static void compose(float[] m, float[] extraT, float[] rcur, int k) {
@@ -462,25 +502,11 @@ public final class AstolfoMesh {
                 .normal(entry, outNrm[v * 3], outNrm[v * 3 + 1], outNrm[v * 3 + 2]);
     }
 
-    private static float[] qx(float angle) {
-        float s = (float) Math.sin(angle / 2);
-        return new float[]{s, 0, 0, (float) Math.cos(angle / 2)};
-    }
-
-    private static float[] qy(float angle) {
-        float s = (float) Math.sin(angle / 2);
-        return new float[]{0, s, 0, (float) Math.cos(angle / 2)};
-    }
-
     private static float[] qmul(float[] a, float[] b) {
         return new float[]{
                 a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
                 a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
                 a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
                 a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2]};
-    }
-
-    private static float[] qconj(float[] q) {
-        return new float[]{-q[0], -q[1], -q[2], q[3]};
     }
 }

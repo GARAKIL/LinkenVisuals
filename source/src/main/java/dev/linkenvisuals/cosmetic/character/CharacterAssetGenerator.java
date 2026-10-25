@@ -504,18 +504,18 @@ public final class CharacterAssetGenerator {
                                 float du0, float dv0, float du1, float dv1,
                                 float ru0, float rv0, float ru1, float rv1,
                                 float lu0, float lv0, float lu1, float lv1) {
-            // Front (-Z in entity space)
-            quad(x1, y1, z0, x0, y1, z0, x0, y0, z0, x1, y0, z0, 0, 0, -1, fu0, fv1, fu1, fv0);
-            // Back (+Z)
-            quad(x0, y1, z1, x1, y1, z1, x1, y0, z1, x0, y0, z1, 0, 0, 1, bu0, bv1, bu1, bv0);
+            // Front (-Z in entity space: x0 is viewer left, x1 is viewer right)
+            quad(x0, y1, z0, x1, y1, z0, x1, y0, z0, x0, y0, z0, 0, 0, -1, fu0, fv1, fu1, fv0);
+            // Back (+Z in entity space: from behind, +X is viewer left, -X is viewer right)
+            quad(x1, y1, z1, x0, y1, z1, x0, y0, z1, x1, y0, z1, 0, 0, 1, bu0, bv1, bu1, bv0);
             // Top (-Y in entity space is UP)
             quad(x0, y0, z0, x1, y0, z0, x1, y0, z1, x0, y0, z1, 0, -1, 0, tu0, tv0, tu1, tv1);
             // Bottom (+Y is DOWN)
             quad(x0, y1, z1, x1, y1, z1, x1, y1, z0, x0, y1, z0, 0, 1, 0, du0, dv0, du1, dv1);
-            // Right face (+X)
-            quad(x1, y1, z1, x1, y1, z0, x1, y0, z0, x1, y0, z1, 1, 0, 0, ru0, rv1, ru1, rv0);
-            // Left face (-X)
-            quad(x0, y1, z0, x0, y1, z1, x0, y0, z1, x0, y0, z0, -1, 0, 0, lu0, lv1, lu1, lv0);
+            // Left face (+X in entity space)
+            quad(x1, y1, z0, x1, y1, z1, x1, y0, z1, x1, y0, z0, 1, 0, 0, lu0, lv1, lu1, lv0);
+            // Right face (-X in entity space)
+            quad(x0, y1, z1, x0, y1, z0, x0, y0, z0, x0, y0, z1, -1, 0, 0, ru1, rv1, ru0, rv0);
         }
 
         /**
@@ -603,8 +603,8 @@ public final class CharacterAssetGenerator {
                 float nz = -(cosArr[i] + cosArr[next]) * 0.5f;
 
                 if (midCos > 0.35f) {
-                    float u_i = fu0 + (0.5f - outerTop[i][0] / (2.0f * radius)) * (fu1 - fu0);
-                    float u_next = fu0 + (0.5f - outerTop[next][0] / (2.0f * radius)) * (fu1 - fu0);
+                    float u_i = fu0 + (0.5f + outerTop[i][0] / (2.0f * radius)) * (fu1 - fu0);
+                    float u_next = fu0 + (0.5f + outerTop[next][0] / (2.0f * radius)) * (fu1 - fu0);
                     float v_top = fv0;
                     float v_bottom = fv1;
 

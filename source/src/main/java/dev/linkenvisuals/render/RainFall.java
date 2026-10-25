@@ -74,6 +74,10 @@ public final class RainFall {
                 drop(CONTEXT, client, eye, i, fall * strength);
             }
         }
+        if (consumers instanceof net.minecraft.client.render.VertexConsumerProvider.Immediate immediate) {
+            immediate.draw(Material.BODY);
+            immediate.draw(Material.LIGHT);
+        }
     }
 
     private static void drop(CosmeticContext ctx, MinecraftClient client, Vec3d eye,

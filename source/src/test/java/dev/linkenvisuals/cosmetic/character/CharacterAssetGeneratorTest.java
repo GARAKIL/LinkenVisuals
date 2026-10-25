@@ -64,5 +64,36 @@ class CharacterAssetGeneratorTest {
         assertNotNull(jasonImg);
         assertEquals(512, jasonImg.getWidth());
         assertEquals(512, jasonImg.getHeight());
+
+        // Verify Roblox Bacon head UV unwrapping: face is strictly on front (-Z) and not mirrored
+        try (FileInputStream in = new FileInputStream(baconMesh)) {
+            RudyMesh.Part[] parts = RudyMesh.parse(in, 1);
+            RudyMesh.Part head = parts[0];
+            float[] data = head.vertices();
+            int frontFaceCount = 0;
+            for (int i = 0; i < data.length; i += RudyMesh.VERTEX_FLOATS) {
+                float x = data[i];
+                float nz = data[i + 5];
+                float u = data[i + 6];
+                float v = data[i + 7];
+
+                // Front face cylinder wall has v == 0.0f (top) or v == 0.25f (bottom), within head radius 0.22
+                boolean isFaceWallVertex = (Math.abs(v - 0.0f) < 1e-4f || Math.abs(v - 0.25f) < 1e-4f)
+                        && u >= 0.0f && u < 0.249f && x >= -0.23f && x <= 0.23f && data[i + 1] >= -0.45f;
+
+                if (isFaceWallVertex) {
+                    // Face texture MUST only appear on front-facing geometry (nz < -0.3f)
+                    assertTrue(nz < -0.3f, "Face texture mapped to non-front normal: nz=" + nz);
+                    frontFaceCount++;
+                    // Face must not be horizontally mirrored: left of face (x < -0.05) has u < 0.125, right (x > 0.05) has u > 0.125
+                    if (x < -0.05f) {
+                        assertTrue(u < 0.125f, "Left face vertex has right-hand UV: x=" + x + ", u=" + u);
+                    } else if (x > 0.05f) {
+                        assertTrue(u > 0.125f, "Right face vertex has left-hand UV: x=" + x + ", u=" + u);
+                    }
+                }
+            }
+            assertTrue(frontFaceCount > 0, "Roblox Bacon head must have front face vertices");
+        }
     }
 }

@@ -186,6 +186,10 @@ public final class HitEffects {
                 }
             }
         }
+        if (consumers instanceof net.minecraft.client.render.VertexConsumerProvider.Immediate immediate) {
+            immediate.draw(Material.BODY);
+            immediate.draw(Material.LIGHT);
+        }
     }
 
     private static void impact(CosmeticContext ctx, float x, float y, float z, float fx, float fz,

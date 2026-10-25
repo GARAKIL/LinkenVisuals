@@ -109,6 +109,10 @@ public final class TargetMarks {
                 clock, 1.0f, colour, 0.0f, 0.0f, 1.0f);
             draw(CONTEXT, box, eye, presence, health(held));
         }
+        if (consumers instanceof net.minecraft.client.render.VertexConsumerProvider.Immediate immediate) {
+            immediate.draw(Material.BODY);
+            immediate.draw(Material.LIGHT);
+        }
     }
 
     private static void draw(CosmeticContext ctx, Box box, Vec3d eye, float show, float health) {
