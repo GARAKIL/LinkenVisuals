@@ -13,15 +13,9 @@ public final class StyleRouting {
     private StyleRouting() {
     }
 
-    /** Video Settings cycle: Beta -> Vanilla -> Linken -> Beta. */
+    /** Video Settings cycle: cycles styles allowed by active StyleFlavor. */
     public static MenuStyle nextStyle(MenuStyle current) {
-        if (current == MenuStyle.BETA) {
-            return MenuStyle.VANILLA;
-        }
-        if (current == MenuStyle.VANILLA) {
-            return MenuStyle.LINKEN;
-        }
-        return MenuStyle.BETA;
+        return StyleFlavor.nextMenuStyle(current);
     }
 
     /** LINKEN has a fixed composition and must not overwrite the editable Beta/Vanilla config. */

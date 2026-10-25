@@ -103,12 +103,11 @@ public final class KeybindPanel extends HudElement {
         }
         HudSurface.panel(context, "keybinds", x, y, cachedWidth, cachedHeight, 1.0f);
 
-        float iconY = y + (HEADER_H - ICON_H) * 0.5f;
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, ICON, Math.round(x + PADDING), Math.round(iconY), 0.0f, 0.0f,
-            Math.round(ICON_W), Math.round(ICON_H), 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, 220));
+        float iconY = HudAlign.centerY(y, HEADER_H, ICON_H);
+        HudAlign.drawIcon(context, ICON, x + PADDING, iconY, ICON_W, 128, ColorMath.withAlpha(0xFFFFFF, 220));
 
         float dividerX = x + PADDING + ICON_W + 5.0f;
-        context.fill(Math.round(dividerX), Math.round(y + 5.0f), Math.round(dividerX) + 1, Math.round(y + HEADER_H - 5.0f),
+        HudAlign.drawDivider(context, dividerX, y + HEADER_H * 0.5f, (HEADER_H - 10.0f) * 0.5f,
             ColorMath.withAlpha(0xFFFFFF, 26));
 
         MsdfText.drawOn(context, bold, "Keybinds", x + PADDING + ICON_W + 8.0f,
@@ -121,10 +120,8 @@ public final class KeybindPanel extends HudElement {
         for (Entry entry : entries) {
             float centerY = rowY + ROW_H * 0.5f;
 
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, entry.mark,
-                Math.round(x + PADDING), Math.round(centerY - ROW_ICON * 0.5f), 0.0f, 0.0f,
-                Math.round(ROW_ICON), Math.round(ROW_ICON), 128, 128, 128, 128,
-                ColorMath.withAlpha(NeonEdge.cool(), 190));
+            HudAlign.drawIcon(context, entry.mark, x + PADDING, HudAlign.centerY(rowY, ROW_H, ROW_ICON),
+                ROW_ICON, 128, ColorMath.withAlpha(NeonEdge.cool(), 190));
 
             MsdfText.drawOn(context, bold, entry.name, x + PADDING + ROW_ICON + 6.0f, centerY, 6.6f,
                 ColorMath.withAlpha(0xFFFFFF, 230));

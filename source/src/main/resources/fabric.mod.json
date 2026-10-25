@@ -2,9 +2,10 @@
   "schemaVersion": 1,
   "id": "linkenvisuals",
   "version": "${version}",
-  "name": "LinkenVisuals",
+  "name": "StrangeVisuals",
   "description": "High-performance visual enhancement client mod for Minecraft Fabric 1.21.11.",
-  "authors": ["LinkenVisuals"],
+  "authors": ["StrangeVisuals"],
+  "icon": "assets/linkenvisuals/textures/gui/logo.png",
   "license": "MIT",
   "environment": "client",
   "entrypoints": {

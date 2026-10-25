@@ -8,16 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class StyleRoutingTest {
     @Test
-    void videoSettingsCyclesThroughAllThreeStyles() {
+    void videoSettingsCyclesThroughActiveStyles() {
         assertEquals(MenuStyle.VANILLA, StyleRouting.nextStyle(MenuStyle.BETA));
-        assertEquals(MenuStyle.LINKEN, StyleRouting.nextStyle(MenuStyle.VANILLA));
-        assertEquals(MenuStyle.BETA, StyleRouting.nextStyle(MenuStyle.LINKEN));
-
-        MenuStyle style = MenuStyle.BETA;
-        for (int i = 0; i < 3; i++) {
-            style = StyleRouting.nextStyle(style);
-        }
-        assertEquals(MenuStyle.BETA, style, "three steps must return to the starting style");
+        assertEquals(MenuStyle.BETA, StyleRouting.nextStyle(MenuStyle.VANILLA));
     }
 
     @Test

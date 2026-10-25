@@ -104,39 +104,36 @@ public final class Watermark extends HudElement {
 
         HudSurface.panel(context, "watermark", x, y, totalWidth, HEIGHT, 1.0f);
 
-        float centerY = y + HEIGHT * 0.5f;
-        float cursor = x + PADDING;
+        HudAlign.Row row = HudAlign.row(x, y, HEIGHT, PADDING, GAP);
 
-        float logoY = centerY - LOGO_SIZE * 0.5f;
-        GlowPipeline.radial(context, cursor + LOGO_SIZE * 0.5f, centerY, LOGO_SIZE * 1.2f,
+        float logoX = row.next(LOGO_SIZE);
+        float logoY = row.centerY(LOGO_SIZE);
+        GlowPipeline.radial(context, logoX + LOGO_SIZE * 0.5f, row.midY(), LOGO_SIZE * 1.2f,
             ColorMath.withAlpha(NeonEdge.cool(), 75));
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, LOGO, Math.round(cursor), Math.round(logoY),
-            0.0f, 0.0f, Math.round(LOGO_SIZE), Math.round(LOGO_SIZE), 128, 128, 128, 128, ColorMath.withAlpha(0xFFFFFF, 255));
-        cursor += LOGO_SIZE + GAP;
+        HudAlign.drawIcon(context, LOGO, logoX, logoY, LOGO_SIZE, 128, ColorMath.withAlpha(0xFFFFFF, 255));
 
-        MsdfText.draw(context, bold, username, cursor, topFor(centerY, NAME_SIZE), NAME_SIZE,
+        float nameX = row.next(nameSpan);
+        MsdfText.draw(context, bold, username, nameX, row.centerTextY(NAME_SIZE), NAME_SIZE,
             ColorMath.withAlpha(Theme.lighten(NeonEdge.cool(), 0.18f), 255));
-        cursor += nameSpan + GAP;
 
         float fpsWidth = MsdfText.width(bold, fps, QUIET_SIZE);
-        MsdfText.draw(context, bold, fps, cursor + fpsSlot - fpsWidth, topFor(centerY, QUIET_SIZE), QUIET_SIZE,
+        float fpsSlotW = fpsSlot + 1.5f;
+        float fpsX = row.next(fpsSlotW + unitWidth);
+        MsdfText.draw(context, bold, fps, fpsX + fpsSlotW - fpsWidth, row.centerTextY(QUIET_SIZE), QUIET_SIZE,
             ColorMath.withAlpha(0xFFFFFF, 205));
-        cursor += fpsSlot + 1.5f;
-        MsdfText.draw(context, text, "fps", cursor, topFor(centerY, QUIET_SIZE), QUIET_SIZE,
+        MsdfText.draw(context, text, "fps", fpsX + fpsSlotW, row.centerTextY(QUIET_SIZE), QUIET_SIZE,
             ColorMath.withAlpha(0xFFFFFF, 90));
-        cursor += unitWidth + GAP;
 
-        cursor = drawQuiet(context, ping, cursor, centerY);
-        drawQuiet(context, server, cursor, centerY);
+        drawQuiet(context, ping, row);
+        drawQuiet(context, server, row);
     }
 
-    private float drawQuiet(DrawContext context, String value, float cursor, float centerY) {
-        float ruleX = cursor - GAP * 0.5f;
-        context.fill(Math.round(ruleX), Math.round(centerY - 4.0f), Math.round(ruleX) + 1,
-            Math.round(centerY + 4.0f), ColorMath.withAlpha(0xFFFFFF, 30));
-        MsdfText.draw(context, text, value, cursor, topFor(centerY, QUIET_SIZE), QUIET_SIZE,
+    private void drawQuiet(DrawContext context, String value, HudAlign.Row row) {
+        float at = row.current();
+        HudAlign.drawDivider(context, at - GAP * 0.5f, row.midY(), 4.0f, ColorMath.withAlpha(0xFFFFFF, 30));
+        float textX = row.next(MsdfText.width(text, value, QUIET_SIZE));
+        MsdfText.draw(context, text, value, textX, row.centerTextY(QUIET_SIZE), QUIET_SIZE,
             ColorMath.withAlpha(0xFFFFFF, 150));
-        return cursor + MsdfText.width(text, value, QUIET_SIZE) + GAP;
     }
     private static int currentPing(MinecraftClient client) {
         if (client.player == null || client.getNetworkHandler() == null) {
