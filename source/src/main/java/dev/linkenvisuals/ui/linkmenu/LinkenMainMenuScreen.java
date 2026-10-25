@@ -62,9 +62,9 @@ public final class LinkenMainMenuScreen extends Screen {
     protected void init() {
         LinkenFonts.body();
         openedAt = Util.getMeasuringTimeMs();
-        if (welcomeStart == 0L && !welcomePlayed) {
-            welcomeStart = openedAt;
+        if (!welcomePlayed) {
             welcomeActive = true;
+            welcomeStart = 0L;
         } else if (!welcomeActive) {
             LinkenMenuMusic.autoStartOnce();
         }
@@ -84,6 +84,15 @@ public final class LinkenMainMenuScreen extends Screen {
             lastFrame = now;
             return;
         }
+        if (client != null && client.getOverlay() != null) {
+            // Splash overlay is still active on top of this screen; do not start welcome countdown yet
+            if (!welcomePlayed) {
+                welcomeStart = 0L;
+                welcomeActive = true;
+            }
+            lastFrame = now;
+            return;
+        }
         // Once resources are ready the menu may render underneath the fading
         // splash, so its first frame is already in the framebuffer when the
         // overlay is removed.
@@ -94,6 +103,9 @@ public final class LinkenMainMenuScreen extends Screen {
         LinkenMenuLayout.Metrics metrics = layout();
         long millis = Util.getMeasuringTimeMs();
         if (welcomeActive) {
+            if (welcomeStart == 0L) {
+                welcomeStart = millis;
+            }
             if (welcomePlayed || millis - welcomeStart >= WELCOME_MS) {
                 finishWelcome(millis);
             } else {

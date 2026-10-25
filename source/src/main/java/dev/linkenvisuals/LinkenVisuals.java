@@ -51,7 +51,7 @@ import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Core entry point for the LinkenVisuals client mod (Minecraft 1.21.11 / Fabric).
+ * Core entry point for the visuals modification client mod (Minecraft 1.21.11 / Fabric).
  * <p>
  * Responsible for:
  * <ul>

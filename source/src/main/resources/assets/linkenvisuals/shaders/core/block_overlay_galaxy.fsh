@@ -60,7 +60,7 @@ float fbm(vec2 p, float t) {
 // Спиральная галактика
 float galaxy(vec2 uv, float t) {
     float dist = length(uv);
-    float angle = atan(uv.y, uv.x);
+    float angle = (abs(uv.x) < 1e-5 && abs(uv.y) < 1e-5) ? 0.0 : atan(uv.y, uv.x);
     
     // Спиральные рукава
     float spiral = sin(angle * 3.0 - dist * 8.0 + t * 0.5) * 0.5 + 0.5;
@@ -166,7 +166,7 @@ vec3 galacticCore(vec2 uv, float t) {
     float core = exp(-dist * dist * 30.0) * pulse;
     
     // Аккреционный диск
-    float diskAngle = atan(uv.y, uv.x);
+    float diskAngle = (abs(uv.x) < 1e-5 && abs(uv.y) < 1e-5) ? 0.0 : atan(uv.y, uv.x);
     float disk = exp(-abs(dist - 0.15) * 20.0);
     disk *= (sin(diskAngle * 8.0 + t * 3.0) * 0.5 + 0.5);
     disk *= smoothstep(0.3, 0.1, dist);

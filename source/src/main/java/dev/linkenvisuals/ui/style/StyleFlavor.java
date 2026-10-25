@@ -5,10 +5,10 @@ import dev.linkenvisuals.BuildFlavor;
 import java.util.List;
 
 /**
- * Compile-time style family lock. A normal build exposes only the Linken
- * family; {@code -Pstrange} exposes only the StrangeVisuals family. The two
- * families never mix in one jar, so a user cannot switch into the other
- * design through settings, hotkeys, configs or editor buttons.
+ * Compile-time style family lock. A normal build exposes only the default
+ * visuals modification family; {@code -Pstrange} exposes only the alternative visuals
+ * modification family. The two families never mix in one jar, so a user cannot
+ * switch into the other design through settings, hotkeys, configs or editor buttons.
  */
 public final class StyleFlavor {
     public enum Family {

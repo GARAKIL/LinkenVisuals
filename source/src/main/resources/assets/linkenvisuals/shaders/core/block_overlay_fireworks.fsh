@@ -38,7 +38,7 @@ float star(vec2 uv, float size, float rotation) {
     
     // Создаём форму звезды (4 луча)
     float d = length(uv);
-    float angle = atan(uv.y, uv.x);
+    float angle = (abs(uv.x) < 1e-5 && abs(uv.y) < 1e-5) ? 0.0 : atan(uv.y, uv.x);
     
     // 4 луча звезды с плавными переходами
     float rays = abs(sin(angle * 2.0)) * 0.5 + 0.5;

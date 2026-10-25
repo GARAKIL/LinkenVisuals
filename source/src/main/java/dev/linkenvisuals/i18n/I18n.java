@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * High-performance, zero-allocation translation engine for LinkenVisuals.
+ * High-performance, zero-allocation translation engine for the visuals modification.
  * Supports auto-detection of Minecraft language with native Russian, Ukrainian, and English translations.
  */
 public final class I18n {

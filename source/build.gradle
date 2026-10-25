@@ -24,8 +24,8 @@ if (project.hasProperty('bumpVersion')) {
     }
 }
 
-// -Pstrange builds the StrangeVisuals-family jar (Classic/Beta GUI, Vanilla/Beta
-// menu, legacy HUD). Without the flag the jar is Linken-only. The two style
+// -Pstrange builds the visuals modification family jar (Classic/Beta GUI, Vanilla/Beta
+// menu, legacy HUD). Without the flag the jar is default visuals. The two style
 // families are mutually exclusive at runtime; see StyleFlavor.
 def strangeFlavor = project.hasProperty('strange')
     && !project.property('strange').toString().equalsIgnoreCase('false')

@@ -100,13 +100,15 @@ public final class BlockOverlayRenderer {
         int fbHeight = Math.max(1, main.textureHeight);
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-        if (module.useShader.value() && Math.max(fillAlpha, outlineAlpha) > 0) {
-            int shaderAlpha = Math.max(fillAlpha, Math.round(outlineAlpha * 0.72f));
-            int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
-            writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, shaderAlpha);
-            drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box);
-        } else if (module.fill.value() && fillAlpha > 0) {
-            drawGradientFill(encoder, main, box, fillAlpha, animation, palette, mode);
+        boolean drawFill = module.fill.value() && fillAlpha > 0;
+        if (drawFill) {
+            if (module.useShader.value()) {
+                int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
+                writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, fillAlpha);
+                drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box);
+            } else {
+                drawGradientFill(encoder, main, box, fillAlpha, animation, palette, mode);
+            }
         }
 
         if (outlineAlpha > 0) {
@@ -150,12 +152,12 @@ public final class BlockOverlayRenderer {
             cachedLocalBox = local;
         }
         Vec3d cam = mc.gameRenderer.getCamera().getCameraPos();
-        return local.offset(pos).expand(0.003).offset(-cam.x, -cam.y, -cam.z);
+        return local.offset(pos).expand(0.004).offset(-cam.x, -cam.y, -cam.z);
     }
 
     private static void writeUniforms(CommandEncoder encoder, float time, int fbWidth, int fbHeight,
                                       int baseRgb, int alpha) {
-        float shaderAlpha = Math.max(0.52f, Math.min(1.0f, alpha / 255.0f));
+        float shaderAlpha = Math.max(0.0f, Math.min(1.0f, alpha / 255.0f));
         UNIFORM_DATA.clear();
         UNIFORM_DATA.putFloat(time); // @0
         UNIFORM_DATA.putFloat(0.0f); // @4 pad

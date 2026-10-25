@@ -21,7 +21,7 @@ public final class HudStyle {
         CARD, MINIMAL, NEON, AURORA, GLASS, SOLID, GRADIENT, OUTLINE, LEGACY
     }
 
-    /** StrangeVisuals-era body colour (pre-donor HudSurface). */
+    /** Visuals modification-era body colour (pre-donor HudSurface). */
     private static final int LEGACY_BODY = 0x0E0F14;
 
     public enum Shape {
