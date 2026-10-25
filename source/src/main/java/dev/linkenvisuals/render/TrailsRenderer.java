@@ -42,7 +42,7 @@ public final class TrailsRenderer {
             .withLocation(LinkenVisuals.id("pipeline/trails"))
             .withVertexShader(LinkenVisuals.id("core/position_color"))
             .withFragmentShader(LinkenVisuals.id("core/position_color"))
-            .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS)
+            .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.TRIANGLES)
             .withBlend(BlendFunction.TRANSLUCENT)
             .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
             .withDepthWrite(false)
@@ -129,14 +129,12 @@ public final class TrailsRenderer {
         long now = System.currentTimeMillis();
         long lengthMs = (long) module.length.value();
 
-        // Build billboard quads: each particle is a camera-facing square.
+        // Build billboard triangles: each particle is 2 triangles (6 vertices).
         int count = particles.size();
-        ByteBuffer data = MemoryUtil.memAlloc(count * 4 * 28); // 4 verts × (3+4 floats) × 4 bytes
+        ByteBuffer data = MemoryUtil.memAlloc(count * 6 * 16);
         try {
             int themeColor = dev.linkenvisuals.ui.Theme.accent();
-            float r = ((themeColor >> 16) & 0xFF) / 255.0f;
-            float g = ((themeColor >> 8) & 0xFF) / 255.0f;
-            float b = (themeColor & 0xFF) / 255.0f;
+            int rgb = themeColor & 0x00FFFFFF;
 
             for (Particle p : particles) {
                 long age = now - p.spawnTime();
@@ -147,6 +145,9 @@ public final class TrailsRenderer {
                 if (alpha <= 0.0f) {
                     continue;
                 }
+                int a255 = Math.max(0, Math.min(255, Math.round(alpha * 255.0f)));
+                int argb = (a255 << 24) | rgb;
+
                 Vec3d pos = p.pos();
                 float cx = (float) (pos.x - camPos.x);
                 float cy = (float) (pos.y - camPos.y);
@@ -160,17 +161,36 @@ public final class TrailsRenderer {
                 float uy = up.y() * size;
                 float uz = up.z() * size;
 
-                putVertex(data, cx - rx - ux, cy - ry - uy, cz - rz - uz, r, g, b, alpha);
-                putVertex(data, cx + rx - ux, cy + ry - uy, cz + rz - uz, r, g, b, alpha);
-                putVertex(data, cx + rx + ux, cy + ry + uy, cz + rz + uz, r, g, b, alpha);
-                putVertex(data, cx - rx + ux, cy - ry + uy, cz - rz + uz, r, g, b, alpha);
+                float x0 = cx - rx - ux;
+                float y0 = cy - ry - uy;
+                float z0 = cz - rz - uz;
+
+                float x1 = cx + rx - ux;
+                float y1 = cy + ry - uy;
+                float z1 = cz + rz - uz;
+
+                float x2 = cx + rx + ux;
+                float y2 = cy + ry + uy;
+                float z2 = cz + rz + uz;
+
+                float x3 = cx - rx + ux;
+                float y3 = cy - ry + uy;
+                float z3 = cz - rz + uz;
+
+                putVertex(data, x0, y0, z0, argb);
+                putVertex(data, x1, y1, z1, argb);
+                putVertex(data, x2, y2, z2, argb);
+
+                putVertex(data, x0, y0, z0, argb);
+                putVertex(data, x2, y2, z2, argb);
+                putVertex(data, x3, y3, z3, argb);
             }
             data.flip();
             if (data.remaining() == 0) {
                 return;
             }
 
-            int vertices = data.remaining() / 28;
+            int vertices = data.remaining() / 16;
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             GpuBuffer verts = RenderSystem.getDevice().createBuffer(
                 () -> "linkenvisuals:trails", GpuBuffer.USAGE_VERTEX, data);
@@ -190,10 +210,12 @@ public final class TrailsRenderer {
         }
     }
 
-    private static void putVertex(ByteBuffer data, float x, float y, float z,
-                                  float r, float g, float b, float a) {
+    private static void putVertex(ByteBuffer data, float x, float y, float z, int argb) {
         data.putFloat(x).putFloat(y).putFloat(z);
-        data.putFloat(r).putFloat(g).putFloat(b).putFloat(a);
+        data.put((byte) ((argb >> 16) & 0xFF));
+        data.put((byte) ((argb >> 8) & 0xFF));
+        data.put((byte) (argb & 0xFF));
+        data.put((byte) ((argb >>> 24) & 0xFF));
     }
 
     public static void init() {

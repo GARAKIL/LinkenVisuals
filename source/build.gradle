@@ -122,8 +122,9 @@ processResources {
         if (!jars.isEmpty()) {
             text = text.replace('"jars": []', "\"jars\": [\n${jars}\n  ]")
         }
-        if (!strangeFlavor) {
-            text = text.replace('"name": "Strange Visuals"', '"name": "Linken Visuals"')
+        if (strangeFlavor) {
+            text = text.replace('"name": "LinkenVisuals"', '"name": "StrangeVisuals"')
+            text = text.replace('"icon": "assets/linkenvisuals/logo.png"', '"icon": "assets/linkenvisuals/textures/gui/strange_logo.png"')
         }
         manifest.setText(text, 'UTF-8')
         def targetLogo = layout.buildDirectory.file('resources/main/assets/linkenvisuals/textures/gui/logo.png').get().asFile

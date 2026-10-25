@@ -41,32 +41,24 @@ class StyleFlavorTest {
     }
 
     @Test
-    void linkenExposesLinkenFamilyWithStrangeOption() {
+    void linkenExposesOnlyLinkenFamily() {
         StyleFlavor.Rules rules = StyleFlavor.rulesFor(StyleFlavor.Family.LINKEN);
 
         assertEquals("Linken", rules.defaultGuiStyle());
-        assertEquals(java.util.List.of("Linken", "Beta", "Classic"), rules.guiStyles());
+        assertEquals(java.util.List.of("Linken"), rules.guiStyles());
         assertTrue(rules.allowsGuiStyle("Linken"));
-        assertTrue(rules.allowsGuiStyle("Beta"));
-        assertTrue(rules.allowsGuiStyle("Classic"));
         assertEquals("Linken", rules.sanitizeGuiStyle("Linken"));
 
         assertEquals(MenuStyle.LINKEN, rules.defaultMenuStyle());
-        assertEquals(java.util.List.of(MenuStyle.LINKEN, MenuStyle.BETA, MenuStyle.VANILLA), rules.menuStyles());
+        assertEquals(java.util.List.of(MenuStyle.LINKEN), rules.menuStyles());
         assertTrue(rules.allowsMenuStyle(MenuStyle.LINKEN));
-        assertTrue(rules.allowsMenuStyle(MenuStyle.BETA));
-        assertTrue(rules.allowsMenuStyle(MenuStyle.VANILLA));
         assertEquals(MenuStyle.LINKEN, rules.parseMenuStyle("Linken"));
-        assertEquals(MenuStyle.BETA, rules.nextMenuStyle(MenuStyle.LINKEN));
-        assertEquals(MenuStyle.VANILLA, rules.nextMenuStyle(MenuStyle.BETA));
-        assertEquals(MenuStyle.LINKEN, rules.nextMenuStyle(MenuStyle.VANILLA));
+        assertEquals(MenuStyle.LINKEN, rules.nextMenuStyle(MenuStyle.LINKEN));
 
-        assertEquals(java.util.List.of("Linken", "Strange"), rules.hudStyles());
+        assertEquals(java.util.List.of("Linken"), rules.hudStyles());
         assertEquals("Linken", rules.defaultHudStyle());
         assertTrue(rules.allowsHudStyle("Linken"));
-        assertTrue(rules.allowsHudStyle("Strange"));
         assertEquals("Linken", rules.sanitizeHudStyle("Linken"));
-        assertEquals("Strange", rules.sanitizeHudStyle("Strange"));
         assertEquals(java.util.List.of("Rounded"), rules.hudShapes());
         assertEquals("Rounded", rules.defaultHudShape());
         assertEquals("Rounded", rules.sanitizeHudShape("Sharp"));
