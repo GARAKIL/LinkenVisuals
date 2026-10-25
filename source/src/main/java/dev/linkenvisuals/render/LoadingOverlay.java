@@ -1,7 +1,9 @@
 package dev.linkenvisuals.render;
 
 import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.ui.style.MenuStyle;
 import dev.linkenvisuals.ui.style.StyleFlavor;
+import dev.linkenvisuals.ui.style.StyleManager;
 import dev.linkenvisuals.util.ColorMath;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -70,7 +72,7 @@ public final class LoadingOverlay {
         GlowPipeline.radial(context, cx, glowY, glowRadius, ColorMath.argb(NeonEdge.cool(), 50.0f / 255.0f));
 
         // Crisp stable logo - no jittering
-        boolean strange = StyleFlavor.isStrange();
+        boolean strange = StyleFlavor.isStrange() || StyleManager.getStyle() == MenuStyle.BETA;
         int logoTexture = strange ? 128 : 512;
         context.drawTexture(RenderPipelines.GUI_TEXTURED, strange ? STRANGE_LOGO : LOGO,
             Math.round(cx - 23.0f), Math.round(logoY), 0.0f, 0.0f,

@@ -1040,7 +1040,7 @@ public final class ModuleRegistry {
     }
 
     public static boolean isClassicGui() {
-        return guiStyle == null || "Classic".equalsIgnoreCase(guiStyle.value());
+        return guiStyle != null && "Classic".equalsIgnoreCase(guiStyle.value());
     }
 
     public static boolean isLinkenGui() {

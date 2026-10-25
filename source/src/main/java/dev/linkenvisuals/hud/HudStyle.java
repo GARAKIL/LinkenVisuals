@@ -35,7 +35,7 @@ public final class HudStyle {
         if (StyleFlavor.isStrange()) {
             return Variant.LEGACY;
         }
-        String value = ModuleRegistry.hudStyle() == null ? "Card" : ModuleRegistry.hudStyle().value();
+        String value = ModuleRegistry.hudStyle() == null ? "Strange" : ModuleRegistry.hudStyle().value();
         return switch (value == null ? "" : value.toLowerCase(java.util.Locale.ROOT)) {
             case "minimal" -> Variant.MINIMAL;
             case "neon" -> Variant.NEON;
@@ -44,7 +44,8 @@ public final class HudStyle {
             case "solid" -> Variant.SOLID;
             case "gradient" -> Variant.GRADIENT;
             case "outline" -> Variant.OUTLINE;
-            default -> Variant.CARD;
+            case "card" -> Variant.CARD;
+            default -> Variant.LEGACY;
         };
     }
 
@@ -263,7 +264,7 @@ public final class HudStyle {
 
     /** Donor {@code themeInset(alpha, mix)} used by item cells and tinted plates. */
     public static int inset(int alpha, float mix) {
-        if (StyleFlavor.isStrange()) {
+        if (StyleFlavor.isStrange() || variant() == Variant.LEGACY) {
             return ColorMath.withAlpha(LEGACY_BODY, alpha);
         }
         int mixed = ColorMath.mix(base(), LinkGuiTheme.isLight() ? 0x000000 : 0xFFFFFF, mix);
