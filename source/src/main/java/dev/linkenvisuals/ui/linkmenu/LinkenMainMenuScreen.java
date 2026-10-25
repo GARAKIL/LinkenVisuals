@@ -141,15 +141,16 @@ public final class LinkenMainMenuScreen extends Screen {
         float quitHoverValue = quitHover.updateAndGet(metrics.quit().contains(virtualMouseX, contentMouseY));
 
         LinkenMenuChrome.drawButton(context, metrics.multiplayer(), true, LinkenMenuChrome.MENU_ICON_GLOBE,
-            I18n.get("linkenvisuals.menu.multiplayer"), multiHover, false, false, intro, metrics.scale());
+            getI18nOrDefault("linkenvisuals.menu.multiplayer", "Сетевая игра"), multiHover, false, false, intro, metrics.scale());
         LinkenMenuChrome.drawButton(context, metrics.singleplayer(), false, LinkenMenuChrome.MENU_ICON_PERSON,
-            I18n.get("linkenvisuals.menu.singleplayer"), singleHover, false, false, intro, metrics.scale());
+            getI18nOrDefault("linkenvisuals.menu.singleplayer", "Одиночная игра"), singleHover, false, false, intro, metrics.scale());
         LinkenMenuChrome.drawButton(context, metrics.settings(), false, LinkenMenuChrome.MENU_ICON_GEAR,
-            I18n.get("linkenvisuals.menu.settings"), settingsHoverValue, false, false, intro, metrics.scale());
+            getI18nOrDefault("linkenvisuals.menu.settings", "Настройки"), settingsHoverValue, false, false, intro, metrics.scale());
 
         boolean quitArmed = millis < quitArmedUntil;
         LinkenMenuChrome.drawButton(context, metrics.quit(), false, LinkenMenuChrome.MENU_ICON_POWER,
-            I18n.get(quitArmed ? "linkenvisuals.linkmenu.quit_confirm" : "linkenvisuals.linkmenu.quit_short"),
+            quitArmed ? getI18nOrDefault("linkenvisuals.linkmenu.quit_confirm", "Точно?")
+                      : getI18nOrDefault("linkenvisuals.linkmenu.quit_short", "Выход"),
             quitHoverValue, quitArmed, true, intro, metrics.scale());
 
         renderSocials(context, metrics, virtualMouseX, contentMouseY, intro);
@@ -200,7 +201,7 @@ public final class LinkenMainMenuScreen extends Screen {
         float centerX = metrics.width() * 0.5f;
         float wordY = metrics.height() * 0.41f + rise;
         float size = 64.0f;
-        String word = "linken";
+        String word = "welcome";
         float wordWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), word, size);
         float dotWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), ".", size);
         float startX = centerX - (wordWidth + dotWidth) * 0.5f;
@@ -210,15 +211,16 @@ public final class LinkenMainMenuScreen extends Screen {
             LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
 
         LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(),
-            I18n.get("linkenvisuals.linkmenu.visuals"), centerX, wordY + 58.0f, 10.0f,
+            getI18nOrDefault("linkenvisuals.linkmenu.visuals", "VISUALS"), centerX, wordY + 58.0f, 10.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
 
-        String first = I18n.get("linkenvisuals.linkmenu.welcome_line1");
-        String second = I18n.get("linkenvisuals.linkmenu.welcome_line2", LinkenMenuChrome.username());
+        String first = getI18nOrDefault("linkenvisuals.linkmenu.welcome_line1", "Добро пожаловать");
+        String secondTemplate = getI18nOrDefault("linkenvisuals.linkmenu.welcome_line2", "вновь, %s");
+        String second = secondTemplate.contains("%s") ? String.format(secondTemplate, LinkenMenuChrome.username()) : secondTemplate;
         LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), first, centerX,
-            wordY + 112.0f, 13.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT4, fade));
+            wordY + 112.0f, 14.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT4, fade));
         LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), second, centerX,
-            wordY + 140.0f, 20.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
+            wordY + 140.0f, 22.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
 
         float rail = Math.min(1.0f, raw / 0.82f);
         LinkenMenuChrome.roundedFill(context, centerX - 92.0f, wordY + 176.0f, 184.0f, 1.5f, 0.75f,
@@ -239,26 +241,26 @@ public final class LinkenMainMenuScreen extends Screen {
     }
 
     private void renderWelcome(DrawContext context, LinkenMenuLayout.Metrics metrics, float fade) {
+        String eyebrow = getI18nOrDefault("linkenvisuals.linkmenu.eyebrow", "ДАВНО НЕ ВИДЕЛИСЬ");
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(),
-            I18n.get("linkenvisuals.linkmenu.eyebrow"),
+            eyebrow,
             metrics.eyebrow().x(), metrics.eyebrow().y(), 10.0f, 3.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
 
-        String first = I18n.get("linkenvisuals.linkmenu.welcome_line1");
+        String first = getI18nOrDefault("linkenvisuals.linkmenu.welcome_line1", "Добро пожаловать");
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), first,
             metrics.headline().x(), metrics.headline().y(), 38.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
 
-        // The donor draws the second headline line at its natural width even
-        // when it slightly overflows the 340 px column. Ellipsizing here made
-        // a normal name (__Kuruma__) render as "__Kurum..." in ru_ru.
-        String second = I18n.get("linkenvisuals.linkmenu.welcome_line2", LinkenMenuChrome.username());
+        String secondTemplate = getI18nOrDefault("linkenvisuals.linkmenu.welcome_line2", "вновь, %s");
+        String second = secondTemplate.contains("%s") ? String.format(secondTemplate, LinkenMenuChrome.username()) : secondTemplate;
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), second,
             metrics.headline().x(), metrics.headline().y() + 43.7f, 38.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
 
         String subtitle = LinkenMenuChrome.ellipsize(LinkenFonts.body(),
-            I18n.get("linkenvisuals.linkmenu.subtitle"), metrics.subtitle().width(), 14.0f);
+            getI18nOrDefault("linkenvisuals.linkmenu.subtitle", "Готов прыгать по блокам?"),
+            metrics.subtitle().width(), 14.0f);
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), subtitle,
             metrics.subtitle().x(), metrics.subtitle().y(), 14.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
@@ -280,7 +282,8 @@ public final class LinkenMainMenuScreen extends Screen {
             LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
 
         float textX = rect.x() + avatar + 12.0f;
-        String meta = I18n.get("linkenvisuals.linkmenu.account.meta", LinkenMenuChrome.licenseWord());
+        String metaTemplate = getI18nOrDefault("linkenvisuals.linkmenu.account.meta", "текущий аккаунт · %s");
+        String meta = metaTemplate.contains("%s") ? String.format(metaTemplate, LinkenMenuChrome.licenseWord()) : metaTemplate;
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.body(), meta,
             textX + 10.0f, rect.y() + 1.0f, 10.5f, 0.84f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
@@ -295,7 +298,7 @@ public final class LinkenMainMenuScreen extends Screen {
             textX, rect.y() + 18.0f, 13.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
 
-        String switchLabel = I18n.get("linkenvisuals.linkmenu.account.switch");
+        String switchLabel = getI18nOrDefault("linkenvisuals.linkmenu.account.switch", "сменить");
         float switchWidth = LinkenMenuChrome.textWidth(LinkenFonts.body(), switchLabel, 11.0f);
         float switchX = metrics.quit().x() + (metrics.quit().width() - switchWidth) * 0.5f;
         float switchY = rect.y() + (avatar - 11.0f) * 0.5f;
@@ -308,6 +311,14 @@ public final class LinkenMainMenuScreen extends Screen {
             switchX, switchY, 11.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.MUTED,
                 LinkenMenuChrome.TEXT, hover), fade));
+    }
+
+    private static String getI18nOrDefault(String key, String fallback) {
+        if (!I18n.has(key)) {
+            return fallback;
+        }
+        String val = I18n.get(key);
+        return (val == null || val.isEmpty() || val.equals(key)) ? fallback : val;
     }
 
     private void renderSocials(DrawContext context, LinkenMenuLayout.Metrics metrics, float mouseX, float mouseY,

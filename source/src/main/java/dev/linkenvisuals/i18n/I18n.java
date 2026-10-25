@@ -108,6 +108,22 @@ public final class I18n {
         return cachedEffectiveLanguage = "en_us";
     }
 
+    public static boolean has(String key) {
+        if (key == null) return false;
+        if (TRANSLATIONS.isEmpty()) {
+            loadLanguage("en_us");
+            loadLanguage("ru_ru");
+            loadLanguage("uk_ua");
+        }
+        String lang = getEffectiveLanguage();
+        Map<String, String> bundle = TRANSLATIONS.get(lang);
+        if (bundle != null && bundle.containsKey(key)) return true;
+        Map<String, String> en = TRANSLATIONS.get("en_us");
+        if (en != null && en.containsKey(key)) return true;
+        Language language = Language.getInstance();
+        return language != null && language.hasTranslation(key);
+    }
+
     public static String get(String key) {
         if (key == null) return "";
         if (TRANSLATIONS.isEmpty()) {
