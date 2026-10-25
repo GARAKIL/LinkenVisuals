@@ -79,7 +79,13 @@ public final class BlockOverlayRenderer {
         Box box = pendingBox;
         pendingBox = null;
         BlockOverlayModule module = Modules.blockOverlay();
-        if (box == null || module == null || !module.enabled()) {
+        if (module == null || !module.enabled()) {
+            return;
+        }
+        if (box == null) {
+            box = captureBox();
+        }
+        if (box == null) {
             return;
         }
         MinecraftClient mc = MinecraftClient.getInstance();
@@ -297,6 +303,7 @@ public final class BlockOverlayRenderer {
 
     private static void drawColored(CommandEncoder encoder, Framebuffer main,
                                     RenderPipeline pipeline, ByteBuffer data) {
+        int vertices = data.remaining() / 16;
         GpuBuffer verts = RenderSystem.getDevice().createBuffer(
             () -> "linkenvisuals:block_overlay_color", GpuBuffer.USAGE_VERTEX, data);
         GpuBufferSlice transforms = Pipelines.writeWorldTransforms();
@@ -306,7 +313,7 @@ public final class BlockOverlayRenderer {
             pass.setPipeline(pipeline);
             Pipelines.bindWorldUniforms(pass, transforms);
             pass.setVertexBuffer(0, verts);
-            pass.draw(0, data.remaining() / 16);
+            pass.draw(0, vertices);
         } finally {
             verts.close();
         }

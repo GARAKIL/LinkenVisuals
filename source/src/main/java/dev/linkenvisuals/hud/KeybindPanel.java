@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.Locale;
 
 public final class KeybindPanel extends HudElement {
-    private static final Identifier ICON = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier STRANGE_ICON = LinkenVisuals.id("textures/gui/strange_logo.png");
+    private static final Identifier LINKEN_ICON = LinkenVisuals.id("textures/gui/linken_logo.png");
 
     private static final float PADDING = 7.0f;
     private static final float HEADER_H = 17.0f;
@@ -104,7 +105,8 @@ public final class KeybindPanel extends HudElement {
         HudSurface.panel(context, "keybinds", x, y, cachedWidth, cachedHeight, 1.0f);
 
         float iconY = HudAlign.centerY(y, HEADER_H, ICON_H);
-        HudAlign.drawIcon(context, ICON, x + PADDING, iconY, ICON_W, 128, ColorMath.withAlpha(0xFFFFFF, 220));
+        Identifier icon = dev.linkenvisuals.clickgui.ModuleRegistry.isLinkenHud() ? LINKEN_ICON : STRANGE_ICON;
+        HudAlign.drawIcon(context, icon, x + PADDING, iconY, ICON_W, 128, ColorMath.withAlpha(0xFFFFFF, 220));
 
         float dividerX = x + PADDING + ICON_W + 5.0f;
         HudAlign.drawDivider(context, dividerX, y + HEADER_H * 0.5f, (HEADER_H - 10.0f) * 0.5f,

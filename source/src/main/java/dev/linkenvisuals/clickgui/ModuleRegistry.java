@@ -1,5 +1,6 @@
 package dev.linkenvisuals.clickgui;
 
+import dev.linkenvisuals.BuildFlavor;
 import dev.linkenvisuals.clickgui.setting.BooleanSetting;
 import dev.linkenvisuals.clickgui.setting.ColorSetting;
 import dev.linkenvisuals.clickgui.setting.KeybindSetting;
@@ -1039,6 +1040,16 @@ public final class ModuleRegistry {
 
     public static boolean isLinkenGui() {
         return guiStyle != null && "Linken".equalsIgnoreCase(guiStyle.value());
+    }
+
+    public static boolean isLinkenHud() {
+        return (hudStyle != null && "Linken".equalsIgnoreCase(hudStyle.value()))
+            || (!BuildFlavor.STRANGE && (hudStyle == null || !"Strange".equalsIgnoreCase(hudStyle.value())));
+    }
+
+    public static boolean isLinkenMenu() {
+        return dev.linkenvisuals.ui.style.StyleManager.getStyle() == dev.linkenvisuals.ui.style.MenuStyle.LINKEN
+            || !BuildFlavor.STRANGE;
     }
 
     public static boolean isGuiStyleLocked() {

@@ -47,7 +47,7 @@ import java.util.List;
  * with 1:1 editor synchronicity and guaranteed responsive screen transitions.
  */
 public final class MainMenuScreen extends Screen {
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
     private static final Identifier ICON_DATA = LinkenVisuals.id("fonts/msdf/wtmico.json");
     private static final Identifier ICON_ATLAS = LinkenVisuals.id("fonts/msdf/wtmico.png");
     private static final Identifier BRAND_DATA = LinkenVisuals.id("fonts/msdf/brands.json");

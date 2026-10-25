@@ -313,6 +313,15 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.module.impl.UseTrackerModule.tick();
         tickElytraSwap(client);
         tickTotemTracker(client);
+        tickDeathCoords(client);
+    }
+
+    private static void tickDeathCoords(MinecraftClient client) {
+        dev.linkenvisuals.module.impl.DeathCoordsModule module =
+            dev.linkenvisuals.module.Modules.deathCoords();
+        if (module != null) {
+            module.tick(client);
+        }
     }
 
     private static void tickElytraSwap(MinecraftClient client) {

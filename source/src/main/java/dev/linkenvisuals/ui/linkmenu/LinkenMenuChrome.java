@@ -60,8 +60,8 @@ public final class LinkenMenuChrome {
     public static final int MENU_ICON_CODE = 'H';
 
     private static final Identifier BACKGROUND = LinkenVisuals.id("textures/linkmenu/bg-tower.png");
-    private static final Identifier LV_LOGO = LinkenVisuals.id("textures/gui/logo.png");
-    private static final Identifier LV_LOGO_SMALL = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier LV_LOGO = LinkenVisuals.id("textures/gui/linken_logo.png");
+    private static final Identifier LV_LOGO_SMALL = LinkenVisuals.id("textures/gui/lv_logo.png");
     private static final Identifier MUSIC_PLAY = LinkenVisuals.id("textures/linkmenu/music/play.png");
     private static final Identifier MUSIC_PAUSE = LinkenVisuals.id("textures/linkmenu/music/pause.png");
     private static final float BACKGROUND_WIDTH = 1270.0f;

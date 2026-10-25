@@ -165,6 +165,7 @@ public final class TrailsRenderer {
                 return;
             }
 
+            int vertices = data.remaining() / 28;
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             GpuBuffer verts = RenderSystem.getDevice().createBuffer(
                 () -> "linkenvisuals:trails", GpuBuffer.USAGE_VERTEX, data);
@@ -175,7 +176,7 @@ public final class TrailsRenderer {
                 pass.setPipeline(PIPELINE);
                 Pipelines.bindWorldUniforms(pass, transforms);
                 pass.setVertexBuffer(0, verts);
-                pass.draw(0, (data.remaining() / 28));
+                pass.draw(0, vertices);
             } finally {
                 verts.close();
             }

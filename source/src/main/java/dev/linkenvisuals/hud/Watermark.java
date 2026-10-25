@@ -21,7 +21,8 @@ import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.util.Identifier;
 
 public final class Watermark extends HudElement {
-    private static final Identifier LOGO = LinkenVisuals.id("textures/gui/logo.png");
+    private static final Identifier STRANGE_LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
+    private static final Identifier LINKEN_LOGO = LinkenVisuals.id("textures/gui/linken_logo.png");
 
     private static final float HEIGHT = 17.0f;
     private static final float PADDING = 7.0f;
@@ -110,7 +111,8 @@ public final class Watermark extends HudElement {
         float logoY = row.centerY(LOGO_SIZE);
         GlowPipeline.radial(context, logoX + LOGO_SIZE * 0.5f, row.midY(), LOGO_SIZE * 1.2f,
             ColorMath.withAlpha(NeonEdge.cool(), 75));
-        HudAlign.drawIcon(context, LOGO, logoX, logoY, LOGO_SIZE, 128, ColorMath.withAlpha(0xFFFFFF, 255));
+        Identifier logo = dev.linkenvisuals.clickgui.ModuleRegistry.isLinkenHud() ? LINKEN_LOGO : STRANGE_LOGO;
+        HudAlign.drawIcon(context, logo, logoX, logoY, LOGO_SIZE, 128, ColorMath.withAlpha(0xFFFFFF, 255));
 
         float nameX = row.next(nameSpan);
         MsdfText.draw(context, bold, username, nameX, row.centerTextY(NAME_SIZE), NAME_SIZE,

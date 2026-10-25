@@ -97,7 +97,7 @@ public final class JumpCirclesRenderer {
             if (age >= lifetimeMs) {
                 it.remove();
             } else {
-                totalSegments += SEGMENTS;
+                totalSegments += SEGMENTS * 2;
             }
         }
         if (totalSegments == 0) {
@@ -127,7 +127,10 @@ public final class JumpCirclesRenderer {
                 double cx = c.pos().x - camPos.x;
                 double cy = c.pos().y - camPos.y;
                 double cz = c.pos().z - camPos.z;
-                float r = 1.0f, g = 1.0f, b = 1.0f; // white, could use theme color
+                int theme = dev.linkenvisuals.ui.Theme.accent();
+                float r = ((theme >> 16) & 0xFF) / 255.0f;
+                float g = ((theme >> 8) & 0xFF) / 255.0f;
+                float b = (theme & 0xFF) / 255.0f;
 
                 for (int i = 0; i < SEGMENTS; i++) {
                     double a0 = Math.PI * 2.0 * i / SEGMENTS;
@@ -140,12 +143,30 @@ public final class JumpCirclesRenderer {
                     putVertex(data, x0, y, z0, r, g, b, alpha);
                     putVertex(data, x1, y, z1, r, g, b, alpha);
                 }
+
+                float glowRadius = radius * 1.15f;
+                float glowAlpha = alpha * 0.45f;
+                float gr = Math.min(1.0f, r * 0.65f + 0.35f);
+                float gg = Math.min(1.0f, g * 0.65f + 0.35f);
+                float gb = Math.min(1.0f, b * 0.65f + 0.35f);
+                for (int i = 0; i < SEGMENTS; i++) {
+                    double a0 = Math.PI * 2.0 * i / SEGMENTS;
+                    double a1 = Math.PI * 2.0 * (i + 1) / SEGMENTS;
+                    float x0 = (float) (cx + Math.cos(a0) * glowRadius);
+                    float z0 = (float) (cz + Math.sin(a0) * glowRadius);
+                    float x1 = (float) (cx + Math.cos(a1) * glowRadius);
+                    float z1 = (float) (cz + Math.sin(a1) * glowRadius);
+                    float y = (float) cy;
+                    putVertex(data, x0, y, z0, gr, gg, gb, glowAlpha);
+                    putVertex(data, x1, y, z1, gr, gg, gb, glowAlpha);
+                }
             }
             data.flip();
             if (data.remaining() == 0) {
                 return;
             }
 
+            int vertices = data.remaining() / 28;
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             GpuBuffer verts = RenderSystem.getDevice().createBuffer(
                 () -> "linkenvisuals:jumpcircles", GpuBuffer.USAGE_VERTEX, data);
@@ -156,7 +177,7 @@ public final class JumpCirclesRenderer {
                 pass.setPipeline(BlockOverlayPipelines.LINES);
                 Pipelines.bindWorldUniforms(pass, transforms);
                 pass.setVertexBuffer(0, verts);
-                pass.draw(0, data.remaining() / 28);
+                pass.draw(0, vertices);
             } finally {
                 verts.close();
             }
