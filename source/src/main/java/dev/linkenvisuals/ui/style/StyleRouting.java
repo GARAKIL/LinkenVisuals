@@ -18,6 +18,33 @@ public final class StyleRouting {
         return StyleFlavor.nextMenuStyle(current);
     }
 
+    /** Video Settings cycle alias matching StyleFlavor. */
+    public static MenuStyle nextMenuStyle(MenuStyle current) {
+        return StyleFlavor.nextMenuStyle(current);
+    }
+
+    /** Resolves the ClickGUI screen class corresponding to the given style name. */
+    public static Class<? extends net.minecraft.client.gui.screen.Screen> resolveGuiScreenClass(String style) {
+        if ("Classic".equalsIgnoreCase(style)) {
+            return dev.linkenvisuals.clickgui.classic.ClassicGuiScreen.class;
+        }
+        if ("Linken".equalsIgnoreCase(style)) {
+            return dev.linkenvisuals.clickgui.link.LinkGuiScreen.class;
+        }
+        return dev.linkenvisuals.clickgui.ClickGuiScreen.class;
+    }
+
+    /** Resolves the ClickGUI screen corresponding to the given style name. */
+    public static net.minecraft.client.gui.screen.Screen resolveGuiScreen(String style) {
+        if ("Classic".equalsIgnoreCase(style)) {
+            return new dev.linkenvisuals.clickgui.classic.ClassicGuiScreen();
+        }
+        if ("Linken".equalsIgnoreCase(style)) {
+            return new dev.linkenvisuals.clickgui.link.LinkGuiScreen();
+        }
+        return new dev.linkenvisuals.clickgui.ClickGuiScreen();
+    }
+
     /** LINKEN has a fixed composition and must not overwrite the editable Beta/Vanilla config. */
     public static boolean shouldApplyPreset(MenuStyle style) {
         return style != MenuStyle.LINKEN;

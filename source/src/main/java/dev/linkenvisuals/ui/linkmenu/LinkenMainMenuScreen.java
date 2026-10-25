@@ -32,14 +32,15 @@ public final class LinkenMainMenuScreen extends Screen {
     private static final String SITE_URL = "https://linkenvisuals.ru";
     private static final String DEV_URL = "https://t.me/linkenvisualsdev";
 
-    private final Spring multiplayerHover = new Spring(0.0, 280.0, 20.0);
-    private final Spring singleplayerHover = new Spring(0.0, 280.0, 20.0);
-    private final Spring settingsHover = new Spring(0.0, 280.0, 20.0);
-    private final Spring quitHover = new Spring(0.0, 280.0, 20.0);
-    private final Spring accountHover = new Spring(0.0, 280.0, 20.0);
-    private final Spring[] socialHover = {
-        new Spring(0.0, 280.0, 20.0), new Spring(0.0, 280.0, 20.0),
-        new Spring(0.0, 280.0, 20.0), new Spring(0.0, 280.0, 20.0)
+    private final LinkenAnimation multiplayerHover = LinkenAnimation.hover();
+    private final LinkenAnimation singleplayerHover = LinkenAnimation.hover();
+    private final LinkenAnimation settingsHover = LinkenAnimation.hover();
+    private final LinkenAnimation quitHover = LinkenAnimation.hover();
+    private final LinkenAnimation accountHover = LinkenAnimation.hover();
+    private final LinkenAnimation musicCoverHover = LinkenAnimation.hover();
+    private final LinkenAnimation[] socialHover = {
+        LinkenAnimation.hover(), LinkenAnimation.hover(),
+        LinkenAnimation.hover(), LinkenAnimation.hover()
     };
 
     private LinkenMenuLayout.Metrics layout;
@@ -120,21 +121,24 @@ public final class LinkenMainMenuScreen extends Screen {
         float virtualMouseY = (float) mouseY / metrics.scale();
         updateParallax(virtualMouseX, virtualMouseY, metrics);
 
+        float introSlideY = (1.0f - intro) * 22.0f;
+        float contentMouseY = virtualMouseY - introSlideY;
+
         context.getMatrices().pushMatrix();
         context.getMatrices().scale(metrics.scale(), metrics.scale());
 
         LinkenMenuChrome.drawBackground(context, metrics, parallaxX, parallaxY, 1.0f);
 
-        context.getMatrices().translate(0.0f, (1.0f - intro) * 22.0f);
+        context.getMatrices().translate(0.0f, introSlideY);
         LinkenMenuChrome.drawWordmark(context, metrics, intro);
         LinkenMenuChrome.drawClock(context, metrics, intro);
         renderWelcome(context, metrics, intro);
-        renderAccount(context, metrics, virtualMouseX, virtualMouseY, deltaSeconds, intro);
+        renderAccount(context, metrics, virtualMouseX, contentMouseY, intro);
 
-        float multiHover = step(multiplayerHover, metrics.multiplayer().contains(virtualMouseX, virtualMouseY), deltaSeconds);
-        float singleHover = step(singleplayerHover, metrics.singleplayer().contains(virtualMouseX, virtualMouseY), deltaSeconds);
-        float settingsHoverValue = step(settingsHover, metrics.settings().contains(virtualMouseX, virtualMouseY), deltaSeconds);
-        float quitHoverValue = step(quitHover, metrics.quit().contains(virtualMouseX, virtualMouseY), deltaSeconds);
+        float multiHover = multiplayerHover.updateAndGet(metrics.multiplayer().contains(virtualMouseX, contentMouseY));
+        float singleHover = singleplayerHover.updateAndGet(metrics.singleplayer().contains(virtualMouseX, contentMouseY));
+        float settingsHoverValue = settingsHover.updateAndGet(metrics.settings().contains(virtualMouseX, contentMouseY));
+        float quitHoverValue = quitHover.updateAndGet(metrics.quit().contains(virtualMouseX, contentMouseY));
 
         LinkenMenuChrome.drawButton(context, metrics.multiplayer(), true, LinkenMenuChrome.MENU_ICON_GLOBE,
             I18n.get("linkenvisuals.menu.multiplayer"), multiHover, false, false, intro, metrics.scale());
@@ -148,8 +152,9 @@ public final class LinkenMainMenuScreen extends Screen {
             I18n.get(quitArmed ? "linkenvisuals.linkmenu.quit_confirm" : "linkenvisuals.linkmenu.quit_short"),
             quitHoverValue, quitArmed, true, intro, metrics.scale());
 
-        renderSocials(context, metrics, virtualMouseX, virtualMouseY, deltaSeconds, intro);
-        LinkenMenuChrome.drawMusic(context, metrics.music(), LinkenMenuMusic.track(), intro, metrics.scale());
+        renderSocials(context, metrics, virtualMouseX, contentMouseY, intro);
+        float coverHover = musicCoverHover.updateAndGet(musicCover(metrics).contains(virtualMouseX, contentMouseY));
+        LinkenMenuChrome.drawMusic(context, metrics.music(), LinkenMenuMusic.track(), intro, metrics.scale(), coverHover);
         LinkenMenuChrome.drawFooter(context, metrics, intro);
         context.getMatrices().popMatrix();
 
@@ -260,7 +265,7 @@ public final class LinkenMainMenuScreen extends Screen {
     }
 
     private void renderAccount(DrawContext context, LinkenMenuLayout.Metrics metrics, float mouseX, float mouseY,
-                               double deltaSeconds, float fade) {
+                               float fade) {
         LinkenMenuLayout.Rect rect = metrics.account();
         float avatar = 38.0f;
         dev.linkenvisuals.render.RoundedRectPipeline.drawVerticalGradient(context, rect.x(), rect.y(),
@@ -269,7 +274,7 @@ public final class LinkenMainMenuScreen extends Screen {
             LinkenMenuChrome.rgba(0x101613, 255, fade));
 
         String nick = LinkenMenuChrome.username();
-        String initial = nick.isEmpty() ? "?" : nick.substring(0, 1).toUpperCase();
+        String initial = nick.isEmpty() ? "?" : nick.substring(0, 1).toUpperCase(java.util.Locale.ROOT);
         LinkenMenuChrome.drawCentered(context, LinkenFonts.heading(), initial,
             rect.x() + avatar * 0.5f, rect.y() + avatar * 0.5f, 12.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
@@ -283,7 +288,8 @@ public final class LinkenMainMenuScreen extends Screen {
             dev.linkenvisuals.render.IconPipeline.draw(context, LinkenFonts.icons2(),
                 LinkenMenuChrome.MENU_ICON_PERSON, textX, rect.y() + 6.5f, 9.0f,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED2, fade));
-        }        LinkenMenuChrome.drawText(context, LinkenFonts.heading(),
+        }
+        LinkenMenuChrome.drawText(context, LinkenFonts.heading(),
             LinkenMenuChrome.ellipsize(LinkenFonts.heading(), nick,
                 metrics.column().right() - textX, 13.0f),
             textX, rect.y() + 18.0f, 13.0f,
@@ -295,7 +301,7 @@ public final class LinkenMainMenuScreen extends Screen {
         float switchY = rect.y() + (avatar - 11.0f) * 0.5f;
         boolean switchHover = mouseX >= switchX && mouseX <= switchX + switchWidth
             && mouseY >= switchY && mouseY <= switchY + 11.0f;
-        float hover = step(accountHover, switchHover, deltaSeconds);
+        float hover = accountHover.updateAndGet(switchHover);
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), switchLabel,
             switchX, switchY, 11.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.MUTED,
@@ -303,7 +309,7 @@ public final class LinkenMainMenuScreen extends Screen {
     }
 
     private void renderSocials(DrawContext context, LinkenMenuLayout.Metrics metrics, float mouseX, float mouseY,
-                               double deltaSeconds, float fade) {
+                               float fade) {
         LinkenMenuLayout.Rect socials = metrics.socials();
         int[] icons = {LinkenMenuChrome.MENU_ICON_TELEGRAM, LinkenMenuChrome.MENU_ICON_DISCORD, 0,
             LinkenMenuChrome.MENU_ICON_CODE};
@@ -312,15 +318,9 @@ public final class LinkenMainMenuScreen extends Screen {
             float x = socials.x() + i * (LinkenMenuLayout.SOCIAL_SIZE + LinkenMenuLayout.SOCIAL_GAP);
             LinkenMenuLayout.Rect tile = new LinkenMenuLayout.Rect(
                 x, socials.y(), LinkenMenuLayout.SOCIAL_SIZE, LinkenMenuLayout.SOCIAL_SIZE);
-            float hover = step(socialHover[i],
-                tile.contains(mouseX, mouseY), deltaSeconds);
+            float hover = socialHover[i].updateAndGet(tile.contains(mouseX, mouseY));
             LinkenMenuChrome.drawSocialTile(context, tile, icons[i], labels[i], hover, fade, metrics.scale());
         }
-    }
-
-    private float step(Spring spring, boolean hovered, double deltaSeconds) {
-        spring.step(hovered ? 1.0 : 0.0, deltaSeconds);
-        return (float) Math.max(0.0, Math.min(1.0, spring.get()));
     }
 
     private void updateParallax(float mouseX, float mouseY, LinkenMenuLayout.Metrics metrics) {
@@ -364,7 +364,12 @@ public final class LinkenMainMenuScreen extends Screen {
         float mouseY = (float) click.y() / metrics.scale();
         long now = Util.getMeasuringTimeMs();
 
-        if (metrics.quit().contains(mouseX, mouseY)) {
+        float intro = Math.min(1.0f, (now - openedAt) / INTRO_MS);
+        intro = 1.0f - (1.0f - intro) * (1.0f - intro) * (1.0f - intro);
+        float introSlideY = (1.0f - intro) * 22.0f;
+        float contentMouseY = mouseY - introSlideY;
+
+        if (metrics.quit().contains(mouseX, contentMouseY)) {
             if (now < quitArmedUntil) {
                 if (client != null) {
                     client.scheduleStop();
@@ -374,19 +379,19 @@ public final class LinkenMainMenuScreen extends Screen {
             }
             return true;
         }
-        if (metrics.multiplayer().contains(mouseX, mouseY)) {
+        if (metrics.multiplayer().contains(mouseX, contentMouseY)) {
             if (client != null) {
                 client.setScreen(new LinkenMultiplayerScreen(this));
             }
             return true;
         }
-        if (metrics.singleplayer().contains(mouseX, mouseY)) {
+        if (metrics.singleplayer().contains(mouseX, contentMouseY)) {
             if (client != null) {
                 client.setScreen(new LinkenSelectWorldScreen(this));
             }
             return true;
         }
-        if (metrics.settings().contains(mouseX, mouseY)) {
+        if (metrics.settings().contains(mouseX, contentMouseY)) {
             if (client != null) {
                 client.setScreen(new LinkenSettingsScreen(this));
             }
@@ -399,7 +404,7 @@ public final class LinkenMainMenuScreen extends Screen {
         float switchX = metrics.quit().x() + (metrics.quit().width() - switchWidth) * 0.5f;
         float switchY = account.y() + (account.height() - 11.0f) * 0.5f;
         if (mouseX >= switchX && mouseX <= switchX + switchWidth
-            && mouseY >= switchY && mouseY <= switchY + 11.0f) {
+            && contentMouseY >= switchY && contentMouseY <= switchY + 11.0f) {
             if (client != null) {
                 client.setScreen(new LinkenAltManagerScreen(this));
             }
@@ -410,7 +415,7 @@ public final class LinkenMainMenuScreen extends Screen {
         for (int i = 0; i < 4; i++) {
             float x = socials.x() + i * (LinkenMenuLayout.SOCIAL_SIZE + LinkenMenuLayout.SOCIAL_GAP);
             if (mouseX >= x && mouseX <= x + LinkenMenuLayout.SOCIAL_SIZE
-                && mouseY >= socials.y() && mouseY <= socials.bottom()) {
+                && contentMouseY >= socials.y() && contentMouseY <= socials.bottom()) {
                 LinkenMenuChrome.openUrl(switch (i) {
                     case 0 -> TELEGRAM_URL;
                     case 1 -> DISCORD_URL;
@@ -421,7 +426,7 @@ public final class LinkenMainMenuScreen extends Screen {
             }
         }
 
-        if (musicCover(metrics).contains(mouseX, mouseY)) {
+        if (musicCover(metrics).contains(mouseX, contentMouseY)) {
             LinkenMenuMusic.toggle();
             return true;
         }

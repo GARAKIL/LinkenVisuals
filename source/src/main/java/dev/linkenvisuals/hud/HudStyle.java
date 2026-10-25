@@ -32,11 +32,9 @@ public final class HudStyle {
     }
 
     public static Variant variant() {
-        if (StyleFlavor.isStrange()) {
-            return Variant.LEGACY;
-        }
         String value = ModuleRegistry.hudStyle() == null ? "Strange" : ModuleRegistry.hudStyle().value();
         return switch (value == null ? "" : value.toLowerCase(java.util.Locale.ROOT)) {
+            case "linken", "card" -> Variant.CARD;
             case "minimal" -> Variant.MINIMAL;
             case "neon" -> Variant.NEON;
             case "aurora" -> Variant.AURORA;
@@ -44,15 +42,11 @@ public final class HudStyle {
             case "solid" -> Variant.SOLID;
             case "gradient" -> Variant.GRADIENT;
             case "outline" -> Variant.OUTLINE;
-            case "card" -> Variant.CARD;
             default -> Variant.LEGACY;
         };
     }
 
     public static Shape shape() {
-        if (StyleFlavor.isStrange()) {
-            return Shape.ROUNDED;
-        }
         String value = ModuleRegistry.hudShape() == null ? "Rounded" : ModuleRegistry.hudShape().value();
         return switch (value == null ? "" : value.toLowerCase(java.util.Locale.ROOT)) {
             case "pill" -> Shape.PILL;

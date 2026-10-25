@@ -192,6 +192,7 @@ public final class LinkenAltManagerScreen extends Screen {
             }
             StoredAccount added = new StoredAccount(name);
             selected = added;
+            apply(added);
             closeModal();
             refresh();
             playClick();
@@ -571,11 +572,8 @@ public final class LinkenAltManagerScreen extends Screen {
         for (int i = 0; i < rowRects.size(); i++) {
             if (rowRects.get(i).contains(mx, my)) {
                 StoredAccount account = rowAccounts.get(i);
-                if (doubleClick) {
-                    apply(account);
-                } else {
-                    selected = account;
-                }
+                selected = account;
+                apply(account);
                 return true;
             }
         }

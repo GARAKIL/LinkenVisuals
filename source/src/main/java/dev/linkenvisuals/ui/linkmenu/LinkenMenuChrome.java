@@ -138,7 +138,7 @@ public final class LinkenMenuChrome {
     public static void drawWordmark(DrawContext context, LinkenMenuLayout.Metrics layout, float fade) {
         GlyphAtlas font = LinkenFonts.bodyMedium();
         float size = 23.0f;
-        String word = "strange";
+        String word = "linken";
         // Donor draws this header with drawSpaced(-0.035 em). The per-glyph
         // path also avoids the 0.025 em thickness advance that MsdfText adds
         // to whole strings, keeping the donor's 71 px wordmark width.
@@ -151,7 +151,7 @@ public final class LinkenMenuChrome {
         drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
     }
 
-    /** Strange logo used by the menu, HUD and GUI. */
+    /** Linken logo used by the menu, HUD and GUI. */
     public static void drawLogo(DrawContext context, float x, float y, float size, float fade) {
         Identifier texture = LV_LOGO;
         int texSize = 128;
@@ -167,7 +167,7 @@ public final class LinkenMenuChrome {
         float size = 27.0f;
         float x = LinkenMenuLayout.MARGIN;
         float y = 36.0f;
-        String word = "strange";
+        String word = "linken";
         drawText(context, font, word, x, y, size, rgba(TEXT, fade));
         float wordWidth = textWidth(font, word, size);
         drawText(context, font, ".", x + wordWidth, y, size, rgba(ACCENT, fade));
@@ -326,6 +326,11 @@ public final class LinkenMenuChrome {
 
     public static void drawMusic(DrawContext context, LinkenMenuLayout.Rect card, MediaWatcher.Track track,
                                  float fade, float uiScale) {
+        drawMusic(context, card, track, fade, uiScale, 0.0f);
+    }
+
+    public static void drawMusic(DrawContext context, LinkenMenuLayout.Rect card, MediaWatcher.Track track,
+                                 float fade, float uiScale, float coverHover) {
         boolean present = track != null && track.present();
         float bottom = card.bottom();
         float coverSize = 34.0f;
@@ -344,9 +349,10 @@ public final class LinkenMenuChrome {
             coverSize * 0.5f * uiScale, rgba(0x37302A, 255, fade), rgba(0x12100E, 255, fade));
         boolean playing = present && track.playing();
         Identifier icon = playing ? MUSIC_PAUSE : MUSIC_PLAY;
+        int iconColor = mix(MUTED, TEXT, playing ? 1.0f : coverHover);
         context.drawTexture(RenderPipelines.GUI_TEXTURED, icon,
             Math.round(card.x() + (coverSize - 9.0f) * 0.5f), Math.round(rowY + (coverSize - 9.0f) * 0.5f),
-            0.0f, 0.0f, 9, 9, 9, 9, rgba(playing ? TEXT : MUTED, fade));
+            0.0f, 0.0f, 9, 9, 9, 9, rgba(iconColor, fade));
 
         float textX = card.x() + coverSize + 12.0f;
         float availableWidth = card.width() - (textX - card.x());

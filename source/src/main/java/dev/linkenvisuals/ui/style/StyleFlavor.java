@@ -87,14 +87,18 @@ public final class StyleFlavor {
     }
 
     private static final Rules STRANGE = new Rules(
-        List.of("Beta", "Classic"), "Beta",
-        List.of(MenuStyle.BETA, MenuStyle.VANILLA), MenuStyle.BETA,
-        List.of("Strange"), "Strange",
+        List.of("Beta", "Classic", "Linken"), "Beta",
+        List.of(MenuStyle.BETA, MenuStyle.VANILLA, MenuStyle.LINKEN), MenuStyle.BETA,
+        List.of("Strange", "Linken"), "Strange",
         List.of("Rounded"), "Rounded");
 
-    private static final Rules LINKEN = STRANGE;
+    private static final Rules LINKEN = new Rules(
+        List.of("Linken", "Beta", "Classic"), "Linken",
+        List.of(MenuStyle.LINKEN, MenuStyle.BETA, MenuStyle.VANILLA), MenuStyle.LINKEN,
+        List.of("Linken", "Strange"), "Linken",
+        List.of("Rounded"), "Rounded");
 
-    public static final Family ACTIVE = BuildFlavor.STRANGE ? Family.STRANGE : Family.STRANGE;
+    public static final Family ACTIVE = BuildFlavor.STRANGE ? Family.STRANGE : Family.LINKEN;
 
     private StyleFlavor() {
     }

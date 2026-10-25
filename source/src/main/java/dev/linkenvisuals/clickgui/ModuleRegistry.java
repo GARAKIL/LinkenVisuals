@@ -189,13 +189,7 @@ public final class ModuleRegistry {
             if (!onGui) {
                 return;
             }
-            if ("Classic".equalsIgnoreCase(style)) {
-                mc.setScreen(new dev.linkenvisuals.clickgui.classic.ClassicGuiScreen());
-            } else if ("Beta".equalsIgnoreCase(style)) {
-                mc.setScreen(new ClickGuiScreen());
-            } else if ("Linken".equalsIgnoreCase(style)) {
-                mc.setScreen(new dev.linkenvisuals.clickgui.link.LinkGuiScreen());
-            }
+            mc.setScreen(dev.linkenvisuals.ui.style.StyleRouting.resolveGuiScreen(style));
         });
         closeAnimation = new ModeSetting("Close Animation", List.of("Shatter", "Zoom Out"), 0);
         hudStyle = new ModeSetting("HUD Style", StyleFlavor.hudStyleOptions(), 0);
@@ -1047,13 +1041,8 @@ public final class ModuleRegistry {
         return guiStyle != null && "Linken".equalsIgnoreCase(guiStyle.value());
     }
 
-    /**
-     * While the Linken shell is active the style is locked: the user must not
-     * be able to fall back to Classic/Beta from the GUI or Ctrl+Left/Right.
-     * A single-style flavor (Linken-only or Strange-only) is locked too.
-     */
     public static boolean isGuiStyleLocked() {
-        return StyleFlavor.isGuiStyleLocked() || isLinkenGui();
+        return StyleFlavor.isGuiStyleLocked();
     }
 
     /** Pure rule used by tests and callers that already have the style name. */
