@@ -342,7 +342,7 @@ public final class ModuleRegistry {
         cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb"), 1);
         cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape"), 1);
         cosmeticAura = new ModeSetting("Aura", List.of("None", "Shards", "Embers", "Runes", "Spheres"), 0);
-        cosmeticCharacter = new ModeSetting("Character", List.of("Default", "Rudy"), 0);
+        cosmeticCharacter = new ModeSetting("Character", List.of("Default", "Rudy", "Roblox Bacon", "Jason GTA 6"), 0);
         cosmeticColor = new ColorSetting("Colour", Theme.DEFAULT_ACCENT);
 
         cosmeticSize = new SliderSetting("Size", 0.6f, 1.5f, 0.05f, 1.0f, "x");
