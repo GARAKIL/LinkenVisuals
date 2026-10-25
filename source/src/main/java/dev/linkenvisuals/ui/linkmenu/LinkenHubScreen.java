@@ -41,10 +41,12 @@ public abstract class LinkenHubScreen extends Screen {
     private final Spring openSpring = new Spring(0.0, 900.0, 42.0);
     private final Spring closeSpring = new Spring(0.0, 900.0, 50.0);
     private final Spring backSpring = new Spring(0.0, 900.0, 50.0);
+    private final Spring doneSpring = new Spring(0.0, 900.0, 50.0);
     private long lastFrame = System.nanoTime();
     private boolean openSoundPlayed;
     private LinkenMenuLayout.Rect closeRect;
     private LinkenMenuLayout.Rect backRect;
+    private LinkenMenuLayout.Rect doneRect;
 
     protected LinkenHubScreen(Screen returnScreen, String heading, String subheading) {
         super(Text.empty());
@@ -69,6 +71,7 @@ public abstract class LinkenHubScreen extends Screen {
         openSpring.reset(0.0);
         closeSpring.reset(0.0);
         backSpring.reset(0.0);
+        doneSpring.reset(0.0);
         openSoundPlayed = false;
         lastFrame = System.nanoTime();
     }
@@ -87,15 +90,23 @@ public abstract class LinkenHubScreen extends Screen {
     public void close() {
         if (client != null) {
             Screen target = returnScreen;
-            while (target == this || target instanceof LinkenSettingsScreen) {
+            while (target == this || target instanceof LinkenSettingsScreen
+                    || target instanceof net.minecraft.client.gui.screen.option.OptionsScreen) {
                 if (target instanceof LinkenHubScreen hub && hub.returnScreen() != target) {
                     target = hub.returnScreen();
+                } else if (target instanceof net.minecraft.client.gui.screen.option.OptionsScreen opt) {
+                    try {
+                        target = ((dev.linkenvisuals.mixin.OptionsScreenAccessor) opt).linkenvisuals$getParent();
+                    } catch (Throwable t) {
+                        target = null;
+                    }
                 } else {
                     target = null;
                     break;
                 }
             }
-            if (target == null) {
+            if (target == null || target instanceof LinkenSettingsScreen
+                    || target instanceof net.minecraft.client.gui.screen.option.OptionsScreen) {
                 target = client.world != null ? new LinkenPauseScreen() : new LinkenMainMenuScreen();
             }
             client.setScreen(target);
@@ -214,9 +225,21 @@ public abstract class LinkenHubScreen extends Screen {
         LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "ESC  /  BACK",
             panelX + pad, panelY + panelHeight - 30.0f, 7.5f, 1.4f,
             LinkenMenuChrome.rgba(backTextColor, fade));
-        LinkenMenuChrome.drawRightText(context, LinkenFonts.mono(), "LINKEN",
-            panelX + panelWidth - pad, panelY + panelHeight - 30.0f, 8.5f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, 128, fade));
+
+        float doneW = 100.0f;
+        float doneH = 26.0f;
+        doneRect = new LinkenMenuLayout.Rect(panelX + panelWidth - pad - doneW, panelY + panelHeight - 38.0f, doneW, doneH);
+        boolean doneOver = doneRect.contains(mx, contentMy, 4.0f) || doneRect.contains(mx, my, 4.0f);
+        doneSpring.step(doneOver ? 1.0 : 0.0, deltaSeconds);
+        float doneHover = (float) doneSpring.get();
+        int doneBg = LinkenMenuChrome.mix(LinkenMenuChrome.ACCENT, 0xFFFFFF, doneHover * 0.15f);
+        LinkenMenuChrome.roundedFill(context, doneRect.x(), doneRect.y() - doneHover, doneRect.width(), doneRect.height(),
+            6.0f, LinkenMenuChrome.rgba(doneBg, Math.round(230 * fade)), metrics.scale());
+        LinkenMenuChrome.roundedOutline(context, doneRect.x(), doneRect.y() - doneHover, doneRect.width(), doneRect.height(),
+            6.0f, 1.0f, LinkenMenuChrome.rgba(0xFFFFFF, Math.round(60 * fade)), metrics.scale());
+        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "ГОТОВО",
+            doneRect.x() + doneW * 0.5f, doneRect.y() + 17.0f - doneHover, 10.0f,
+            LinkenMenuChrome.rgba(LinkenMenuChrome.INK, fade));
         context.getMatrices().popMatrix();
     }
 
@@ -296,6 +319,11 @@ public abstract class LinkenHubScreen extends Screen {
             return true;
         }
         if (backRect != null && (backRect.contains(mx, contentMy, 6.0f) || backRect.contains(mx, my, 6.0f))) {
+            playClick();
+            close();
+            return true;
+        }
+        if (doneRect != null && (doneRect.contains(mx, contentMy, 6.0f) || doneRect.contains(mx, my, 6.0f))) {
             playClick();
             close();
             return true;

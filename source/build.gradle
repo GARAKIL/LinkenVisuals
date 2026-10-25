@@ -24,10 +24,10 @@ if (project.hasProperty('bumpVersion')) {
     }
 }
 
-// Strange is the primary and sole base for the visuals modification mod.
-// The default build produces the Strange family jar.
-def strangeFlavor = !project.hasProperty('linken')
-    || !project.property('linken').toString().equalsIgnoreCase('true')
+// Linken is the primary default family for the visuals modification mod.
+// Passing -Pstrange=true produces the alternative Strange family jar.
+def strangeFlavor = project.hasProperty('strange')
+    && project.property('strange').toString().equalsIgnoreCase('true')
 def flavorName = strangeFlavor ? 'strange' : 'linken'
 
 // Optimization jars dropped here are embedded as Fabric Jar-in-Jar entries.

@@ -124,6 +124,8 @@ public final class TrailsRenderer {
         }
 
         Vec3d camPos = camera.getCameraPos();
+        org.joml.Vector3fc right = new org.joml.Vector3f(1.0f, 0.0f, 0.0f).rotate(camera.getRotation());
+        org.joml.Vector3fc up = new org.joml.Vector3f(0.0f, 1.0f, 0.0f).rotate(camera.getRotation());
         long now = System.currentTimeMillis();
         long lengthMs = (long) module.length.value();
 
@@ -131,6 +133,11 @@ public final class TrailsRenderer {
         int count = particles.size();
         ByteBuffer data = MemoryUtil.memAlloc(count * 4 * 28); // 4 verts × (3+4 floats) × 4 bytes
         try {
+            int themeColor = dev.linkenvisuals.ui.Theme.accent();
+            float r = ((themeColor >> 16) & 0xFF) / 255.0f;
+            float g = ((themeColor >> 8) & 0xFF) / 255.0f;
+            float b = (themeColor & 0xFF) / 255.0f;
+
             for (Particle p : particles) {
                 long age = now - p.spawnTime();
                 float alpha = 1.0f - (float) age / lengthMs;
@@ -141,24 +148,22 @@ public final class TrailsRenderer {
                     continue;
                 }
                 Vec3d pos = p.pos();
-                double dx = pos.x - camPos.x;
-                double dy = pos.y - camPos.y;
-                double dz = pos.z - camPos.z;
+                float cx = (float) (pos.x - camPos.x);
+                float cy = (float) (pos.y - camPos.y);
+                float cz = (float) (pos.z - camPos.z);
 
-                // Billboard: right and up vectors perpendicular to view.
-                // Simplified: use camera-relative axes.
                 float size = p.size();
-                int color = 0xFFFFFF;
-                float r = ((color >> 16) & 0xFF) / 255.0f;
-                float g = ((color >> 8) & 0xFF) / 255.0f;
-                float b = (color & 0xFF) / 255.0f;
+                float rx = right.x() * size;
+                float ry = right.y() * size;
+                float rz = right.z() * size;
+                float ux = up.x() * size;
+                float uy = up.y() * size;
+                float uz = up.z() * size;
 
-                // Quad corners (camera-facing, simplified as axis-aligned in view space).
-                // For true billboards we'd need the camera basis; this is an approximation.
-                putVertex(data, (float) (pos.x - size), (float) (pos.y - size), (float) pos.z, r, g, b, alpha);
-                putVertex(data, (float) (pos.x + size), (float) (pos.y - size), (float) pos.z, r, g, b, alpha);
-                putVertex(data, (float) (pos.x + size), (float) (pos.y + size), (float) pos.z, r, g, b, alpha);
-                putVertex(data, (float) (pos.x - size), (float) (pos.y + size), (float) pos.z, r, g, b, alpha);
+                putVertex(data, cx - rx - ux, cy - ry - uy, cz - rz - uz, r, g, b, alpha);
+                putVertex(data, cx + rx - ux, cy + ry - uy, cz + rz - uz, r, g, b, alpha);
+                putVertex(data, cx + rx + ux, cy + ry + uy, cz + rz + uz, r, g, b, alpha);
+                putVertex(data, cx - rx + ux, cy - ry + uy, cz - rz + uz, r, g, b, alpha);
             }
             data.flip();
             if (data.remaining() == 0) {

@@ -104,7 +104,7 @@ public final class JumpCirclesRenderer {
             return;
         }
 
-        ByteBuffer data = MemoryUtil.memAlloc(totalSegments * 2 * 28);
+        ByteBuffer data = MemoryUtil.memAlloc(totalSegments * 2 * 16);
         try {
             for (Circle c : circles) {
                 long age = now - c.spawnTime();
@@ -128,9 +128,8 @@ public final class JumpCirclesRenderer {
                 double cy = c.pos().y - camPos.y;
                 double cz = c.pos().z - camPos.z;
                 int theme = dev.linkenvisuals.ui.Theme.accent();
-                float r = ((theme >> 16) & 0xFF) / 255.0f;
-                float g = ((theme >> 8) & 0xFF) / 255.0f;
-                float b = (theme & 0xFF) / 255.0f;
+                int a255 = Math.max(0, Math.min(255, Math.round(alpha * 255.0f)));
+                int ringColor = (a255 << 24) | (theme & 0x00FFFFFF);
 
                 for (int i = 0; i < SEGMENTS; i++) {
                     double a0 = Math.PI * 2.0 * i / SEGMENTS;
@@ -140,15 +139,17 @@ public final class JumpCirclesRenderer {
                     float x1 = (float) (cx + Math.cos(a1) * radius);
                     float z1 = (float) (cz + Math.sin(a1) * radius);
                     float y = (float) cy;
-                    putVertex(data, x0, y, z0, r, g, b, alpha);
-                    putVertex(data, x1, y, z1, r, g, b, alpha);
+                    putVertex(data, x0, y, z0, ringColor);
+                    putVertex(data, x1, y, z1, ringColor);
                 }
 
                 float glowRadius = radius * 1.15f;
-                float glowAlpha = alpha * 0.45f;
-                float gr = Math.min(1.0f, r * 0.65f + 0.35f);
-                float gg = Math.min(1.0f, g * 0.65f + 0.35f);
-                float gb = Math.min(1.0f, b * 0.65f + 0.35f);
+                int glowA255 = Math.max(0, Math.min(255, Math.round(alpha * 0.45f * 255.0f)));
+                int gr = Math.min(255, Math.round(((theme >> 16 & 0xFF) * 0.65f + 89)));
+                int gg = Math.min(255, Math.round(((theme >> 8 & 0xFF) * 0.65f + 89)));
+                int gb = Math.min(255, Math.round(((theme & 0xFF) * 0.65f + 89)));
+                int glowColor = (glowA255 << 24) | (gr << 16) | (gg << 8) | gb;
+
                 for (int i = 0; i < SEGMENTS; i++) {
                     double a0 = Math.PI * 2.0 * i / SEGMENTS;
                     double a1 = Math.PI * 2.0 * (i + 1) / SEGMENTS;
@@ -157,8 +158,8 @@ public final class JumpCirclesRenderer {
                     float x1 = (float) (cx + Math.cos(a1) * glowRadius);
                     float z1 = (float) (cz + Math.sin(a1) * glowRadius);
                     float y = (float) cy;
-                    putVertex(data, x0, y, z0, gr, gg, gb, glowAlpha);
-                    putVertex(data, x1, y, z1, gr, gg, gb, glowAlpha);
+                    putVertex(data, x0, y, z0, glowColor);
+                    putVertex(data, x1, y, z1, glowColor);
                 }
             }
             data.flip();
@@ -166,7 +167,7 @@ public final class JumpCirclesRenderer {
                 return;
             }
 
-            int vertices = data.remaining() / 28;
+            int vertices = data.remaining() / 16;
             CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
             GpuBuffer verts = RenderSystem.getDevice().createBuffer(
                 () -> "linkenvisuals:jumpcircles", GpuBuffer.USAGE_VERTEX, data);
@@ -186,10 +187,12 @@ public final class JumpCirclesRenderer {
         }
     }
 
-    private static void putVertex(ByteBuffer data, float x, float y, float z,
-                                  float r, float g, float b, float a) {
+    private static void putVertex(ByteBuffer data, float x, float y, float z, int argb) {
         data.putFloat(x).putFloat(y).putFloat(z);
-        data.putFloat(r).putFloat(g).putFloat(b).putFloat(a);
+        data.put((byte) ((argb >> 16) & 0xFF));
+        data.put((byte) ((argb >> 8) & 0xFF));
+        data.put((byte) (argb & 0xFF));
+        data.put((byte) ((argb >>> 24) & 0xFF));
     }
 
     public static void init() {

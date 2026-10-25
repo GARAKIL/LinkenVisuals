@@ -21,7 +21,7 @@ public final class Material {
             .withVertexFormat(VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS)
             .withBlend(BlendFunction.TRANSLUCENT)
             .withDepthTestFunction(DepthTestFunction.LEQUAL_DEPTH_TEST)
-            .withDepthWrite(false)
+            .withDepthWrite(true)
             .withCull(false)
             .build());
 

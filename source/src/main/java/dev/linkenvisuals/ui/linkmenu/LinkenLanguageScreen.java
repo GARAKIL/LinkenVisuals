@@ -439,7 +439,7 @@ public final class LinkenLanguageScreen extends Screen {
         if (client != null) {
             Screen target = parent;
             if (target == null || target == this) {
-                target = new LinkenSettingsScreen(null);
+                target = client.world != null ? new LinkenPauseScreen() : new LinkenMainMenuScreen();
             }
             client.setScreen(target);
         }

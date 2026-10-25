@@ -85,10 +85,10 @@ public abstract class MinecraftClientMixin {
                 parent = ((OptionsScreenAccessor) optionsScreen).linkenvisuals$getParent();
             } catch (Throwable ignored) {
             }
-            if (parent == null || parent == optionsScreen || parent instanceof LinkenSettingsScreen) {
+            if (parent == null || parent == optionsScreen || parent instanceof OptionsScreen || parent instanceof LinkenSettingsScreen) {
                 parent = MinecraftClient.getInstance().currentScreen;
             }
-            if (parent == null || parent == optionsScreen || parent instanceof LinkenSettingsScreen) {
+            if (parent == null || parent == optionsScreen || parent instanceof OptionsScreen || parent instanceof LinkenSettingsScreen) {
                 parent = MinecraftClient.getInstance().world != null
                     ? new LinkenPauseScreen()
                     : new LinkenMainMenuScreen();

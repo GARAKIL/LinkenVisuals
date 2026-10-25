@@ -667,7 +667,7 @@ public final class LinkenResourcePacksScreen extends Screen {
         }
         Screen target = parent;
         if (target == null || target == this) {
-            target = new LinkenSettingsScreen(null);
+            target = client.world != null ? new LinkenPauseScreen() : new LinkenMainMenuScreen();
         }
         if (organizer != null) {
             organizer.apply();
