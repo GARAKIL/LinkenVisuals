@@ -18,7 +18,7 @@ if (project.hasProperty('bumpVersion')) {
             propsFile.setText(updatedText, 'UTF-8')
             project.extensions.extraProperties.set('mod_version', newVersion)
             println "=========================================================="
-            println " [LinkenVisuals] Bumped patch version to: ${newVersion}"
+            println " [Visuals Modification] Bumped patch version to: ${newVersion}"
             println "=========================================================="
         }
     }
@@ -71,7 +71,7 @@ tasks.named('compileJava') {
     dependsOn generateBuildFlavor
 }
 println "=========================================================="
-println " [LinkenVisuals] Build flavor: ${flavorName} (jar: ${base.archivesName.get()}-${project.version}.jar)"
+println " [Visuals Modification] Build flavor: ${flavorName} (jar: ${base.archivesName.get()}-${project.version}.jar)"
 println "=========================================================="
 
 repositories {

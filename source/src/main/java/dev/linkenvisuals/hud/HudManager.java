@@ -115,7 +115,7 @@ public final class HudManager {
                 // context. Logged once: this path runs every frame while an element is dragged.
                 if (!blurUnsupportedLogged) {
                     blurUnsupportedLogged = true;
-                    LinkenVisuals.LOGGER.warn("[LinkenVisuals] HUD drag blur unavailable: {}", e.toString());
+                    LinkenVisuals.LOGGER.warn("[Visuals Modification] HUD drag blur unavailable: {}", e.toString());
                 }
             }
             int veilAlpha = Math.round(45 * blurAmount);

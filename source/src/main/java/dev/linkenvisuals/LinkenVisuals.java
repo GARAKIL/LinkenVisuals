@@ -63,7 +63,7 @@ import org.lwjgl.glfw.GLFW;
  */
 public final class LinkenVisuals implements ClientModInitializer {
     public static final String MOD_ID = "linkenvisuals";
-    public static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("LinkenVisuals");
+    public static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("VisualsModification");
 
     public static final Identifier OPEN_SOUND_ID = Identifier.of(MOD_ID, "ui.open");
     public static final Identifier BACK_SOUND_ID = Identifier.of(MOD_ID, "ui.back");
@@ -116,7 +116,7 @@ public final class LinkenVisuals implements ClientModInitializer {
         dev.linkenvisuals.ui.editor.MainMenuConfig.load();
         ModuleRegistry.syncFromMenuConfig();
 
-        LOGGER.info("[LinkenVisuals] Initialized successfully. Active Style: {}",
+        LOGGER.info("[Visuals Modification] Initialized successfully. Active Style: {}",
             dev.linkenvisuals.ui.style.StyleManager.getStyle().displayName());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -258,12 +258,12 @@ public final class LinkenVisuals implements ClientModInitializer {
         LegacyConfigMigration.Result migration =
             LegacyConfigMigration.run(loader.getConfigDir(), loader.getGameDir());
         if (migration.copied() > 0) {
-            LOGGER.info("[LinkenVisuals] Migrated {} legacy {} data entr{} to {}",
+            LOGGER.info("[Visuals Modification] Migrated {} legacy {} data entr{} to {}",
                 migration.copied(), LegacyConfigMigration.LEGACY_ID,
                 migration.copied() == 1 ? "y" : "ies", LegacyConfigMigration.CURRENT_ID);
         }
         for (String failure : migration.failures()) {
-            LOGGER.warn("[LinkenVisuals] Legacy migration: {}", failure);
+            LOGGER.warn("[Visuals Modification] Legacy migration: {}", failure);
         }
     }
 
