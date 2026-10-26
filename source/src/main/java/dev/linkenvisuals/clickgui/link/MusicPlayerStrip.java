@@ -1,7 +1,8 @@
 package dev.linkenvisuals.clickgui.link;
 
-import dev.linkenvisuals.media.MediaArt;
-import dev.linkenvisuals.media.MediaWatcher;
+import dev.linkenvisuals.LinkenVisuals;
+import dev.linkenvisuals.media.DynamicIslandMedia;
+import dev.linkenvisuals.media.DynamicIslandMediaHolder;
 import dev.linkenvisuals.media.SystemVolumeController;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.RoundedRectPipeline;
@@ -9,8 +10,11 @@ import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.linkmenu.ClickGuiIcons;
 import dev.linkenvisuals.ui.linkmenu.LinkenFonts;
 import dev.linkenvisuals.ui.linkmenu.LinkenMenuChrome;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
@@ -22,6 +26,7 @@ import org.lwjgl.glfw.GLFW;
  * and system volume slider with mute toggle.
  */
 public final class MusicPlayerStrip {
+    private static final Identifier ARTWORK_ID = LinkenVisuals.id("media_artwork_strip");
     private static final float ART_SIZE = 40.0f;
     private static final float PROGRESS_ZONE = 24.0f;
     private static final float VOL_BAR_W = 56.0f;
@@ -60,7 +65,7 @@ public final class MusicPlayerStrip {
     }
 
     public void init() {
-        MediaWatcher.ensureRunning();
+        DynamicIslandMediaHolder.shared().ensureExecutor();
         SystemVolumeController.ensureInit();
         SystemVolumeController.refresh();
         Float sys = SystemVolumeController.currentVolume();
@@ -80,9 +85,10 @@ public final class MusicPlayerStrip {
             return;
         }
 
-        MediaWatcher.Track track = MediaWatcher.current();
-        boolean hasMedia = track != null && !track.title().isEmpty();
-        boolean isPlaying = track != null && track.playing();
+        DynamicIslandMedia media = DynamicIslandMediaHolder.shared();
+        media.update();
+        boolean hasMedia = media.hasMedia();
+        boolean isPlaying = media.isPlaying();
 
         // System volume polling
         long now = System.currentTimeMillis();
@@ -105,9 +111,9 @@ public final class MusicPlayerStrip {
         float artCenterY = artY + ART_SIZE * 0.5f;
 
         // 2. Album artwork / placeholder thumbnail
-        MediaArt.follow(track, hasMedia);
-        if (hasMedia && MediaArt.available()) {
-            context.drawTexture(RenderPipelines.GUI_TEXTURED, MediaArt.textureId(),
+        NativeImageBackedTexture artTex = media.getArtworkTexture();
+        if (hasMedia && artTex != null) {
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, DynamicIslandMedia.ARTWORK_ID,
                 Math.round(artX), Math.round(artY), 0.0f, 0.0f, Math.round(ART_SIZE), Math.round(ART_SIZE),
                 Math.round(ART_SIZE), Math.round(ART_SIZE), LinkenMenuChrome.rgba(0xFFFFFF, openT));
             RoundedRectPipeline.drawBorder(context, artX, artY, ART_SIZE, ART_SIZE, 8.0f, 0.0f, 1.0f, 1.2f,
@@ -132,8 +138,8 @@ public final class MusicPlayerStrip {
         // 3. Track title & artist
         float textX = artX + ART_SIZE + 12.0f;
         float textMaxW = width * 0.32f;
-        String title = hasMedia ? track.title() : "Нет медиа";
-        String artist = hasMedia ? track.artist() : "Запустите плеер на ПК";
+        String title = hasMedia ? media.getTitle() : "Нет медиа";
+        String artist = hasMedia ? media.getArtist() : "Запустите плеер на ПК";
 
         String clippedTitle = LinkenMenuChrome.ellipsize(LinkenFonts.bodyMedium(), title, textMaxW, 11.0f);
         String clippedArtist = LinkenMenuChrome.ellipsize(LinkenFonts.body(), artist, textMaxW, 9.5f);
@@ -228,8 +234,8 @@ public final class MusicPlayerStrip {
         }
 
         // 6. Progress / Timeline area at bottom
-        long posMs = track != null ? track.position() : 0L;
-        long lenMs = track != null ? Math.max(1L, track.length()) : 1L;
+        long posMs = media.getPositionMs();
+        long lenMs = Math.max(1L, media.getDurationMs());
         float targetProg = MathHelper.clamp(posMs / (float) lenMs, 0.0f, 1.0f);
         if (timelineDragging) {
             float pbarX = x + 14.0f;
@@ -286,16 +292,23 @@ public final class MusicPlayerStrip {
         float playX = centerX;
         float nextX = centerX + 36.0f;
 
+        DynamicIslandMedia media = DynamicIslandMediaHolder.shared();
         if (in(prevX - BTN_SIZE * 0.5f, btnY, BTN_SIZE, BTN_SIZE, mx, my)) {
-            LinkGuiMediaKeys.previous();
+            if (!media.previous()) {
+                LinkGuiMediaKeys.previous();
+            }
             return true;
         }
         if (in(playX - BTN_SIZE * 0.5f, btnY, BTN_SIZE, BTN_SIZE, mx, my)) {
-            LinkGuiMediaKeys.playPause();
+            if (!media.playPause()) {
+                LinkGuiMediaKeys.playPause();
+            }
             return true;
         }
         if (in(nextX - BTN_SIZE * 0.5f, btnY, BTN_SIZE, BTN_SIZE, mx, my)) {
-            LinkGuiMediaKeys.next();
+            if (!media.next()) {
+                LinkGuiMediaKeys.next();
+            }
             return true;
         }
 

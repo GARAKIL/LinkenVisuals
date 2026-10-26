@@ -106,7 +106,6 @@
   "settings.ui.hud_style.solid": "Плотный",
   "settings.ui.hud_style.gradient": "Градиент",
   "settings.ui.hud_style.outline": "Контур",
-  "settings.ui.hud_style.field": "Field (visual-test)",
   "settings.ui.hud_shape": "Форма HUD",
   "settings.ui.hud_shape.rounded": "Скруглённая",
   "settings.ui.hud_shape.pill": "Пилюля",

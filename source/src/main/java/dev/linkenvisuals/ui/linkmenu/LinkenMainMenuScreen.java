@@ -9,7 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.input.KeyInput;
-import dev.linkenvisuals.ui.linkmenu.LinkenSelectWorldScreen;
+import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 
@@ -66,7 +66,8 @@ public final class LinkenMainMenuScreen extends Screen {
         if (!welcomePlayed) {
             welcomeActive = true;
             welcomeStart = 0L;
-        } else if (!welcomeActive) {
+        } else {
+            welcomeActive = false;
             LinkenMenuMusic.autoStartOnce();
         }
         lastFrame = System.nanoTime();
@@ -103,6 +104,11 @@ public final class LinkenMainMenuScreen extends Screen {
 
         LinkenMenuLayout.Metrics metrics = layout();
         long millis = Util.getMeasuringTimeMs();
+
+        float virtualMouseX = (float) mouseX / metrics.scale();
+        float virtualMouseY = (float) mouseY / metrics.scale();
+        updateParallax(virtualMouseX, virtualMouseY, metrics);
+
         if (welcomeActive) {
             if (welcomeStart == 0L) {
                 welcomeStart = millis;
@@ -116,10 +122,6 @@ public final class LinkenMainMenuScreen extends Screen {
         }
         float intro = Math.min(1.0f, (millis - openedAt) / INTRO_MS);
         intro = 1.0f - (1.0f - intro) * (1.0f - intro) * (1.0f - intro);
-
-        float virtualMouseX = (float) mouseX / metrics.scale();
-        float virtualMouseY = (float) mouseY / metrics.scale();
-        updateParallax(virtualMouseX, virtualMouseY, metrics);
 
         float introSlideY = (1.0f - intro) * 22.0f;
         float contentMouseY = virtualMouseY - introSlideY;
@@ -190,7 +192,7 @@ public final class LinkenMainMenuScreen extends Screen {
 
         context.getMatrices().pushMatrix();
         context.getMatrices().scale(metrics.scale(), metrics.scale());
-        LinkenMenuChrome.drawBackground(context, metrics, 0.0f, 0.0f, 1.0f);
+        LinkenMenuChrome.drawBackground(context, metrics, parallaxX, parallaxY, 1.0f);
         context.fill(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
             LinkenMenuChrome.rgba(0x060908, Math.round(90.0f * fade)));
 
@@ -366,7 +368,7 @@ public final class LinkenMainMenuScreen extends Screen {
         }
         if (metrics.singleplayer().contains(mouseX, contentMouseY)) {
             if (client != null) {
-                client.setScreen(new LinkenSelectWorldScreen(this));
+                client.setScreen(new SelectWorldScreen(this));
             }
             return true;
         }

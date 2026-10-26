@@ -71,6 +71,10 @@ public final class MediaWatcher {
     }
 
     public static Track current() {
+        DynamicIslandMedia m = DynamicIslandMediaHolder.shared();
+        if (m.hasMedia()) {
+            return new Track(m.getTitle(), m.getArtist(), "SMTC", m.isPlaying(), m.getPositionMs(), m.getDurationMs());
+        }
         return track;
     }
 

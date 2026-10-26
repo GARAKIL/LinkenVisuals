@@ -3,6 +3,7 @@ package dev.linkenvisuals.ui.linkmenu;
 import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.IconPipeline;
+import dev.linkenvisuals.render.MsdfText;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.Identifier;
@@ -17,7 +18,7 @@ public final class ClickGuiIcons {
     private static void fa(DrawContext context, char codepoint, float cx, float cy, float size, int color) {
         GlyphAtlas atlas = LinkenFonts.iconsFa();
         if (atlas != null && atlas.glyph(codepoint) != null) {
-            IconPipeline.draw(context, atlas, codepoint, cx, cy, size, color);
+            MsdfText.drawCenteredOn(context, atlas, String.valueOf(codepoint), cx, cy, size, color);
         }
     }
 
@@ -80,7 +81,7 @@ public final class ClickGuiIcons {
     public static void play(DrawContext context, float cx, float cy, float size, int color) {
         GlyphAtlas atlas = LinkenFonts.mediaPlayer();
         if (atlas != null && atlas.glyph('C') != null) {
-            IconPipeline.draw(context, atlas, 'C', cx + size * 0.12f, cy, size, color);
+            MsdfText.drawCenteredOn(context, atlas, "C", cx + size * 0.12f, cy, size, color);
         } else {
             fa(context, '\uF04B', cx, cy, size * 0.9f, color);
         }
@@ -89,7 +90,7 @@ public final class ClickGuiIcons {
     public static void pause(DrawContext context, float cx, float cy, float size, int color) {
         GlyphAtlas atlas = LinkenFonts.mediaPlayer();
         if (atlas != null && atlas.glyph('D') != null) {
-            IconPipeline.draw(context, atlas, 'D', cx, cy, size, color);
+            MsdfText.drawCenteredOn(context, atlas, "D", cx, cy, size, color);
         } else {
             fa(context, '\uF04C', cx, cy, size * 0.9f, color);
         }
@@ -98,7 +99,7 @@ public final class ClickGuiIcons {
     public static void backward(DrawContext context, float cx, float cy, float size, int color) {
         GlyphAtlas atlas = LinkenFonts.mediaPlayer();
         if (atlas != null && atlas.glyph('A') != null) {
-            IconPipeline.draw(context, atlas, 'A', cx, cy, size, color);
+            MsdfText.drawCenteredOn(context, atlas, "A", cx, cy, size, color);
         } else {
             fa(context, '\uF048', cx, cy, size * 0.88f, color);
         }
@@ -107,7 +108,7 @@ public final class ClickGuiIcons {
     public static void forward(DrawContext context, float cx, float cy, float size, int color) {
         GlyphAtlas atlas = LinkenFonts.mediaPlayer();
         if (atlas != null && atlas.glyph('B') != null) {
-            IconPipeline.draw(context, atlas, 'B', cx, cy, size, color);
+            MsdfText.drawCenteredOn(context, atlas, "B", cx, cy, size, color);
         } else {
             fa(context, '\uF051', cx, cy, size * 0.88f, color);
         }
@@ -146,16 +147,6 @@ public final class ClickGuiIcons {
     }
 
     public static void comment(DrawContext context, float cx, float cy, float size, int color) {
-        GlyphAtlas atlas = LinkenFonts.iconsFa();
-        if (atlas != null && atlas.glyph(0xF075) != null) {
-            IconPipeline.draw(context, atlas, 0xF075, cx, cy, size, color);
-            return;
-        }
-        GlyphAtlas nAtlas = LinkenFonts.iconsNew();
-        if (nAtlas != null && nAtlas.glyph('C') != null) {
-            IconPipeline.draw(context, nAtlas, 'C', cx, cy, size, color);
-            return;
-        }
-        info(context, cx, cy, size, color);
+        fa(context, '\uF075', cx, cy, size, color);
     }
 }

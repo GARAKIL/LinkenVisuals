@@ -74,9 +74,6 @@ public final class LowArmorNotificationsHud extends HudElement {
 
     @Override
     public float height() {
-        if (HudStyle.variant() == HudStyle.Variant.CARD) {
-            return 27.0f;
-        }
         int rows = rows();
         return rows <= 0 ? ROW_HEIGHT : rows * ROW_HEIGHT + (rows - 1) * GAP;
     }
@@ -86,13 +83,6 @@ public final class LowArmorNotificationsHud extends HudElement {
         lastRenderVisible = false;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) {
-            return;
-        }
-        if (HudStyle.variant() == HudStyle.Variant.CARD) {
-            boolean drawn = unkw.visualtest.client.hud.VisualHud.cardDurability(context, client, Math.round(x), Math.round(y));
-            if (drawn) {
-                lastRenderVisible = true;
-            }
             return;
         }
         boolean editing = HudManager.isEditing() || client.currentScreen instanceof ChatScreen;

@@ -179,7 +179,6 @@
   "settings.ui.hud_style.solid": "Solid",
   "settings.ui.hud_style.gradient": "Gradient",
   "settings.ui.hud_style.outline": "Outline",
-  "settings.ui.hud_style.field": "Field (visual-test)",
   "settings.ui.hud_shape": "HUD Shape",
   "settings.ui.hud_shape.rounded": "Rounded",
   "settings.ui.hud_shape.pill": "Pill",

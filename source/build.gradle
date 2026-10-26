@@ -83,6 +83,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    implementation(files("libs/MediaPlayerInfo-0.1.0.jar"))
+
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -228,6 +230,12 @@ loom {
             programArg "--quickPlayMultiplayer"
             programArg "localhost:25566"
         }
+    }
+}
+
+jar {
+    from(zipTree(file('libs/MediaPlayerInfo-0.1.0.jar'))) {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }
 

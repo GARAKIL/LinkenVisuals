@@ -49,9 +49,6 @@ public final class CooldownsHud extends HudElement {
 
     @Override
     public float width() {
-        if (HudStyle.variant() == HudStyle.Variant.CARD) {
-            return 150.0f;
-        }
         refresh();
         return cachedWidth;
     }
@@ -67,14 +64,6 @@ public final class CooldownsHud extends HudElement {
         lastRenderVisible = false;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) {
-            return;
-        }
-        if (HudStyle.variant() == HudStyle.Variant.CARD) {
-            int h = unkw.visualtest.client.hud.VisualHud.cardCooldowns(context, client, Math.round(x), Math.round(y));
-            if (h > 0) {
-                lastRenderVisible = true;
-                cachedHeight = h;
-            }
             return;
         }
         boolean editing = isEditing(client);

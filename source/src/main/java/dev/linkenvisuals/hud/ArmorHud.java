@@ -55,12 +55,12 @@ public final class ArmorHud extends HudElement {
 
     @Override
     public float width() {
-        return HudStyle.variant() == HudStyle.Variant.CARD && !v2() ? 82.0f : WIDTH;
+        return WIDTH;
     }
 
     @Override
     public float height() {
-        return HudStyle.variant() == HudStyle.Variant.CARD && !v2() ? 25.0f : HEIGHT;
+        return HEIGHT;
     }
 
     @Override
@@ -69,13 +69,6 @@ public final class ArmorHud extends HudElement {
         lastV2Visible = false;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null) {
-            return;
-        }
-        if (HudStyle.variant() == HudStyle.Variant.CARD && !v2()) {
-            boolean drawn = unkw.visualtest.client.hud.VisualHud.cardArmor(context, client, Math.round(x), Math.round(y));
-            if (drawn) {
-                lastRenderVisible = true;
-            }
             return;
         }
         boolean editing = HudManager.isEditing() || client.currentScreen instanceof ChatScreen;

@@ -108,16 +108,22 @@ public final class BlockOverlayRenderer {
         int fbHeight = Math.max(1, main.textureHeight);
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-        boolean fillEnabled = module.fill.value() && fillAlpha > 0;
-        if (module.useShader.value() && fillEnabled) {
-            int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
-            writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, fillAlpha);
-            drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box.expand(0.003));
-        } else if (fillEnabled) {
-            drawGradientFill(encoder, main, box.expand(0.002), fillAlpha, animation, palette, mode);
+        boolean hasFill = module.fill.value() && fillAlpha > 0;
+        boolean hasOutline = outlineAlpha > 0;
+        if (!hasFill && !hasOutline) {
+            return;
         }
 
-        if (outlineAlpha > 0) {
+        if (module.useShader.value() && hasFill) {
+            int shaderAlpha = Math.max(fillAlpha, Math.round(outlineAlpha * 0.72f));
+            int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
+            writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, shaderAlpha);
+            drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box.expand(0.003));
+        } else if (hasFill) {
+            drawGradientFill(encoder, main, box, fillAlpha, animation, palette, mode);
+        }
+
+        if (hasOutline) {
             drawOutline(encoder, main, box, outlineAlpha, animation, palette);
         }
     }
@@ -163,7 +169,7 @@ public final class BlockOverlayRenderer {
 
     private static void writeUniforms(CommandEncoder encoder, float time, int fbWidth, int fbHeight,
                                       int baseRgb, int alpha) {
-        float shaderAlpha = alpha <= 0 ? 0.0f : Math.max(0.0f, Math.min(1.0f, alpha / 255.0f));
+        float shaderAlpha = Math.max(0.52f, Math.min(1.0f, alpha / 255.0f));
         UNIFORM_DATA.clear();
         // uParams: x=time, y=alpha, z=zoomFactor, w=shaderAlpha
         UNIFORM_DATA.putFloat(time);
@@ -236,11 +242,47 @@ public final class BlockOverlayRenderer {
     private static void drawGradientFill(CommandEncoder encoder, Framebuffer main, Box box,
                                          int alpha, float animation, Palette palette,
                                          BlockOverlayModule.FillMode mode) {
+        if (mode == BlockOverlayModule.FillMode.COSMOS) {
+            float phase = animation + (float) ((box.minX + box.minY + box.minZ) * 0.04f);
+            int base = palette.sample(phase);
+            int baseAlpha = Math.max(10, Math.round(alpha * 0.7f));
+            ByteBuffer data = REUSABLE_BUFFER;
+            data.clear();
+            putColoredBox(data, box, ColorMath.withAlpha(base, baseAlpha));
+            for (int glowLayer = 0; glowLayer < 3; glowLayer++) {
+                double glowExpand = 0.0018 * (glowLayer + 1);
+                float glowFactor = 1.0f - glowLayer / 3.0f;
+                int glowAlpha = Math.round(alpha * (palette.glowMinAlpha + palette.glowAlphaRange * glowFactor));
+                putColoredBox(data, box.expand(glowExpand), ColorMath.withAlpha(base, glowAlpha));
+            }
+            data.flip();
+            drawColored(encoder, main, BlockOverlayPipelines.FLAT, data);
+            return;
+        }
+
+        double height = Math.max(0.001, box.maxY - box.minY);
+        int segments = Math.max(4, Math.min(8, (int) Math.ceil(height * 6.0)));
         ByteBuffer data = REUSABLE_BUFFER;
         data.clear();
-        float phase = animation + (float) ((box.minX + box.minY + box.minZ) * 0.04f);
-        int base = palette.sample(phase);
-        putColoredBox(data, box, ColorMath.withAlpha(base, alpha));
+
+        for (int i = 0; i < segments; i++) {
+            float progress = i / (float) segments;
+            double segmentMinY = MathHelper.lerp(progress, box.minY, box.maxY);
+            double segmentMaxY = MathHelper.lerp((i + 1f) / segments, box.minY, box.maxY);
+            int color = palette.sample(animation + progress * 0.45f + (float) ((box.minX + box.minZ) * 0.035f));
+            int segmentAlpha = Math.max(10, Math.round(alpha * (palette.baseMinAlpha + palette.baseAlphaRange * (1.0f - progress))));
+            putColoredBox(data, new Box(box.minX, segmentMinY, box.minZ, box.maxX, segmentMaxY, box.maxZ),
+                ColorMath.withAlpha(color, segmentAlpha));
+        }
+
+        for (int glowLayer = 0; glowLayer < 3; glowLayer++) {
+            double glowExpand = 0.0018 * (glowLayer + 1);
+            float glowFactor = 1.0f - glowLayer / 3.0f;
+            int color = palette.sample(animation + 0.16f * glowLayer + (float) (box.minY * 0.05f));
+            int glowAlpha = Math.round(alpha * (palette.glowMinAlpha + palette.glowAlphaRange * glowFactor));
+            putColoredBox(data, box.expand(glowExpand), ColorMath.withAlpha(color, glowAlpha));
+        }
+
         data.flip();
         drawColored(encoder, main, BlockOverlayPipelines.FLAT, data);
     }
@@ -254,9 +296,9 @@ public final class BlockOverlayRenderer {
         for (int i = 0; i < 2; i++) {
             float strength = 1.0f - i * 0.45f;
             int glowAlpha = Math.max(8, Math.round(alpha * 0.24f * strength));
-            putLineBox(data, box.expand(0.0035 + 0.0012 * (i + 1)), ColorMath.withAlpha(glowRgb, glowAlpha));
+            putLineBox(data, box.expand(0.0012 * (i + 1)), ColorMath.withAlpha(glowRgb, glowAlpha));
         }
-        putLineBox(data, box.expand(0.0035), ColorMath.withAlpha(base, alpha));
+        putLineBox(data, box, ColorMath.withAlpha(base, alpha));
         data.flip();
         drawColored(encoder, main, BlockOverlayPipelines.LINES, data);
     }

@@ -334,18 +334,10 @@ public final class ModuleRegistry {
         aspectRatio.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.WORLD);
         MODULES.add(aspectRatio);
 
-        List<String> crownOpts = BuildFlavor.STRANGE
-            ? List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb")
-            : List.of("None", "Nimb");
-        List<String> backOpts = BuildFlavor.STRANGE
-            ? List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape")
-            : List.of("None", "WaveCape");
-        List<String> auraOpts = BuildFlavor.STRANGE
-            ? List.of("None", "Shards", "Embers", "Runes", "Spheres")
-            : List.of("None", "Spheres");
-        List<String> charOpts = BuildFlavor.STRANGE
-            ? List.of("Default", "Rudy", "Roblox Bacon", "Jason GTA 6", "Astolfo")
-            : List.of("Default", "Rudy", "Astolfo");
+        List<String> crownOpts = List.of("None", "Nimb");
+        List<String> backOpts = List.of("None", "WaveCape");
+        List<String> auraOpts = List.of("None", "Spheres");
+        List<String> charOpts = List.of("Default", "Rudy", "Astolfo");
 
         cosmeticCrown = new ModeSetting("Crown", crownOpts, crownOpts.indexOf("Nimb") >= 0 ? crownOpts.indexOf("Nimb") : 0);
         cosmeticBack = new ModeSetting("Back", backOpts, backOpts.indexOf("WaveCape") >= 0 ? backOpts.indexOf("WaveCape") : 0);

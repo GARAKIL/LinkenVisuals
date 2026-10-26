@@ -78,16 +78,10 @@ public final class Cosmetics {
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-bodyYaw));
             CosmeticContext worn = context(target, pass, matrices, player, size, color, speed, hurt);
             switch (back) {
-                case "Kagune" -> Kagune.render(worn);
-                case "Seraph" -> Seraph.render(worn);
-                case "Tendrils" -> Tendrils.render(worn);
                 case "WaveCape" -> WaveCape.render(worn);
                 default -> { }
             }
             switch (aura) {
-                case "Shards" -> Shards.render(worn);
-                case "Embers" -> Embers.render(worn);
-                case "Runes" -> Runes.render(worn);
                 case "Spheres" -> Spheres.render(worn);
                 default -> { }
             }
@@ -98,10 +92,6 @@ public final class Cosmetics {
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-crownYaw));
                 CosmeticContext head = context(target, pass, matrices, player, size, color, speed, hurt);
                 switch (crown) {
-                    case "Halo" -> Halo.render(head);
-                    case "Orbit" -> Orbit.render(head);
-                    case "Spires" -> Spires.render(head);
-                    case "ChinaHat" -> ChinaHat.render(head);
                     case "Nimb" -> Nimb.render(head);
                     default -> { }
                 }

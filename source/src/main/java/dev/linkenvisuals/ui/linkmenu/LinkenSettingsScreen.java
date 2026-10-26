@@ -133,15 +133,13 @@ public final class LinkenSettingsScreen extends Screen {
 
         // 1. Topbar
         drawTopbar(context, metrics, x, y, WIN_W, mx, my, deltaSeconds, open);
-        context.fill(Math.round(x), Math.round(y + TOPBAR_H - 1.0f),
-            Math.round(x + WIN_W), Math.round(y + TOPBAR_H),
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(18.0f * open)));
+        LinkenMenuChrome.roundedFill(context, x + PAD_X, y + TOPBAR_H - 1.0f, WIN_W - PAD_X * 2.0f, 1.0f, 0.5f,
+            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(12.0f * open)), metrics.scale());
 
         // 2. FOV Row
         drawFovRow(context, metrics, x, y + TOPBAR_H, WIN_W, mx, my, open);
-        context.fill(Math.round(x), Math.round(y + TOPBAR_H + FOV_H - 1.0f),
-            Math.round(x + WIN_W), Math.round(y + TOPBAR_H + FOV_H),
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(18.0f * open)));
+        LinkenMenuChrome.roundedFill(context, x + PAD_X, y + TOPBAR_H + FOV_H - 1.0f, WIN_W - PAD_X * 2.0f, 1.0f, 0.5f,
+            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(12.0f * open)), metrics.scale());
 
         // 3. 10 Category Tiles
         drawTiles(context, metrics, x, y + TOPBAR_H + FOV_H, WIN_W, mx, my, deltaSeconds, open);
@@ -275,7 +273,7 @@ public final class LinkenSettingsScreen extends Screen {
 
             // Icon square box
             float it = 36.0f;
-            float ix = tx + 12.0f;
+            float ix = tx + 14.0f;
             float iy = ty + (TILE_H - it) * 0.5f;
             LinkenMenuChrome.roundedFill(context, ix, iy, it, it, 8.0f,
                 LinkenMenuChrome.rgba(0xFFFFFF, Math.round(14.0f * alpha)), metrics.scale());
@@ -284,12 +282,17 @@ public final class LinkenSettingsScreen extends Screen {
 
             int iconColor = disabled ? LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, alpha)
                 : LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.TEXT3, LinkenMenuChrome.ACCENT, t), alpha);
-            drawCategoryIcon(context, i, ix + it * 0.5f, iy + it * 0.5f, 18.0f, iconColor);
+            drawCategoryIcon(context, i, ix + it * 0.5f, iy + it * 0.5f, 20.0f, iconColor);
 
             // Title
             LinkenMenuChrome.drawText(context, LinkenFonts.body(), CATEGORIES[i],
                 ix + it + 12.0f, ty + TILE_H * 0.5f - 6.0f, 13.5f,
-                LinkenMenuChrome.rgba(disabled ? LinkenMenuChrome.MUTED2 : LinkenMenuChrome.TEXT, alpha));
+                LinkenMenuChrome.rgba(disabled ? LinkenMenuChrome.MUTED2 : LinkenMenuChrome.TEXT2, alpha));
+
+            // Chevron "›" on the right
+            LinkenMenuChrome.drawText(context, LinkenFonts.body(), "›",
+                tx + colW - 18.0f, ty + TILE_H * 0.5f - 7.0f, 15.0f,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, alpha));
         }
     }
 
@@ -315,7 +318,7 @@ public final class LinkenSettingsScreen extends Screen {
         float bw = 130.0f;
         float bh = 42.0f;
         float bx = x + w - PAD_X - bw;
-        float by = cy - bh * 0.5f;
+        float by = cy - bh * 0.5f - 9.0f;
         doneRect = new LinkenMenuLayout.Rect(bx, by, bw, bh);
 
         boolean hov = doneRect.contains(mx, my);

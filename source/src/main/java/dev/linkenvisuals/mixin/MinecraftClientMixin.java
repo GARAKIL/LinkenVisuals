@@ -8,7 +8,6 @@ import dev.linkenvisuals.ui.linkmenu.LinkenMainMenuScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenMultiplayerScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenPauseScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenResourcePacksScreen;
-import dev.linkenvisuals.ui.linkmenu.LinkenSelectWorldScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenSettingsScreen;
 import dev.linkenvisuals.ui.linkmenu.LinkenSkinScreen;
 import dev.linkenvisuals.ui.style.MenuStyle;
@@ -126,9 +125,6 @@ public abstract class MinecraftClientMixin {
         }
         if (screen instanceof MultiplayerScreen) {
             return new LinkenMultiplayerScreen(MinecraftClient.getInstance().currentScreen);
-        }
-        if (screen instanceof SelectWorldScreen && !(screen instanceof LinkenSelectWorldScreen)) {
-            return new LinkenSelectWorldScreen(MinecraftClient.getInstance().currentScreen);
         }
         return screen;
     }
