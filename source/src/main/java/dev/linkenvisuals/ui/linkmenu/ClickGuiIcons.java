@@ -1,15 +1,24 @@
 package dev.linkenvisuals.ui.linkmenu;
 
+import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.GlyphAtlas;
+import dev.linkenvisuals.render.IconPipeline;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.util.Identifier;
 
 public final class ClickGuiIcons {
+    private static final Identifier ICON_SOUND = LinkenVisuals.id("textures/gui/icons/icon_sound.png");
+    private static final Identifier ICON_MUTE = LinkenVisuals.id("textures/gui/icons/icon_mute.png");
+
     private ClickGuiIcons() {
     }
 
     private static void fa(DrawContext context, char codepoint, float cx, float cy, float size, int color) {
         GlyphAtlas atlas = LinkenFonts.iconsFa();
-        LinkenMenuChrome.drawCentered(context, atlas, String.valueOf(codepoint), cx, cy, size, color);
+        if (atlas != null && atlas.glyph(codepoint) != null) {
+            IconPipeline.draw(context, atlas, codepoint, cx, cy, size, color);
+        }
     }
 
     public static void user(DrawContext context, float cx, float cy, float size, int color) {
@@ -33,7 +42,7 @@ public final class ClickGuiIcons {
     }
 
     public static void chat(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF075', cx, cy, size, color);
+        comment(context, cx, cy, size, color);
     }
 
     public static void layers(DrawContext context, float cx, float cy, float size, int color) {
@@ -69,31 +78,55 @@ public final class ClickGuiIcons {
     }
 
     public static void play(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF04B', cx, cy, size * 0.9f, color);
+        GlyphAtlas atlas = LinkenFonts.mediaPlayer();
+        if (atlas != null && atlas.glyph('C') != null) {
+            IconPipeline.draw(context, atlas, 'C', cx + size * 0.12f, cy, size, color);
+        } else {
+            fa(context, '\uF04B', cx, cy, size * 0.9f, color);
+        }
     }
 
     public static void pause(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF04C', cx, cy, size * 0.9f, color);
+        GlyphAtlas atlas = LinkenFonts.mediaPlayer();
+        if (atlas != null && atlas.glyph('D') != null) {
+            IconPipeline.draw(context, atlas, 'D', cx, cy, size, color);
+        } else {
+            fa(context, '\uF04C', cx, cy, size * 0.9f, color);
+        }
     }
 
     public static void backward(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF048', cx, cy, size * 0.88f, color);
+        GlyphAtlas atlas = LinkenFonts.mediaPlayer();
+        if (atlas != null && atlas.glyph('A') != null) {
+            IconPipeline.draw(context, atlas, 'A', cx, cy, size, color);
+        } else {
+            fa(context, '\uF048', cx, cy, size * 0.88f, color);
+        }
     }
 
     public static void forward(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF051', cx, cy, size * 0.88f, color);
+        GlyphAtlas atlas = LinkenFonts.mediaPlayer();
+        if (atlas != null && atlas.glyph('B') != null) {
+            IconPipeline.draw(context, atlas, 'B', cx, cy, size, color);
+        } else {
+            fa(context, '\uF051', cx, cy, size * 0.88f, color);
+        }
     }
 
     public static void volumeMute(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF6A9', cx, cy, size * 0.9f, color);
+        int isz = Math.round(size);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, ICON_MUTE,
+            Math.round(cx - size * 0.5f), Math.round(cy - size * 0.5f), 0.0f, 0.0f, isz, isz, isz, isz, color);
     }
 
     public static void volumeUp(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF028', cx, cy, size * 0.9f, color);
+        int isz = Math.round(size);
+        context.drawTexture(RenderPipelines.GUI_TEXTURED, ICON_SOUND,
+            Math.round(cx - size * 0.5f), Math.round(cy - size * 0.5f), 0.0f, 0.0f, isz, isz, isz, isz, color);
     }
 
     public static void volumeDown(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF027', cx, cy, size * 0.9f, color);
+        volumeUp(context, cx, cy, size, color);
     }
 
     public static void palette(DrawContext context, float cx, float cy, float size, int color) {
@@ -113,6 +146,16 @@ public final class ClickGuiIcons {
     }
 
     public static void comment(DrawContext context, float cx, float cy, float size, int color) {
-        fa(context, '\uF086', cx, cy, size, color);
+        GlyphAtlas atlas = LinkenFonts.iconsFa();
+        if (atlas != null && atlas.glyph(0xF075) != null) {
+            IconPipeline.draw(context, atlas, 0xF075, cx, cy, size, color);
+            return;
+        }
+        GlyphAtlas nAtlas = LinkenFonts.iconsNew();
+        if (nAtlas != null && nAtlas.glyph('C') != null) {
+            IconPipeline.draw(context, nAtlas, 'C', cx, cy, size, color);
+            return;
+        }
+        info(context, cx, cy, size, color);
     }
 }

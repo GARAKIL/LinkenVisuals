@@ -1056,8 +1056,7 @@ public final class ModuleRegistry {
     }
 
     public static boolean isLinkenHud() {
-        return (hudStyle != null && "Linken".equalsIgnoreCase(hudStyle.value()))
-            || (!BuildFlavor.STRANGE && (hudStyle == null || !"Strange".equalsIgnoreCase(hudStyle.value())));
+        return true;
     }
 
     public static boolean isLinkenMenu() {

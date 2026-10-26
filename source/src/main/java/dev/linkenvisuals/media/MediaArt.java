@@ -65,7 +65,6 @@ public final class MediaArt {
             return;
         }
         loadedKey = key;
-        available = false;
         fetching = true;
 
         String seedKey = key;

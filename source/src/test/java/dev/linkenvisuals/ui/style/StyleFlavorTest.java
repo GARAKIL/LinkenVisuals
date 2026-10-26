@@ -55,11 +55,11 @@ class StyleFlavorTest {
         assertEquals(MenuStyle.LINKEN, rules.parseMenuStyle("Linken"));
         assertEquals(MenuStyle.LINKEN, rules.nextMenuStyle(MenuStyle.LINKEN));
 
-        assertEquals(java.util.List.of("Neon", "Card", "Minimal", "Aurora", "Glass", "Solid", "Gradient", "Outline"), rules.hudStyles());
-        assertEquals("Neon", rules.defaultHudStyle());
+        assertEquals(java.util.List.of("Card", "Minimal", "Neon", "Aurora", "Glass", "Solid", "Gradient", "Outline"), rules.hudStyles());
+        assertEquals("Card", rules.defaultHudStyle());
         assertTrue(rules.allowsHudStyle("Neon"));
         assertTrue(rules.allowsHudStyle("Card"));
-        assertEquals("Neon", rules.sanitizeHudStyle("Neon"));
+        assertEquals("Card", rules.sanitizeHudStyle("Card"));
         assertEquals(java.util.List.of("Rounded", "Pill", "Sharp"), rules.hudShapes());
         assertEquals("Rounded", rules.defaultHudShape());
         assertEquals("Sharp", rules.sanitizeHudShape("Sharp"));

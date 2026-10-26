@@ -319,6 +319,8 @@ public final class LinkenAltManagerScreen extends Screen {
         LinkenMenuChrome.drawRightText(context, LinkenFonts.body(), "ESC  /  BACK",
             WINDOW_X + WINDOW_W - 20.0f, WINDOW_Y + WINDOW_H - 42.0f, 9.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
+
+        WindowMaterial.corners(context, WINDOW_X, WINDOW_Y, WINDOW_W, WINDOW_H, metrics.scale(), fade);
     }
 
     private void drawSearch(DrawContext context, LinkenMenuLayout.Metrics metrics, float mx, float my, float fade) {
@@ -468,6 +470,8 @@ public final class LinkenAltManagerScreen extends Screen {
         drawModalButton(context, metrics, modalCancelRect, "CANCEL", false, mx, my, fade, seconds, modalCancelSpring);
         drawModalButton(context, metrics, modalConfirmRect, delete ? "DELETE" : "ADD",
             true, mx, my, fade, seconds, modalConfirmSpring);
+
+        WindowMaterial.corners(context, x, y, width, height, metrics.scale(), fade);
     }
 
     private void drawChip(DrawContext context, LinkenMenuLayout.Metrics metrics, LinkenMenuLayout.Rect rect,

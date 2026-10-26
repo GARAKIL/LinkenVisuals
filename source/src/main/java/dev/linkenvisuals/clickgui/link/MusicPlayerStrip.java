@@ -1,12 +1,15 @@
 package dev.linkenvisuals.clickgui.link;
 
+import dev.linkenvisuals.media.MediaArt;
 import dev.linkenvisuals.media.MediaWatcher;
+import dev.linkenvisuals.media.SystemVolumeController;
 import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.RoundedRectPipeline;
 import dev.linkenvisuals.ui.Spring;
 import dev.linkenvisuals.ui.linkmenu.ClickGuiIcons;
 import dev.linkenvisuals.ui.linkmenu.LinkenFonts;
 import dev.linkenvisuals.ui.linkmenu.LinkenMenuChrome;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
@@ -35,6 +38,8 @@ public final class MusicPlayerStrip {
     private float preMuteVolume = 0.5f;
     private boolean volumeDragging;
     private boolean timelineDragging;
+    private long lastVolumePollMs;
+    private long lastVolumeSetMs;
 
     private final Spring prevHover = new Spring(0.0, 900.0, 50.0);
     private final Spring playHover = new Spring(0.0, 900.0, 50.0);
@@ -56,6 +61,13 @@ public final class MusicPlayerStrip {
 
     public void init() {
         MediaWatcher.ensureRunning();
+        SystemVolumeController.ensureInit();
+        SystemVolumeController.refresh();
+        Float sys = SystemVolumeController.currentVolume();
+        if (sys != null) {
+            volume = sys;
+            displayedVolume = sys;
+        }
     }
 
     public void shutdown() {
@@ -72,6 +84,17 @@ public final class MusicPlayerStrip {
         boolean hasMedia = track != null && !track.title().isEmpty();
         boolean isPlaying = track != null && track.playing();
 
+        // System volume polling
+        long now = System.currentTimeMillis();
+        if (!volumeDragging && now - lastVolumePollMs > 300L && now - lastVolumeSetMs > 600L) {
+            SystemVolumeController.refresh();
+            Float sys = SystemVolumeController.currentVolume();
+            if (sys != null) {
+                volume = sys;
+            }
+            lastVolumePollMs = now;
+        }
+
         // 1. Top separator line
         LinkenMenuChrome.roundedFill(context, x + 8.0f, y, width - 16.0f, 1.0f, 0.5f,
             LinkenMenuChrome.rgba(0xFFFFFF, Math.round(18.0f * openT)), scale);
@@ -82,20 +105,29 @@ public final class MusicPlayerStrip {
         float artCenterY = artY + ART_SIZE * 0.5f;
 
         // 2. Album artwork / placeholder thumbnail
-        RoundedRectPipeline.draw(context, artX, artY, ART_SIZE, ART_SIZE, 8.0f,
-            LinkenMenuChrome.rgba(0x131A16, Math.round(230.0f * openT)));
-        RoundedRectPipeline.drawBorder(context, artX, artY, ART_SIZE, ART_SIZE, 8.0f, 0.0f, 1.0f, 1.2f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(50.0f * openT)));
+        MediaArt.follow(track, hasMedia);
+        if (hasMedia && MediaArt.available()) {
+            context.drawTexture(RenderPipelines.GUI_TEXTURED, MediaArt.textureId(),
+                Math.round(artX), Math.round(artY), 0.0f, 0.0f, Math.round(ART_SIZE), Math.round(ART_SIZE),
+                Math.round(ART_SIZE), Math.round(ART_SIZE), LinkenMenuChrome.rgba(0xFFFFFF, openT));
+            RoundedRectPipeline.drawBorder(context, artX, artY, ART_SIZE, ART_SIZE, 8.0f, 0.0f, 1.0f, 1.2f,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(50.0f * openT)));
+        } else {
+            RoundedRectPipeline.draw(context, artX, artY, ART_SIZE, ART_SIZE, 8.0f,
+                LinkenMenuChrome.rgba(0x131A16, Math.round(230.0f * openT)));
+            RoundedRectPipeline.drawBorder(context, artX, artY, ART_SIZE, ART_SIZE, 8.0f, 0.0f, 1.0f, 1.2f,
+                LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(50.0f * openT)));
 
-        // Animated pulsing music wave lines in thumbnail when playing
-        float pulse = isPlaying ? (float) Math.sin(System.currentTimeMillis() * 0.006) * 0.5f + 0.5f : 0.2f;
-        float bar1 = 6.0f + pulse * 10.0f;
-        float bar2 = 14.0f - pulse * 8.0f;
-        float bar3 = 8.0f + pulse * 12.0f;
-        int waveColor = LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round((140.0f + 100.0f * pulse) * openT));
-        RoundedRectPipeline.draw(context, artX + 11.0f, artCenterY - bar1 * 0.5f, 3.0f, bar1, 1.5f, waveColor);
-        RoundedRectPipeline.draw(context, artX + 18.0f, artCenterY - bar2 * 0.5f, 3.0f, bar2, 1.5f, waveColor);
-        RoundedRectPipeline.draw(context, artX + 25.0f, artCenterY - bar3 * 0.5f, 3.0f, bar3, 1.5f, waveColor);
+            // Animated pulsing music wave lines in thumbnail when playing
+            float pulse = isPlaying ? (float) Math.sin(System.currentTimeMillis() * 0.006) * 0.5f + 0.5f : 0.2f;
+            float bar1 = 6.0f + pulse * 10.0f;
+            float bar2 = 14.0f - pulse * 8.0f;
+            float bar3 = 8.0f + pulse * 12.0f;
+            int waveColor = LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round((140.0f + 100.0f * pulse) * openT));
+            RoundedRectPipeline.draw(context, artX + 11.0f, artCenterY - bar1 * 0.5f, 3.0f, bar1, 1.5f, waveColor);
+            RoundedRectPipeline.draw(context, artX + 18.0f, artCenterY - bar2 * 0.5f, 3.0f, bar2, 1.5f, waveColor);
+            RoundedRectPipeline.draw(context, artX + 25.0f, artCenterY - bar3 * 0.5f, 3.0f, bar3, 1.5f, waveColor);
+        }
 
         // 3. Track title & artist
         float textX = artX + ART_SIZE + 12.0f;
@@ -131,7 +163,7 @@ public final class MusicPlayerStrip {
             RoundedRectPipeline.draw(context, prevX - BTN_SIZE * 0.5f, btnY, BTN_SIZE, BTN_SIZE, 6.0f,
                 LinkenMenuChrome.rgba(0xFFFFFF, Math.round(22.0f * pt * openT)));
         }
-        ClickGuiIcons.backward(context, prevX, artCenterY, 13.0f,
+        ClickGuiIcons.backward(context, prevX, artCenterY, 14.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.TEXT3, LinkenMenuChrome.TEXT, pt), openT));
 
         // Play / Pause button
@@ -143,7 +175,7 @@ public final class MusicPlayerStrip {
             ClickGuiIcons.pause(context, playX, artCenterY, 15.0f,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.TEXT, LinkenMenuChrome.ACCENT, plt), openT));
         } else {
-            ClickGuiIcons.play(context, playX + 1.0f, artCenterY, 15.0f,
+            ClickGuiIcons.play(context, playX, artCenterY, 15.0f,
                 LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.TEXT, LinkenMenuChrome.ACCENT, plt), openT));
         }
 
@@ -152,7 +184,7 @@ public final class MusicPlayerStrip {
             RoundedRectPipeline.draw(context, nextX - BTN_SIZE * 0.5f, btnY, BTN_SIZE, BTN_SIZE, 6.0f,
                 LinkenMenuChrome.rgba(0xFFFFFF, Math.round(22.0f * nt * openT)));
         }
-        ClickGuiIcons.forward(context, nextX, artCenterY, 13.0f,
+        ClickGuiIcons.forward(context, nextX, artCenterY, 14.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.TEXT3, LinkenMenuChrome.TEXT, nt), openT));
 
         // 5. Volume area on right
@@ -168,7 +200,7 @@ public final class MusicPlayerStrip {
         volumeHover.step((volHov || volumeDragging) ? 1.0 : 0.0, dt);
 
         if (volumeDragging) {
-            volume = MathHelper.clamp((mx - barX) / VOL_BAR_W, 0.0f, 1.0f);
+            applyVolume((mx - barX) / VOL_BAR_W);
         }
         displayedVolume += (volume - displayedVolume) * Math.min(1.0f, dt * 18.0f);
 
@@ -281,7 +313,7 @@ public final class MusicPlayerStrip {
 
         if (in(barX - 4.0f, barY - 8.0f, VOL_BAR_W + 8.0f, 18.0f, mx, my)) {
             volumeDragging = true;
-            volume = MathHelper.clamp((mx - barX) / VOL_BAR_W, 0.0f, 1.0f);
+            applyVolume((mx - barX) / VOL_BAR_W);
             return true;
         }
 
@@ -308,7 +340,7 @@ public final class MusicPlayerStrip {
     public void mouseDragged(double mouseX, double mouseY) {
         if (volumeDragging) {
             float barX = (x + width - 18.0f - 96.0f) + 26.0f;
-            volume = MathHelper.clamp(((float) mouseX - barX) / VOL_BAR_W, 0.0f, 1.0f);
+            applyVolume(((float) mouseX - barX) / VOL_BAR_W);
         }
         if (timelineDragging) {
             float timelineBarX = x + 14.0f;
@@ -317,12 +349,18 @@ public final class MusicPlayerStrip {
         }
     }
 
+    private void applyVolume(float raw) {
+        volume = MathHelper.clamp(raw, 0.0f, 1.0f);
+        SystemVolumeController.setVolume(volume);
+        lastVolumeSetMs = System.currentTimeMillis();
+    }
+
     private void toggleMute() {
         if (volume > 0.01f) {
             preMuteVolume = volume;
-            volume = 0.0f;
+            applyVolume(0.0f);
         } else {
-            volume = preMuteVolume > 0.01f ? preMuteVolume : 0.5f;
+            applyVolume(preMuteVolume > 0.01f ? preMuteVolume : 0.5f);
         }
     }
 

@@ -64,6 +64,11 @@ public final class Watermark extends HudElement {
 
     @Override
     public void render(DrawContext context, float x, float y) {
+        if (HudStyle.variant() == HudStyle.Variant.CARD) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            totalWidth = unkw.visualtest.client.hud.VisualHud.cardWatermark(context, client, Math.round(x), Math.round(y));
+            return;
+        }
         ensureLoaded();
         MinecraftClient client = MinecraftClient.getInstance();
 

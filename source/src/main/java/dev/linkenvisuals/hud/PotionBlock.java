@@ -2,6 +2,7 @@ package dev.linkenvisuals.hud;
 
 import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.render.GlyphAtlas;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -47,6 +48,9 @@ public final class PotionBlock extends HudElement {
 
     @Override
     public float width() {
+        if (HudStyle.variant() == HudStyle.Variant.CARD) {
+            return 150.0f;
+        }
         if (!isActiveMode()) {
             return 0.0f;
         }
@@ -59,6 +63,10 @@ public final class PotionBlock extends HudElement {
 
     @Override
     public float height() {
+        if (HudStyle.variant() == HudStyle.Variant.CARD) {
+            int count = visibleCount();
+            return 20.0f + count * 21.0f;
+        }
         if (!isActiveMode()) {
             return 0.0f;
         }
@@ -71,6 +79,11 @@ public final class PotionBlock extends HudElement {
 
     @Override
     public void render(DrawContext context, float x, float y) {
+        if (HudStyle.variant() == HudStyle.Variant.CARD) {
+            MinecraftClient client = MinecraftClient.getInstance();
+            unkw.visualtest.client.hud.VisualHud.cardEffects(context, client, Math.round(x), Math.round(y));
+            return;
+        }
         if (!isActiveMode()) {
             return;
         }

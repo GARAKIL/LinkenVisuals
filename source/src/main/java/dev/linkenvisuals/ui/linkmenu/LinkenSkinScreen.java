@@ -191,6 +191,8 @@ public final class LinkenSkinScreen extends Screen {
         LinkenMenuChrome.drawText(context, LinkenFonts.body(), "ESC  /  BACK",
             WINDOW_X + PAD, WINDOW_Y + WINDOW_H - 40.0f, 9.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
+
+        WindowMaterial.corners(context, WINDOW_X, WINDOW_Y, WINDOW_W, WINDOW_H, metrics.scale(), fade);
     }
 
     private void drawPreview(DrawContext context, LinkenMenuLayout.Metrics metrics, float mx, float my,

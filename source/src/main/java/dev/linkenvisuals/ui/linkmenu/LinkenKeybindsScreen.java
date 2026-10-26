@@ -261,6 +261,8 @@ public final class LinkenKeybindsScreen extends Screen {
             listening != null ? "PRESS A KEY  /  ESC CANCELS" : "RIGHT CLICK  /  RESET BIND",
             WINDOW_X + PAD + 166.0f, WINDOW_Y + height - 40.0f, 9.0f,
             LinkenMenuChrome.rgba(listening != null ? LinkenMenuChrome.ACCENT : LinkenMenuChrome.MUTED3, fade));
+
+        WindowMaterial.corners(context, WINDOW_X, WINDOW_Y, WINDOW_W, height, metrics.scale(), fade);
     }
 
     private void drawSearch(DrawContext context, LinkenMenuLayout.Metrics metrics, float mx, float my, float fade) {

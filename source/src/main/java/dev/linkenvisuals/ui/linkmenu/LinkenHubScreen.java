@@ -240,6 +240,7 @@ public abstract class LinkenHubScreen extends Screen {
         LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), "ГОТОВО",
             doneRect.x() + doneW * 0.5f, doneRect.y() + 17.0f - doneHover, 10.0f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.INK, fade));
+        WindowMaterial.corners(context, panelX, panelY, panelWidth, panelHeight, metrics.scale(), fade);
         context.getMatrices().popMatrix();
     }
 

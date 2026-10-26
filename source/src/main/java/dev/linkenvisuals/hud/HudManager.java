@@ -37,7 +37,6 @@ public final class HudManager {
     private static final List<HudElement> ELEMENTS = List.of(new TargetHud(), new CoordinatesHud(),
         new CooldownsHud(), new ArmorHud(), new InventoryHud(),
         new Watermark(), new KeybindPanel(),
-        new MediaPlayerHud(), new TotemCounterHud(), new UseTrackerHud(),
         new PotionSlot(0), new PotionSlot(1), new PotionSlot(2), new PotionSlot(3), new PotionBlock(),
         new ScoreboardHud(), new LowArmorNotificationsHud(), new KillStreakHud(),
         new HelperItemsHud());

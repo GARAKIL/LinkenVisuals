@@ -112,12 +112,18 @@ public final class TargetHud extends HudElement {
 
     @Override
     public float width() {
+        if (HudStyle.variant() == HudStyle.Variant.CARD && lastRenderVisible) {
+            return 144.0f;
+        }
         refreshGeometry(System.currentTimeMillis());
         return WIDTH;
     }
 
     @Override
     public float height() {
+        if (HudStyle.variant() == HudStyle.Variant.CARD && lastRenderVisible) {
+            return 45.0f;
+        }
         refreshGeometry(System.currentTimeMillis());
         return cachedHeight;
     }
@@ -127,6 +133,14 @@ public final class TargetHud extends HudElement {
         lastRenderVisible = false;
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null || client.player == null || client.world == null) {
+            return;
+        }
+        if (HudStyle.variant() == HudStyle.Variant.CARD) {
+            boolean drawn = unkw.visualtest.client.hud.VisualHud.cardTarget(context, client, Math.round(x), Math.round(y));
+            if (drawn) {
+                lastRenderVisible = true;
+                cachedHeight = 45.0f;
+            }
             return;
         }
         boolean editing = HudManager.isEditing() || client.currentScreen instanceof ChatScreen;

@@ -738,6 +738,7 @@ public final class LinkGuiScreen extends Screen {
         context.disableScissor();
         scrollbar(context, metrics, area.right() - 0.0f, area.y(), area.height(), contentHeight, scroll, openT);
         drawMediaStrip(context, metrics, panel, mx, my, openT, deltaSeconds);
+        dev.linkenvisuals.ui.linkmenu.WindowMaterial.corners(context, panel.x(), panel.y(), panel.width(), panel.height(), metrics.scale(), openT);
     }
 
     private float cardWidth(Metrics metrics) {

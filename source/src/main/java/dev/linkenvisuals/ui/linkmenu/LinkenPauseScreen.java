@@ -100,11 +100,13 @@ public final class LinkenPauseScreen extends Screen {
 
     @Override
     protected void init() {
+        LinkenFonts.retryIfUnavailable();
         LinkenFonts.body();
         LinkenFonts.bodyMedium();
         LinkenFonts.heading();
         LinkenFonts.headingLight();
         LinkenFonts.iconsFa();
+        buildTiles();
         lastFrame = System.nanoTime();
     }
 

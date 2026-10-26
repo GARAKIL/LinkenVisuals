@@ -121,6 +121,7 @@ public final class LinkenSelectWorldScreen extends SelectWorldScreen {
 
         drawList(context, metrics, x, mx, my);
         drawButtons(context, metrics, x, y, mx, my);
+        WindowMaterial.corners(context, x, y, PANEL_WIDTH, PANEL_HEIGHT, metrics.scale(), 1.0f);
         context.getMatrices().popMatrix();
     }
 
