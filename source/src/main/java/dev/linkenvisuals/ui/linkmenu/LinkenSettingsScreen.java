@@ -128,13 +128,8 @@ public final class LinkenSettingsScreen extends Screen {
         context.getMatrices().scale(metrics.scale(), metrics.scale());
         context.getMatrices().translate(0.0f, slide);
 
-        // Window background: rounded dark panel with subtle border
-        LinkenMenuChrome.roundedFill(context, x, y, WIN_W, WIN_H, 14.0f,
-            LinkenMenuChrome.rgba(0x0E1411, Math.round(248.0f * open)), metrics.scale());
-        LinkenMenuChrome.roundedOutline(context, x, y, WIN_W, WIN_H, 14.0f, 1.0f,
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(24.0f * open)), metrics.scale());
-        LinkenMenuChrome.roundedFill(context, x + 24.0f, y + 1.0f, WIN_W - 48.0f, 1.0f, 0.5f,
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(36.0f * open)), metrics.scale());
+        // Window background using WindowMaterial
+        WindowMaterial.window(context, x, y, WIN_W, WIN_H, metrics.scale(), open);
 
         // 1. Topbar
         drawTopbar(context, metrics, x, y, WIN_W, mx, my, deltaSeconds, open);
@@ -154,6 +149,9 @@ public final class LinkenSettingsScreen extends Screen {
         // 4. Footer: "Готово" button
         drawFooter(context, metrics, x, y + WIN_H - FOOTER_H, WIN_W, mx, my, deltaSeconds, open);
 
+        // 5. Geometric mint corner brackets
+        WindowMaterial.corners(context, x, y, WIN_W, WIN_H, metrics.scale(), open);
+
         context.getMatrices().popMatrix();
     }
 
@@ -161,11 +159,9 @@ public final class LinkenSettingsScreen extends Screen {
                             float x, float y, float w, float mx, float my, float dt, float open) {
         float cy = y + TOPBAR_H * 0.5f;
 
-        // "┌ Настройки" title with mint accent
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), "┌",
-            x + PAD_X, cy - 8.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, open));
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), " Настройки",
-            x + PAD_X + 12.0f, cy - 8.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, open));
+        // "Настройки" title in Golos/BodyMedium, clean Russian text
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), "Настройки",
+            x + PAD_X, cy - 8.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, open));
 
         // "Онлайн" button
         float bh = 36.0f;
@@ -294,11 +290,6 @@ public final class LinkenSettingsScreen extends Screen {
             LinkenMenuChrome.drawText(context, LinkenFonts.body(), CATEGORIES[i],
                 ix + it + 12.0f, ty + TILE_H * 0.5f - 6.0f, 13.5f,
                 LinkenMenuChrome.rgba(disabled ? LinkenMenuChrome.MUTED2 : LinkenMenuChrome.TEXT, alpha));
-
-            // Right arrow
-            LinkenMenuChrome.drawText(context, LinkenFonts.body(), "›",
-                tx + colW - 18.0f, ty + TILE_H * 0.5f - 7.0f, 15.0f,
-                LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, alpha));
         }
     }
 
@@ -341,9 +332,10 @@ public final class LinkenSettingsScreen extends Screen {
         LinkenMenuChrome.roundedFill(context, bx + 8.0f, ty + 1.0f, bw - 16.0f, 1.0f, 0.5f,
             LinkenMenuChrome.rgba(0xFFFFFF, Math.round(90.0f * open)), metrics.scale());
 
-        ClickGuiIcons.check(context, bx + 26.0f, ty + bh * 0.5f, 16.0f, LinkenMenuChrome.INK);
+        int ink = LinkenMenuChrome.rgba(LinkenMenuChrome.INK, open);
+        ClickGuiIcons.check(context, bx + 26.0f, ty + bh * 0.5f, 16.0f, ink);
         LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), label,
-            bx + 44.0f, ty + bh * 0.5f - 5.0f, 11.5f, LinkenMenuChrome.INK);
+            bx + 44.0f, ty + bh * 0.5f - 5.0f, 11.5f, ink);
     }
 
     @Override

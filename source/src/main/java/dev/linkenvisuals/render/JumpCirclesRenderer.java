@@ -75,7 +75,7 @@ public final class JumpCirclesRenderer {
         boolean jumpPressed = client.options.jumpKey.isPressed();
         if (wasOnGround && !onGround && jumpPressed) {
             Vec3d pos = new Vec3d(client.player.getX(),
-                client.player.getBlockPos().getY() + 0.015, client.player.getZ());
+                client.player.getY() + 0.015, client.player.getZ());
             circles.add(new Circle(pos, System.currentTimeMillis()));
         }
         wasOnGround = onGround;

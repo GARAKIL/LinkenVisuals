@@ -159,20 +159,13 @@ public final class LinkenPauseScreen extends Screen {
         context.getMatrices().scale(metrics.scale(), metrics.scale());
         context.getMatrices().translate(0.0f, slide);
 
-        // Window background
-        LinkenMenuChrome.roundedFill(context, x, y, w, h, 14.0f,
-            LinkenMenuChrome.rgba(0x0E1411, Math.round(248.0f * open)), metrics.scale());
-        LinkenMenuChrome.roundedOutline(context, x, y, w, h, 14.0f, 1.0f,
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(24.0f * open)), metrics.scale());
-        LinkenMenuChrome.roundedFill(context, x + 24.0f, y + 1.0f, w - 48.0f, 1.0f, 0.5f,
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(36.0f * open)), metrics.scale());
+        // Window background using WindowMaterial
+        WindowMaterial.window(context, x, y, w, h, metrics.scale(), open);
 
-        // Topbar: "┌ Меню" and world/server name
+        // Topbar: "Меню" and world/server name
         float cy = y + TOPBAR * 0.5f;
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), "┌",
-            x + PAD, cy - 8.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, open));
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), " Меню",
-            x + PAD + 12.0f, cy - 8.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, open));
+        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), "Меню",
+            x + PAD, cy - 8.0f, 17.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, open));
 
         String serverName = worldName();
         LinkenMenuChrome.drawRightText(context, LinkenFonts.body(), serverName,
@@ -197,9 +190,10 @@ public final class LinkenPauseScreen extends Screen {
         LinkenMenuChrome.roundedFill(context, resumeRect.x() + 8.0f, rty + 1.0f, resumeRect.width() - 16.0f, 1.0f, 0.5f,
             LinkenMenuChrome.rgba(0xFFFFFF, Math.round(90.0f * open)), metrics.scale());
 
-        ClickGuiIcons.play(context, resumeRect.x() + resumeRect.width() * 0.5f - 70.0f, rty + ROW * 0.5f, 14.0f, LinkenMenuChrome.INK);
+        int resumeInk = LinkenMenuChrome.rgba(LinkenMenuChrome.INK, open);
+        ClickGuiIcons.play(context, resumeRect.x() + resumeRect.width() * 0.5f - 70.0f, rty + ROW * 0.5f, 14.0f, resumeInk);
         LinkenMenuChrome.drawCentered(context, LinkenFonts.bodyMedium(), "Вернуться к игре",
-            resumeRect.x() + resumeRect.width() * 0.5f + 8.0f, rty + ROW * 0.5f, 13.0f, LinkenMenuChrome.INK);
+            resumeRect.x() + resumeRect.width() * 0.5f + 8.0f, rty + ROW * 0.5f, 13.0f, resumeInk);
 
         contentY += ROW + GAP;
 
@@ -259,6 +253,9 @@ public final class LinkenPauseScreen extends Screen {
         LinkenMenuChrome.drawCentered(context, LinkenFonts.bodyMedium(), disconnectText,
             disconnectRect.x() + disconnectRect.width() * 0.5f + 8.0f, dty + ROW * 0.5f, 12.5f,
             LinkenMenuChrome.rgba(LinkenMenuChrome.mix(LinkenMenuChrome.DANGER, 0xFF6B6B, dt), open));
+
+        // Geometric mint corner brackets
+        WindowMaterial.corners(context, x, y, w, h, metrics.scale(), open);
 
         context.getMatrices().popMatrix();
     }

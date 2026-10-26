@@ -108,13 +108,12 @@ public final class BlockOverlayRenderer {
         int fbHeight = Math.max(1, main.textureHeight);
         CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
 
-        boolean useShader = module.useShader.value();
-        if (useShader && Math.max(fillAlpha, outlineAlpha) > 0) {
-            int shaderAlpha = Math.max(fillAlpha, Math.round(outlineAlpha * 0.72f));
+        boolean fillEnabled = module.fill.value() && fillAlpha > 0;
+        if (module.useShader.value() && fillEnabled) {
             int base = palette.sample(animation + (float) ((box.minX + box.minY + box.minZ) * 0.05f));
-            writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, shaderAlpha);
+            writeUniforms(encoder, animation * 4.0f, fbWidth, fbHeight, base, fillAlpha);
             drawTexturedBox(encoder, main, BlockOverlayPipelines.shader(mode), box.expand(0.003));
-        } else if (module.fill.value() && fillAlpha > 0) {
+        } else if (fillEnabled) {
             drawGradientFill(encoder, main, box.expand(0.002), fillAlpha, animation, palette, mode);
         }
 
@@ -164,7 +163,7 @@ public final class BlockOverlayRenderer {
 
     private static void writeUniforms(CommandEncoder encoder, float time, int fbWidth, int fbHeight,
                                       int baseRgb, int alpha) {
-        float shaderAlpha = alpha <= 0 ? 0.0f : Math.max(0.35f, Math.min(1.0f, alpha / 255.0f));
+        float shaderAlpha = alpha <= 0 ? 0.0f : Math.max(0.0f, Math.min(1.0f, alpha / 255.0f));
         UNIFORM_DATA.clear();
         // uParams: x=time, y=alpha, z=zoomFactor, w=shaderAlpha
         UNIFORM_DATA.putFloat(time);
@@ -237,43 +236,11 @@ public final class BlockOverlayRenderer {
     private static void drawGradientFill(CommandEncoder encoder, Framebuffer main, Box box,
                                          int alpha, float animation, Palette palette,
                                          BlockOverlayModule.FillMode mode) {
-        // Segmented vertical gradient + glow layers, mirroring the donor's non-shader path.
-        // Worst case: 8 segments + 3 glow layers, 36 verts each, 16 bytes per vert = ~6336 bytes.
         ByteBuffer data = REUSABLE_BUFFER;
         data.clear();
-        if (mode == BlockOverlayModule.FillMode.COSMOS) {
-            float phase = animation + (float) ((box.minX + box.minY + box.minZ) * 0.04f);
-            int base = palette.sample(phase);
-            putColoredBox(data, box, ColorMath.withAlpha(base, Math.max(10, Math.round(alpha * 0.7f))));
-            for (int layer = 0; layer < 3; layer++) {
-                float glowFactor = 1.0f - layer / 3.0f;
-                int glowAlpha = Math.round(alpha * (palette.glowMinAlpha + palette.glowAlphaRange * glowFactor));
-                putColoredBox(data, box.expand(0.0018 * (layer + 1)),
-                    ColorMath.withAlpha(base, glowAlpha));
-            }
-        } else {
-            double height = Math.max(0.001, box.maxY - box.minY);
-            int segments = Math.max(4, Math.min(8, (int) Math.ceil(height * 6.0)));
-            for (int i = 0; i < segments; i++) {
-                float progress = i / (float) segments;
-                double minY = MathHelper.lerp(progress, box.minY, box.maxY);
-                double maxY = MathHelper.lerp((i + 1f) / segments, box.minY, box.maxY);
-                int color = palette.sample(animation + progress * 0.45f
-                    + (float) ((box.minX + box.minZ) * 0.035f));
-                int segmentAlpha = Math.max(10,
-                    Math.round(alpha * (palette.baseMinAlpha + palette.baseAlphaRange * (1.0f - progress))));
-                putColoredBox(data,
-                    new Box(box.minX, minY, box.minZ, box.maxX, maxY, box.maxZ),
-                    ColorMath.withAlpha(color, segmentAlpha));
-            }
-            for (int layer = 0; layer < 3; layer++) {
-                float glowFactor = 1.0f - layer / 3.0f;
-                int color = palette.sample(animation + 0.16f * layer + (float) (box.minY * 0.05f));
-                int glowAlpha = Math.round(alpha * (palette.glowMinAlpha + palette.glowAlphaRange * glowFactor));
-                putColoredBox(data, box.expand(0.0018 * (layer + 1)),
-                    ColorMath.withAlpha(color, glowAlpha));
-            }
-        }
+        float phase = animation + (float) ((box.minX + box.minY + box.minZ) * 0.04f);
+        int base = palette.sample(phase);
+        putColoredBox(data, box, ColorMath.withAlpha(base, alpha));
         data.flip();
         drawColored(encoder, main, BlockOverlayPipelines.FLAT, data);
     }

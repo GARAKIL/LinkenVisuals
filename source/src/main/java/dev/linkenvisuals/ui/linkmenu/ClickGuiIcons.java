@@ -72,6 +72,42 @@ public final class ClickGuiIcons {
         fa(context, '\uF04B', cx, cy, size * 0.9f, color);
     }
 
+    public static void pause(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF04C', cx, cy, size * 0.9f, color);
+    }
+
+    public static void backward(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF048', cx, cy, size * 0.88f, color);
+    }
+
+    public static void forward(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF051', cx, cy, size * 0.88f, color);
+    }
+
+    public static void volumeMute(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF6A9', cx, cy, size * 0.9f, color);
+    }
+
+    public static void volumeUp(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF028', cx, cy, size * 0.9f, color);
+    }
+
+    public static void volumeDown(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF027', cx, cy, size * 0.9f, color);
+    }
+
+    public static void palette(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF53F', cx, cy, size, color);
+    }
+
+    public static void sliders(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF1DE', cx, cy, size, color);
+    }
+
+    public static void xmark(DrawContext context, float cx, float cy, float size, int color) {
+        fa(context, '\uF00D', cx, cy, size, color);
+    }
+
     public static void signOut(DrawContext context, float cx, float cy, float size, int color) {
         fa(context, '\uF08B', cx, cy, size * 0.95f, color);
     }
