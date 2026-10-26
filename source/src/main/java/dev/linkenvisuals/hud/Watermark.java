@@ -2,41 +2,36 @@ package dev.linkenvisuals.hud;
 
 import dev.linkenvisuals.render.Fonts;
 import dev.linkenvisuals.util.ColorMath;
-import dev.linkenvisuals.LinkenVisuals;
 import dev.linkenvisuals.render.CirclePipeline;
-import dev.linkenvisuals.render.GlassPanelPipeline;
-import dev.linkenvisuals.render.GlowPipeline;
 import dev.linkenvisuals.render.GlyphAtlas;
 import dev.linkenvisuals.render.MsdfText;
-import dev.linkenvisuals.render.NeonEdge;
-import dev.linkenvisuals.module.impl.StreamerModeModule;
-import dev.linkenvisuals.ui.Spring;
-import dev.linkenvisuals.ui.Theme;
-import dev.linkenvisuals.ui.style.StyleFlavor;
-import dev.linkenvisuals.util.text.StreamerRules;
+import dev.linkenvisuals.ui.linkmenu.LinkenFonts;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.PlayerListEntry;
-import net.minecraft.util.Identifier;
 
+/**
+ * 1:1 Linken Watermark matching donor Watermark.java:
+ * t.me/LinkenVisuals • 🖥 {fps} FPS • 📶 {ping} MS
+ */
 public final class Watermark extends HudElement {
-    private static final Identifier STRANGE_LOGO = LinkenVisuals.id("textures/gui/strange_logo.png");
-    private static final Identifier LINKEN_LOGO = LinkenVisuals.id("textures/gui/linken_logo.png");
-
     private static final float HEIGHT = 17.0f;
-    private static final float PADDING = 7.0f;
-    private static final float LOGO_SIZE = 10.0f;
-    private static final float NAME_SIZE = 8.4f;
-    private static final float QUIET_SIZE = 5.8f;
-    private static final float GAP = 8.0f;
+    private static final float PADDING = 6.0f;
+    private static final float FONT_SIZE = 7.5f;
+    private static final float LABEL_SIZE = 6.0f;
+    private static final float ICON_SIZE = 8.5f;
+    private static final float GAP = 5.0f;
+    private static final float BULLET_GAP = 4.0f;
+    private static final float BULLET_RADIUS = 1.2f;
+
+    private static final String BRAND = "t.me/LinkenVisuals";
+    private static final String FPS_ICON = "C";
+    private static final String PING_ICON = "O";
 
     private GlyphAtlas text;
     private GlyphAtlas bold;
-    private final Spring nameWidth = new Spring(0, 1100, 42);
-    private long lastTick = System.nanoTime();
-    private float totalWidth = 150.0f;
-    private float fpsSlot = -1.0f;
+    private GlyphAtlas icons;
+    private float totalWidth = 160.0f;
 
     public Watermark() {
         super("watermark", 0.045f, 0.045f);
@@ -49,8 +44,11 @@ public final class Watermark extends HudElement {
         if (bold == null) {
             bold = Fonts.titleFont();
         }
-        if (fpsSlot < 0.0f) {
-            fpsSlot = MsdfText.width(bold, "999", QUIET_SIZE);
+        if (icons == null) {
+            icons = LinkenFonts.iconsNew();
+            if (icons == null) {
+                icons = LinkenFonts.icons();
+            }
         }
     }
 
@@ -64,85 +62,81 @@ public final class Watermark extends HudElement {
         return HEIGHT;
     }
 
-    private static final float ASCENDER = 0.952f;
-    private static final float CAP_HEIGHT = 0.70f;
-
-    private static float baselineFor(float centerY, float size) {
-        return centerY + CAP_HEIGHT * 0.5f * size;
-    }
-
-    private static float topFor(float centerY, float size) {
-        return baselineFor(centerY, size) - ASCENDER * size;
-    }
-
     @Override
     public void render(DrawContext context, float x, float y) {
         ensureLoaded();
         MinecraftClient client = MinecraftClient.getInstance();
 
-        String username = client.getSession() != null ? client.getSession().getUsername() : "Player";
-        StreamerRules streamer = StreamerModeModule.rules();
-        if (streamer != null) {
-            username = streamer.sanitize(username);
-        }
         String fps = String.valueOf(client.getCurrentFps());
-        String ping = currentPing(client) + "ms";
-        String server = client.getCurrentServerEntry() != null
-            ? client.getCurrentServerEntry().address : "singleplayer";
+        String ping = String.valueOf(currentPing(client));
 
-        long now = System.nanoTime();
-        float deltaSeconds = (float) Math.min((now - lastTick) / 1_000_000_000.0, 0.05);
-        lastTick = now;
+        float brandWidth = MsdfText.width(bold, BRAND, FONT_SIZE);
+        float fpsIconW = MsdfText.width(icons, FPS_ICON, ICON_SIZE);
+        float fpsValW = MsdfText.width(bold, fps, FONT_SIZE);
+        float fpsLabelW = MsdfText.width(text, "FPS", LABEL_SIZE);
 
-        nameWidth.step(MsdfText.width(bold, username, NAME_SIZE), deltaSeconds);
-        float nameSpan = (float) nameWidth.get();
+        float pingIconW = MsdfText.width(icons, PING_ICON, ICON_SIZE);
+        float pingValW = MsdfText.width(bold, ping, FONT_SIZE);
+        float pingLabelW = MsdfText.width(text, "MS", LABEL_SIZE);
 
-        float unitWidth = MsdfText.width(text, "fps", QUIET_SIZE);
-        float quiet = fpsSlot + 1.5f + unitWidth + GAP
-            + MsdfText.width(text, ping, QUIET_SIZE) + GAP
-            + MsdfText.width(text, server, QUIET_SIZE);
-        totalWidth = PADDING + LOGO_SIZE + GAP + nameSpan + GAP + quiet + PADDING;
+        float bulletSpacing = BULLET_RADIUS * 2.0f + BULLET_GAP * 2.0f;
+
+        totalWidth = PADDING
+            + brandWidth + GAP + bulletSpacing
+            + fpsIconW + 3.0f + fpsValW + 1.5f + fpsLabelW + GAP + bulletSpacing
+            + pingIconW + 3.0f + pingValW + 1.5f + pingLabelW
+            + PADDING;
 
         HudSurface.panel(context, "watermark", x, y, totalWidth, HEIGHT, 1.0f);
 
-        HudAlign.Row row = HudAlign.row(x, y, HEIGHT, PADDING, GAP);
+        float centerY = y + HEIGHT * 0.5f;
+        float curX = x + PADDING;
 
-        float logoX = row.next(LOGO_SIZE);
-        float logoY = row.centerY(LOGO_SIZE);
-        GlowPipeline.radial(context, logoX + LOGO_SIZE * 0.5f, row.midY(), LOGO_SIZE * 1.2f,
-            ColorMath.withAlpha(NeonEdge.cool(), 75));
-        Identifier logo = dev.linkenvisuals.clickgui.ModuleRegistry.isLinkenHud() ? LINKEN_LOGO : STRANGE_LOGO;
-        HudAlign.drawIcon(context, logo, logoX, logoY, LOGO_SIZE, 128, ColorMath.withAlpha(0xFFFFFF, 255));
+        // 1. Brand: "t.me/LinkenVisuals"
+        MsdfText.draw(context, bold, BRAND, curX, centerY - FONT_SIZE * 0.35f, FONT_SIZE, 0xFFFFFFFF);
+        curX += brandWidth + GAP;
 
-        float nameX = row.next(nameSpan);
-        MsdfText.draw(context, bold, username, nameX, row.centerTextY(NAME_SIZE), NAME_SIZE,
-            ColorMath.withAlpha(Theme.lighten(NeonEdge.cool(), 0.18f), 255));
+        // Bullet 1
+        curX += BULLET_GAP;
+        CirclePipeline.draw(context, curX + BULLET_RADIUS, centerY, BULLET_RADIUS,
+            ColorMath.withAlpha(0xFFFFFF, 75));
+        curX += BULLET_RADIUS * 2.0f + BULLET_GAP;
 
-        float fpsWidth = MsdfText.width(bold, fps, QUIET_SIZE);
-        float fpsSlotW = fpsSlot + 1.5f;
-        float fpsX = row.next(fpsSlotW + unitWidth);
-        MsdfText.draw(context, bold, fps, fpsX + fpsSlotW - fpsWidth, row.centerTextY(QUIET_SIZE), QUIET_SIZE,
-            ColorMath.withAlpha(0xFFFFFF, 205));
-        MsdfText.draw(context, text, "fps", fpsX + fpsSlotW, row.centerTextY(QUIET_SIZE), QUIET_SIZE,
-            ColorMath.withAlpha(0xFFFFFF, 90));
+        // 2. 🖥 {fps} FPS
+        MsdfText.draw(context, icons, FPS_ICON, curX, centerY - ICON_SIZE * 0.35f, ICON_SIZE,
+            ColorMath.withAlpha(0x7EDFB4, 230));
+        curX += fpsIconW + 3.0f;
 
-        drawQuiet(context, ping, row);
-        drawQuiet(context, server, row);
+        MsdfText.draw(context, bold, fps, curX, centerY - FONT_SIZE * 0.35f, FONT_SIZE, 0xFFFFFFFF);
+        curX += fpsValW + 1.5f;
+
+        MsdfText.draw(context, text, "FPS", curX, centerY - LABEL_SIZE * 0.35f, LABEL_SIZE,
+            ColorMath.withAlpha(0xFFFFFF, 140));
+        curX += fpsLabelW + GAP;
+
+        // Bullet 2
+        curX += BULLET_GAP;
+        CirclePipeline.draw(context, curX + BULLET_RADIUS, centerY, BULLET_RADIUS,
+            ColorMath.withAlpha(0xFFFFFF, 75));
+        curX += BULLET_RADIUS * 2.0f + BULLET_GAP;
+
+        // 3. 📶 {ping} MS
+        MsdfText.draw(context, icons, PING_ICON, curX, centerY - ICON_SIZE * 0.35f, ICON_SIZE,
+            ColorMath.withAlpha(0x7EDFB4, 230));
+        curX += pingIconW + 3.0f;
+
+        MsdfText.draw(context, bold, ping, curX, centerY - FONT_SIZE * 0.35f, FONT_SIZE, 0xFFFFFFFF);
+        curX += pingValW + 1.5f;
+
+        MsdfText.draw(context, text, "MS", curX, centerY - LABEL_SIZE * 0.35f, LABEL_SIZE,
+            ColorMath.withAlpha(0xFFFFFF, 140));
     }
 
-    private void drawQuiet(DrawContext context, String value, HudAlign.Row row) {
-        float at = row.current();
-        HudAlign.drawDivider(context, at - GAP * 0.5f, row.midY(), 4.0f, ColorMath.withAlpha(0xFFFFFF, 30));
-        float textX = row.next(MsdfText.width(text, value, QUIET_SIZE));
-        MsdfText.draw(context, text, value, textX, row.centerTextY(QUIET_SIZE), QUIET_SIZE,
-            ColorMath.withAlpha(0xFFFFFF, 150));
-    }
     private static int currentPing(MinecraftClient client) {
         if (client.player == null || client.getNetworkHandler() == null) {
             return 0;
         }
         PlayerListEntry entry = client.getNetworkHandler().getPlayerListEntry(client.player.getUuid());
-        return entry != null ? entry.getLatency() : 0;
+        return entry != null ? Math.max(0, entry.getLatency()) : 0;
     }
-
 }

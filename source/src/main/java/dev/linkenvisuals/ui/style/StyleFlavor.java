@@ -95,8 +95,8 @@ public final class StyleFlavor {
     private static final Rules LINKEN = new Rules(
         List.of("Linken"), "Linken",
         List.of(MenuStyle.LINKEN), MenuStyle.LINKEN,
-        List.of("Linken"), "Linken",
-        List.of("Rounded"), "Rounded");
+        List.of("Neon", "Card", "Minimal", "Aurora", "Glass", "Solid", "Gradient", "Outline"), "Neon",
+        List.of("Rounded", "Pill", "Sharp"), "Rounded");
 
     public static final Family ACTIVE = BuildFlavor.STRANGE ? Family.STRANGE : Family.LINKEN;
 

@@ -334,10 +334,23 @@ public final class ModuleRegistry {
         aspectRatio.withClassicCategory(dev.linkenvisuals.clickgui.classic.ClassicCategory.WORLD);
         MODULES.add(aspectRatio);
 
-        cosmeticCrown = new ModeSetting("Crown", List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb"), 1);
-        cosmeticBack = new ModeSetting("Back", List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape"), 1);
-        cosmeticAura = new ModeSetting("Aura", List.of("None", "Shards", "Embers", "Runes", "Spheres"), 0);
-        cosmeticCharacter = new ModeSetting("Character", List.of("Default", "Rudy", "Roblox Bacon", "Jason GTA 6", "Astolfo"), 0);
+        List<String> crownOpts = BuildFlavor.STRANGE
+            ? List.of("None", "Halo", "Orbit", "Spires", "ChinaHat", "Nimb")
+            : List.of("None", "Nimb");
+        List<String> backOpts = BuildFlavor.STRANGE
+            ? List.of("None", "Kagune", "Seraph", "Tendrils", "WaveCape")
+            : List.of("None", "WaveCape");
+        List<String> auraOpts = BuildFlavor.STRANGE
+            ? List.of("None", "Shards", "Embers", "Runes", "Spheres")
+            : List.of("None", "Spheres");
+        List<String> charOpts = BuildFlavor.STRANGE
+            ? List.of("Default", "Rudy", "Roblox Bacon", "Jason GTA 6", "Astolfo")
+            : List.of("Default", "Rudy", "Astolfo");
+
+        cosmeticCrown = new ModeSetting("Crown", crownOpts, crownOpts.indexOf("Nimb") >= 0 ? crownOpts.indexOf("Nimb") : 0);
+        cosmeticBack = new ModeSetting("Back", backOpts, backOpts.indexOf("WaveCape") >= 0 ? backOpts.indexOf("WaveCape") : 0);
+        cosmeticAura = new ModeSetting("Aura", auraOpts, 0);
+        cosmeticCharacter = new ModeSetting("Character", charOpts, 0);
         cosmeticColor = new ColorSetting("Colour", Theme.DEFAULT_ACCENT);
 
         cosmeticSize = new SliderSetting("Size", 0.6f, 1.5f, 0.05f, 1.0f, "x");

@@ -32,7 +32,7 @@ public final class HudStyle {
     }
 
     public static Variant variant() {
-        String value = ModuleRegistry.hudStyle() == null ? "Strange" : ModuleRegistry.hudStyle().value();
+        String value = ModuleRegistry.hudStyle() == null ? "Neon" : ModuleRegistry.hudStyle().value();
         return switch (value == null ? "" : value.toLowerCase(java.util.Locale.ROOT)) {
             case "linken", "card" -> Variant.CARD;
             case "minimal" -> Variant.MINIMAL;
@@ -42,7 +42,7 @@ public final class HudStyle {
             case "solid" -> Variant.SOLID;
             case "gradient" -> Variant.GRADIENT;
             case "outline" -> Variant.OUTLINE;
-            default -> Variant.LEGACY;
+            default -> dev.linkenvisuals.BuildFlavor.STRANGE ? Variant.LEGACY : Variant.NEON;
         };
     }
 

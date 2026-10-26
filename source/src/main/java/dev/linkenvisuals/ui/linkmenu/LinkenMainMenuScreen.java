@@ -184,54 +184,20 @@ public final class LinkenMainMenuScreen extends Screen {
      * with a wordmark reveal, a progress rail and the localized greeting.
      */
     private void renderWelcomeIntro(DrawContext context, LinkenMenuLayout.Metrics metrics, float raw) {
-        float in = easeOut(Math.min(1.0f, raw / 0.16f));
-        float out = easeOut(Math.min(1.0f, (1.0f - raw) / 0.16f));
+        float in = easeOut(Math.min(1.0f, raw / 0.12f));
+        float out = easeOut(Math.min(1.0f, (1.0f - raw) / 0.14f));
         float fade = Math.min(in, out);
-        float rise = (1.0f - in) * 18.0f;
 
         context.getMatrices().pushMatrix();
         context.getMatrices().scale(metrics.scale(), metrics.scale());
         LinkenMenuChrome.drawBackground(context, metrics, 0.0f, 0.0f, 1.0f);
         context.fill(0, 0, Math.round(metrics.width()), Math.round(metrics.height()),
-            LinkenMenuChrome.rgba(0x060908, Math.round(105.0f * fade)));
-        dev.linkenvisuals.render.GlowPipeline.radial(context, metrics.width() * 0.5f,
-            metrics.height() * 0.43f, 220.0f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(8.0f * fade)));
+            LinkenMenuChrome.rgba(0x060908, Math.round(90.0f * fade)));
 
-        float centerX = metrics.width() * 0.5f;
-        float wordY = metrics.height() * 0.41f + rise;
-        float size = 64.0f;
-        String word = "welcome";
-        float wordWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), word, size);
-        float dotWidth = LinkenMenuChrome.textWidth(LinkenFonts.bodyMedium(), ".", size);
-        float startX = centerX - (wordWidth + dotWidth) * 0.5f;
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), word, startX, wordY, size,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
-        LinkenMenuChrome.drawText(context, LinkenFonts.bodyMedium(), ".", startX + wordWidth, wordY, size,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, fade));
+        // Cursive handwriting progress: draws "welcome" cursive path over ~2 seconds
+        float drawProgress = Math.min(1.0f, raw / 0.72f);
+        MainMenuWelcomeAnim.render(context, metrics.width(), metrics.height(), drawProgress, fade);
 
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(),
-            getI18nOrDefault("linkenvisuals.linkmenu.visuals", "VISUALS"), centerX, wordY + 58.0f, 10.0f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
-
-        String first = getI18nOrDefault("linkenvisuals.linkmenu.welcome_line1", "Добро пожаловать");
-        String secondTemplate = getI18nOrDefault("linkenvisuals.linkmenu.welcome_line2", "вновь, %s");
-        String second = secondTemplate.contains("%s") ? String.format(secondTemplate, LinkenMenuChrome.username()) : secondTemplate;
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.body(), first, centerX,
-            wordY + 112.0f, 14.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT4, fade));
-        LinkenMenuChrome.drawCentered(context, LinkenFonts.headingLight(), second, centerX,
-            wordY + 140.0f, 22.0f, LinkenMenuChrome.rgba(LinkenMenuChrome.TEXT, fade));
-
-        float rail = Math.min(1.0f, raw / 0.82f);
-        LinkenMenuChrome.roundedFill(context, centerX - 92.0f, wordY + 176.0f, 184.0f, 1.5f, 0.75f,
-            LinkenMenuChrome.rgba(0xFFFFFF, Math.round(22.0f * fade)), metrics.scale());
-        LinkenMenuChrome.roundedFill(context, centerX - 92.0f, wordY + 176.0f, 184.0f * rail, 1.5f, 0.75f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.ACCENT, Math.round(210.0f * fade)), metrics.scale());
-
-        LinkenMenuChrome.drawSpaced(context, LinkenFonts.headingLight(), "CLICK TO SKIP",
-            centerX - (LinkenMenuChrome.textWidth(LinkenFonts.headingLight(), "CLICK TO SKIP", 7.5f) + 19.2f) * 0.5f,
-            metrics.height() - 86.0f, 7.5f, 1.6f,
-            LinkenMenuChrome.rgba(LinkenMenuChrome.MUTED3, fade));
         context.getMatrices().popMatrix();
     }
 

@@ -227,6 +227,7 @@ public final class LinkGuiScreen extends Screen {
         profileOpen = true;
         themeOpen = true;
         closing = false;
+        MediaWatcher.ensureRunning();
         lastFrame = System.nanoTime();
         if (client != null) {
             client.getSoundManager().play(PositionedSoundInstance.ui(LinkenVisuals.OPEN_SOUND, 1.0f, 0.86f));
